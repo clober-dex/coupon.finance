@@ -1,5 +1,4 @@
 import React from 'react'
-import { ConnectButton } from '@rainbow-me/rainbowkit'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 
@@ -15,9 +14,7 @@ const Home: NextPage = () => {
         <link href="/favicon.ico" rel="icon" />
       </Head>
 
-      <main className="flex flex-1 flex-col justify-center items-center">
-        <ConnectButton />
-      </main>
+      <main className="flex flex-1 flex-col justify-center items-center"></main>
     </div>
   )
 }

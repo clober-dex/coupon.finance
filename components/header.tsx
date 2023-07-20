@@ -1,4 +1,5 @@
 import React, { SVGProps } from 'react'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
 
 import { useThemeContext } from '../contexts/theme-context'
 
@@ -101,7 +102,7 @@ const Header = () => {
   return (
     <div className="flex justify-between items-center p-4 dark:bg-white dark:bg-opacity-5">
       <h1 className="text-gray-950 dark:text-white">Coupon Finance</h1>
-      <div className="flex gap-4">
+      <div className="flex gap-4 items-center">
         <div className="flex rounded bg-gray-100 dark:bg-gray-800 w-16 h-8">
           <button
             className="flex flex-1 rounded items-center justify-center border-solid dark:border-none border-gray-950 border-[1.5px]"
@@ -116,6 +117,7 @@ const Header = () => {
             <DarkSvg />
           </button>
         </div>
+        <ConnectButton />
       </div>
     </div>
   )
