@@ -5,7 +5,7 @@ import Head from 'next/head'
 
 const Home: NextPage = () => {
   return (
-    <div>
+    <div className="flex flex-1">
       <Head>
         <title>RainbowKit App</title>
         <meta
@@ -15,7 +15,7 @@ const Home: NextPage = () => {
         <link href="/favicon.ico" rel="icon" />
       </Head>
 
-      <main className="min-h-screen flex flex-1 flex-col justify-center items-center">
+      <main className="flex flex-1 flex-col justify-center items-center">
         <ConnectButton />
       </main>
     </div>

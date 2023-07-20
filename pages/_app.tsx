@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import '../styles/globals.css'
 import '@rainbow-me/rainbowkit/styles.css'
 import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit'
@@ -13,6 +13,9 @@ import {
   zora,
 } from 'wagmi/chains'
 import { publicProvider } from 'wagmi/providers/public'
+
+import Header from '../components/header'
+import { ThemeProvider } from '../contexts/theme-context'
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [
@@ -43,7 +46,12 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <WagmiConfig config={wagmiConfig}>
       <RainbowKitProvider chains={chains}>
-        <Component {...pageProps} />
+        <ThemeProvider>
+          <div className="flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950">
+            <Header />
+            <Component {...pageProps} />
+          </div>
+        </ThemeProvider>
       </RainbowKitProvider>
     </WagmiConfig>
   )
