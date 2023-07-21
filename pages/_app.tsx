@@ -16,6 +16,7 @@ import { publicProvider } from 'wagmi/providers/public'
 
 import Header from '../components/header'
 import { ThemeProvider } from '../contexts/theme-context'
+import { DepositProvider } from '../contexts/deposit-context'
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [
@@ -47,10 +48,12 @@ function MyApp({ Component, pageProps }: AppProps) {
     <WagmiConfig config={wagmiConfig}>
       <RainbowKitProvider chains={chains}>
         <ThemeProvider>
-          <div className="flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950">
-            <Header />
-            <Component {...pageProps} />
-          </div>
+          <DepositProvider>
+            <div className="flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950">
+              <Header />
+              <Component {...pageProps} />
+            </div>
+          </DepositProvider>
         </ThemeProvider>
       </RainbowKitProvider>
     </WagmiConfig>

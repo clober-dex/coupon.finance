@@ -100,7 +100,7 @@ const DarkSvg = (props: SVGProps<any>) => (
 const Header = () => {
   const { setTheme } = useThemeContext()
   return (
-    <div className="flex justify-between items-center p-4 dark:bg-white dark:bg-opacity-5">
+    <div className="fixed w-full flex justify-between items-center p-4 bg-white bg-opacity-5">
       <h1 className="text-gray-950 dark:text-white">Coupon Finance</h1>
       <div className="flex gap-4 items-center">
         <div className="flex rounded bg-gray-100 dark:bg-gray-800 w-16 h-8">
