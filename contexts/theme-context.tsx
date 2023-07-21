@@ -24,8 +24,10 @@ export const ThemeProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const setTheme = useCallback((theme: 'light' | 'dark') => {
     if (theme === 'dark') {
       document.documentElement.classList.add('dark')
+      localStorage.setItem('theme', 'dark')
     } else {
       document.documentElement.classList.remove('dark')
+      localStorage.removeItem('theme')
     }
   }, [])
 
