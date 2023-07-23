@@ -12,7 +12,7 @@ const Position = ({
   collateralSymbol,
   expiry,
   price,
-  collateralPrice,
+  // collateralPrice,
   ltv,
   liquidationThreshold,
   ...props
