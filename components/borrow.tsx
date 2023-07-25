@@ -2,11 +2,10 @@ import React from 'react'
 import Link from 'next/link'
 
 import { useBorrowContext } from '../contexts/borrow-context'
+import { Currency } from '../utils/currency'
 
 const Position = ({
-  name,
-  symbol,
-  logo,
+  currency,
   apy,
   borrowed,
   collateral,
@@ -18,9 +17,7 @@ const Position = ({
   liquidationThreshold,
   ...props
 }: {
-  name: string
-  symbol: string
-  logo: string
+  currency: Currency
   apy: string
   borrowed: string
   collateral: string
@@ -35,10 +32,10 @@ const Position = ({
     <div className="rounded-xl shadow bg-gray-50 dark:bg-gray-900" {...props}>
       <div className="flex justify-between rounded-t-xl p-4 bg-white dark:bg-gray-800">
         <div className="flex items-center gap-3">
-          <img src={logo} alt={name} className="w-8 h-8" />
+          <img src={currency.logo} alt={currency.name} className="w-8 h-8" />
           <div className="flex flex-col">
-            <div className="font-bold">{symbol}</div>
-            <div className="text-gray-500 text-sm">{name}</div>
+            <div className="font-bold">{currency.symbol}</div>
+            <div className="text-gray-500 text-sm">{currency.name}</div>
           </div>
         </div>
         <div className="flex flex-col items-end">
@@ -84,9 +81,7 @@ const Position = ({
 }
 
 const Asset = ({
-  name,
-  symbol,
-  logo,
+  currency,
   apy,
   available,
   borrowed,
@@ -94,9 +89,7 @@ const Asset = ({
   price,
   ...props
 }: {
-  name: string
-  symbol: string
-  logo: string
+  currency: Currency
   apy: string
   available: string
   borrowed: string
@@ -110,22 +103,22 @@ const Asset = ({
     >
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-3 w-[140px]">
-          <img src={logo} alt={name} className="w-8 h-8" />
+          <img src={currency.logo} alt={currency.name} className="w-8 h-8" />
           <div className="flex flex-col">
-            <div className="font-bold">{symbol}</div>
-            <div className="text-gray-500 text-xs">{name}</div>
+            <div className="font-bold">{currency.symbol}</div>
+            <div className="text-gray-500 text-xs">{currency.name}</div>
           </div>
         </div>
         <div className="font-bold w-[80px]">{apy}</div>
         <div className="flex flex-col w-[120px]">
           <div className="text-sm">
-            {available} {symbol}
+            {available} {currency.symbol}
           </div>
           <div className="text-xs text-gray-500">${+available * +price}</div>
         </div>
         <div className="flex flex-col w-[120px]">
           <div className="text-sm">
-            {borrowed} {symbol}
+            {borrowed} {currency.symbol}
           </div>
           <div className="text-xs text-gray-500">${+borrowed * +price}</div>
         </div>
@@ -189,9 +182,7 @@ const Borrow = () => {
             {positions.map((position, i) => (
               <Position
                 key={i}
-                name={position.name}
-                symbol={position.symbol}
-                logo={position.logo}
+                currency={position.currency}
                 apy={position.apy}
                 borrowed={position.borrowed}
                 collateral={position.collateral}
@@ -241,9 +232,7 @@ const Borrow = () => {
             {assets.map((asset, i) => (
               <Asset
                 key={i}
-                name={asset.name}
-                symbol={asset.symbol}
-                logo={asset.logo}
+                currency={asset.currency}
                 apy={asset.apy}
                 available={asset.available}
                 borrowed={asset.borrowed}

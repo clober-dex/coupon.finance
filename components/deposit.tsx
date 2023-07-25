@@ -2,11 +2,10 @@ import React from 'react'
 import Link from 'next/link'
 
 import { useDepositContext } from '../contexts/deposit-context'
+import { Currency } from '../utils/currency'
 
 const Position = ({
-  name,
-  symbol,
-  logo,
+  currency,
   apy,
   interestEarned,
   deposited,
@@ -14,9 +13,7 @@ const Position = ({
   price,
   ...props
 }: {
-  name: string
-  symbol: string
-  logo: string
+  currency: Currency
   apy: string
   interestEarned: string
   deposited: string
@@ -27,10 +24,10 @@ const Position = ({
     <div className="rounded-xl shadow bg-gray-50 dark:bg-gray-900" {...props}>
       <div className="flex justify-between rounded-t-xl p-4 bg-white dark:bg-gray-800">
         <div className="flex items-center gap-3">
-          <img src={logo} alt={name} className="w-8 h-8" />
+          <img src={currency.logo} alt={currency.name} className="w-8 h-8" />
           <div className="flex flex-col">
-            <div className="font-bold">{symbol}</div>
-            <div className="text-gray-500 text-sm">{name}</div>
+            <div className="font-bold">{currency.symbol}</div>
+            <div className="text-gray-500 text-sm">{currency.name}</div>
           </div>
         </div>
         <div className="flex flex-col items-end">
@@ -61,18 +58,14 @@ const Position = ({
 }
 
 const Asset = ({
-  name,
-  symbol,
-  logo,
+  currency,
   apy,
   available,
   deposited,
   price,
   ...props
 }: {
-  name: string
-  symbol: string
-  logo: string
+  currency: Currency
   apy: string
   available: string
   deposited: string
@@ -85,22 +78,22 @@ const Asset = ({
     >
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-3 w-[140px]">
-          <img src={logo} alt={name} className="w-8 h-8" />
+          <img src={currency.logo} alt={currency.name} className="w-8 h-8" />
           <div className="flex flex-col">
-            <div className="font-bold">{symbol}</div>
-            <div className="text-gray-500 text-xs">{name}</div>
+            <div className="font-bold">{currency.symbol}</div>
+            <div className="text-gray-500 text-xs">{currency.name}</div>
           </div>
         </div>
         <div className="font-bold w-[80px]">{apy}</div>
         <div className="flex flex-col w-[136px]">
           <div className="text-sm">
-            {available} {symbol}
+            {available} {currency.symbol}
           </div>
           <div className="text-xs text-gray-500">${+available * +price}</div>
         </div>
         <div className="flex flex-col w-[152px]">
           <div className="text-sm">
-            {deposited} {symbol}
+            {deposited} {currency.symbol}
           </div>
           <div className="text-xs text-gray-500">${+deposited * +price}</div>
         </div>
@@ -162,9 +155,7 @@ const Deposit = () => {
             {positions.map((position, i) => (
               <Position
                 key={i}
-                name={position.name}
-                symbol={position.symbol}
-                logo={position.logo}
+                currency={position.currency}
                 apy={position.apy}
                 interestEarned={position.interestEarned}
                 deposited={position.deposited}
@@ -209,9 +200,7 @@ const Deposit = () => {
             {assets.map((asset, i) => (
               <Asset
                 key={i}
-                name={asset.name}
-                symbol={asset.symbol}
-                logo={asset.logo}
+                currency={asset.currency}
                 apy={asset.apy}
                 available={asset.available}
                 deposited={asset.deposited}
