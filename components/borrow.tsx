@@ -1,4 +1,5 @@
 import React from 'react'
+import Link from 'next/link'
 
 import { useBorrowContext } from '../contexts/borrow-context'
 
@@ -132,9 +133,12 @@ const Asset = ({
           {liquidationThreshold}
         </div>
       </div>
-      <button className="bg-green-500 h-fit w-24 rounded px-3 py-2 font-bold text-xs text-white">
+      <Link
+        href="/borrow"
+        className="flex items-center justify-center bg-green-500 h-fit w-24 rounded px-3 py-2 font-bold text-xs text-white"
+      >
         Borrow
-      </button>
+      </Link>
     </div>
   )
 }
