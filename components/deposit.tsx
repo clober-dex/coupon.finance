@@ -107,7 +107,7 @@ const Asset = ({
       </div>
       <Link
         href="/deposit"
-        className="flex items-center justify-center bg-green-500 h-fit w-24 rounded px-3 py-2 text-xs text-white"
+        className="flex items-center justify-center bg-green-500 h-fit w-24 rounded px-3 py-2 font-bold text-xs text-white"
       >
         Deposit
       </Link>
