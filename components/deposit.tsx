@@ -1,4 +1,5 @@
 import React from 'react'
+import Link from 'next/link'
 
 import { useDepositContext } from '../contexts/deposit-context'
 
@@ -46,7 +47,7 @@ const Position = ({
           <div className="flex items-center justify-between text-gray-500 text-xs">
             <div>Deposited</div>
             <div className="flex gap-1 text-sm">
-              <span className="text-gray-950 dark:text-white">{deposited}</span>
+              <span>{deposited}</span>
               (${+deposited * +price})
             </div>
           </div>
@@ -104,9 +105,12 @@ const Asset = ({
           <div className="text-xs text-gray-500">${+deposited * +price}</div>
         </div>
       </div>
-      <button className="bg-green-500 h-fit w-24 rounded px-3 py-2 text-xs text-white">
+      <Link
+        href="/deposit"
+        className="flex items-center justify-center bg-green-500 h-fit w-24 rounded px-3 py-2 text-xs text-white"
+      >
         Deposit
-      </button>
+      </Link>
     </div>
   )
 }

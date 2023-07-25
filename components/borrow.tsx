@@ -50,7 +50,7 @@ const Position = ({
           <div className="flex items-center justify-between text-gray-500 text-xs">
             <div>Borrow Amount</div>
             <div className="flex gap-1 text-sm">
-              <span className="text-gray-950 dark:text-white">{borrowed}</span>
+              <span>{borrowed}</span>
               (${+borrowed * +price})
             </div>
           </div>
@@ -142,7 +142,7 @@ const Asset = ({
 const Borrow = () => {
   const { positions, assets } = useBorrowContext()
   return (
-    <div className="flex flex-1 flex-col text-gray-950 dark:text-white">
+    <div className="flex flex-1 flex-col">
       <h1 className="font-bold text-[48px] mt-12 mb-16">
         The Best Fixed-Rate Borrowing in DeFi
       </h1>
