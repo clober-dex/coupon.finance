@@ -50,7 +50,8 @@ const Position = ({
           </div>
         </div>
         <button className="bg-green-500 bg-opacity-10 text-green-500 font-bold px-3 py-2 rounded text-xs">
-          Instant Withdraw
+          {/*TODO: Use Collect when expired*/}
+          Withdraw
         </button>
       </div>
     </div>
