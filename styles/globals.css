@@ -19,4 +19,5 @@ a {
 
 * {
   box-sizing: border-box;
+  @apply transition-colors duration-75;
 }

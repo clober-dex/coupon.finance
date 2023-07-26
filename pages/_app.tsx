@@ -1,39 +1,33 @@
 import React from 'react'
 import '../styles/globals.css'
 import '@rainbow-me/rainbowkit/styles.css'
-import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit'
+import {
+  darkTheme,
+  getDefaultWallets,
+  lightTheme,
+  RainbowKitProvider,
+} from '@rainbow-me/rainbowkit'
 import type { AppProps } from 'next/app'
 import { configureChains, createConfig, WagmiConfig } from 'wagmi'
-import {
-  arbitrum,
-  goerli,
-  mainnet,
-  optimism,
-  polygon,
-  zora,
-} from 'wagmi/chains'
+import { arbitrum, goerli } from 'wagmi/chains'
 import { publicProvider } from 'wagmi/providers/public'
 
 import Header from '../components/header'
-import { ThemeProvider } from '../contexts/theme-context'
+import { ThemeProvider, useThemeContext } from '../contexts/theme-context'
 import { DepositProvider } from '../contexts/deposit-context'
 import { BorrowProvider } from '../contexts/borrow-context'
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [
-    mainnet,
-    polygon,
-    optimism,
     arbitrum,
-    zora,
     ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [goerli] : []),
   ],
-  [publicProvider()],
+  [publicProvider()], // TODO: add alchemyProvider
 )
 
 const { connectors } = getDefaultWallets({
-  appName: 'RainbowKit App',
-  projectId: 'YOUR_PROJECT_ID',
+  appName: 'Coupon Finance',
+  projectId: '02ce97122c1a439551ac55ae3a834a93',
   chains,
 })
 
@@ -44,22 +38,34 @@ const wagmiConfig = createConfig({
   webSocketPublicClient,
 })
 
-function MyApp({ Component, pageProps }: AppProps) {
+const WalletProvider = ({ children }: React.PropsWithChildren) => {
+  const { theme } = useThemeContext()
   return (
     <WagmiConfig config={wagmiConfig}>
-      <RainbowKitProvider chains={chains}>
-        <ThemeProvider>
-          <DepositProvider>
-            <BorrowProvider>
-              <div className="flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white">
-                <Header />
-                <Component {...pageProps} />
-              </div>
-            </BorrowProvider>
-          </DepositProvider>
-        </ThemeProvider>
+      <RainbowKitProvider
+        chains={chains}
+        theme={theme === 'light' ? lightTheme() : darkTheme()}
+      >
+        {children}
       </RainbowKitProvider>
     </WagmiConfig>
+  )
+}
+
+function MyApp({ Component, pageProps }: AppProps) {
+  return (
+    <ThemeProvider>
+      <WalletProvider>
+        <DepositProvider>
+          <BorrowProvider>
+            <div className="flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white">
+              <Header />
+              <Component {...pageProps} />
+            </div>
+          </BorrowProvider>
+        </DepositProvider>
+      </WalletProvider>
+    </ThemeProvider>
   )
 }
 
