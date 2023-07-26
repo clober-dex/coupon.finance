@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -25,9 +25,7 @@ const Home: NextPage = () => {
           <button
             className="flex font-bold items-center justify-center text-2xl w-36 bg-transparent text-gray-400 dark:text-gray-500 disabled:text-gray-950 border-0 dark:disabled:text-white rounded-none p-2 border-b-4 border-b-transparent border-t-4 border-t-transparent disabled:border-b-gray-950 dark:disabled:border-b-white"
             disabled={router.query.mode !== 'borrow'}
-            onClick={() =>
-              router.replace('/?mode=deposit', undefined, { shallow: true })
-            }
+            onClick={() => router.replace('/', undefined, { shallow: true })}
           >
             Deposit
           </button>
