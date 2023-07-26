@@ -99,7 +99,7 @@ const Asset = ({
         </div>
       </div>
       <Link
-        href="/deposit"
+        href={`/deposit/${currency.symbol}`}
         className="flex items-center justify-center bg-green-500 h-fit w-24 rounded px-3 py-2 font-bold text-xs text-white"
       >
         Deposit
@@ -183,9 +183,9 @@ const Deposit = () => {
             className="shadow px-3 py-2 bg-white dark:bg-gray-800 rounded-lg outline-none"
           >
             <option value="23-12-31">23-12-31</option>
-            <option value="24-06-01">24-06-01</option>
+            <option value="24-06-30">24-06-30</option>
             <option value="24-12-31">24-12-31</option>
-            <option value="25-06-01">25-06-01</option>
+            <option value="25-06-30">25-06-30</option>
             <option value="25-12-31">25-12-31</option>
           </select>
         </div>

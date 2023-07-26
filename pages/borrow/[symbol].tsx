@@ -1,11 +1,11 @@
-import React, { SVGProps, useCallback, useState } from 'react'
+import React, { SVGProps, useCallback, useMemo, useState } from 'react'
 import { NextPage } from 'next'
 import Head from 'next/head'
-import CountUp from 'react-countup'
 import { useRouter } from 'next/router'
 
-import Slider from '../components/slider'
-import NumberInput from '../components/number-input'
+import Slider from '../../components/slider'
+import NumberInput from '../../components/number-input'
+import { CURRENCY_MAP } from '../../utils/currency'
 
 const Arrow = (props: SVGProps<any>) => (
   <svg
@@ -33,16 +33,21 @@ const Arrow = (props: SVGProps<any>) => (
 )
 
 const dummy = [
-  { date: '24-06-01', profit: '102.37' },
+  { date: '24-06-30', profit: '102.37' },
   { date: '24-12-31', profit: '102.37' },
-  { date: '25-06-01', profit: '102.37' },
+  { date: '25-06-30', profit: '102.37' },
   { date: '25-12-31', profit: '102.37' },
 ]
-const Deposit: NextPage = () => {
+const Borrow: NextPage = () => {
   const [selected, _setSelected] = useState(0)
   const [value, setValue] = useState('')
 
   const router = useRouter()
+
+  const currency = useMemo(
+    () => CURRENCY_MAP[router.query.symbol as string],
+    [router.query.symbol],
+  )
 
   const setSelected = useCallback(
     (value: number) => {
@@ -53,7 +58,7 @@ const Deposit: NextPage = () => {
   return (
     <div className="flex flex-1">
       <Head>
-        <title>Deposit ETH</title>
+        <title>Borrow {currency.symbol}</title>
         <meta
           content="Cash in the coupons on your assets. The only liquidity protocol that enables a 100% utilization rate."
           name="description"
@@ -67,17 +72,21 @@ const Deposit: NextPage = () => {
             onClick={() => router.back()}
           >
             <Arrow />
-            Deposit
+            Borrow
             <div className="flex gap-2">
-              <img alt="ETH" className="w-8 h-8" />
-              <div>ETH</div>
+              <img
+                src={currency.logo}
+                alt={currency.name}
+                className="w-8 h-8"
+              />
+              <div>{currency.symbol}</div>
             </div>
           </button>
           <div className="flex flex-1 items-center justify-center">
             <div className="flex flex-col shadow bg-gray-50 dark:bg-gray-900 rounded-3xl p-6 w-[480px] gap-8">
               <div className="flex flex-col gap-4">
                 <div className="font-bold text-lg">
-                  How much would you like to deposit?
+                  How much collateral would you like to add?
                 </div>
                 <div className="flex bg-white dark:bg-gray-800 rounded-lg p-3">
                   <div className="flex flex-col flex-1 justify-between gap-2">
@@ -92,9 +101,13 @@ const Deposit: NextPage = () => {
                     </div>
                   </div>
                   <div className="flex flex-col items-end justify-between">
-                    <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3">
-                      <img alt="ETH" className="w-5 h-5" />
-                      <div>ETH</div>
+                    <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
+                      <img
+                        src={currency.logo}
+                        alt={currency.name}
+                        className="w-5 h-5"
+                      />
+                      <div>{currency.symbol}</div>
                     </div>
                     <div className="flex text-sm gap-2">
                       <div className="text-gray-500">Available</div>
@@ -104,63 +117,74 @@ const Deposit: NextPage = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col gap-6">
-                <div className="flex flex-col gap-2">
-                  <div className="font-bold text-lg">
-                    Select expiration date.
+              <div className="flex flex-col gap-4">
+                <div className="font-bold text-lg">
+                  How much would you like to borrow?
+                </div>
+                <div className="flex bg-white dark:bg-gray-800 rounded-lg p-3">
+                  <div className="flex flex-col flex-1 justify-between gap-2">
+                    <NumberInput
+                      className="text-2xl placeholder-gray-400 outline-none bg-transparent"
+                      value={value}
+                      onValueChange={setValue}
+                      placeholder="0.0000"
+                    />
+                    <div className="text-gray-400 dark:text-gray-500 text-sm">
+                      ~$0.0000
+                    </div>
                   </div>
-                  <div className="text-gray-500 text-sm">
-                    The longer you deposit, the more interest you earn!
+                  <div className="flex flex-col items-end justify-between">
+                    <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
+                      <img
+                        src={currency.logo}
+                        alt={currency.name}
+                        className="w-5 h-5"
+                      />
+                      <div>{currency.symbol}</div>
+                    </div>
+                    <div className="flex text-sm gap-2">
+                      <div className="text-gray-500">Available</div>
+                      <div>2.1839</div>
+                      <button className="text-green-500">MAX</button>
+                    </div>
                   </div>
                 </div>
-                <div className="flex flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4">
+              </div>
+              <div className="flex flex-col">
+                <div className="font-bold text-lg mb-4">
+                  Select expiration date.
+                </div>
+                <div className="flex flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
                   <div className="px-6 mb-2">
                     <Slider value={selected} onValueChange={setSelected} />
                   </div>
                   <div className="flex justify-between">
-                    {dummy.map(({ date, profit }, i) => (
+                    {dummy.map(({ date }, i) => (
                       <button
                         key={i}
                         className="flex flex-col items-center gap-2 w-[72px]"
                         onClick={() => setSelected(i + 1)}
                       >
                         <div className="text-sm">{date}</div>
-                        <div
-                          className={`px-2 py-1 rounded-full text-xs ${
-                            selected === i + 1
-                              ? 'bg-gray-100 dark:bg-white dark:bg-opacity-10'
-                              : selected <= i + 1
-                              ? 'bg-green-500 text-green-500 bg-opacity-10'
-                              : 'bg-red-500 text-red-500 bg-opacity-10'
-                          }`}
-                        >
-                          {selected <= i + 1 ? `+${profit}` : `-${profit}`}
-                        </div>
                       </button>
                     ))}
                   </div>
                 </div>
-                <div className="flex px-3 py-1.5 bg-gray-100 dark:bg-gray-800 w-fit rounded font-bold text-sm gap-2">
-                  <span className="text-gray-400">APY</span>
-                  <div className="text-gray-800 dark:text-white">3.15%</div>
+                <div className="flex flex-col gap-2">
+                  <div className="flex w-fit text-sm gap-2">
+                    <span className="text-gray-500">APY</span>
+                    <div className="flex gap-1">
+                      <div className="text-gray-800 dark:text-white">3.15%</div>
+                      <div className="text-gray-400">
+                        (10.1234 {currency.symbol} in interest)
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex w-fit text-sm gap-2">
+                    <span className="text-gray-500">LTV</span>
+                    <div className="text-yellow-500">15.24%</div>
+                  </div>
                 </div>
-              </div>
-              <div className="flex flex-col p-4 border-solid border-[1.5px] border-gray-200 dark:border-gray-700 rounded-lg gap-3">
-                <div>
-                  <label className="font-bold text-lg">
-                    Your interest payout will be
-                  </label>
-                </div>
-                <CountUp
-                  end={dummy
-                    .slice(0, selected)
-                    .reduce((acc, { profit }) => acc + +profit, 0)}
-                  suffix=" ETH"
-                  className={`flex gap-2${
-                    selected === 0 ? 'text-gray-400' : ''
-                  } text-xl`}
-                  preserveValue
-                />
               </div>
               <button
                 disabled={true}
@@ -176,4 +200,4 @@ const Deposit: NextPage = () => {
   )
 }
 
-export default Deposit
+export default Borrow
