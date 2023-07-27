@@ -45,8 +45,9 @@ const Borrow: NextPage = () => {
   const router = useRouter()
 
   const currency = useMemo(
-    () => CURRENCY_MAP[router.query.symbol as string],
-    [router.query.symbol],
+    () =>
+      CURRENCY_MAP[router.isReady ? (router.query.symbol as string) : 'USDC'],
+    [router.isReady, router.query.symbol],
   )
 
   const setSelected = useCallback(

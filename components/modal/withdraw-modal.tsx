@@ -51,9 +51,13 @@ const WithdrawModal = ({
           </div>
         </div>
       </div>
-      <div className="flex text-sm gap-3 mb-8">
+      <div className="flex text-sm gap-3 mb-3">
         <span className="text-gray-500">Your deposit amount</span>
         {position?.amount} {position?.currency.symbol}
+      </div>
+      <div className="flex text-sm gap-3 mb-8">
+        <span className="text-gray-500">Coupon repurchase cost</span>
+        1.00 {position?.currency.symbol}
       </div>
       <button
         disabled={true}

@@ -42,7 +42,7 @@ const Position = ({
       <div className="flex flex-col rounded-b-xl p-4 gap-4">
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <div className="text-gray-500 text-xs">Earned Interest</div>
+            <div className="text-gray-500 text-xs">Interest</div>
             <div className="text-sm">${interestEarned}</div>
           </div>
           <div className="flex items-center justify-between text-gray-500 text-xs">
