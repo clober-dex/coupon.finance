@@ -140,11 +140,28 @@ const Header = () => {
           Coupon Finance
         </h1>
         <div className="flex items-center gap-8">
-          <TwitterSvg />
-          <DiscordSvg />
-          <div className="text-sm font-bold text-gray-950 dark:text-white">
+          <a
+            target="_blank"
+            href="https://twitter.com/CouponFinance"
+            rel="noreferrer"
+          >
+            <TwitterSvg />
+          </a>
+          <a
+            target="_blank"
+            href="https://discord.com/invite/clober"
+            rel="noreferrer"
+          >
+            <DiscordSvg />
+          </a>
+          <a
+            className="text-sm font-bold text-gray-950 dark:text-white"
+            target="_blank"
+            href="https://docs.coupon.finance/"
+            rel="noreferrer"
+          >
             DOCS
-          </div>
+          </a>
         </div>
       </div>
       <div className="flex gap-4 items-center">
