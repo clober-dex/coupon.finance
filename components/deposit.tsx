@@ -1,8 +1,10 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 
 import { useDepositContext } from '../contexts/deposit-context'
 import { Currency } from '../utils/currency'
+
+import WithdrawModal from './modal/withdraw-modal'
 
 const Position = ({
   currency,
@@ -11,6 +13,7 @@ const Position = ({
   deposited,
   expiry,
   price,
+  onWithdraw,
   ...props
 }: {
   currency: Currency
@@ -19,6 +22,7 @@ const Position = ({
   deposited: string
   expiry: string
   price: string
+  onWithdraw: () => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
   return (
     <div className="rounded-xl shadow bg-gray-50 dark:bg-gray-900" {...props}>
@@ -49,7 +53,10 @@ const Position = ({
             </div>
           </div>
         </div>
-        <button className="bg-green-500 bg-opacity-10 text-green-500 font-bold px-3 py-2 rounded text-xs">
+        <button
+          className="bg-green-500 bg-opacity-10 text-green-500 font-bold px-3 py-2 rounded text-xs"
+          onClick={onWithdraw}
+        >
           {/*TODO: Use Collect when expired*/}
           Withdraw
         </button>
@@ -111,6 +118,10 @@ const Asset = ({
 
 const Deposit = () => {
   const { positions, assets } = useDepositContext()
+  const [withdrawPosition, setWithdrawPosition] = useState<{
+    currency: Currency
+    amount: string
+  } | null>(null)
   return (
     <div className="flex flex-1 flex-col text-gray-950 dark:text-white ">
       <h1 className="font-bold text-[48px] mt-12 mb-16">
@@ -162,6 +173,12 @@ const Deposit = () => {
                 deposited={position.deposited}
                 expiry={position.expiry}
                 price={position.price}
+                onWithdraw={() =>
+                  setWithdrawPosition({
+                    currency: position.currency,
+                    amount: position.deposited,
+                  })
+                }
               />
             ))}
           </div>
@@ -211,6 +228,10 @@ const Deposit = () => {
           </div>
         </div>
       </div>
+      <WithdrawModal
+        position={withdrawPosition}
+        onClose={() => setWithdrawPosition(null)}
+      />
     </div>
   )
 }
