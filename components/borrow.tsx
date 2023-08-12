@@ -160,7 +160,7 @@ const Asset = ({
 } & React.HTMLAttributes<HTMLDivElement>) => {
   return (
     <div
-      className="flex items-center justify-between rounded-xl p-4 bg-white dark:bg-gray-800"
+      className="flex items-center justify-between rounded-xl p-4 bg-white dark:bg-gray-900"
       {...props}
     >
       <div className="flex items-center gap-4">
@@ -302,28 +302,25 @@ const Borrow = () => {
       ) : (
         <></>
       )}
-      <div className="flex flex-col gap-6">
-        <div className="flex items-center gap-6">
+      <div className="flex flex-col gap-8">
+        <div className="flex items-center gap-6 justify-between">
           <h2 className="font-bold text-2xl">Assets to borrow</h2>
-          <div className="text-gray-500">
-            Borrow with fixed rates against your crypto assets
+          <div className="flex items-center gap-6">
+            <label htmlFor="epoch">How long are you going to borrow?</label>
+            <select
+              name="epoch"
+              id="epoch"
+              className="shadow px-3 py-2 bg-white dark:bg-gray-800 rounded-lg outline-none"
+            >
+              <option value="23-12-31">23-12-31</option>
+              <option value="24-06-30">24-06-30</option>
+              <option value="24-12-31">24-12-31</option>
+              <option value="25-06-30">25-06-30</option>
+              <option value="25-12-31">25-12-31</option>
+            </select>
           </div>
         </div>
-        <div className="flex items-center gap-6">
-          <label htmlFor="epoch">How long are you going to borrow?</label>
-          <select
-            name="epoch"
-            id="epoch"
-            className="shadow px-3 py-2 bg-white dark:bg-gray-800 rounded-lg outline-none"
-          >
-            <option value="23-12-31">23-12-31</option>
-            <option value="24-06-30">24-06-30</option>
-            <option value="24-12-31">24-12-31</option>
-            <option value="25-06-30">25-06-30</option>
-            <option value="25-12-31">25-12-31</option>
-          </select>
-        </div>
-        <div className="flex flex-col shadow bg-gray-50 dark:bg-gray-900 rounded-xl p-6 mb-12 gap-4">
+        <div className="flex flex-col mb-12 gap-4">
           <div className="flex gap-4 text-gray-500 text-xs">
             <div className="w-[156px]">Asset</div>
             <div className="w-[80px]">APY</div>
