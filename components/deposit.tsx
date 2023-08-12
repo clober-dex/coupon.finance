@@ -5,6 +5,7 @@ import { useDepositContext } from '../contexts/deposit-context'
 import { Currency } from '../utils/currency'
 
 import WithdrawModal from './modal/withdraw-modal'
+import DateSelect from './date-select'
 
 const Position = ({
   currency,
@@ -191,17 +192,7 @@ const Deposit = () => {
           <h2 className="font-bold text-2xl">Assets to deposit</h2>
           <div className="flex items-center gap-6">
             <label htmlFor="epoch">How long are you going to deposit?</label>
-            <select
-              name="epoch"
-              id="epoch"
-              className="shadow px-3 py-2 bg-white dark:bg-gray-800 rounded-lg outline-none"
-            >
-              <option value="23-12-31">23-12-31</option>
-              <option value="24-06-30">24-06-30</option>
-              <option value="24-12-31">24-12-31</option>
-              <option value="25-06-30">25-06-30</option>
-              <option value="25-12-31">25-12-31</option>
-            </select>
+            <DateSelect />
           </div>
         </div>
         <div className="flex flex-col mb-12 gap-4">
