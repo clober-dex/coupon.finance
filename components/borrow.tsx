@@ -6,6 +6,8 @@ import { Currency } from '../utils/currency'
 
 import RepayModal from './modal/repay-modal'
 import BorrowMoreModal from './modal/borrow-more-modal'
+import EditCollateralModal from './modal/edit-collateral-modal'
+import EditExpiryModal from './modal/edit-expiry-modal'
 
 const EditSvg = (props: SVGProps<any>) => (
   <svg
@@ -53,6 +55,8 @@ const Position = ({
   liquidationThreshold,
   onRepay,
   onBorrowMore,
+  onEditCollateral,
+  onEditExpiry,
   ...props
 }: {
   currency: Currency
@@ -67,6 +71,8 @@ const Position = ({
   liquidationThreshold: string
   onRepay: () => void
   onBorrowMore: () => void
+  onEditCollateral: () => void
+  onEditExpiry: () => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
   return (
     <div className="rounded-xl shadow bg-gray-50 dark:bg-gray-900" {...props}>
@@ -83,7 +89,7 @@ const Position = ({
           <div className="flex items-center gap-1">
             <div className="text-sm">{expiry}</div>
             <button>
-              <EditSvg />
+              <EditSvg onClick={onEditExpiry} />
             </button>
           </div>
         </div>
@@ -104,7 +110,7 @@ const Position = ({
                 ${collateral} {collateralSymbol}
               </div>
               <button>
-                <EditSvg />
+                <EditSvg onClick={onEditCollateral} />
               </button>
             </div>
           </div>
@@ -202,6 +208,14 @@ const Borrow = () => {
     currency: Currency
     amount: string
   } | null>(null)
+  const [editCollateralPosition, setEditCollateralPosition] = useState<{
+    currency: Currency
+    amount: string
+  } | null>(null)
+  const [editExpiryPosition, setEditExpiryPosition] = useState<{
+    currency: Currency
+    amount: string
+  } | null>(null)
 
   return (
     <div className="flex flex-1 flex-col">
@@ -269,6 +283,18 @@ const Borrow = () => {
                     amount: position.borrowed,
                   })
                 }
+                onEditCollateral={() =>
+                  setEditCollateralPosition({
+                    currency: position.currency,
+                    amount: position.collateral,
+                  })
+                }
+                onEditExpiry={() =>
+                  setEditExpiryPosition({
+                    currency: position.currency,
+                    amount: position.borrowed,
+                  })
+                }
               />
             ))}
           </div>
@@ -327,6 +353,14 @@ const Borrow = () => {
       <BorrowMoreModal
         position={borrowMorePosition}
         onClose={() => setBorrowMorePosition(null)}
+      />
+      <EditCollateralModal
+        position={editCollateralPosition}
+        onClose={() => setEditCollateralPosition(null)}
+      />
+      <EditExpiryModal
+        position={editExpiryPosition}
+        onClose={() => setEditExpiryPosition(null)}
       />
     </div>
   )
