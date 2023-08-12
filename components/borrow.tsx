@@ -1,8 +1,11 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 
 import { useBorrowContext } from '../contexts/borrow-context'
 import { Currency } from '../utils/currency'
+
+import RepayModal from './modal/repay-modal'
+import BorrowMoreModal from './modal/borrow-more-modal'
 
 const Position = ({
   currency,
@@ -15,6 +18,8 @@ const Position = ({
   // collateralPrice,
   ltv,
   liquidationThreshold,
+  onRepay,
+  onBorrowMore,
   ...props
 }: {
   currency: Currency
@@ -27,6 +32,8 @@ const Position = ({
   collateralPrice: string
   ltv: string
   liquidationThreshold: string
+  onRepay: () => void
+  onBorrowMore: () => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
   return (
     <div className="rounded-xl shadow bg-gray-50 dark:bg-gray-900" {...props}>
@@ -68,10 +75,16 @@ const Position = ({
           </div>
         </div>
         <div className="flex gap-3">
-          <button className="flex-1 bg-green-500 bg-opacity-10 text-green-500 font-bold px-3 py-2 rounded text-xs">
+          <button
+            className="flex-1 bg-green-500 bg-opacity-10 text-green-500 font-bold px-3 py-2 rounded text-xs"
+            onClick={onBorrowMore}
+          >
             Borrow More
           </button>
-          <button className="flex-1 bg-green-500 bg-opacity-10 text-green-500 font-bold px-3 py-2 rounded text-xs">
+          <button
+            className="flex-1 bg-green-500 bg-opacity-10 text-green-500 font-bold px-3 py-2 rounded text-xs"
+            onClick={onRepay}
+          >
             Repay
           </button>
         </div>
@@ -138,6 +151,15 @@ const Asset = ({
 
 const Borrow = () => {
   const { positions, assets } = useBorrowContext()
+  const [repayPosition, setRepayPosition] = useState<{
+    currency: Currency
+    amount: string
+  } | null>(null)
+  const [borrowMorePosition, setBorrowMorePosition] = useState<{
+    currency: Currency
+    amount: string
+  } | null>(null)
+
   return (
     <div className="flex flex-1 flex-col">
       <h1 className="font-bold text-[48px] mt-12 mb-16">
@@ -192,6 +214,18 @@ const Borrow = () => {
                 collateralPrice={position.collateralPrice}
                 ltv={position.ltv}
                 liquidationThreshold={position.liquidationThreshold}
+                onRepay={() =>
+                  setRepayPosition({
+                    currency: position.currency,
+                    amount: position.borrowed,
+                  })
+                }
+                onBorrowMore={() =>
+                  setBorrowMorePosition({
+                    currency: position.currency,
+                    amount: position.borrowed,
+                  })
+                }
               />
             ))}
           </div>
@@ -243,6 +277,14 @@ const Borrow = () => {
           </div>
         </div>
       </div>
+      <RepayModal
+        position={repayPosition}
+        onClose={() => setRepayPosition(null)}
+      />
+      <BorrowMoreModal
+        position={borrowMorePosition}
+        onClose={() => setBorrowMorePosition(null)}
+      />
     </div>
   )
 }
