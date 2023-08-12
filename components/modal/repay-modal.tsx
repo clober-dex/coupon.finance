@@ -20,16 +20,16 @@ const RepayModal = ({
   return (
     <Modal show={!!position} onClose={onClose}>
       <h1 className="font-bold text-xl mb-6">Repay</h1>
-      <div className="flex mb-6 rounded text-xs bg-gray-100 text-gray-500">
+      <div className="flex mb-6 rounded text-xs bg-gray-100 dark:bg-gray-800 text-gray-500">
         <button
-          className="flex-1 py-2 rounded border-gray-100 disabled:border-green-500 disabled:text-green-500 border-[1.5px]"
+          className="flex-1 py-2 rounded border-gray-100 dark:border-gray-800 disabled:border-green-500 dark:disabled:border-green-500 disabled:text-green-500 border-[1.5px]"
           disabled={!isUseCollateral}
           onClick={() => setIsUseCollateral(false)}
         >
           Repay with Wallet Balance
         </button>
         <button
-          className="flex-1 py-2 rounded border-gray-100 disabled:border-green-500 disabled:text-green-500 border-[1.5px]"
+          className="flex-1 py-2 rounded border-gray-100 dark:border-gray-800 disabled:border-green-500 dark:disabled:border-green-500 disabled:text-green-500 border-[1.5px]"
           disabled={isUseCollateral}
           onClick={() => setIsUseCollateral(true)}
         >
