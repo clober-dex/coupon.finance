@@ -1,7 +1,7 @@
 import { getAddress } from 'viem'
+import gql from 'graphql-tag'
 
-import { fetchGraphQL } from './utils'
-import { THE_GRAPH_API_KEY } from './constants'
+import { execute } from '../.graphclient'
 
 type DepthDto = {
   price: string
@@ -50,11 +50,13 @@ type Market = {
 }
 
 export type MarketsDto = {
-  markets: MarketDto[]
+  data: {
+    markets: MarketDto[]
+  }
 }
 
 export async function fetchOrderBook(): Promise<Market[]> {
-  const query = `
+  const query = gql`
     {
       markets {
         id
@@ -74,16 +76,15 @@ export async function fetchOrderBook(): Promise<Market[]> {
         }
         depths {
           price
-          amount
+          baseAmount
           isBid
         }
       }
-    }`
-  const { markets } = await fetchGraphQL<MarketsDto>({
-    endpoint: `https://gateway-arbitrum.network.thegraph.com/api/${THE_GRAPH_API_KEY}/subgraphs/id/FYJ75dFzKgGBC7bbxFHna3E3H7M8FNMH1fdjgofGnooV`,
-    query,
-  })
-  return markets.map((market) => ({
+    }
+  `
+
+  const { data } = (await execute(query, {})) as MarketsDto
+  return data.markets.map((market) => ({
     address: getAddress(market.id),
     orderToken: getAddress(market.orderToken),
     a: market.a,

@@ -1,0 +1,5 @@
+sources:
+  - name: clober-dev
+    handler:
+      graphql:
+        endpoint: http://dev-subgraph.coupon.finance/subgraphs/name/core-v1-subgraph
