@@ -55,7 +55,7 @@ export type MarketsDto = {
   }
 }
 
-export async function fetchOrderBook(): Promise<Market[]> {
+export async function fetchOrderBooks(): Promise<Market[]> {
   const query = gql`
     {
       markets {
@@ -83,7 +83,13 @@ export async function fetchOrderBook(): Promise<Market[]> {
     }
   `
 
-  const { data } = (await execute(query, {})) as MarketsDto
+  const { data } = (await execute(
+    query,
+    {},
+    {
+      url: process.env.CLOBER_SUBGRAPH_ENDPOINT,
+    },
+  )) as MarketsDto
   return data.markets.map((market) => ({
     address: getAddress(market.id),
     orderToken: getAddress(market.orderToken),

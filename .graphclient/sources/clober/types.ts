@@ -3,7 +3,7 @@
 import { InContextSdkMethod } from '@graphql-mesh/types';
 import { MeshContext } from '@graphql-mesh/runtime';
 
-export namespace CloberDevTypes {
+export namespace CloberTypes {
   export type Maybe<T> = T | null;
 export type InputMaybe<T> = Maybe<T>;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
@@ -19,6 +19,7 @@ export type Scalars = {
   BigDecimal: any;
   BigInt: any;
   Bytes: any;
+  Int8: any;
 };
 
 export type BlockChangedFilter = {
@@ -290,16 +291,199 @@ export type Market_orderBy =
   | 'd'
   | 'depths';
 
+export type Order = {
+  id: Scalars['ID'];
+  market: Market;
+  user: Scalars['Bytes'];
+  orderIndex: Scalars['BigInt'];
+  isBid: Scalars['Boolean'];
+  price: Scalars['BigInt'];
+  priceIndex: Scalars['BigInt'];
+  rawAmount: Scalars['BigInt'];
+  amount: Scalars['BigInt'];
+  rawOpenAmount: Scalars['BigInt'];
+  openAmount: Scalars['BigInt'];
+  rawFilledAmount: Scalars['BigInt'];
+  filledAmount: Scalars['BigInt'];
+  rawClaimableAmount: Scalars['BigInt'];
+  claimableAmount: Scalars['BigInt'];
+};
+
 /** Defines the order direction, either ascending or descending */
 export type OrderDirection =
   | 'asc'
   | 'desc';
+
+export type Order_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  market?: InputMaybe<Scalars['String']>;
+  market_not?: InputMaybe<Scalars['String']>;
+  market_gt?: InputMaybe<Scalars['String']>;
+  market_lt?: InputMaybe<Scalars['String']>;
+  market_gte?: InputMaybe<Scalars['String']>;
+  market_lte?: InputMaybe<Scalars['String']>;
+  market_in?: InputMaybe<Array<Scalars['String']>>;
+  market_not_in?: InputMaybe<Array<Scalars['String']>>;
+  market_contains?: InputMaybe<Scalars['String']>;
+  market_contains_nocase?: InputMaybe<Scalars['String']>;
+  market_not_contains?: InputMaybe<Scalars['String']>;
+  market_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  market_starts_with?: InputMaybe<Scalars['String']>;
+  market_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  market_not_starts_with?: InputMaybe<Scalars['String']>;
+  market_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  market_ends_with?: InputMaybe<Scalars['String']>;
+  market_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  market_not_ends_with?: InputMaybe<Scalars['String']>;
+  market_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  market_?: InputMaybe<Market_filter>;
+  user?: InputMaybe<Scalars['Bytes']>;
+  user_not?: InputMaybe<Scalars['Bytes']>;
+  user_gt?: InputMaybe<Scalars['Bytes']>;
+  user_lt?: InputMaybe<Scalars['Bytes']>;
+  user_gte?: InputMaybe<Scalars['Bytes']>;
+  user_lte?: InputMaybe<Scalars['Bytes']>;
+  user_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  user_not_in?: InputMaybe<Array<Scalars['Bytes']>>;
+  user_contains?: InputMaybe<Scalars['Bytes']>;
+  user_not_contains?: InputMaybe<Scalars['Bytes']>;
+  orderIndex?: InputMaybe<Scalars['BigInt']>;
+  orderIndex_not?: InputMaybe<Scalars['BigInt']>;
+  orderIndex_gt?: InputMaybe<Scalars['BigInt']>;
+  orderIndex_lt?: InputMaybe<Scalars['BigInt']>;
+  orderIndex_gte?: InputMaybe<Scalars['BigInt']>;
+  orderIndex_lte?: InputMaybe<Scalars['BigInt']>;
+  orderIndex_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  orderIndex_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  isBid?: InputMaybe<Scalars['Boolean']>;
+  isBid_not?: InputMaybe<Scalars['Boolean']>;
+  isBid_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  isBid_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
+  price?: InputMaybe<Scalars['BigInt']>;
+  price_not?: InputMaybe<Scalars['BigInt']>;
+  price_gt?: InputMaybe<Scalars['BigInt']>;
+  price_lt?: InputMaybe<Scalars['BigInt']>;
+  price_gte?: InputMaybe<Scalars['BigInt']>;
+  price_lte?: InputMaybe<Scalars['BigInt']>;
+  price_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  price_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  priceIndex?: InputMaybe<Scalars['BigInt']>;
+  priceIndex_not?: InputMaybe<Scalars['BigInt']>;
+  priceIndex_gt?: InputMaybe<Scalars['BigInt']>;
+  priceIndex_lt?: InputMaybe<Scalars['BigInt']>;
+  priceIndex_gte?: InputMaybe<Scalars['BigInt']>;
+  priceIndex_lte?: InputMaybe<Scalars['BigInt']>;
+  priceIndex_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  priceIndex_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  rawAmount?: InputMaybe<Scalars['BigInt']>;
+  rawAmount_not?: InputMaybe<Scalars['BigInt']>;
+  rawAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  rawAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  rawAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  rawAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  rawAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  rawAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amount?: InputMaybe<Scalars['BigInt']>;
+  amount_not?: InputMaybe<Scalars['BigInt']>;
+  amount_gt?: InputMaybe<Scalars['BigInt']>;
+  amount_lt?: InputMaybe<Scalars['BigInt']>;
+  amount_gte?: InputMaybe<Scalars['BigInt']>;
+  amount_lte?: InputMaybe<Scalars['BigInt']>;
+  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  rawOpenAmount?: InputMaybe<Scalars['BigInt']>;
+  rawOpenAmount_not?: InputMaybe<Scalars['BigInt']>;
+  rawOpenAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  rawOpenAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  rawOpenAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  rawOpenAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  rawOpenAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  rawOpenAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  openAmount?: InputMaybe<Scalars['BigInt']>;
+  openAmount_not?: InputMaybe<Scalars['BigInt']>;
+  openAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  openAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  openAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  openAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  openAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  openAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  rawFilledAmount?: InputMaybe<Scalars['BigInt']>;
+  rawFilledAmount_not?: InputMaybe<Scalars['BigInt']>;
+  rawFilledAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  rawFilledAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  rawFilledAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  rawFilledAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  rawFilledAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  rawFilledAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  filledAmount?: InputMaybe<Scalars['BigInt']>;
+  filledAmount_not?: InputMaybe<Scalars['BigInt']>;
+  filledAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  filledAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  filledAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  filledAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  filledAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  filledAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  rawClaimableAmount?: InputMaybe<Scalars['BigInt']>;
+  rawClaimableAmount_not?: InputMaybe<Scalars['BigInt']>;
+  rawClaimableAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  rawClaimableAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  rawClaimableAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  rawClaimableAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  rawClaimableAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  rawClaimableAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  claimableAmount?: InputMaybe<Scalars['BigInt']>;
+  claimableAmount_not?: InputMaybe<Scalars['BigInt']>;
+  claimableAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  claimableAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  claimableAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  claimableAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  claimableAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  claimableAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Order_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<Order_filter>>>;
+};
+
+export type Order_orderBy =
+  | 'id'
+  | 'market'
+  | 'market__id'
+  | 'market__orderToken'
+  | 'market__quoteUnit'
+  | 'market__makerFee'
+  | 'market__takerFee'
+  | 'market__a'
+  | 'market__r'
+  | 'market__d'
+  | 'user'
+  | 'orderIndex'
+  | 'isBid'
+  | 'price'
+  | 'priceIndex'
+  | 'rawAmount'
+  | 'amount'
+  | 'rawOpenAmount'
+  | 'openAmount'
+  | 'rawFilledAmount'
+  | 'filledAmount'
+  | 'rawClaimableAmount'
+  | 'claimableAmount';
 
 export type Query = {
   market?: Maybe<Market>;
   markets: Array<Market>;
   depth?: Maybe<Depth>;
   depths: Array<Depth>;
+  order?: Maybe<Order>;
+  orders: Array<Order>;
   token?: Maybe<Token>;
   tokens: Array<Token>;
   /** Access to subgraph metadata */
@@ -343,6 +527,24 @@ export type QuerydepthsArgs = {
 };
 
 
+export type QueryorderArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryordersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Order_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<Order_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
 export type QuerytokenArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
@@ -370,6 +572,8 @@ export type Subscription = {
   markets: Array<Market>;
   depth?: Maybe<Depth>;
   depths: Array<Depth>;
+  order?: Maybe<Order>;
+  orders: Array<Order>;
   token?: Maybe<Token>;
   tokens: Array<Token>;
   /** Access to subgraph metadata */
@@ -408,6 +612,24 @@ export type SubscriptiondepthsArgs = {
   orderBy?: InputMaybe<Depth_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<Depth_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionorderArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionordersArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Order_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<Order_filter>;
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -552,6 +774,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   depths: InContextSdkMethod<Query['depths'], QuerydepthsArgs, MeshContext>,
   /** null **/
+  order: InContextSdkMethod<Query['order'], QueryorderArgs, MeshContext>,
+  /** null **/
+  orders: InContextSdkMethod<Query['orders'], QueryordersArgs, MeshContext>,
+  /** null **/
   token: InContextSdkMethod<Query['token'], QuerytokenArgs, MeshContext>,
   /** null **/
   tokens: InContextSdkMethod<Query['tokens'], QuerytokensArgs, MeshContext>,
@@ -573,6 +799,10 @@ export type _SubgraphErrorPolicy_ =
   /** null **/
   depths: InContextSdkMethod<Subscription['depths'], SubscriptiondepthsArgs, MeshContext>,
   /** null **/
+  order: InContextSdkMethod<Subscription['order'], SubscriptionorderArgs, MeshContext>,
+  /** null **/
+  orders: InContextSdkMethod<Subscription['orders'], SubscriptionordersArgs, MeshContext>,
+  /** null **/
   token: InContextSdkMethod<Subscription['token'], SubscriptiontokenArgs, MeshContext>,
   /** null **/
   tokens: InContextSdkMethod<Subscription['tokens'], SubscriptiontokensArgs, MeshContext>,
@@ -581,7 +811,7 @@ export type _SubgraphErrorPolicy_ =
   };
 
   export type Context = {
-      ["clober-dev"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
-      
+      ["clober"]: { Query: QuerySdk, Mutation: MutationSdk, Subscription: SubscriptionSdk },
+      ["url"]: Scalars['ID']
     };
 }
