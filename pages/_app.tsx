@@ -19,11 +19,8 @@ import { DepositProvider } from '../contexts/deposit-context'
 import { BorrowProvider } from '../contexts/borrow-context'
 import { couponFinanceChain } from '../utils/dev-chain'
 
-export const IS_MAINNET: boolean =
-  process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF === 'master'
-
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [IS_MAINNET ? arbitrum : couponFinanceChain],
+  [process.env.IS_MAINNET ? arbitrum : couponFinanceChain],
   [
     alchemyProvider({ apiKey: process.env.ALCHEMY_API_KEY || '' }),
     publicProvider(),
