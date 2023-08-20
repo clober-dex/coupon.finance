@@ -11,7 +11,7 @@ import type { AppProps } from 'next/app'
 import { configureChains, createConfig, WagmiConfig } from 'wagmi'
 import { arbitrum } from 'wagmi/chains'
 import { publicProvider } from 'wagmi/providers/public'
-import { alchemyProvider } from '@wagmi/core/dist/providers/alchemy'
+import { alchemyProvider } from 'wagmi/providers/alchemy'
 
 import Header from '../components/header'
 import { ThemeProvider, useThemeContext } from '../contexts/theme-context'
