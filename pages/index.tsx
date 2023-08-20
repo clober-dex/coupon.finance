@@ -17,7 +17,7 @@ const Home: NextPage = () => {
           content="Cash in the coupons on your assets. The only liquidity protocol that enables a 100% utilization rate."
           name="description"
         />
-        <link href="/favicon.ico" rel="icon" />
+        <link href="/favicon.svg" rel="icon" />
       </Head>
 
       <main className="flex flex-1 flex-col justify-center items-center">

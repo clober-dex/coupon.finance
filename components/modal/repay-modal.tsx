@@ -5,7 +5,7 @@ import NumberInput from '../number-input'
 
 import Modal from './modal'
 
-const WithdrawModal = ({
+const RepayModal = ({
   position,
   onClose,
 }: {
@@ -15,13 +15,29 @@ const WithdrawModal = ({
   } | null
   onClose: () => void
 }) => {
+  const [isUseCollateral, setIsUseCollateral] = useState(false)
   const [value, setValue] = useState('')
   return (
     <Modal show={!!position} onClose={onClose}>
-      <h1 className="font-bold text-xl mb-6">
-        How much would you like to withdraw?
-      </h1>
-      <div className="mb-4">
+      <h1 className="font-bold text-xl mb-6">Repay</h1>
+      <div className="flex mb-6 rounded text-xs bg-gray-100 dark:bg-gray-800 text-gray-500">
+        <button
+          className="flex-1 py-2 rounded border-gray-100 dark:border-gray-800 disabled:border-green-500 dark:disabled:border-green-500 disabled:text-green-500 border-[1.5px]"
+          disabled={!isUseCollateral}
+          onClick={() => setIsUseCollateral(false)}
+        >
+          Repay with Wallet Balance
+        </button>
+        <button
+          className="flex-1 py-2 rounded border-gray-100 dark:border-gray-800 disabled:border-green-500 dark:disabled:border-green-500 disabled:text-green-500 border-[1.5px]"
+          disabled={isUseCollateral}
+          onClick={() => setIsUseCollateral(true)}
+        >
+          Repay with Collateral
+        </button>
+      </div>
+      <div className="mb-4 font-bold">How much would you like to repay?</div>
+      <div className="mb-6">
         <div className="flex bg-white dark:bg-gray-800 rounded-lg p-3 shadow dark:shadow-none">
           <div className="flex flex-col flex-1 justify-between gap-2">
             <NumberInput
@@ -51,13 +67,10 @@ const WithdrawModal = ({
           </div>
         </div>
       </div>
-      <div className="flex text-sm gap-3 mb-3">
-        <span className="text-gray-500">Your deposit amount</span>
-        {position?.amount} {position?.currency.symbol}
-      </div>
-      <div className="flex text-sm gap-3 mb-8">
-        <span className="text-gray-500">Coupon repurchase cost</span>
-        1.00 {position?.currency.symbol}
+      <div className="font-bold mb-3">Transaction Overview</div>
+      <div className="flex flex-col gap-2 text-gray-500 text-sm mb-8">
+        <div>Remaining Debt</div>
+        <div>LTV</div>
       </div>
       <button
         disabled={true}
@@ -69,4 +82,4 @@ const WithdrawModal = ({
   )
 }
 
-export default WithdrawModal
+export default RepayModal
