@@ -9,24 +9,25 @@ import {
 } from '@rainbow-me/rainbowkit'
 import type { AppProps } from 'next/app'
 import { configureChains, createConfig, WagmiConfig } from 'wagmi'
-import { arbitrum, goerli } from 'wagmi/chains'
+import { arbitrum } from 'wagmi/chains'
 import { publicProvider } from 'wagmi/providers/public'
+import { alchemyProvider } from '@wagmi/core/dist/providers/alchemy'
 
 import Header from '../components/header'
 import { ThemeProvider, useThemeContext } from '../contexts/theme-context'
 import { DepositProvider } from '../contexts/deposit-context'
 import { BorrowProvider } from '../contexts/borrow-context'
+import { couponFinanceChain } from '../utils/dev-chain'
 
-console.log('Current branch:', process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF)
-export const BUILD: 'prod' | 'dev' =
-  process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF === 'master' ? 'prod' : 'dev'
+export const IS_MAINNET: boolean =
+  process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF === 'master'
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
+  [IS_MAINNET ? arbitrum : couponFinanceChain],
   [
-    arbitrum,
-    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [goerli] : []),
+    alchemyProvider({ apiKey: process.env.ALCHEMY_API_KEY || '' }),
+    publicProvider(),
   ],
-  [publicProvider()], // TODO: add alchemyProvider
 )
 
 const { connectors } = getDefaultWallets({
