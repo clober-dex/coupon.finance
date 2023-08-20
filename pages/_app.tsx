@@ -17,6 +17,10 @@ import { ThemeProvider, useThemeContext } from '../contexts/theme-context'
 import { DepositProvider } from '../contexts/deposit-context'
 import { BorrowProvider } from '../contexts/borrow-context'
 
+console.log('Current branch:', process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF)
+export const BUILD: 'prod' | 'dev' =
+  process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF === 'master' ? 'prod' : 'dev'
+
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [
     arbitrum,
