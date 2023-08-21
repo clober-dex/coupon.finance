@@ -1,4 +1,5 @@
-const IS_MAINNET = process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF === 'master'
+const BUILD =
+  process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF !== 'master' ? 'dev' : 'prod'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -8,10 +9,11 @@ const nextConfig = {
     return config
   },
   env: {
-    IS_MAINNET,
-    CLOBER_SUBGRAPH_ENDPOINT: IS_MAINNET
-      ? 'https://api.studio.thegraph.com/query/49804/core-v1-subgraph/version/latest'
-      : 'http://dev-subgraph.coupon.finance/subgraphs/name/core-v1-subgraph',
+    BUILD,
+    CLOBER_SUBGRAPH_ENDPOINT:
+      BUILD === 'dev'
+        ? 'http://dev-subgraph.coupon.finance/subgraphs/name/core-v1-subgraph'
+        : 'https://api.studio.thegraph.com/query/49804/core-v1-subgraph/version/latest',
   },
 }
 

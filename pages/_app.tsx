@@ -20,7 +20,7 @@ import { BorrowProvider } from '../contexts/borrow-context'
 import { couponFinanceChain } from '../utils/dev-chain'
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [process.env.IS_MAINNET ? arbitrum : couponFinanceChain],
+  [process.env.BUILD === 'dev' ? couponFinanceChain : arbitrum],
   [
     alchemyProvider({ apiKey: process.env.ALCHEMY_API_KEY || '' }),
     publicProvider(),
