@@ -1,0 +1,8 @@
+sources:
+  - name: clober
+    handler:
+      graphql:
+        endpoint: '{context.url:https://api.studio.thegraph.com/query/49804/core-v1-subgraph/version/latest}'
+
+codegen:
+  contextType: 'MeshContext & { url: string }'
