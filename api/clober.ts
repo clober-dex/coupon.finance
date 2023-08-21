@@ -3,14 +3,14 @@ import { getAddress } from 'viem'
 import { getBuiltGraphSDK } from '../.graphclient'
 import { Currency } from '../utils/currency'
 
-type Depth = {
+export type Depth = {
   price: string
   baseAmount: string
   rawAmount: string
   isBid: boolean
 }
 
-type Market = {
+export type Market = {
   address: string
   orderToken: string
   a: string
@@ -21,10 +21,10 @@ type Market = {
   depths: Depth[]
 }
 
-const { OrderBook } = getBuiltGraphSDK()
+const { OrderBookQuery } = getBuiltGraphSDK()
 
 export async function fetchOrderBooks(): Promise<Market[]> {
-  const { markets } = await OrderBook()
+  const { markets } = await OrderBookQuery()
   return markets.map((market) => ({
     address: getAddress(market.id),
     orderToken: getAddress(market.orderToken),

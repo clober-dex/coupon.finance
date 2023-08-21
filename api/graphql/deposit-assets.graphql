@@ -1,4 +1,4 @@
-query DepositAssets {
+query DepositAssetsQuery {
   tokens {
     id
     name

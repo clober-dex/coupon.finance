@@ -1350,17 +1350,23 @@ const merger = new(StitchingMerger as any)({
     get documents() {
       return [
       {
-        document: DepositAssetsDocument,
+        document: OrderBookForkQueryDocument,
         get rawSDL() {
-          return printWithCache(DepositAssetsDocument);
+          return printWithCache(OrderBookForkQueryDocument);
         },
-        location: 'DepositAssetsDocument.graphql'
+        location: 'OrderBookForkQueryDocument.graphql'
       },{
-        document: OrderBookDocument,
+        document: DepositAssetsQueryDocument,
         get rawSDL() {
-          return printWithCache(OrderBookDocument);
+          return printWithCache(DepositAssetsQueryDocument);
         },
-        location: 'OrderBookDocument.graphql'
+        location: 'DepositAssetsQueryDocument.graphql'
+      },{
+        document: OrderBookQueryDocument,
+        get rawSDL() {
+          return printWithCache(OrderBookQueryDocument);
+        },
+        location: 'OrderBookQueryDocument.graphql'
       }
     ];
     },
@@ -1399,41 +1405,35 @@ export function getBuiltGraphSDK<TGlobalContext = any, TOperationContext = any>(
   const sdkRequester$ = getBuiltGraphClient().then(({ sdkRequesterFactory }) => sdkRequesterFactory(globalContext));
   return getSdk<TOperationContext, TGlobalContext>((...args) => sdkRequester$.then(sdkRequester => sdkRequester(...args)));
 }
-export type DepositAssetsQueryVariables = Exact<{ [key: string]: never; }>;
+export type OrderBookForkQueryQueryVariables = Exact<{
+  blockNumber: Scalars['Int'];
+}>;
 
 
-export type DepositAssetsQuery = { tokens: Array<(
+export type OrderBookForkQueryQuery = { markets: Array<(
+    Pick<Market, 'id' | 'orderToken' | 'a' | 'r' | 'd'>
+    & { quoteToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>, baseToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>, depths: Array<Pick<Depth, 'price' | 'baseAmount' | 'rawAmount' | 'isBid'>> }
+  )> };
+
+export type DepositAssetsQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type DepositAssetsQueryQuery = { tokens: Array<(
     Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
     & { asset: Pick<Asset, 'id' | 'name' | 'symbol' | 'decimals'> }
   )> };
 
-export type OrderBookQueryVariables = Exact<{ [key: string]: never; }>;
+export type OrderBookQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type OrderBookQuery = { markets: Array<(
+export type OrderBookQueryQuery = { markets: Array<(
     Pick<Market, 'id' | 'orderToken' | 'a' | 'r' | 'd'>
     & { quoteToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>, baseToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>, depths: Array<Pick<Depth, 'price' | 'baseAmount' | 'rawAmount' | 'isBid'>> }
   )> };
 
 
-export const DepositAssetsDocument = gql`
-    query DepositAssets {
-  tokens {
-    id
-    name
-    symbol
-    decimals
-    asset {
-      id
-      name
-      symbol
-      decimals
-    }
-  }
-}
-    ` as unknown as DocumentNode<DepositAssetsQuery, DepositAssetsQueryVariables>;
-export const OrderBookDocument = gql`
-    query OrderBook {
+export const OrderBookForkQueryDocument = gql`
+    query OrderBookForkQuery($blockNumber: Int!) {
   markets {
     id
     orderToken
@@ -1460,18 +1460,67 @@ export const OrderBookDocument = gql`
     }
   }
 }
-    ` as unknown as DocumentNode<OrderBookQuery, OrderBookQueryVariables>;
+    ` as unknown as DocumentNode<OrderBookForkQueryQuery, OrderBookForkQueryQueryVariables>;
+export const DepositAssetsQueryDocument = gql`
+    query DepositAssetsQuery {
+  tokens {
+    id
+    name
+    symbol
+    decimals
+    asset {
+      id
+      name
+      symbol
+      decimals
+    }
+  }
+}
+    ` as unknown as DocumentNode<DepositAssetsQueryQuery, DepositAssetsQueryQueryVariables>;
+export const OrderBookQueryDocument = gql`
+    query OrderBookQuery {
+  markets {
+    id
+    orderToken
+    a
+    r
+    d
+    quoteToken {
+      id
+      name
+      symbol
+      decimals
+    }
+    baseToken {
+      id
+      name
+      symbol
+      decimals
+    }
+    depths {
+      price
+      baseAmount
+      rawAmount
+      isBid
+    }
+  }
+}
+    ` as unknown as DocumentNode<OrderBookQueryQuery, OrderBookQueryQueryVariables>;
+
 
 
 
 export type Requester<C = {}, E = unknown> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R> | AsyncIterable<R>
 export function getSdk<C, E>(requester: Requester<C, E>) {
   return {
-    DepositAssets(variables?: DepositAssetsQueryVariables, options?: C): Promise<DepositAssetsQuery> {
-      return requester<DepositAssetsQuery, DepositAssetsQueryVariables>(DepositAssetsDocument, variables, options) as Promise<DepositAssetsQuery>;
+    OrderBookForkQuery(variables: OrderBookForkQueryQueryVariables, options?: C): Promise<OrderBookForkQueryQuery> {
+      return requester<OrderBookForkQueryQuery, OrderBookForkQueryQueryVariables>(OrderBookForkQueryDocument, variables, options) as Promise<OrderBookForkQueryQuery>;
     },
-    OrderBook(variables?: OrderBookQueryVariables, options?: C): Promise<OrderBookQuery> {
-      return requester<OrderBookQuery, OrderBookQueryVariables>(OrderBookDocument, variables, options) as Promise<OrderBookQuery>;
+    DepositAssetsQuery(variables?: DepositAssetsQueryQueryVariables, options?: C): Promise<DepositAssetsQueryQuery> {
+      return requester<DepositAssetsQueryQuery, DepositAssetsQueryQueryVariables>(DepositAssetsQueryDocument, variables, options) as Promise<DepositAssetsQueryQuery>;
+    },
+    OrderBookQuery(variables?: OrderBookQueryQueryVariables, options?: C): Promise<OrderBookQueryQuery> {
+      return requester<OrderBookQueryQuery, OrderBookQueryQueryVariables>(OrderBookQueryDocument, variables, options) as Promise<OrderBookQueryQuery>;
     }
   };
 }
