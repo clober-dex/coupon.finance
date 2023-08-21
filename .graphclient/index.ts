@@ -1262,10 +1262,10 @@ const importFn: ImportFn = <T>(moduleId: string) => {
   switch(relativeModuleId) {
     case ".graphclient/sources/coupon-finance/introspectionSchema":
       return Promise.resolve(importedModule$0) as T;
-
+    
     case ".graphclient/sources/clober/introspectionSchema":
       return Promise.resolve(importedModule$1) as T;
-
+    
     default:
       return Promise.reject(new Error(`Cannot find module '${relativeModuleId}'.`));
   }
@@ -1412,7 +1412,7 @@ export type OrderBookQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type OrderBookQuery = { markets: Array<(
     Pick<Market, 'id' | 'orderToken' | 'a' | 'r' | 'd'>
-    & { quoteToken: Pick<Token, 'id' | 'symbol' | 'decimals'>, baseToken: Pick<Token, 'id' | 'symbol' | 'decimals'>, depths: Array<Pick<Depth, 'price' | 'baseAmount' | 'isBid'>> }
+    & { quoteToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>, baseToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>, depths: Array<Pick<Depth, 'price' | 'baseAmount' | 'rawAmount' | 'isBid'>> }
   )> };
 
 
@@ -1442,17 +1442,20 @@ export const OrderBookDocument = gql`
     d
     quoteToken {
       id
+      name
       symbol
       decimals
     }
     baseToken {
       id
+      name
       symbol
       decimals
     }
     depths {
       price
       baseAmount
+      rawAmount
       isBid
     }
   }
