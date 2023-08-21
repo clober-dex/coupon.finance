@@ -1,41 +1,13 @@
 import { getAddress } from 'viem'
-import gql from 'graphql-tag'
 
-import { execute } from '../.graphclient'
-
-type DepthDto = {
-  price: string
-  amount: string
-  isBid: boolean
-}
+import { getBuiltGraphSDK } from '../.graphclient'
+import { Currency } from '../utils/currency'
 
 type Depth = {
   price: string
-  amount: string
+  baseAmount: string
+  rawAmount: string
   isBid: boolean
-}
-
-type TokenDto = {
-  id: string
-  symbol: string
-  decimals: string
-}
-
-type Token = {
-  address: string
-  symbol: string
-  decimals: string
-}
-
-type MarketDto = {
-  id: string
-  orderToken: string
-  a: string
-  r: string
-  d: string
-  quoteToken: TokenDto
-  baseToken: TokenDto
-  depths: DepthDto[]
 }
 
 type Market = {
@@ -44,53 +16,16 @@ type Market = {
   a: string
   r: string
   d: string
-  quoteToken: Token
-  baseToken: Token
+  quoteToken: Currency
+  baseToken: Currency
   depths: Depth[]
 }
 
-export type MarketsDto = {
-  data: {
-    markets: MarketDto[]
-  }
-}
+const { OrderBook } = getBuiltGraphSDK()
 
 export async function fetchOrderBooks(): Promise<Market[]> {
-  const query = gql`
-    {
-      markets {
-        id
-        orderToken
-        a
-        r
-        d
-        quoteToken {
-          id
-          symbol
-          decimals
-        }
-        baseToken {
-          id
-          symbol
-          decimals
-        }
-        depths {
-          price
-          baseAmount
-          isBid
-        }
-      }
-    }
-  `
-
-  const { data } = (await execute(
-    query,
-    {},
-    {
-      url: process.env.CLOBER_SUBGRAPH_ENDPOINT,
-    },
-  )) as MarketsDto
-  return data.markets.map((market) => ({
+  const { markets } = await OrderBook()
+  return markets.map((market) => ({
     address: getAddress(market.id),
     orderToken: getAddress(market.orderToken),
     a: market.a,
@@ -98,17 +33,22 @@ export async function fetchOrderBooks(): Promise<Market[]> {
     d: market.d,
     quoteToken: {
       address: getAddress(market.quoteToken.id),
+      name: market.quoteToken.name,
       symbol: market.quoteToken.symbol,
       decimals: market.quoteToken.decimals,
+      logo: `/assets/icons/icon-${market.quoteToken.symbol.toLowerCase()}.svg`,
     },
     baseToken: {
       address: getAddress(market.baseToken.id),
+      name: market.baseToken.name,
       symbol: market.baseToken.symbol,
       decimals: market.baseToken.decimals,
+      logo: `/assets/icons/icon-${market.baseToken.symbol.toLowerCase()}.svg`,
     },
     depths: market.depths.map((depth) => ({
       price: depth.price,
-      amount: depth.amount,
+      baseAmount: depth.baseAmount,
+      rawAmount: depth.rawAmount,
       isBid: depth.isBid,
     })),
   }))
