@@ -3,10 +3,10 @@ import { getAddress } from 'viem'
 import { getBuiltGraphSDK } from '../.graphclient'
 import { Currency } from '../utils/currency'
 
-const { DepositAssetsQuery } = getBuiltGraphSDK()
+const { DepositAssets } = getBuiltGraphSDK()
 
 export async function fetchDepositAssets(): Promise<Currency[]> {
-  const { tokens } = await DepositAssetsQuery()
+  const { tokens } = await DepositAssets()
 
   return tokens.map((token) => ({
     address: getAddress(token.id),

@@ -10,18 +10,7 @@ export type Depth = {
   isBid: boolean
 }
 
-export type Market = {
-  address: string
-  orderToken: string
-  a: string
-  r: string
-  d: string
-  quoteToken: Currency
-  baseToken: Currency
-  depths: Depth[]
-}
-
-const { OrderBookQuery } = getBuiltGraphSDK()
+const { OrderBook } = getBuiltGraphSDK()
 
 export async function fetchOrderBooks(): Promise<Market[]> {
   const { markets } = await OrderBookQuery()
