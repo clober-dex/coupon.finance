@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "buid-graph": "graphclient build",
     "start": "next start",
     "lint": "next lint",
     "test": "jest"
