@@ -1,4 +1,3 @@
-import { BigNumber } from 'ethers'
 import { isAddressEqual } from 'viem'
 
 import { Currency } from '../utils/currency'
@@ -10,8 +9,8 @@ type DepthDto = {
 }
 
 type Depth = {
-  price: BigNumber
-  rawAmount: BigNumber
+  price: bigint
+  rawAmount: bigint
   isBid: boolean
 }
 
@@ -30,40 +29,39 @@ export type MarketDto = {
 }
 
 export class Market {
-  readonly FEE_PRECISION = BigNumber.from(1000000)
+  readonly FEE_PRECISION = 10n ** 6n
+  readonly PRICE_PRECISION = 10n ** 18n
 
   address: string
   orderToken: string
-  a: BigNumber
-  r: BigNumber
-  d: BigNumber
-  takerFee: BigNumber
-  makerFee: BigNumber
-  quoteUnit: BigNumber
+  a: bigint
+  r: bigint
+  d: bigint
+  takerFee: bigint
+  makerFee: bigint
+  quoteUnit: bigint
   quoteToken: Currency
   baseToken: Currency
-  quotePrecisionComplement: BigNumber
-  basePrecisionComplement: BigNumber
+  quotePrecisionComplement: bigint
+  basePrecisionComplement: bigint
   bids: Depth[]
   asks: Depth[]
 
   constructor(marketDto: MarketDto) {
     this.address = marketDto.address
     this.orderToken = marketDto.orderToken
-    this.a = BigNumber.from(marketDto.a)
-    this.r = BigNumber.from(marketDto.r)
-    this.d = BigNumber.from(marketDto.d)
-    this.takerFee = BigNumber.from(marketDto.takerFee)
-    this.makerFee = BigNumber.from(marketDto.makerFee)
-    this.quoteUnit = BigNumber.from(marketDto.quoteUnit)
+    this.a = BigInt(marketDto.a)
+    this.r = BigInt(marketDto.r)
+    this.d = BigInt(marketDto.d)
+    this.takerFee = BigInt(marketDto.takerFee)
+    this.makerFee = BigInt(marketDto.makerFee)
+    this.quoteUnit = BigInt(marketDto.quoteUnit)
     this.quoteToken = marketDto.quoteToken
     this.baseToken = marketDto.baseToken
-    this.quotePrecisionComplement = BigNumber.from(10).pow(
-      18 - this.quoteToken.decimals,
-    )
-    this.basePrecisionComplement = BigNumber.from(10).pow(
-      18 - this.baseToken.decimals,
-    )
+    this.quotePrecisionComplement =
+      10n ** (18n - BigInt(this.quoteToken.decimals))
+    this.basePrecisionComplement =
+      10n ** (18n - BigInt(this.baseToken.decimals))
 
     this.bids = marketDto.depths
       .filter((depth) => depth.isBid)
@@ -71,8 +69,8 @@ export class Market {
         return Number(b.price) - Number(a.price)
       })
       .map((depth) => ({
-        price: BigNumber.from(depth.price),
-        rawAmount: BigNumber.from(depth.rawAmount),
+        price: BigInt(depth.price),
+        rawAmount: BigInt(depth.rawAmount),
         isBid: depth.isBid,
       }))
     this.asks = marketDto.depths
@@ -81,80 +79,63 @@ export class Market {
         return Number(a.price) - Number(b.price)
       })
       .map((depth) => ({
-        price: BigNumber.from(depth.price),
-        rawAmount: BigNumber.from(depth.rawAmount),
+        price: BigInt(depth.price),
+        rawAmount: BigInt(depth.rawAmount),
         isBid: depth.isBid,
       }))
   }
 
-  private roundDiv(x: BigNumber, y: BigNumber, roundUp: boolean): BigNumber {
+  private roundDiv(x: bigint, y: bigint, roundUp: boolean): bigint {
     if (roundUp) {
-      if (x.isZero()) {
-        return BigNumber.from(0)
+      if (x === 0n) {
+        return 0n
       } else {
-        return x.sub(1).div(y).add(1)
+        return (x - 1n) / y + 1n
       }
     } else {
-      return x.div(y)
+      return x / y
     }
   }
 
-  private quoteToRaw(amount: BigNumber, roundUp: boolean): BigNumber {
+  private quoteToRaw(amount: bigint, roundUp: boolean): bigint {
     return this.roundDiv(amount, this.quoteUnit, roundUp)
   }
 
-  private rawToQuote(rawQty: BigNumber): BigNumber {
-    return rawQty.mul(this.quoteUnit)
+  private rawToQuote(rawAmount: bigint): bigint {
+    return rawAmount * this.quoteUnit
   }
 
-  private baseToRaw(
-    amount: BigNumber,
-    price: BigNumber,
-    roundUp: boolean,
-  ): BigNumber {
+  private baseToRaw(amount: bigint, price: bigint, roundUp: boolean): bigint {
     return this.roundDiv(
-      amount.mul(price).mul(this.basePrecisionComplement),
-      BigNumber.from(10)
-        .pow(18)
-        .mul(this.quotePrecisionComplement)
-        .mul(this.quoteUnit),
+      amount * price * this.basePrecisionComplement,
+      this.PRICE_PRECISION * this.quotePrecisionComplement * this.quoteUnit,
       roundUp,
     )
   }
 
-  private rawToBase(
-    rawQty: BigNumber,
-    price: BigNumber,
-    roundUp: boolean,
-  ): BigNumber {
+  private rawToBase(rawQty: bigint, price: bigint, roundUp: boolean): bigint {
     return this.roundDiv(
-      this.rawToQuote(rawQty)
-        .mul(BigNumber.from(10).pow(18))
-        .mul(this.quotePrecisionComplement),
-      price.mul(this.basePrecisionComplement),
+      this.rawToQuote(rawQty) *
+        this.PRICE_PRECISION *
+        this.quotePrecisionComplement,
+      price * this.basePrecisionComplement,
       roundUp,
     )
   }
 
   private calculateTakerFeeAmount(
-    takeAmount: BigNumber,
+    takeAmount: bigint,
     roundUp: boolean,
-  ): BigNumber {
+  ): bigint {
     return this.roundDiv(
-      takeAmount.mul(this.takerFee),
+      takeAmount * this.takerFee,
       this.FEE_PRECISION,
       roundUp,
     )
   }
 
-  swap({
-    tokenIn,
-    amountIn,
-  }: {
-    tokenIn: string
-    amountIn: BigNumber
-  }): BigNumber {
-    let amountOut: BigNumber = BigNumber.from(0)
+  swap({ tokenIn, amountIn }: { tokenIn: string; amountIn: bigint }): bigint {
+    let amountOut: bigint = BigInt(0)
     if (
       isAddressEqual(
         tokenIn as `0x${string}`,
@@ -162,34 +143,34 @@ export class Market {
       )
     ) {
       while (this.asks.length > 0) {
-        const { price, rawAmount: rawQty } = this.asks[0]
+        const { price, rawAmount } = this.asks[0]
         const amountInRaw = this.quoteToRaw(amountIn, false)
-        if (amountInRaw.gte(rawQty)) {
-          amountIn = amountIn.sub(this.rawToQuote(rawQty))
-          amountOut = amountOut.add(this.rawToBase(rawQty, price, false))
+        if (amountInRaw >= rawAmount) {
+          amountIn -= this.rawToQuote(rawAmount)
+          amountOut += this.rawToBase(rawAmount, price, false)
           this.asks.shift()
         } else {
-          amountOut = amountOut.add(this.rawToBase(amountInRaw, price, false))
-          this.asks[0].rawAmount = rawQty.sub(amountInRaw)
+          amountOut += this.rawToBase(amountInRaw, price, false)
+          this.asks[0].rawAmount = rawAmount - amountInRaw
           break
         }
       }
     } else {
       while (this.bids.length > 0) {
-        const { price, rawAmount: rawQty } = this.bids[0]
+        const { price, rawAmount } = this.bids[0]
         const amountInRaw = this.baseToRaw(amountIn, price, false)
-        if (amountInRaw.gte(rawQty)) {
-          amountIn = amountIn.sub(this.rawToBase(rawQty, price, true))
-          amountOut = amountOut.add(this.rawToQuote(rawQty))
+        if (amountInRaw >= rawAmount) {
+          amountIn -= this.rawToBase(rawAmount, price, true)
+          amountOut += this.rawToQuote(rawAmount)
           this.bids.shift()
         } else {
-          amountOut = amountOut.add(this.rawToQuote(amountInRaw))
-          this.bids[0].rawAmount = rawQty.sub(amountInRaw)
+          amountOut += this.rawToQuote(amountInRaw)
+          this.bids[0].rawAmount = rawAmount - amountInRaw
           break
         }
       }
     }
-    amountOut = amountOut.sub(this.calculateTakerFeeAmount(amountOut, true))
+    amountOut -= this.calculateTakerFeeAmount(amountOut, true)
     return amountOut
   }
 }

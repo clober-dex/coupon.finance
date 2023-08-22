@@ -1,7 +1,6 @@
 import hre from 'hardhat'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { getAddress } from 'viem'
-import { BigNumber } from 'ethers'
 
 import { getBuiltGraphSDK } from '../.graphclient'
 import {
@@ -16,10 +15,8 @@ import { Market } from '../api/market'
 
 const { OrderBookFork } = getBuiltGraphSDK()
 
-const TWO = BigNumber.from(2)
-const TEN = BigNumber.from(10)
 const TIME_OUT = 1000 * 10000
-const MAX_UINT256 = BigNumber.from(2).pow(256).sub(1)
+const MAX_UINT256 = 2n ** 256n - 1n
 
 const MARKER_ADDRESS = '0xca4c669093572c5a23de04b848a7f706ecbdfac2'
 
@@ -31,7 +28,7 @@ type Contracts = {
   quoteToken: IERC20
 }
 
-describe('Unit test for deposit controller', () => {
+describe('Market Orders', () => {
   const fetchOrderBookState = async ({
     blockNumber,
   }: {
@@ -85,7 +82,7 @@ describe('Unit test for deposit controller', () => {
     to,
   }: {
     tokenAddress: string
-    faucetAmount: BigNumber
+    faucetAmount: bigint
     from: string
     to: string
   }): Promise<void> => {
@@ -134,18 +131,18 @@ describe('Unit test for deposit controller', () => {
       IERC20__factory.connect(quoteTokenAddress, admin),
     ])
 
-    expect(await baseToken.balanceOf(admin.address)).toEqual(BigNumber.from(0))
-    expect(await quoteToken.balanceOf(admin.address)).toEqual(BigNumber.from(0))
+    expect((await baseToken.balanceOf(admin.address)).toBigInt()).toEqual(0n)
+    expect((await quoteToken.balanceOf(admin.address)).toBigInt()).toEqual(0n)
     await faucet({
       tokenAddress: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
-      faucetAmount: TEN.pow(6).mul(10000),
+      faucetAmount: 10n ** 6n * 10000n,
       from: '0xf89d7b9c864f589bbF53a82105107622B35EaA40',
       to: admin.address,
     })
 
     await faucet({
       tokenAddress: '0x5fE5A66c84c6F8c213503A04f95a417AC6684361',
-      faucetAmount: TEN.pow(18).mul(100000000),
+      faucetAmount: 10n ** 18n * 100000000n,
       from: '0x62e5E8D25c88D9c4b67f09c46D96C9ECD3864757',
       to: admin.address,
     })
@@ -165,7 +162,7 @@ describe('Unit test for deposit controller', () => {
   it(
     'check expected amount out for market ask',
     async () => {
-      const amountIn = TEN.pow(18).mul(1000000)
+      const amountIn = 10n ** 18n * 1000000n
       const blockNumber = 119621067
       const { admin, CloberRouter, baseToken, quoteToken } = await setUp({
         blockNumber,
@@ -175,7 +172,7 @@ describe('Unit test for deposit controller', () => {
       const beforeAmount = await quoteToken.balanceOf(admin.address)
       await CloberRouter.marketAsk({
         market: MARKER_ADDRESS,
-        deadline: TWO.pow(64).sub(1),
+        deadline: 2n ** 64n - 1n,
         user: admin.address,
         limitPriceIndex: 0,
         rawAmount: 0,
@@ -202,7 +199,7 @@ describe('Unit test for deposit controller', () => {
   it(
     'check expected amount out for market bid',
     async () => {
-      const amountIn = TEN.pow(6).mul(10000)
+      const amountIn = 10n ** 6n * 10000n
       const blockNumber = 119621067
       const { admin, CloberRouter, baseToken, quoteToken } = await setUp({
         blockNumber,
@@ -212,9 +209,9 @@ describe('Unit test for deposit controller', () => {
       const beforeAmount = await baseToken.balanceOf(admin.address)
       await CloberRouter.marketBid({
         market: MARKER_ADDRESS,
-        deadline: TWO.pow(64).sub(1),
+        deadline: 2n ** 64n - 1n,
         user: admin.address,
-        limitPriceIndex: BigNumber.from(65535),
+        limitPriceIndex: 65535n,
         rawAmount: amountIn, // quoteUnit is 1
         expendInput: true,
         useNative: false,
