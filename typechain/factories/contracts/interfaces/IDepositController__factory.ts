@@ -11,6 +11,26 @@ import type {
 
 const _abi = [
   {
+    inputs: [],
+    name: "ControllerSlippage",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidAccess",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidMarket",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "ValueTransferFailed",
+    type: "error",
+  },
+  {
     inputs: [
       {
         internalType: "uint256",
@@ -40,7 +60,7 @@ const _abi = [
             type: "bytes32",
           },
         ],
-        internalType: "struct PermitParams",
+        internalType: "struct IController.PermitParams",
         name: "positionPermitParams",
         type: "tuple",
       },
@@ -95,7 +115,7 @@ const _abi = [
             type: "bytes32",
           },
         ],
-        internalType: "struct PermitParams",
+        internalType: "struct IController.PermitParams",
         name: "tokenPermitParams",
         type: "tuple",
       },
@@ -145,7 +165,7 @@ const _abi = [
             type: "bytes32",
           },
         ],
-        internalType: "struct PermitParams",
+        internalType: "struct IController.PermitParams",
         name: "positionPermitParams",
         type: "tuple",
       },

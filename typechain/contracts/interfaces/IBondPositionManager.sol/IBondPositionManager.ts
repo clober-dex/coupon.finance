@@ -73,6 +73,7 @@ export type BondPositionStructOutput = [
 export interface IBondPositionManagerInterface extends utils.Interface {
   functions: {
     "DOMAIN_SEPARATOR()": FunctionFragment;
+    "MAX_EPOCH()": FunctionFragment;
     "PERMIT_TYPEHASH()": FunctionFragment;
     "adjustPosition(uint256,uint256,uint8)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
@@ -83,7 +84,6 @@ export interface IBondPositionManagerInterface extends utils.Interface {
     "burnCoupons(((address,uint8),uint256)[])": FunctionFragment;
     "depositToken(address,uint256)": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
-    "getMaxEpoch()": FunctionFragment;
     "getPosition(uint256)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "isAssetRegistered(address)": FunctionFragment;
@@ -111,6 +111,7 @@ export interface IBondPositionManagerInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "DOMAIN_SEPARATOR"
+      | "MAX_EPOCH"
       | "PERMIT_TYPEHASH"
       | "adjustPosition"
       | "approve"
@@ -121,7 +122,6 @@ export interface IBondPositionManagerInterface extends utils.Interface {
       | "burnCoupons"
       | "depositToken"
       | "getApproved"
-      | "getMaxEpoch"
       | "getPosition"
       | "isApprovedForAll"
       | "isAssetRegistered"
@@ -150,6 +150,7 @@ export interface IBondPositionManagerInterface extends utils.Interface {
     functionFragment: "DOMAIN_SEPARATOR",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "MAX_EPOCH", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "PERMIT_TYPEHASH",
     values?: undefined
@@ -187,10 +188,6 @@ export interface IBondPositionManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "getApproved",
     values: [PromiseOrValue<BigNumberish>]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getMaxEpoch",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getPosition",
@@ -297,6 +294,7 @@ export interface IBondPositionManagerInterface extends utils.Interface {
     functionFragment: "DOMAIN_SEPARATOR",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "MAX_EPOCH", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "PERMIT_TYPEHASH",
     data: BytesLike
@@ -320,10 +318,6 @@ export interface IBondPositionManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getApproved",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getMaxEpoch",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -388,16 +382,16 @@ export interface IBondPositionManagerInterface extends utils.Interface {
   events: {
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
-    "AssetRegistered(address)": EventFragment;
-    "PositionUpdated(uint256,uint256,uint8)": EventFragment;
+    "RegisterAsset(address)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
+    "UpdatePosition(uint256,uint256,uint8)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AssetRegistered"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "PositionUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RegisterAsset"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "UpdatePosition"): EventFragment;
 }
 
 export interface ApprovalEventObject {
@@ -424,27 +418,12 @@ export type ApprovalForAllEvent = TypedEvent<
 
 export type ApprovalForAllEventFilter = TypedEventFilter<ApprovalForAllEvent>;
 
-export interface AssetRegisteredEventObject {
+export interface RegisterAssetEventObject {
   asset: string;
 }
-export type AssetRegisteredEvent = TypedEvent<
-  [string],
-  AssetRegisteredEventObject
->;
+export type RegisterAssetEvent = TypedEvent<[string], RegisterAssetEventObject>;
 
-export type AssetRegisteredEventFilter = TypedEventFilter<AssetRegisteredEvent>;
-
-export interface PositionUpdatedEventObject {
-  tokenId: BigNumber;
-  amount: BigNumber;
-  expiredWith: number;
-}
-export type PositionUpdatedEvent = TypedEvent<
-  [BigNumber, BigNumber, number],
-  PositionUpdatedEventObject
->;
-
-export type PositionUpdatedEventFilter = TypedEventFilter<PositionUpdatedEvent>;
+export type RegisterAssetEventFilter = TypedEventFilter<RegisterAssetEvent>;
 
 export interface TransferEventObject {
   from: string;
@@ -457,6 +436,18 @@ export type TransferEvent = TypedEvent<
 >;
 
 export type TransferEventFilter = TypedEventFilter<TransferEvent>;
+
+export interface UpdatePositionEventObject {
+  tokenId: BigNumber;
+  amount: BigNumber;
+  expiredWith: number;
+}
+export type UpdatePositionEvent = TypedEvent<
+  [BigNumber, BigNumber, number],
+  UpdatePositionEventObject
+>;
+
+export type UpdatePositionEventFilter = TypedEventFilter<UpdatePositionEvent>;
 
 export interface IBondPositionManager extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -486,6 +477,10 @@ export interface IBondPositionManager extends BaseContract {
 
   functions: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<[string]>;
+
+    MAX_EPOCH(
+      overrides?: CallOverrides
+    ): Promise<[number] & { maxEpoch: number }>;
 
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
 
@@ -532,10 +527,6 @@ export interface IBondPositionManager extends BaseContract {
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[string] & { operator: string }>;
-
-    getMaxEpoch(
-      overrides?: CallOverrides
-    ): Promise<[number] & { maxEpoch: number }>;
 
     getPosition(
       tokenId: PromiseOrValue<BigNumberish>,
@@ -656,6 +647,8 @@ export interface IBondPositionManager extends BaseContract {
 
   DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<string>;
 
+  MAX_EPOCH(overrides?: CallOverrides): Promise<number>;
+
   PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
   adjustPosition(
@@ -701,8 +694,6 @@ export interface IBondPositionManager extends BaseContract {
     tokenId: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<string>;
-
-  getMaxEpoch(overrides?: CallOverrides): Promise<number>;
 
   getPosition(
     tokenId: PromiseOrValue<BigNumberish>,
@@ -823,6 +814,8 @@ export interface IBondPositionManager extends BaseContract {
   callStatic: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<string>;
 
+    MAX_EPOCH(overrides?: CallOverrides): Promise<number>;
+
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
     adjustPosition(
@@ -874,8 +867,6 @@ export interface IBondPositionManager extends BaseContract {
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
-
-    getMaxEpoch(overrides?: CallOverrides): Promise<number>;
 
     getPosition(
       tokenId: PromiseOrValue<BigNumberish>,
@@ -1017,23 +1008,12 @@ export interface IBondPositionManager extends BaseContract {
       approved?: null
     ): ApprovalForAllEventFilter;
 
-    "AssetRegistered(address)"(
+    "RegisterAsset(address)"(
       asset?: PromiseOrValue<string> | null
-    ): AssetRegisteredEventFilter;
-    AssetRegistered(
+    ): RegisterAssetEventFilter;
+    RegisterAsset(
       asset?: PromiseOrValue<string> | null
-    ): AssetRegisteredEventFilter;
-
-    "PositionUpdated(uint256,uint256,uint8)"(
-      tokenId?: PromiseOrValue<BigNumberish> | null,
-      amount?: null,
-      expiredWith?: null
-    ): PositionUpdatedEventFilter;
-    PositionUpdated(
-      tokenId?: PromiseOrValue<BigNumberish> | null,
-      amount?: null,
-      expiredWith?: null
-    ): PositionUpdatedEventFilter;
+    ): RegisterAssetEventFilter;
 
     "Transfer(address,address,uint256)"(
       from?: PromiseOrValue<string> | null,
@@ -1045,10 +1025,23 @@ export interface IBondPositionManager extends BaseContract {
       to?: PromiseOrValue<string> | null,
       tokenId?: PromiseOrValue<BigNumberish> | null
     ): TransferEventFilter;
+
+    "UpdatePosition(uint256,uint256,uint8)"(
+      tokenId?: PromiseOrValue<BigNumberish> | null,
+      amount?: null,
+      expiredWith?: null
+    ): UpdatePositionEventFilter;
+    UpdatePosition(
+      tokenId?: PromiseOrValue<BigNumberish> | null,
+      amount?: null,
+      expiredWith?: null
+    ): UpdatePositionEventFilter;
   };
 
   estimateGas: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<BigNumber>;
+
+    MAX_EPOCH(overrides?: CallOverrides): Promise<BigNumber>;
 
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -1095,8 +1088,6 @@ export interface IBondPositionManager extends BaseContract {
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    getMaxEpoch(overrides?: CallOverrides): Promise<BigNumber>;
 
     getPosition(
       tokenId: PromiseOrValue<BigNumberish>,
@@ -1218,6 +1209,8 @@ export interface IBondPositionManager extends BaseContract {
   populateTransaction: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    MAX_EPOCH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     adjustPosition(
@@ -1263,8 +1256,6 @@ export interface IBondPositionManager extends BaseContract {
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    getMaxEpoch(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getPosition(
       tokenId: PromiseOrValue<BigNumberish>,

@@ -11,6 +11,11 @@ import type {
 
 const _abi = [
   {
+    inputs: [],
+    name: "InvalidSignature",
+    type: "error",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -24,6 +29,11 @@ const _abi = [
   {
     inputs: [],
     name: "NotSettled",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "PermitExpired",
     type: "error",
   },
   {

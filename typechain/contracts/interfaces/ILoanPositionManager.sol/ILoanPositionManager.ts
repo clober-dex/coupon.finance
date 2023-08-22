@@ -484,18 +484,18 @@ export interface ILoanPositionManagerInterface extends utils.Interface {
   events: {
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
-    "AssetRegistered(address)": EventFragment;
-    "PositionLiquidated(uint256)": EventFragment;
-    "PositionUpdated(uint256,uint256,uint256,uint8)": EventFragment;
+    "LiquidatePosition(uint256,address,uint256,uint256,uint256)": EventFragment;
+    "SetLoanConfiguration(address,address,uint32,uint32,uint32,uint32)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
+    "UpdatePosition(uint256,uint256,uint256,uint8)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "AssetRegistered"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "PositionLiquidated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "PositionUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "LiquidatePosition"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SetLoanConfiguration"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "UpdatePosition"): EventFragment;
 }
 
 export interface ApprovalEventObject {
@@ -522,39 +522,36 @@ export type ApprovalForAllEvent = TypedEvent<
 
 export type ApprovalForAllEventFilter = TypedEventFilter<ApprovalForAllEvent>;
 
-export interface AssetRegisteredEventObject {
-  asset: string;
-}
-export type AssetRegisteredEvent = TypedEvent<
-  [string],
-  AssetRegisteredEventObject
->;
-
-export type AssetRegisteredEventFilter = TypedEventFilter<AssetRegisteredEvent>;
-
-export interface PositionLiquidatedEventObject {
+export interface LiquidatePositionEventObject {
   positionId: BigNumber;
+  liquidator: string;
+  liquidationAmount: BigNumber;
+  repayAmount: BigNumber;
+  protocolFeeAmount: BigNumber;
 }
-export type PositionLiquidatedEvent = TypedEvent<
-  [BigNumber],
-  PositionLiquidatedEventObject
+export type LiquidatePositionEvent = TypedEvent<
+  [BigNumber, string, BigNumber, BigNumber, BigNumber],
+  LiquidatePositionEventObject
 >;
 
-export type PositionLiquidatedEventFilter =
-  TypedEventFilter<PositionLiquidatedEvent>;
+export type LiquidatePositionEventFilter =
+  TypedEventFilter<LiquidatePositionEvent>;
 
-export interface PositionUpdatedEventObject {
-  positionId: BigNumber;
-  collateralAmount: BigNumber;
-  debtAmount: BigNumber;
-  unlockedAt: number;
+export interface SetLoanConfigurationEventObject {
+  collateral: string;
+  debt: string;
+  liquidationThreshold: number;
+  liquidationFee: number;
+  liquidationProtocolFee: number;
+  liquidationTargetLtv: number;
 }
-export type PositionUpdatedEvent = TypedEvent<
-  [BigNumber, BigNumber, BigNumber, number],
-  PositionUpdatedEventObject
+export type SetLoanConfigurationEvent = TypedEvent<
+  [string, string, number, number, number, number],
+  SetLoanConfigurationEventObject
 >;
 
-export type PositionUpdatedEventFilter = TypedEventFilter<PositionUpdatedEvent>;
+export type SetLoanConfigurationEventFilter =
+  TypedEventFilter<SetLoanConfigurationEvent>;
 
 export interface TransferEventObject {
   from: string;
@@ -567,6 +564,19 @@ export type TransferEvent = TypedEvent<
 >;
 
 export type TransferEventFilter = TypedEventFilter<TransferEvent>;
+
+export interface UpdatePositionEventObject {
+  positionId: BigNumber;
+  collateralAmount: BigNumber;
+  debtAmount: BigNumber;
+  unlockedAt: number;
+}
+export type UpdatePositionEvent = TypedEvent<
+  [BigNumber, BigNumber, BigNumber, number],
+  UpdatePositionEventObject
+>;
+
+export type UpdatePositionEventFilter = TypedEventFilter<UpdatePositionEvent>;
 
 export interface ILoanPositionManager extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -1276,32 +1286,37 @@ export interface ILoanPositionManager extends BaseContract {
       approved?: null
     ): ApprovalForAllEventFilter;
 
-    "AssetRegistered(address)"(
-      asset?: PromiseOrValue<string> | null
-    ): AssetRegisteredEventFilter;
-    AssetRegistered(
-      asset?: PromiseOrValue<string> | null
-    ): AssetRegisteredEventFilter;
-
-    "PositionLiquidated(uint256)"(
-      positionId?: PromiseOrValue<BigNumberish> | null
-    ): PositionLiquidatedEventFilter;
-    PositionLiquidated(
-      positionId?: PromiseOrValue<BigNumberish> | null
-    ): PositionLiquidatedEventFilter;
-
-    "PositionUpdated(uint256,uint256,uint256,uint8)"(
+    "LiquidatePosition(uint256,address,uint256,uint256,uint256)"(
       positionId?: PromiseOrValue<BigNumberish> | null,
-      collateralAmount?: null,
-      debtAmount?: null,
-      unlockedAt?: null
-    ): PositionUpdatedEventFilter;
-    PositionUpdated(
+      liquidator?: PromiseOrValue<string> | null,
+      liquidationAmount?: null,
+      repayAmount?: null,
+      protocolFeeAmount?: null
+    ): LiquidatePositionEventFilter;
+    LiquidatePosition(
       positionId?: PromiseOrValue<BigNumberish> | null,
-      collateralAmount?: null,
-      debtAmount?: null,
-      unlockedAt?: null
-    ): PositionUpdatedEventFilter;
+      liquidator?: PromiseOrValue<string> | null,
+      liquidationAmount?: null,
+      repayAmount?: null,
+      protocolFeeAmount?: null
+    ): LiquidatePositionEventFilter;
+
+    "SetLoanConfiguration(address,address,uint32,uint32,uint32,uint32)"(
+      collateral?: PromiseOrValue<string> | null,
+      debt?: PromiseOrValue<string> | null,
+      liquidationThreshold?: null,
+      liquidationFee?: null,
+      liquidationProtocolFee?: null,
+      liquidationTargetLtv?: null
+    ): SetLoanConfigurationEventFilter;
+    SetLoanConfiguration(
+      collateral?: PromiseOrValue<string> | null,
+      debt?: PromiseOrValue<string> | null,
+      liquidationThreshold?: null,
+      liquidationFee?: null,
+      liquidationProtocolFee?: null,
+      liquidationTargetLtv?: null
+    ): SetLoanConfigurationEventFilter;
 
     "Transfer(address,address,uint256)"(
       from?: PromiseOrValue<string> | null,
@@ -1313,6 +1328,19 @@ export interface ILoanPositionManager extends BaseContract {
       to?: PromiseOrValue<string> | null,
       tokenId?: PromiseOrValue<BigNumberish> | null
     ): TransferEventFilter;
+
+    "UpdatePosition(uint256,uint256,uint256,uint8)"(
+      positionId?: PromiseOrValue<BigNumberish> | null,
+      collateralAmount?: null,
+      debtAmount?: null,
+      unlockedAt?: null
+    ): UpdatePositionEventFilter;
+    UpdatePosition(
+      positionId?: PromiseOrValue<BigNumberish> | null,
+      collateralAmount?: null,
+      debtAmount?: null,
+      unlockedAt?: null
+    ): UpdatePositionEventFilter;
   };
 
   estimateGas: {

@@ -27,6 +27,11 @@ const _abi = [
   },
   {
     inputs: [],
+    name: "InvalidSignature",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "LiquidationThreshold",
     type: "error",
   },
@@ -44,6 +49,11 @@ const _abi = [
   {
     inputs: [],
     name: "NotSettled",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "PermitExpired",
     type: "error",
   },
   {
@@ -116,12 +126,36 @@ const _abi = [
     inputs: [
       {
         indexed: true,
+        internalType: "uint256",
+        name: "positionId",
+        type: "uint256",
+      },
+      {
+        indexed: true,
         internalType: "address",
-        name: "asset",
+        name: "liquidator",
         type: "address",
       },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "liquidationAmount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "repayAmount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "protocolFeeAmount",
+        type: "uint256",
+      },
     ],
-    name: "AssetRegistered",
+    name: "LiquidatePosition",
     type: "event",
   },
   {
@@ -129,12 +163,67 @@ const _abi = [
     inputs: [
       {
         indexed: true,
+        internalType: "address",
+        name: "collateral",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "debt",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint32",
+        name: "liquidationThreshold",
+        type: "uint32",
+      },
+      {
+        indexed: false,
+        internalType: "uint32",
+        name: "liquidationFee",
+        type: "uint32",
+      },
+      {
+        indexed: false,
+        internalType: "uint32",
+        name: "liquidationProtocolFee",
+        type: "uint32",
+      },
+      {
+        indexed: false,
+        internalType: "uint32",
+        name: "liquidationTargetLtv",
+        type: "uint32",
+      },
+    ],
+    name: "SetLoanConfiguration",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "from",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "to",
+        type: "address",
+      },
+      {
+        indexed: true,
         internalType: "uint256",
-        name: "positionId",
+        name: "tokenId",
         type: "uint256",
       },
     ],
-    name: "PositionLiquidated",
+    name: "Transfer",
     type: "event",
   },
   {
@@ -165,32 +254,7 @@ const _abi = [
         type: "uint8",
       },
     ],
-    name: "PositionUpdated",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "from",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "address",
-        name: "to",
-        type: "address",
-      },
-      {
-        indexed: true,
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-    ],
-    name: "Transfer",
+    name: "UpdatePosition",
     type: "event",
   },
   {
