@@ -5,6 +5,9 @@ query OrderBook {
     a
     r
     d
+    makerFee
+    takerFee
+    quoteUnit
     quoteToken {
       id
       name
@@ -19,7 +22,6 @@ query OrderBook {
     }
     depths {
       price
-      baseAmount
       rawAmount
       isBid
     }
