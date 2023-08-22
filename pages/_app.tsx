@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Fragment, useState } from 'react'
 import '../styles/globals.css'
 import '@rainbow-me/rainbowkit/styles.css'
 import {
@@ -12,12 +12,18 @@ import { configureChains, createConfig, WagmiConfig } from 'wagmi'
 import { arbitrum } from 'wagmi/chains'
 import { publicProvider } from 'wagmi/providers/public'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
+import { Dialog, Transition } from '@headlessui/react'
+import { XMarkIcon } from '@heroicons/react/24/outline'
 
 import Header from '../components/header'
 import { ThemeProvider, useThemeContext } from '../contexts/theme-context'
 import { DepositProvider } from '../contexts/deposit-context'
 import { BorrowProvider } from '../contexts/borrow-context'
 import { couponFinanceChain } from '../utils/dev-chain'
+import ThemeToggle from '../components/theme-toggle'
+import TwitterSvg from '../components/svg/twitter-svg'
+import DiscordSvg from '../components/svg/discord-svg'
+import Panel from '../components/panel'
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [process.env.BUILD === 'dev' ? couponFinanceChain : arbitrum],
@@ -64,13 +70,15 @@ const WalletProvider = ({ children }: React.PropsWithChildren) => {
 }
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const [open, setOpen] = useState(false)
   return (
     <ThemeProvider>
       <WalletProvider>
         <DepositProvider>
           <BorrowProvider>
             <div className="flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white">
-              <Header />
+              <Panel open={open} setOpen={setOpen} />
+              <Header onMenuClick={() => setOpen(true)} />
               <Component {...pageProps} />
             </div>
           </BorrowProvider>
