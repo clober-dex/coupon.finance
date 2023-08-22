@@ -3,18 +3,20 @@ import { ConnectButton } from '@rainbow-me/rainbowkit'
 
 import { useThemeContext } from '../contexts/theme-context'
 
-import LogoSvg from './svg/logo-svg'
 import LightSvg from './svg/light-svg'
 import DarkSvg from './svg/dark-svg'
 import TwitterSvg from './svg/twitter-svg'
 import DiscordSvg from './svg/discord-svg'
+import LogotypeSvg from './svg/logotype-svg'
+import LogoSvg from './svg/logo-svg'
 
 const Header = () => {
   const { setTheme } = useThemeContext()
   return (
     <div className="fixed w-full flex justify-between items-center py-4 px-8 bg-white bg-opacity-5">
       <div className="flex items-center gap-12">
-        <LogoSvg className="h-9 w-fit" />
+        <LogoSvg className="h-9 hidden sm:flex w-fit" />
+        <LogotypeSvg className="h-4 sm:hidden w-fit" />
         <div className="flex items-center gap-8">
           <a
             target="_blank"
