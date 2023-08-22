@@ -27,7 +27,10 @@ const Slider = ({
   onValueChange: (value: number) => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
   return (
-    <div className="flex justify-between" {...props}>
+    <div
+      className="flex flex-col sm:flex-row h-36 sm:h-auto justify-between"
+      {...props}
+    >
       <button
         className={`flex items-center justify-center w-6 h-6 rounded-full border-2 border-solid ${
           value > 0
@@ -39,7 +42,7 @@ const Slider = ({
         {value === 1 ? <Check /> : <></>}
       </button>
       <div
-        className={`flex-1 h-1 mt-2.5 ${
+        className={`flex-1 w-1 ml-2.5 sm:ml-0 sm:h-1 sm:mt-2.5 ${
           value > 1 ? 'bg-green-500' : 'bg-gray-200 dark:bg-gray-700'
         }`}
       />
@@ -54,7 +57,7 @@ const Slider = ({
         {value === 2 ? <Check /> : <></>}
       </button>
       <div
-        className={`flex-1 h-1 mt-2.5 ${
+        className={`flex-1 w-1 ml-2.5 sm:ml-0 sm:h-1 sm:mt-2.5 ${
           value > 2 ? 'bg-green-500' : 'bg-gray-200 dark:bg-gray-700'
         }`}
       />
@@ -69,7 +72,7 @@ const Slider = ({
         {value === 3 ? <Check /> : <></>}
       </button>
       <div
-        className={`flex-1 h-1 mt-2.5 ${
+        className={`flex-1 w-1 ml-2.5 sm:ml-0 sm:h-1 sm:mt-2.5 ${
           value > 3 ? 'bg-green-500' : 'bg-gray-200 dark:bg-gray-700'
         }`}
       />
