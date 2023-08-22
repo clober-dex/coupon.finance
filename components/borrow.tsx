@@ -88,7 +88,7 @@ const Position = ({
         <div className="flex flex-col items-end">
           <div className="font-bold">{apy}</div>
           <div className="flex items-center gap-1">
-            <div className="text-sm">{expiry}</div>
+            <div className="text-xs sm:text-sm">{expiry}</div>
             <button>
               <EditSvg onClick={onEditExpiry} />
             </button>
@@ -97,17 +97,17 @@ const Position = ({
       </div>
       <div className="flex flex-col rounded-b-xl p-4 gap-4">
         <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between text-gray-500 text-xs">
-            <div>Borrow Amount</div>
-            <div className="flex gap-1 text-sm">
-              <span>{borrowed}</span>
-              (${+borrowed * +price})
+          <div className="flex items-center justify-between text-xs">
+            <div className="text-gray-500">Borrow Amount</div>
+            <div className="flex gap-1 text-xs sm:text-sm">
+              {borrowed}
+              <span className="text-gray-500">(${+borrowed * +price})</span>
             </div>
           </div>
           <div className="flex items-center justify-between">
             <div className="text-gray-500 text-xs">Collateral</div>
             <div className="flex items-center gap-1">
-              <div className="text-sm">
+              <div className="text-xs sm:text-sm">
                 ${collateral} {collateralSymbol}
               </div>
               <button>
@@ -117,11 +117,13 @@ const Position = ({
           </div>
           <div className="flex items-center justify-between text-gray-500 text-xs">
             <div>LTV</div>
-            <div className="flex text-green-500 text-sm">{ltv}</div>
+            <div className="flex text-green-500 text-xs sm:text-sm">{ltv}</div>
           </div>
           <div className="flex items-center justify-between text-xs">
             <div className="text-gray-500">Liquidation Threshold</div>
-            <div className="flex text-sm">{liquidationThreshold}</div>
+            <div className="flex text-xs sm:text-sm">
+              {liquidationThreshold}
+            </div>
           </div>
         </div>
         <div className="flex gap-3">
@@ -166,7 +168,7 @@ const Asset = ({
     >
       <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
         <div className="flex justify-between w-full sm:w-auto items-center gap-4 bg-white p-4 rounded-t-xl dark:bg-gray-800 dark:sm:bg-gray-900 sm:p-0 mb-2 sm:mb-0">
-          <div className="flex items-center gap-3 w-[140px]">
+          <div className="flex items-center gap-3 sm:w-[140px]">
             <img src={currency.logo} alt={currency.name} className="w-8 h-8" />
             <div className="flex flex-col gap-0.5 sm:gap-0">
               <div className="font-bold text-sm sm:text-base">
@@ -175,7 +177,7 @@ const Asset = ({
               <div className="text-gray-500 text-xs">{currency.name}</div>
             </div>
           </div>
-          <div className="text-sm sm:font-bold sm:w-[80px]">{apy}</div>
+          <div className="text-sm font-bold sm:w-[80px]">{apy}</div>
         </div>
         <div className="flex flex-row sm:flex-col w-full sm:w-[120px] justify-between px-4 sm:p-0">
           <div className="sm:hidden text-gray-500 text-xs">Available</div>
@@ -242,7 +244,7 @@ const Borrow = () => {
   return (
     <div className="flex flex-1 flex-col w-full sm:w-fit">
       <h1 className="flex justify-center text-center font-bold text-lg sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-12 mb-8 sm:mb-16">
-        The Best Fixed-Rate Borrowing in DeFi
+        The Best Fixed-Rate <br className="flex sm:hidden" /> Borrowing in DeFi
       </h1>
       {positions.length > 0 ? (
         <div className="flex flex-col gap-6 mb-12 sm:mb-20 px-4 sm:p-0">
