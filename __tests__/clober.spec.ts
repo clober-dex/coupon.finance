@@ -186,10 +186,10 @@ describe('Market Orders', () => {
       const orderBookState = await fetchOrderBookState({
         blockNumber,
       })
-      const { amountOut: expectedAmountOut } = orderBookState.swap({
-        tokenIn: orderBookState.baseToken.address,
+      const { amountOut: expectedAmountOut } = orderBookState.swap(
+        orderBookState.baseToken.address,
         amountIn,
-      })
+      )
 
       expect(actualAmountOut.toString()).toEqual(expectedAmountOut.toString())
     },
@@ -223,10 +223,10 @@ describe('Market Orders', () => {
       const orderBookState = await fetchOrderBookState({
         blockNumber,
       })
-      const { amountOut: expectedAmountOut } = orderBookState.swap({
-        tokenIn: orderBookState.quoteToken.address,
+      const { amountOut: expectedAmountOut } = orderBookState.swap(
+        orderBookState.quoteToken.address,
         amountIn,
-      })
+      )
 
       expect(actualAmountOut.toString()).toEqual(expectedAmountOut.toString())
     },

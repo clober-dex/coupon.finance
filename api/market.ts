@@ -163,9 +163,13 @@ export class Market {
     )
   }
 
-  private rawToBase(rawQty: bigint, price: bigint, roundUp: boolean): bigint {
+  private rawToBase(
+    rawAmount: bigint,
+    price: bigint,
+    roundUp: boolean,
+  ): bigint {
     return this.roundDiv(
-      this.rawToQuote(rawQty) *
+      this.rawToQuote(rawAmount) *
         this.PRICE_PRECISION *
         this.quotePrecisionComplement,
       price * this.basePrecisionComplement,
@@ -184,7 +188,10 @@ export class Market {
     )
   }
 
-  swap({ tokenIn, amountIn }: { tokenIn: string; amountIn: bigint }): {
+  swap(
+    tokenIn: string,
+    amountIn: bigint,
+  ): {
     market: Market
     amountOut: bigint
   } {
