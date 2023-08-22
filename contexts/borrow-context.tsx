@@ -3,6 +3,7 @@ import React from 'react'
 import { Currency, CURRENCY_MAP } from '../utils/currency'
 
 type BorrowContext = {
+  // TODO: change to bigInt
   positions: {
     currency: Currency
     apy: string

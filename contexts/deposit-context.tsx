@@ -5,6 +5,7 @@ import { Currency, CURRENCY_MAP } from '../utils/currency'
 import { fetchOrderBooks } from '../api/clober'
 
 type DepositContext = {
+  // TODO: change to bigInt
   positions: {
     currency: Currency
     apy: string
