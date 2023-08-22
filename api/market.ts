@@ -79,7 +79,7 @@ export class Market {
     this.asks = asks
   }
 
-  static fromMarket(market: Market, bids: Depth[], asks: Depth[]): Market {
+  static from(market: Market, bids: Depth[], asks: Depth[]): Market {
     return new Market(
       market.address,
       market.orderToken,
@@ -98,21 +98,21 @@ export class Market {
     )
   }
 
-  static fromDto(marketDto: MarketDto): Market {
+  static fromDto(dto: MarketDto): Market {
     return new Market(
-      marketDto.address,
-      marketDto.orderToken,
-      BigInt(marketDto.a),
-      BigInt(marketDto.r),
-      BigInt(marketDto.d),
-      BigInt(marketDto.takerFee),
-      BigInt(marketDto.makerFee),
-      BigInt(marketDto.quoteUnit),
-      marketDto.quoteToken,
-      marketDto.baseToken,
-      10n ** (18n - BigInt(marketDto.quoteToken.decimals)),
-      10n ** (18n - BigInt(marketDto.baseToken.decimals)),
-      marketDto.depths
+      dto.address,
+      dto.orderToken,
+      BigInt(dto.a),
+      BigInt(dto.r),
+      BigInt(dto.d),
+      BigInt(dto.takerFee),
+      BigInt(dto.makerFee),
+      BigInt(dto.quoteUnit),
+      dto.quoteToken,
+      dto.baseToken,
+      10n ** (18n - BigInt(dto.quoteToken.decimals)),
+      10n ** (18n - BigInt(dto.baseToken.decimals)),
+      dto.depths
         .filter((depth) => depth.isBid)
         .sort((a, b) => {
           return Number(b.price) - Number(a.price)
@@ -122,7 +122,7 @@ export class Market {
           rawAmount: BigInt(depth.rawAmount),
           isBid: depth.isBid,
         })),
-      marketDto.depths
+      dto.depths
         .filter((depth) => !depth.isBid)
         .sort((a, b) => {
           return Number(a.price) - Number(b.price)
@@ -228,7 +228,7 @@ export class Market {
     amountOut -= this.calculateTakerFeeAmount(amountOut, true)
     return {
       amountOut,
-      market: Market.fromMarket(this, bids, asks),
+      market: Market.from(this, bids, asks),
     }
   }
 }
