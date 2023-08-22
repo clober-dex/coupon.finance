@@ -47,42 +47,92 @@ export class Market {
   bids: Depth[]
   asks: Depth[]
 
-  constructor(marketDto: MarketDto) {
-    this.address = marketDto.address
-    this.orderToken = marketDto.orderToken
-    this.a = BigInt(marketDto.a)
-    this.r = BigInt(marketDto.r)
-    this.d = BigInt(marketDto.d)
-    this.takerFee = BigInt(marketDto.takerFee)
-    this.makerFee = BigInt(marketDto.makerFee)
-    this.quoteUnit = BigInt(marketDto.quoteUnit)
-    this.quoteToken = marketDto.quoteToken
-    this.baseToken = marketDto.baseToken
-    this.quotePrecisionComplement =
-      10n ** (18n - BigInt(this.quoteToken.decimals))
-    this.basePrecisionComplement =
-      10n ** (18n - BigInt(this.baseToken.decimals))
+  constructor(
+    address: string,
+    orderToken: string,
+    a: bigint,
+    r: bigint,
+    d: bigint,
+    takerFee: bigint,
+    makerFee: bigint,
+    quoteUnit: bigint,
+    quoteToken: Currency,
+    baseToken: Currency,
+    quotePrecisionComplement: bigint,
+    basePrecisionComplement: bigint,
+    bids: Depth[],
+    asks: Depth[],
+  ) {
+    this.address = address
+    this.orderToken = orderToken
+    this.a = a
+    this.r = r
+    this.d = d
+    this.takerFee = takerFee
+    this.makerFee = makerFee
+    this.quoteUnit = quoteUnit
+    this.quoteToken = quoteToken
+    this.baseToken = baseToken
+    this.quotePrecisionComplement = quotePrecisionComplement
+    this.basePrecisionComplement = basePrecisionComplement
+    this.bids = bids
+    this.asks = asks
+  }
 
-    this.bids = marketDto.depths
-      .filter((depth) => depth.isBid)
-      .sort((a, b) => {
-        return Number(b.price) - Number(a.price)
-      })
-      .map((depth) => ({
-        price: BigInt(depth.price),
-        rawAmount: BigInt(depth.rawAmount),
-        isBid: depth.isBid,
-      }))
-    this.asks = marketDto.depths
-      .filter((depth) => !depth.isBid)
-      .sort((a, b) => {
-        return Number(a.price) - Number(b.price)
-      })
-      .map((depth) => ({
-        price: BigInt(depth.price),
-        rawAmount: BigInt(depth.rawAmount),
-        isBid: depth.isBid,
-      }))
+  static fromMarket(market: Market, bids: Depth[], asks: Depth[]): Market {
+    return new Market(
+      market.address,
+      market.orderToken,
+      market.a,
+      market.r,
+      market.d,
+      market.takerFee,
+      market.makerFee,
+      market.quoteUnit,
+      market.quoteToken,
+      market.baseToken,
+      market.quotePrecisionComplement,
+      market.basePrecisionComplement,
+      bids,
+      asks,
+    )
+  }
+
+  static fromDto(marketDto: MarketDto): Market {
+    return new Market(
+      marketDto.address,
+      marketDto.orderToken,
+      BigInt(marketDto.a),
+      BigInt(marketDto.r),
+      BigInt(marketDto.d),
+      BigInt(marketDto.takerFee),
+      BigInt(marketDto.makerFee),
+      BigInt(marketDto.quoteUnit),
+      marketDto.quoteToken,
+      marketDto.baseToken,
+      10n ** (18n - BigInt(marketDto.quoteToken.decimals)),
+      10n ** (18n - BigInt(marketDto.baseToken.decimals)),
+      marketDto.depths
+        .filter((depth) => depth.isBid)
+        .sort((a, b) => {
+          return Number(b.price) - Number(a.price)
+        })
+        .map((depth) => ({
+          price: BigInt(depth.price),
+          rawAmount: BigInt(depth.rawAmount),
+          isBid: depth.isBid,
+        })),
+      marketDto.depths
+        .filter((depth) => !depth.isBid)
+        .sort((a, b) => {
+          return Number(a.price) - Number(b.price)
+        })
+        .map((depth) => ({
+          price: BigInt(depth.price),
+          rawAmount: BigInt(depth.rawAmount),
+          isBid: depth.isBid,
+        })),
+    )
   }
 
   private roundDiv(x: bigint, y: bigint, roundUp: boolean): bigint {
@@ -134,43 +184,51 @@ export class Market {
     )
   }
 
-  swap({ tokenIn, amountIn }: { tokenIn: string; amountIn: bigint }): bigint {
-    let amountOut: bigint = BigInt(0)
+  swap({ tokenIn, amountIn }: { tokenIn: string; amountIn: bigint }): {
+    market: Market
+    amountOut: bigint
+  } {
+    const asks = [...this.asks]
+    const bids = [...this.bids]
+    let amountOut: bigint = 0n
     if (
       isAddressEqual(
         tokenIn as `0x${string}`,
         this.quoteToken.address as `0x${string}`,
       )
     ) {
-      while (this.asks.length > 0) {
-        const { price, rawAmount } = this.asks[0]
+      while (asks.length > 0) {
+        const { price, rawAmount } = asks[0]
         const amountInRaw = this.quoteToRaw(amountIn, false)
         if (amountInRaw >= rawAmount) {
           amountIn -= this.rawToQuote(rawAmount)
           amountOut += this.rawToBase(rawAmount, price, false)
-          this.asks.shift()
+          asks.shift()
         } else {
           amountOut += this.rawToBase(amountInRaw, price, false)
-          this.asks[0].rawAmount = rawAmount - amountInRaw
+          asks[0].rawAmount = rawAmount - amountInRaw
           break
         }
       }
     } else {
-      while (this.bids.length > 0) {
-        const { price, rawAmount } = this.bids[0]
+      while (bids.length > 0) {
+        const { price, rawAmount } = bids[0]
         const amountInRaw = this.baseToRaw(amountIn, price, false)
         if (amountInRaw >= rawAmount) {
           amountIn -= this.rawToBase(rawAmount, price, true)
           amountOut += this.rawToQuote(rawAmount)
-          this.bids.shift()
+          bids.shift()
         } else {
           amountOut += this.rawToQuote(amountInRaw)
-          this.bids[0].rawAmount = rawAmount - amountInRaw
+          bids[0].rawAmount = rawAmount - amountInRaw
           break
         }
       }
     }
     amountOut -= this.calculateTakerFeeAmount(amountOut, true)
-    return amountOut
+    return {
+      amountOut,
+      market: Market.fromMarket(this, bids, asks),
+    }
   }
 }
