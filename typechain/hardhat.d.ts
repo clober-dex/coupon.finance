@@ -169,6 +169,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.CloberOrderBook__factory>;
     getContractFactory(
+      name: "CloberRouter",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.CloberRouter__factory>;
+    getContractFactory(
       name: "ISingletonFactory",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ISingletonFactory__factory>;
@@ -492,6 +496,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.CloberOrderBook>;
+    getContractAt(
+      name: "CloberRouter",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.CloberRouter>;
     getContractAt(
       name: "ISingletonFactory",
       address: string,

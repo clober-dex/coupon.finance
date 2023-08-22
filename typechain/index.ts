@@ -84,6 +84,8 @@ export type { CloberMarketSwapCallbackReceiver } from "./contracts/external/clob
 export { CloberMarketSwapCallbackReceiver__factory } from "./factories/contracts/external/clober/CloberMarketSwapCallbackReceiver__factory";
 export type { CloberOrderBook } from "./contracts/external/clober/CloberOrderBook";
 export { CloberOrderBook__factory } from "./factories/contracts/external/clober/CloberOrderBook__factory";
+export type { CloberRouter } from "./contracts/external/clober/CloberRouter";
+export { CloberRouter__factory } from "./factories/contracts/external/clober/CloberRouter__factory";
 export type { ISingletonFactory } from "./contracts/external/eip2470/ISingletonFactory";
 export { ISingletonFactory__factory } from "./factories/contracts/external/eip2470/ISingletonFactory__factory";
 export type { ISwapRouter } from "./contracts/external/uniswap-v3/ISwapRouter";
