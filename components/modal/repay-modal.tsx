@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
-import { Currency } from '../../utils/currency'
 import NumberInput from '../number-input'
+import { Currency, getLogo } from '../../model/currency'
 
 import Modal from './modal'
 
@@ -53,7 +53,7 @@ const RepayModal = ({
           <div className="flex flex-col items-end justify-between">
             <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
               <img
-                src={position?.currency.logo}
+                src={getLogo(position?.currency)}
                 alt={position?.currency.name}
                 className="w-5 h-5"
               />

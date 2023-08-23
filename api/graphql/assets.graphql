@@ -1,0 +1,22 @@
+query getAssets {
+  assets {
+    underlying {
+      id
+      symbol
+      name
+      decimals
+    }
+    substitutes {
+      id
+      symbol
+      name
+      decimals
+    }
+    collaterals {
+      id
+      symbol
+      name
+      decimals
+    }
+  }
+}

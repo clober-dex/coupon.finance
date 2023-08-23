@@ -359,7 +359,7 @@ const schemaAST = {
           "kind": "FieldDefinition",
           "name": {
             "kind": "Name",
-            "value": "amount"
+            "value": "baseAmount"
           },
           "arguments": [],
           "type": {
@@ -1316,7 +1316,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "amount"
+            "value": "baseAmount"
           },
           "type": {
             "kind": "NamedType",
@@ -1331,7 +1331,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "amount_not"
+            "value": "baseAmount_not"
           },
           "type": {
             "kind": "NamedType",
@@ -1346,7 +1346,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "amount_gt"
+            "value": "baseAmount_gt"
           },
           "type": {
             "kind": "NamedType",
@@ -1361,7 +1361,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "amount_lt"
+            "value": "baseAmount_lt"
           },
           "type": {
             "kind": "NamedType",
@@ -1376,7 +1376,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "amount_gte"
+            "value": "baseAmount_gte"
           },
           "type": {
             "kind": "NamedType",
@@ -1391,7 +1391,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "amount_lte"
+            "value": "baseAmount_lte"
           },
           "type": {
             "kind": "NamedType",
@@ -1406,7 +1406,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "amount_in"
+            "value": "baseAmount_in"
           },
           "type": {
             "kind": "ListType",
@@ -1427,7 +1427,7 @@ const schemaAST = {
           "kind": "InputValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "amount_not_in"
+            "value": "baseAmount_not_in"
           },
           "type": {
             "kind": "ListType",
@@ -1626,7 +1626,7 @@ const schemaAST = {
           "kind": "EnumValueDefinition",
           "name": {
             "kind": "Name",
-            "value": "amount"
+            "value": "baseAmount"
           },
           "directives": []
         }

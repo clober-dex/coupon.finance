@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { NextPage } from 'next'
 import Head from 'next/head'
 import CountUp from 'react-countup'
@@ -6,8 +6,8 @@ import { useRouter } from 'next/router'
 
 import Slider from '../../components/slider'
 import NumberInput from '../../components/number-input'
-import { CURRENCY_MAP } from '../../utils/currency'
 import BackSvg from '../../components/svg/back-svg'
+import { getLogo } from '../../model/currency'
 
 const dummy = [
   { date: '24-06-30', profit: '102.37' },
@@ -21,11 +21,17 @@ const Deposit: NextPage = () => {
 
   const router = useRouter()
 
-  const currency = useMemo(
-    () =>
-      CURRENCY_MAP[router.isReady ? (router.query.symbol as string) : 'USDC'],
-    [router.isReady, router.query.symbol],
-  )
+  const currency = {
+    address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1' as `0x${string}`,
+    name: 'Arbitrum',
+    symbol: 'ARB',
+    decimals: 18,
+  } // TODO: get from router
+  // const currency = useMemo(
+  //   () =>
+  //     CURRENCY_MAP[router.isReady ? (router.query.symbol as string) : 'USDC'],
+  //   [router.isReady, router.query.symbol],
+  // )
 
   const setSelected = useCallback(
     (value: number) => {
@@ -53,7 +59,7 @@ const Deposit: NextPage = () => {
             Deposit
             <div className="flex items-center gap-2">
               <img
-                src={currency.logo}
+                src={getLogo(currency)}
                 alt={currency.name}
                 className="w-6 h-6 sm:w-8 sm:h-8"
               />
@@ -81,7 +87,7 @@ const Deposit: NextPage = () => {
                   <div className="flex flex-col items-end justify-between">
                     <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
                       <img
-                        src={currency.logo}
+                        src={getLogo(currency)}
                         alt={currency.name}
                         className="w-5 h-5"
                       />
