@@ -51,7 +51,7 @@ const Position = ({
   collateralSymbol,
   expiry,
   price,
-  // collateralPrice,
+  collateralPrice,
   ltv,
   liquidationThreshold,
   onRepay,
@@ -75,6 +75,7 @@ const Position = ({
   onEditCollateral: () => void
   onEditExpiry: () => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
+  collateralPrice // TODO remove
   return (
     <div className="rounded-xl shadow bg-gray-50 dark:bg-gray-900" {...props}>
       <div className="flex justify-between rounded-t-xl p-4 bg-white dark:bg-gray-800">
