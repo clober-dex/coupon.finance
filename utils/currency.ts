@@ -3,7 +3,8 @@ export type Currency = {
   name: string
   symbol: string
   decimals: number
-  logo: string
+  logo?: string
+  substitutes?: Currency[]
 }
 
 export const CURRENCY_MAP: {
