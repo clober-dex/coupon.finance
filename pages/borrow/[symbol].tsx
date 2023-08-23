@@ -1,4 +1,4 @@
-import React, { SVGProps, useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { NextPage } from 'next'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -6,31 +6,7 @@ import { useRouter } from 'next/router'
 import Slider from '../../components/slider'
 import NumberInput from '../../components/number-input'
 import { CURRENCY_MAP } from '../../utils/currency'
-
-const Arrow = (props: SVGProps<any>) => (
-  <svg
-    width="32"
-    height="32"
-    viewBox="0 0 32 32"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
-    <path
-      d="M27 16L6 16"
-      strokeWidth="2.5"
-      strokeLinecap="square"
-      strokeLinejoin="round"
-      className="stroke-gray-950 dark:stroke-white"
-    />
-    <path
-      d="M14 7L5 16L14 25"
-      strokeWidth="2.5"
-      strokeLinecap="square"
-      className="stroke-gray-950 dark:stroke-white"
-    />
-  </svg>
-)
+import BackSvg from '../../components/svg/back-svg'
 
 const dummy = [
   { date: '24-06-30', profit: '102.37' },
@@ -67,37 +43,37 @@ const Borrow: NextPage = () => {
         <link href="/favicon.svg" rel="icon" />
       </Head>
       <main className="flex flex-1 flex-col justify-center items-center">
-        <div className="flex flex-1 flex-col w-[1080px]">
+        <div className="flex flex-1 flex-col w-full">
           <button
-            className="flex w-full font-bold text-2xl gap-3 mt-24"
+            className="flex items-center font-bold text-base sm:text-2xl gap-2 sm:gap-3 mt-24 mb-2 sm:mb-2 ml-4 sm:ml-6"
             onClick={() => router.back()}
           >
-            <Arrow />
+            <BackSvg className="w-4 h-4 sm:w-8 sm:h-8" />
             Borrow
             <div className="flex gap-2">
               <img
                 src={currency.logo}
                 alt={currency.name}
-                className="w-8 h-8"
+                className="w-6 h-6 sm:w-8 sm:h-8"
               />
               <div>{currency.symbol}</div>
             </div>
           </button>
-          <div className="flex flex-1 items-center justify-center">
-            <div className="flex flex-col shadow bg-gray-50 dark:bg-gray-900 rounded-3xl p-6 w-[480px] gap-8">
+          <div className="flex flex-1 sm:items-center justify-center">
+            <div className="flex flex-col sm:shadow bg-gray-50 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 w-full sm:w-[480px] gap-8">
               <div className="flex flex-col gap-4">
-                <div className="font-bold text-lg">
+                <div className="font-bold text-sm sm:text-lg">
                   How much collateral would you like to add?
                 </div>
                 <div className="flex bg-white dark:bg-gray-800 rounded-lg p-3">
                   <div className="flex flex-col flex-1 justify-between gap-2">
                     <NumberInput
-                      className="text-2xl placeholder-gray-400 outline-none bg-transparent"
+                      className="text-xl sm:text-2xl placeholder-gray-400 outline-none bg-transparent w-40 sm:w-auto"
                       value={value}
                       onValueChange={setValue}
                       placeholder="0.0000"
                     />
-                    <div className="text-gray-400 dark:text-gray-500 text-sm">
+                    <div className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm">
                       ~$0.0000
                     </div>
                   </div>
@@ -108,9 +84,11 @@ const Borrow: NextPage = () => {
                         alt={currency.name}
                         className="w-5 h-5"
                       />
-                      <div>{currency.symbol}</div>
+                      <div className="text-sm sm:text-base">
+                        {currency.symbol}
+                      </div>
                     </div>
-                    <div className="flex text-sm gap-2">
+                    <div className="flex text-xs sm:text-sm gap-1 sm:gap-2">
                       <div className="text-gray-500">Available</div>
                       <div>2.1839</div>
                       <button className="text-green-500">MAX</button>
@@ -119,18 +97,18 @@ const Borrow: NextPage = () => {
                 </div>
               </div>
               <div className="flex flex-col gap-4">
-                <div className="font-bold text-lg">
+                <div className="font-bold text-sm sm:text-lg">
                   How much would you like to borrow?
                 </div>
                 <div className="flex bg-white dark:bg-gray-800 rounded-lg p-3">
                   <div className="flex flex-col flex-1 justify-between gap-2">
                     <NumberInput
-                      className="text-2xl placeholder-gray-400 outline-none bg-transparent"
+                      className="text-xl sm:text-2xl placeholder-gray-400 outline-none bg-transparent w-40 sm:w-auto"
                       value={value}
                       onValueChange={setValue}
                       placeholder="0.0000"
                     />
-                    <div className="text-gray-400 dark:text-gray-500 text-sm">
+                    <div className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm">
                       ~$0.0000
                     </div>
                   </div>
@@ -141,9 +119,11 @@ const Borrow: NextPage = () => {
                         alt={currency.name}
                         className="w-5 h-5"
                       />
-                      <div>{currency.symbol}</div>
+                      <div className="text-sm sm:text-base">
+                        {currency.symbol}
+                      </div>
                     </div>
-                    <div className="flex text-sm gap-2">
+                    <div className="flex text-xs sm:text-sm gap-1 sm:gap-2">
                       <div className="text-gray-500">Available</div>
                       <div>2.1839</div>
                       <button className="text-green-500">MAX</button>
@@ -151,15 +131,15 @@ const Borrow: NextPage = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col">
-                <div className="font-bold text-lg mb-4">
+              <div className="flex flex-col gap-4">
+                <div className="font-bold text-sm sm:text-lg">
                   Select expiration date.
                 </div>
-                <div className="flex flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
-                  <div className="px-6 mb-2">
+                <div className="flex flex-row-reverse justify-between sm:flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4">
+                  <div className="sm:px-6 sm:mb-2">
                     <Slider value={selected} onValueChange={setSelected} />
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex flex-col sm:flex-row justify-between">
                     {dummy.map(({ date }, i) => (
                       <button
                         key={i}
@@ -172,7 +152,7 @@ const Borrow: NextPage = () => {
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
-                  <div className="flex w-fit text-sm gap-2">
+                  <div className="flex w-full sm:w-fit text-sm gap-2 justify-between">
                     <span className="text-gray-500">APY</span>
                     <div className="flex gap-1">
                       <div className="text-gray-800 dark:text-white">3.15%</div>
@@ -181,7 +161,7 @@ const Borrow: NextPage = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex w-fit text-sm gap-2">
+                  <div className="flex w-full sm:w-fit text-sm gap-2 justify-between">
                     <span className="text-gray-500">LTV</span>
                     <div className="text-yellow-500">15.24%</div>
                   </div>
@@ -189,7 +169,7 @@ const Borrow: NextPage = () => {
               </div>
               <button
                 disabled={true}
-                className="font-bold text-xl disabled:bg-gray-100 dark:disabled:bg-gray-800 h-16 rounded-lg disabled:text-gray-300 dark:disabled:text-gray-500"
+                className="font-bold text-base sm:text-xl disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg disabled:text-gray-300 dark:disabled:text-gray-500"
               >
                 Confirm
               </button>
