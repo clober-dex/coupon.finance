@@ -1,4 +1,4 @@
-query OrderBook {
+query getOrderBooks {
   markets {
     id
     orderToken

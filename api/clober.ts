@@ -4,10 +4,10 @@ import { getBuiltGraphSDK } from '../.graphclient'
 
 import { Market } from './market'
 
-const { OrderBook } = getBuiltGraphSDK()
+const { getOrderBooks } = getBuiltGraphSDK()
 
 export async function fetchOrderBooks(): Promise<Market[]> {
-  const { markets } = await OrderBook()
+  const { markets } = await getOrderBooks()
   return markets.map((market) =>
     Market.fromDto({
       address: getAddress(market.id),

@@ -20,8 +20,8 @@ import { getMesh, ExecuteMeshFn, SubscribeMeshFn, MeshContext as BaseMeshContext
 import { MeshStore, FsStoreStorageAdapter } from '@graphql-mesh/store';
 import { path as pathModule } from '@graphql-mesh/cross-helpers';
 import { ImportFn } from '@graphql-mesh/types';
-import type { CloberTypes } from './sources/clober/types';
 import type { CouponFinanceTypes } from './sources/coupon-finance/types';
+import type { CloberTypes } from './sources/clober/types';
 import * as importedModule$0 from "./sources/coupon-finance/introspectionSchema";
 import * as importedModule$1 from "./sources/clober/introspectionSchema";
 export type Maybe<T> = T | null;
@@ -1100,23 +1100,23 @@ const merger = new(StitchingMerger as any)({
     get documents() {
       return [
       {
-        document: OrderBookForkDocument,
+        document: GetOrderBooksWithForkDocument,
         get rawSDL() {
-          return printWithCache(OrderBookForkDocument);
+          return printWithCache(GetOrderBooksWithForkDocument);
         },
-        location: 'OrderBookForkDocument.graphql'
+        location: 'GetOrderBooksWithForkDocument.graphql'
       },{
-        document: OrderBookDocument,
+        document: GetOrderBooksDocument,
         get rawSDL() {
-          return printWithCache(OrderBookDocument);
+          return printWithCache(GetOrderBooksDocument);
         },
-        location: 'OrderBookDocument.graphql'
+        location: 'GetOrderBooksDocument.graphql'
       },{
-        document: TokensDocument,
+        document: GetAssetsDocument,
         get rawSDL() {
-          return printWithCache(TokensDocument);
+          return printWithCache(GetAssetsDocument);
         },
-        location: 'TokensDocument.graphql'
+        location: 'GetAssetsDocument.graphql'
       }
     ];
     },
@@ -1155,36 +1155,36 @@ export function getBuiltGraphSDK<TGlobalContext = any, TOperationContext = any>(
   const sdkRequester$ = getBuiltGraphClient().then(({ sdkRequesterFactory }) => sdkRequesterFactory(globalContext));
   return getSdk<TOperationContext, TGlobalContext>((...args) => sdkRequester$.then(sdkRequester => sdkRequester(...args)));
 }
-export type OrderBookForkQueryVariables = Exact<{
+export type getOrderBooksWithForkQueryVariables = Exact<{
   marketAddress: Scalars['ID'];
   blockNumber: Scalars['Int'];
 }>;
 
 
-export type OrderBookForkQuery = { markets: Array<(
+export type getOrderBooksWithForkQuery = { markets: Array<(
     Pick<Market, 'id' | 'orderToken' | 'a' | 'r' | 'd' | 'makerFee' | 'takerFee' | 'quoteUnit'>
     & { quoteToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>, baseToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>, depths: Array<Pick<Depth, 'price' | 'rawAmount' | 'isBid'>> }
   )> };
 
-export type OrderBookQueryVariables = Exact<{ [key: string]: never; }>;
+export type getOrderBooksQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type OrderBookQuery = { markets: Array<(
+export type getOrderBooksQuery = { markets: Array<(
     Pick<Market, 'id' | 'orderToken' | 'a' | 'r' | 'd' | 'makerFee' | 'takerFee' | 'quoteUnit'>
     & { quoteToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>, baseToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>, depths: Array<Pick<Depth, 'price' | 'rawAmount' | 'isBid'>> }
   )> };
 
-export type TokensQueryVariables = Exact<{ [key: string]: never; }>;
+export type getAssetsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TokensQuery = { tokens: Array<(
+export type getAssetsQuery = { tokens: Array<(
     Pick<Token, 'id' | 'symbol' | 'name' | 'decimals'>
     & { substitutes: Array<Pick<Substitute, 'id' | 'symbol' | 'name' | 'decimals'>> }
   )> };
 
 
-export const OrderBookForkDocument = gql`
-    query OrderBookFork($marketAddress: ID!, $blockNumber: Int!) {
+export const getOrderBooksWithForkDocument = gql`
+    query getOrderBooksWithFork($marketAddress: ID!, $blockNumber: Int!) {
   markets(where: {id: $marketAddress}, block: {number: $blockNumber}) {
     id
     orderToken
@@ -1213,9 +1213,9 @@ export const OrderBookForkDocument = gql`
     }
   }
 }
-    ` as unknown as DocumentNode<OrderBookForkQuery, OrderBookForkQueryVariables>;
-export const OrderBookDocument = gql`
-    query OrderBook {
+    ` as unknown as DocumentNode<getOrderBooksWithForkQuery, getOrderBooksWithForkQueryVariables>;
+export const getOrderBooksDocument = gql`
+    query getOrderBooks {
   markets {
     id
     orderToken
@@ -1244,9 +1244,9 @@ export const OrderBookDocument = gql`
     }
   }
 }
-    ` as unknown as DocumentNode<OrderBookQuery, OrderBookQueryVariables>;
-export const TokensDocument = gql`
-    query Tokens {
+    ` as unknown as DocumentNode<getOrderBooksQuery, getOrderBooksQueryVariables>;
+export const getAssetsDocument = gql`
+    query getAssets {
   tokens {
     id
     symbol
@@ -1260,7 +1260,7 @@ export const TokensDocument = gql`
     }
   }
 }
-    ` as unknown as DocumentNode<TokensQuery, TokensQueryVariables>;
+    ` as unknown as DocumentNode<getAssetsQuery, getAssetsQueryVariables>;
 
 
 
@@ -1268,14 +1268,14 @@ export const TokensDocument = gql`
 export type Requester<C = {}, E = unknown> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R> | AsyncIterable<R>
 export function getSdk<C, E>(requester: Requester<C, E>) {
   return {
-    OrderBookFork(variables: OrderBookForkQueryVariables, options?: C): Promise<OrderBookForkQuery> {
-      return requester<OrderBookForkQuery, OrderBookForkQueryVariables>(OrderBookForkDocument, variables, options) as Promise<OrderBookForkQuery>;
+    getOrderBooksWithFork(variables: getOrderBooksWithForkQueryVariables, options?: C): Promise<getOrderBooksWithForkQuery> {
+      return requester<getOrderBooksWithForkQuery, getOrderBooksWithForkQueryVariables>(getOrderBooksWithForkDocument, variables, options) as Promise<getOrderBooksWithForkQuery>;
     },
-    OrderBook(variables?: OrderBookQueryVariables, options?: C): Promise<OrderBookQuery> {
-      return requester<OrderBookQuery, OrderBookQueryVariables>(OrderBookDocument, variables, options) as Promise<OrderBookQuery>;
+    getOrderBooks(variables?: getOrderBooksQueryVariables, options?: C): Promise<getOrderBooksQuery> {
+      return requester<getOrderBooksQuery, getOrderBooksQueryVariables>(getOrderBooksDocument, variables, options) as Promise<getOrderBooksQuery>;
     },
-    Tokens(variables?: TokensQueryVariables, options?: C): Promise<TokensQuery> {
-      return requester<TokensQuery, TokensQueryVariables>(TokensDocument, variables, options) as Promise<TokensQuery>;
+    getAssets(variables?: getAssetsQueryVariables, options?: C): Promise<getAssetsQuery> {
+      return requester<getAssetsQuery, getAssetsQueryVariables>(getAssetsDocument, variables, options) as Promise<getAssetsQuery>;
     }
   };
 }
