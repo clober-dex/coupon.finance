@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import '../styles/globals.css'
 import '@rainbow-me/rainbowkit/styles.css'
 import {
@@ -9,20 +9,23 @@ import {
 } from '@rainbow-me/rainbowkit'
 import type { AppProps } from 'next/app'
 import { configureChains, createConfig, WagmiConfig } from 'wagmi'
-import { arbitrum, goerli } from 'wagmi/chains'
+import { arbitrum } from 'wagmi/chains'
 import { publicProvider } from 'wagmi/providers/public'
+import { alchemyProvider } from 'wagmi/providers/alchemy'
 
 import Header from '../components/header'
 import { ThemeProvider, useThemeContext } from '../contexts/theme-context'
 import { DepositProvider } from '../contexts/deposit-context'
 import { BorrowProvider } from '../contexts/borrow-context'
+import { couponFinanceChain } from '../utils/dev-chain'
+import Panel from '../components/panel'
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
+  [process.env.BUILD === 'dev' ? couponFinanceChain : arbitrum],
   [
-    arbitrum,
-    ...(process.env.NEXT_PUBLIC_ENABLE_TESTNETS === 'true' ? [goerli] : []),
+    alchemyProvider({ apiKey: process.env.ALCHEMY_API_KEY || '' }),
+    publicProvider(),
   ],
-  [publicProvider()], // TODO: add alchemyProvider
 )
 
 const { connectors } = getDefaultWallets({
@@ -62,13 +65,15 @@ const WalletProvider = ({ children }: React.PropsWithChildren) => {
 }
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const [open, setOpen] = useState(false)
   return (
     <ThemeProvider>
       <WalletProvider>
         <DepositProvider>
           <BorrowProvider>
             <div className="flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white">
-              <Header />
+              <Panel open={open} setOpen={setOpen} />
+              <Header onMenuClick={() => setOpen(true)} />
               <Component {...pageProps} />
             </div>
           </BorrowProvider>

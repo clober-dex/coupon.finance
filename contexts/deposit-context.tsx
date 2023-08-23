@@ -1,6 +1,8 @@
 import React from 'react'
+import { useQuery } from 'wagmi'
 
 import { Currency, CURRENCY_MAP } from '../utils/currency'
+import { fetchOrderBooks } from '../api/clober'
 
 type DepositContext = {
   positions: {
@@ -26,6 +28,17 @@ const Context = React.createContext<DepositContext>({
 })
 
 export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
+  const { data: orderbook } = useQuery(
+    ['orderbook'],
+    async () => {
+      return fetchOrderBooks()
+    },
+    {
+      refetchInterval: 1000,
+    },
+  )
+  console.log(orderbook)
+
   const dummyPositions = [
     {
       currency: CURRENCY_MAP['ETH'],
