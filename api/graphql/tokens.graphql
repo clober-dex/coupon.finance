@@ -1,13 +1,13 @@
-query DepositAssets {
+query Tokens {
   tokens {
     id
-    name
     symbol
+    name
     decimals
-    asset {
+    substitutes {
       id
-      name
       symbol
+      name
       decimals
     }
   }

@@ -47,8 +47,8 @@ export type Scalars = {
 };
 
 export type Query = {
-  asset?: Maybe<Asset>;
-  assets: Array<Asset>;
+  substitute?: Maybe<Substitute>;
+  substitutes: Array<Substitute>;
   token?: Maybe<Token>;
   tokens: Array<Token>;
   /** Access to subgraph metadata */
@@ -60,19 +60,19 @@ export type Query = {
 };
 
 
-export type QueryassetArgs = {
+export type QuerysubstituteArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type QueryassetsArgs = {
+export type QuerysubstitutesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Asset_orderBy>;
+  orderBy?: InputMaybe<Substitute_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<Asset_filter>;
+  where?: InputMaybe<Substitute_filter>;
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -137,8 +137,8 @@ export type QuerydepthsArgs = {
 };
 
 export type Subscription = {
-  asset?: Maybe<Asset>;
-  assets: Array<Asset>;
+  substitute?: Maybe<Substitute>;
+  substitutes: Array<Substitute>;
   token?: Maybe<Token>;
   tokens: Array<Token>;
   /** Access to subgraph metadata */
@@ -150,19 +150,19 @@ export type Subscription = {
 };
 
 
-export type SubscriptionassetArgs = {
+export type SubscriptionsubstituteArgs = {
   id: Scalars['ID'];
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
-export type SubscriptionassetsArgs = {
+export type SubscriptionsubstitutesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Asset_orderBy>;
+  orderBy?: InputMaybe<Substitute_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<Asset_filter>;
+  where?: InputMaybe<Substitute_filter>;
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -226,94 +226,6 @@ export type SubscriptiondepthsArgs = {
   subgraphError?: _SubgraphErrorPolicy_;
 };
 
-export type Asset = {
-  id: Scalars['ID'];
-  symbol: Scalars['String'];
-  name: Scalars['String'];
-  decimals: Scalars['BigInt'];
-  underlying: Array<Token>;
-};
-
-
-export type AssetunderlyingArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Token_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<Token_filter>;
-};
-
-export type Asset_filter = {
-  id?: InputMaybe<Scalars['ID']>;
-  id_not?: InputMaybe<Scalars['ID']>;
-  id_gt?: InputMaybe<Scalars['ID']>;
-  id_lt?: InputMaybe<Scalars['ID']>;
-  id_gte?: InputMaybe<Scalars['ID']>;
-  id_lte?: InputMaybe<Scalars['ID']>;
-  id_in?: InputMaybe<Array<Scalars['ID']>>;
-  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  symbol?: InputMaybe<Scalars['String']>;
-  symbol_not?: InputMaybe<Scalars['String']>;
-  symbol_gt?: InputMaybe<Scalars['String']>;
-  symbol_lt?: InputMaybe<Scalars['String']>;
-  symbol_gte?: InputMaybe<Scalars['String']>;
-  symbol_lte?: InputMaybe<Scalars['String']>;
-  symbol_in?: InputMaybe<Array<Scalars['String']>>;
-  symbol_not_in?: InputMaybe<Array<Scalars['String']>>;
-  symbol_contains?: InputMaybe<Scalars['String']>;
-  symbol_contains_nocase?: InputMaybe<Scalars['String']>;
-  symbol_not_contains?: InputMaybe<Scalars['String']>;
-  symbol_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  symbol_starts_with?: InputMaybe<Scalars['String']>;
-  symbol_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  symbol_not_starts_with?: InputMaybe<Scalars['String']>;
-  symbol_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  symbol_ends_with?: InputMaybe<Scalars['String']>;
-  symbol_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  symbol_not_ends_with?: InputMaybe<Scalars['String']>;
-  symbol_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  name?: InputMaybe<Scalars['String']>;
-  name_not?: InputMaybe<Scalars['String']>;
-  name_gt?: InputMaybe<Scalars['String']>;
-  name_lt?: InputMaybe<Scalars['String']>;
-  name_gte?: InputMaybe<Scalars['String']>;
-  name_lte?: InputMaybe<Scalars['String']>;
-  name_in?: InputMaybe<Array<Scalars['String']>>;
-  name_not_in?: InputMaybe<Array<Scalars['String']>>;
-  name_contains?: InputMaybe<Scalars['String']>;
-  name_contains_nocase?: InputMaybe<Scalars['String']>;
-  name_not_contains?: InputMaybe<Scalars['String']>;
-  name_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  name_starts_with?: InputMaybe<Scalars['String']>;
-  name_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  name_not_starts_with?: InputMaybe<Scalars['String']>;
-  name_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  name_ends_with?: InputMaybe<Scalars['String']>;
-  name_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  name_not_ends_with?: InputMaybe<Scalars['String']>;
-  name_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  decimals?: InputMaybe<Scalars['BigInt']>;
-  decimals_not?: InputMaybe<Scalars['BigInt']>;
-  decimals_gt?: InputMaybe<Scalars['BigInt']>;
-  decimals_lt?: InputMaybe<Scalars['BigInt']>;
-  decimals_gte?: InputMaybe<Scalars['BigInt']>;
-  decimals_lte?: InputMaybe<Scalars['BigInt']>;
-  decimals_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  decimals_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  underlying_?: InputMaybe<Token_filter>;
-  /** Filter for the block changed event. */
-  _change_block?: InputMaybe<BlockChangedFilter>;
-  and?: InputMaybe<Array<InputMaybe<Asset_filter>>>;
-  or?: InputMaybe<Array<InputMaybe<Asset_filter>>>;
-};
-
-export type Asset_orderBy =
-  | 'id'
-  | 'symbol'
-  | 'name'
-  | 'decimals'
-  | 'underlying';
-
 export type BlockChangedFilter = {
   number_gte: Scalars['Int'];
 };
@@ -329,15 +241,15 @@ export type OrderDirection =
   | 'asc'
   | 'desc';
 
-export type Token = {
+export type Substitute = {
   id: Scalars['ID'];
-  asset: Asset;
   symbol: Scalars['String'];
   name: Scalars['String'];
   decimals: Scalars['BigInt'];
+  underlying: Token;
 };
 
-export type Token_filter = {
+export type Substitute_filter = {
   id?: InputMaybe<Scalars['ID']>;
   id_not?: InputMaybe<Scalars['ID']>;
   id_gt?: InputMaybe<Scalars['ID']>;
@@ -346,27 +258,6 @@ export type Token_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  asset?: InputMaybe<Scalars['String']>;
-  asset_not?: InputMaybe<Scalars['String']>;
-  asset_gt?: InputMaybe<Scalars['String']>;
-  asset_lt?: InputMaybe<Scalars['String']>;
-  asset_gte?: InputMaybe<Scalars['String']>;
-  asset_lte?: InputMaybe<Scalars['String']>;
-  asset_in?: InputMaybe<Array<Scalars['String']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
-  asset_contains?: InputMaybe<Scalars['String']>;
-  asset_contains_nocase?: InputMaybe<Scalars['String']>;
-  asset_not_contains?: InputMaybe<Scalars['String']>;
-  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  asset_starts_with?: InputMaybe<Scalars['String']>;
-  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_not_starts_with?: InputMaybe<Scalars['String']>;
-  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_ends_with?: InputMaybe<Scalars['String']>;
-  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_not_ends_with?: InputMaybe<Scalars['String']>;
-  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<Asset_filter>;
   symbol?: InputMaybe<Scalars['String']>;
   symbol_not?: InputMaybe<Scalars['String']>;
   symbol_gt?: InputMaybe<Scalars['String']>;
@@ -415,6 +306,119 @@ export type Token_filter = {
   decimals_lte?: InputMaybe<Scalars['BigInt']>;
   decimals_in?: InputMaybe<Array<Scalars['BigInt']>>;
   decimals_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  underlying?: InputMaybe<Scalars['String']>;
+  underlying_not?: InputMaybe<Scalars['String']>;
+  underlying_gt?: InputMaybe<Scalars['String']>;
+  underlying_lt?: InputMaybe<Scalars['String']>;
+  underlying_gte?: InputMaybe<Scalars['String']>;
+  underlying_lte?: InputMaybe<Scalars['String']>;
+  underlying_in?: InputMaybe<Array<Scalars['String']>>;
+  underlying_not_in?: InputMaybe<Array<Scalars['String']>>;
+  underlying_contains?: InputMaybe<Scalars['String']>;
+  underlying_contains_nocase?: InputMaybe<Scalars['String']>;
+  underlying_not_contains?: InputMaybe<Scalars['String']>;
+  underlying_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  underlying_starts_with?: InputMaybe<Scalars['String']>;
+  underlying_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  underlying_not_starts_with?: InputMaybe<Scalars['String']>;
+  underlying_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  underlying_ends_with?: InputMaybe<Scalars['String']>;
+  underlying_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  underlying_not_ends_with?: InputMaybe<Scalars['String']>;
+  underlying_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  underlying_?: InputMaybe<Token_filter>;
+  /** Filter for the block changed event. */
+  _change_block?: InputMaybe<BlockChangedFilter>;
+  and?: InputMaybe<Array<InputMaybe<Substitute_filter>>>;
+  or?: InputMaybe<Array<InputMaybe<Substitute_filter>>>;
+};
+
+export type Substitute_orderBy =
+  | 'id'
+  | 'symbol'
+  | 'name'
+  | 'decimals'
+  | 'underlying'
+  | 'underlying__id'
+  | 'underlying__symbol'
+  | 'underlying__name'
+  | 'underlying__decimals';
+
+export type Token = {
+  id: Scalars['ID'];
+  symbol: Scalars['String'];
+  name: Scalars['String'];
+  decimals: Scalars['BigInt'];
+  substitutes: Array<Substitute>;
+};
+
+
+export type TokensubstitutesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Substitute_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<Substitute_filter>;
+};
+
+export type Token_filter = {
+  id?: InputMaybe<Scalars['ID']>;
+  id_not?: InputMaybe<Scalars['ID']>;
+  id_gt?: InputMaybe<Scalars['ID']>;
+  id_lt?: InputMaybe<Scalars['ID']>;
+  id_gte?: InputMaybe<Scalars['ID']>;
+  id_lte?: InputMaybe<Scalars['ID']>;
+  id_in?: InputMaybe<Array<Scalars['ID']>>;
+  id_not_in?: InputMaybe<Array<Scalars['ID']>>;
+  symbol?: InputMaybe<Scalars['String']>;
+  symbol_not?: InputMaybe<Scalars['String']>;
+  symbol_gt?: InputMaybe<Scalars['String']>;
+  symbol_lt?: InputMaybe<Scalars['String']>;
+  symbol_gte?: InputMaybe<Scalars['String']>;
+  symbol_lte?: InputMaybe<Scalars['String']>;
+  symbol_in?: InputMaybe<Array<Scalars['String']>>;
+  symbol_not_in?: InputMaybe<Array<Scalars['String']>>;
+  symbol_contains?: InputMaybe<Scalars['String']>;
+  symbol_contains_nocase?: InputMaybe<Scalars['String']>;
+  symbol_not_contains?: InputMaybe<Scalars['String']>;
+  symbol_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  symbol_starts_with?: InputMaybe<Scalars['String']>;
+  symbol_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  symbol_not_starts_with?: InputMaybe<Scalars['String']>;
+  symbol_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  symbol_ends_with?: InputMaybe<Scalars['String']>;
+  symbol_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  symbol_not_ends_with?: InputMaybe<Scalars['String']>;
+  symbol_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  name?: InputMaybe<Scalars['String']>;
+  name_not?: InputMaybe<Scalars['String']>;
+  name_gt?: InputMaybe<Scalars['String']>;
+  name_lt?: InputMaybe<Scalars['String']>;
+  name_gte?: InputMaybe<Scalars['String']>;
+  name_lte?: InputMaybe<Scalars['String']>;
+  name_in?: InputMaybe<Array<Scalars['String']>>;
+  name_not_in?: InputMaybe<Array<Scalars['String']>>;
+  name_contains?: InputMaybe<Scalars['String']>;
+  name_contains_nocase?: InputMaybe<Scalars['String']>;
+  name_not_contains?: InputMaybe<Scalars['String']>;
+  name_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  name_starts_with?: InputMaybe<Scalars['String']>;
+  name_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  name_not_starts_with?: InputMaybe<Scalars['String']>;
+  name_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  name_ends_with?: InputMaybe<Scalars['String']>;
+  name_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  name_not_ends_with?: InputMaybe<Scalars['String']>;
+  name_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  decimals?: InputMaybe<Scalars['BigInt']>;
+  decimals_not?: InputMaybe<Scalars['BigInt']>;
+  decimals_gt?: InputMaybe<Scalars['BigInt']>;
+  decimals_lt?: InputMaybe<Scalars['BigInt']>;
+  decimals_gte?: InputMaybe<Scalars['BigInt']>;
+  decimals_lte?: InputMaybe<Scalars['BigInt']>;
+  decimals_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  decimals_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  substitutes_?: InputMaybe<Substitute_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<Token_filter>>>;
@@ -423,14 +427,10 @@ export type Token_filter = {
 
 export type Token_orderBy =
   | 'id'
-  | 'asset'
-  | 'asset__id'
-  | 'asset__symbol'
-  | 'asset__name'
-  | 'asset__decimals'
   | 'symbol'
   | 'name'
-  | 'decimals';
+  | 'decimals'
+  | 'substitutes';
 
 export type _Block_ = {
   /** The hash of the block */
@@ -810,9 +810,6 @@ export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs
 export type ResolversTypes = ResolversObject<{
   Query: ResolverTypeWrapper<{}>;
   Subscription: ResolverTypeWrapper<{}>;
-  Asset: ResolverTypeWrapper<Asset>;
-  Asset_filter: Asset_filter;
-  Asset_orderBy: Asset_orderBy;
   BigDecimal: ResolverTypeWrapper<Scalars['BigDecimal']>;
   BigInt: ResolverTypeWrapper<Scalars['BigInt']>;
   BlockChangedFilter: BlockChangedFilter;
@@ -824,6 +821,9 @@ export type ResolversTypes = ResolversObject<{
   Int: ResolverTypeWrapper<Scalars['Int']>;
   OrderDirection: OrderDirection;
   String: ResolverTypeWrapper<Scalars['String']>;
+  Substitute: ResolverTypeWrapper<Substitute>;
+  Substitute_filter: Substitute_filter;
+  Substitute_orderBy: Substitute_orderBy;
   Token: ResolverTypeWrapper<Token>;
   Token_filter: Token_filter;
   Token_orderBy: Token_orderBy;
@@ -843,8 +843,6 @@ export type ResolversTypes = ResolversObject<{
 export type ResolversParentTypes = ResolversObject<{
   Query: {};
   Subscription: {};
-  Asset: Asset;
-  Asset_filter: Asset_filter;
   BigDecimal: Scalars['BigDecimal'];
   BigInt: Scalars['BigInt'];
   BlockChangedFilter: BlockChangedFilter;
@@ -855,6 +853,8 @@ export type ResolversParentTypes = ResolversObject<{
   ID: Scalars['ID'];
   Int: Scalars['Int'];
   String: Scalars['String'];
+  Substitute: Substitute;
+  Substitute_filter: Substitute_filter;
   Token: Token;
   Token_filter: Token_filter;
   _Block_: _Block_;
@@ -883,8 +883,8 @@ export type derivedFromDirectiveArgs = {
 export type derivedFromDirectiveResolver<Result, Parent, ContextType = MeshContext & { url: string }, Args = derivedFromDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type QueryResolvers<ContextType = MeshContext & { url: string }, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
-  asset?: Resolver<Maybe<ResolversTypes['Asset']>, ParentType, ContextType, RequireFields<QueryassetArgs, 'id' | 'subgraphError'>>;
-  assets?: Resolver<Array<ResolversTypes['Asset']>, ParentType, ContextType, RequireFields<QueryassetsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  substitute?: Resolver<Maybe<ResolversTypes['Substitute']>, ParentType, ContextType, RequireFields<QuerysubstituteArgs, 'id' | 'subgraphError'>>;
+  substitutes?: Resolver<Array<ResolversTypes['Substitute']>, ParentType, ContextType, RequireFields<QuerysubstitutesArgs, 'skip' | 'first' | 'subgraphError'>>;
   token?: Resolver<Maybe<ResolversTypes['Token']>, ParentType, ContextType, RequireFields<QuerytokenArgs, 'id' | 'subgraphError'>>;
   tokens?: Resolver<Array<ResolversTypes['Token']>, ParentType, ContextType, RequireFields<QuerytokensArgs, 'skip' | 'first' | 'subgraphError'>>;
   _meta?: Resolver<Maybe<ResolversTypes['_Meta_']>, ParentType, ContextType, Partial<Query_metaArgs>>;
@@ -895,8 +895,8 @@ export type QueryResolvers<ContextType = MeshContext & { url: string }, ParentTy
 }>;
 
 export type SubscriptionResolvers<ContextType = MeshContext & { url: string }, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
-  asset?: SubscriptionResolver<Maybe<ResolversTypes['Asset']>, "asset", ParentType, ContextType, RequireFields<SubscriptionassetArgs, 'id' | 'subgraphError'>>;
-  assets?: SubscriptionResolver<Array<ResolversTypes['Asset']>, "assets", ParentType, ContextType, RequireFields<SubscriptionassetsArgs, 'skip' | 'first' | 'subgraphError'>>;
+  substitute?: SubscriptionResolver<Maybe<ResolversTypes['Substitute']>, "substitute", ParentType, ContextType, RequireFields<SubscriptionsubstituteArgs, 'id' | 'subgraphError'>>;
+  substitutes?: SubscriptionResolver<Array<ResolversTypes['Substitute']>, "substitutes", ParentType, ContextType, RequireFields<SubscriptionsubstitutesArgs, 'skip' | 'first' | 'subgraphError'>>;
   token?: SubscriptionResolver<Maybe<ResolversTypes['Token']>, "token", ParentType, ContextType, RequireFields<SubscriptiontokenArgs, 'id' | 'subgraphError'>>;
   tokens?: SubscriptionResolver<Array<ResolversTypes['Token']>, "tokens", ParentType, ContextType, RequireFields<SubscriptiontokensArgs, 'skip' | 'first' | 'subgraphError'>>;
   _meta?: SubscriptionResolver<Maybe<ResolversTypes['_Meta_']>, "_meta", ParentType, ContextType, Partial<Subscription_metaArgs>>;
@@ -904,15 +904,6 @@ export type SubscriptionResolvers<ContextType = MeshContext & { url: string }, P
   markets?: SubscriptionResolver<Array<ResolversTypes['Market']>, "markets", ParentType, ContextType, RequireFields<SubscriptionmarketsArgs, 'skip' | 'first' | 'subgraphError'>>;
   depth?: SubscriptionResolver<Maybe<ResolversTypes['Depth']>, "depth", ParentType, ContextType, RequireFields<SubscriptiondepthArgs, 'id' | 'subgraphError'>>;
   depths?: SubscriptionResolver<Array<ResolversTypes['Depth']>, "depths", ParentType, ContextType, RequireFields<SubscriptiondepthsArgs, 'skip' | 'first' | 'subgraphError'>>;
-}>;
-
-export type AssetResolvers<ContextType = MeshContext & { url: string }, ParentType extends ResolversParentTypes['Asset'] = ResolversParentTypes['Asset']> = ResolversObject<{
-  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  symbol?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  decimals?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  underlying?: Resolver<Array<ResolversTypes['Token']>, ParentType, ContextType, RequireFields<AssetunderlyingArgs, 'skip' | 'first'>>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export interface BigDecimalScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['BigDecimal'], any> {
@@ -927,12 +918,21 @@ export interface BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversType
   name: 'Bytes';
 }
 
-export type TokenResolvers<ContextType = MeshContext & { url: string }, ParentType extends ResolversParentTypes['Token'] = ResolversParentTypes['Token']> = ResolversObject<{
+export type SubstituteResolvers<ContextType = MeshContext & { url: string }, ParentType extends ResolversParentTypes['Substitute'] = ResolversParentTypes['Substitute']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  asset?: Resolver<ResolversTypes['Asset'], ParentType, ContextType>;
   symbol?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   decimals?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  underlying?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TokenResolvers<ContextType = MeshContext & { url: string }, ParentType extends ResolversParentTypes['Token'] = ResolversParentTypes['Token']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  symbol?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  decimals?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  substitutes?: Resolver<Array<ResolversTypes['Substitute']>, ParentType, ContextType, RequireFields<TokensubstitutesArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -983,10 +983,10 @@ export type MarketResolvers<ContextType = MeshContext & { url: string }, ParentT
 export type Resolvers<ContextType = MeshContext & { url: string }> = ResolversObject<{
   Query?: QueryResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
-  Asset?: AssetResolvers<ContextType>;
   BigDecimal?: GraphQLScalarType;
   BigInt?: GraphQLScalarType;
   Bytes?: GraphQLScalarType;
+  Substitute?: SubstituteResolvers<ContextType>;
   Token?: TokenResolvers<ContextType>;
   _Block_?: _Block_Resolvers<ContextType>;
   _Meta_?: _Meta_Resolvers<ContextType>;
@@ -1106,17 +1106,17 @@ const merger = new(StitchingMerger as any)({
         },
         location: 'OrderBookForkDocument.graphql'
       },{
-        document: DepositAssetsDocument,
-        get rawSDL() {
-          return printWithCache(DepositAssetsDocument);
-        },
-        location: 'DepositAssetsDocument.graphql'
-      },{
         document: OrderBookDocument,
         get rawSDL() {
           return printWithCache(OrderBookDocument);
         },
         location: 'OrderBookDocument.graphql'
+      },{
+        document: TokensDocument,
+        get rawSDL() {
+          return printWithCache(TokensDocument);
+        },
+        location: 'TokensDocument.graphql'
       }
     ];
     },
@@ -1166,20 +1166,20 @@ export type OrderBookForkQuery = { markets: Array<(
     & { quoteToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>, baseToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>, depths: Array<Pick<Depth, 'price' | 'rawAmount' | 'isBid'>> }
   )> };
 
-export type DepositAssetsQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type DepositAssetsQuery = { tokens: Array<(
-    Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
-    & { asset: Pick<Asset, 'id' | 'name' | 'symbol' | 'decimals'> }
-  )> };
-
 export type OrderBookQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type OrderBookQuery = { markets: Array<(
     Pick<Market, 'id' | 'orderToken' | 'a' | 'r' | 'd' | 'makerFee' | 'takerFee' | 'quoteUnit'>
     & { quoteToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>, baseToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>, depths: Array<Pick<Depth, 'price' | 'rawAmount' | 'isBid'>> }
+  )> };
+
+export type TokensQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TokensQuery = { tokens: Array<(
+    Pick<Token, 'id' | 'symbol' | 'name' | 'decimals'>
+    & { substitutes: Array<Pick<Substitute, 'id' | 'symbol' | 'name' | 'decimals'>> }
   )> };
 
 
@@ -1214,22 +1214,6 @@ export const OrderBookForkDocument = gql`
   }
 }
     ` as unknown as DocumentNode<OrderBookForkQuery, OrderBookForkQueryVariables>;
-export const DepositAssetsDocument = gql`
-    query DepositAssets {
-  tokens {
-    id
-    name
-    symbol
-    decimals
-    asset {
-      id
-      name
-      symbol
-      decimals
-    }
-  }
-}
-    ` as unknown as DocumentNode<DepositAssetsQuery, DepositAssetsQueryVariables>;
 export const OrderBookDocument = gql`
     query OrderBook {
   markets {
@@ -1261,6 +1245,22 @@ export const OrderBookDocument = gql`
   }
 }
     ` as unknown as DocumentNode<OrderBookQuery, OrderBookQueryVariables>;
+export const TokensDocument = gql`
+    query Tokens {
+  tokens {
+    id
+    symbol
+    name
+    decimals
+    substitutes {
+      id
+      symbol
+      name
+      decimals
+    }
+  }
+}
+    ` as unknown as DocumentNode<TokensQuery, TokensQueryVariables>;
 
 
 
@@ -1271,11 +1271,11 @@ export function getSdk<C, E>(requester: Requester<C, E>) {
     OrderBookFork(variables: OrderBookForkQueryVariables, options?: C): Promise<OrderBookForkQuery> {
       return requester<OrderBookForkQuery, OrderBookForkQueryVariables>(OrderBookForkDocument, variables, options) as Promise<OrderBookForkQuery>;
     },
-    DepositAssets(variables?: DepositAssetsQueryVariables, options?: C): Promise<DepositAssetsQuery> {
-      return requester<DepositAssetsQuery, DepositAssetsQueryVariables>(DepositAssetsDocument, variables, options) as Promise<DepositAssetsQuery>;
-    },
     OrderBook(variables?: OrderBookQueryVariables, options?: C): Promise<OrderBookQuery> {
       return requester<OrderBookQuery, OrderBookQueryVariables>(OrderBookDocument, variables, options) as Promise<OrderBookQuery>;
+    },
+    Tokens(variables?: TokensQueryVariables, options?: C): Promise<TokensQuery> {
+      return requester<TokensQuery, TokensQueryVariables>(TokensDocument, variables, options) as Promise<TokensQuery>;
     }
   };
 }
