@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react'
-import { useQuery, useQueryClient } from 'wagmi'
+import { useAccount, useQuery, useQueryClient } from 'wagmi'
 import { readContracts } from '@wagmi/core'
 import { getAddress, isAddressEqual } from 'viem'
 
@@ -7,8 +7,6 @@ import { Currency } from '../utils/currency'
 import { fetchTokens } from '../api/token'
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { CouponOracle__factory, IERC20__factory } from '../typechain'
-
-import { useWalletContext } from './wallet-context'
 
 type TokenContext = {
   tokens: {
@@ -28,7 +26,7 @@ export const TokenProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient()
   const [tokens, setTokens] = React.useState<TokenContext['tokens']>([])
 
-  const { userAddress } = useWalletContext()
+  const { address: userAddress } = useAccount()
 
   const { data: currencies } = useQuery(['currencies'], async () => {
     return fetchTokens()
