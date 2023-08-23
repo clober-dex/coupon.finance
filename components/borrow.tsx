@@ -89,7 +89,7 @@ const Position = ({
         <div className="flex flex-col items-end">
           <div className="font-bold">{apy}</div>
           <div className="flex items-center gap-1">
-            <div className="text-sm">{expiry}</div>
+            <div className="text-xs sm:text-sm">{expiry}</div>
             <button>
               <EditSvg onClick={onEditExpiry} />
             </button>
@@ -98,17 +98,17 @@ const Position = ({
       </div>
       <div className="flex flex-col rounded-b-xl p-4 gap-4">
         <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between text-gray-500 text-xs">
-            <div>Borrow Amount</div>
-            <div className="flex gap-1 text-sm">
-              <span>{borrowed}</span>
-              (${+borrowed * +price})
+          <div className="flex items-center justify-between text-xs">
+            <div className="text-gray-500">Borrow Amount</div>
+            <div className="flex gap-1 text-xs sm:text-sm">
+              {borrowed}
+              <span className="text-gray-500">(${+borrowed * +price})</span>
             </div>
           </div>
           <div className="flex items-center justify-between">
             <div className="text-gray-500 text-xs">Collateral</div>
             <div className="flex items-center gap-1">
-              <div className="text-sm">
+              <div className="text-xs sm:text-sm">
                 ${collateral} {collateralSymbol}
               </div>
               <button>
@@ -118,11 +118,13 @@ const Position = ({
           </div>
           <div className="flex items-center justify-between text-gray-500 text-xs">
             <div>LTV</div>
-            <div className="flex text-green-500 text-sm">{ltv}</div>
+            <div className="flex text-green-500 text-xs sm:text-sm">{ltv}</div>
           </div>
           <div className="flex items-center justify-between text-xs">
             <div className="text-gray-500">Liquidation Threshold</div>
-            <div className="flex text-sm">{liquidationThreshold}</div>
+            <div className="flex text-xs sm:text-sm">
+              {liquidationThreshold}
+            </div>
           </div>
         </div>
         <div className="flex gap-3">
@@ -162,37 +164,58 @@ const Asset = ({
 } & React.HTMLAttributes<HTMLDivElement>) => {
   return (
     <div
-      className="flex items-center justify-between rounded-xl p-4 bg-white dark:bg-gray-900"
+      className="flex flex-col sm:flex-row sm:items-center justify-between rounded-xl sm:p-4 bg-gray-50 sm:bg-white dark:bg-gray-900 shadow-md"
       {...props}
     >
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-3 w-[140px]">
-          <img src={currency.logo} alt={currency.name} className="w-8 h-8" />
-          <div className="flex flex-col">
-            <div className="font-bold">{currency.symbol}</div>
-            <div className="text-gray-500 text-xs">{currency.name}</div>
+      <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+        <div className="flex justify-between w-full sm:w-auto items-center gap-4 bg-white p-4 rounded-t-xl dark:bg-gray-800 dark:sm:bg-gray-900 sm:p-0 mb-2 sm:mb-0">
+          <div className="flex items-center gap-3 sm:w-[140px]">
+            <img src={currency.logo} alt={currency.name} className="w-8 h-8" />
+            <div className="flex flex-col gap-0.5 sm:gap-0">
+              <div className="font-bold text-sm sm:text-base">
+                {currency.symbol}
+              </div>
+              <div className="text-gray-500 text-xs">{currency.name}</div>
+            </div>
+          </div>
+          <div className="text-sm font-bold sm:w-[80px]">{apy}</div>
+        </div>
+        <div className="flex flex-row sm:flex-col w-full sm:w-[120px] justify-between px-4 sm:p-0">
+          <div className="sm:hidden text-gray-500 text-xs">Available</div>
+          <div className="flex flex-row sm:flex-col items-center sm:items-start gap-1 sm:gap-0">
+            <div className="text-xs sm:text-sm">
+              {available} {currency.symbol}
+            </div>
+            <div className="text-xs text-gray-500">
+              <span className="sm:hidden">(</span>${+available * +price}
+              <span className="sm:hidden">)</span>
+            </div>
           </div>
         </div>
-        <div className="font-bold w-[80px]">{apy}</div>
-        <div className="flex flex-col w-[120px]">
-          <div className="text-sm">
-            {available} {currency.symbol}
+        <div className="flex flex-row sm:flex-col w-full sm:w-[120px] justify-between px-4 sm:p-0">
+          <div className="sm:hidden text-gray-500 text-xs">Total Borrowed</div>
+          <div className="flex flex-row sm:flex-col sm:w-[120px] gap-1 sm:gap-0">
+            <div className="text-xs sm:text-sm">
+              {borrowed} {currency.symbol}
+            </div>
+            <div className="text-xs text-gray-500">
+              <span className="sm:hidden">(</span>${+borrowed * +price}
+              <span className="sm:hidden">)</span>
+            </div>
           </div>
-          <div className="text-xs text-gray-500">${+available * +price}</div>
         </div>
-        <div className="flex flex-col w-[120px]">
-          <div className="text-sm">
-            {borrowed} {currency.symbol}
+        <div className="flex flex-row sm:flex-col w-full sm:w-[120px] justify-between px-4 sm:p-0">
+          <div className="sm:hidden text-gray-500 text-xs">
+            Liquidation Threshold
           </div>
-          <div className="text-xs text-gray-500">${+borrowed * +price}</div>
-        </div>
-        <div className="flex flex-col w-[120px] text-sm">
-          {liquidationThreshold}
+          <div className="flex flex-col sm:w-[120px] text-xs sm:text-sm">
+            {liquidationThreshold}
+          </div>
         </div>
       </div>
       <Link
         href={`/borrow/${currency.symbol}`}
-        className="flex items-center justify-center bg-green-500 h-fit w-24 rounded px-3 py-2 font-bold text-xs text-white"
+        className="flex items-center justify-center bg-green-500 m-4 sm:m-0 sm:h-fit sm:w-24 rounded px-3 py-2 font-bold text-xs text-white"
       >
         Borrow
       </Link>
@@ -220,20 +243,20 @@ const Borrow = () => {
   } | null>(null)
 
   return (
-    <div className="flex flex-1 flex-col">
-      <h1 className="font-bold text-[48px] mt-12 mb-16">
-        The Best Fixed-Rate Borrowing in DeFi
+    <div className="flex flex-1 flex-col w-full sm:w-fit">
+      <h1 className="flex justify-center text-center font-bold text-lg sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-12 mb-8 sm:mb-16">
+        The Best Fixed-Rate <br className="flex sm:hidden" /> Borrowing in DeFi
       </h1>
       {positions.length > 0 ? (
-        <div className="flex flex-col gap-6 mb-20">
-          <div className="flex gap-3 items-center">
-            <h2 className="font-bold text-2xl">My Positions</h2>
-            <div className="font-bold text-sm bg-gray-200 dark:bg-gray-700 rounded-full px-3 py-1">
+        <div className="flex flex-col gap-6 mb-12 sm:mb-20 px-4 sm:p-0">
+          <div className="flex gap-2 sm:gap-3 items-center">
+            <h2 className="font-bold text-base sm:text-2xl">My Positions</h2>
+            <div className="font-bold text-sm bg-gray-200 dark:bg-gray-700 rounded-full px-2.5 sm:px-3 py-0.5 sm:py-1">
               {positions.length}
             </div>
           </div>
-          <div className="flex gap-8 text-sm shadow w-fit dark:bg-gray-900 px-4 py-3 rounded-lg">
-            <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-8 text-sm shadow sm:w-fit bg-white dark:bg-gray-900 px-4 py-3 rounded-xl sm:rounded-lg">
+            <div className="flex justify-between gap-3">
               <div className="text-gray-500">Total Borrow Amount</div>
               <div className="font-bold">
                 $
@@ -243,7 +266,7 @@ const Borrow = () => {
                 )}
               </div>
             </div>
-            <div className="flex gap-3">
+            <div className="flex justify-between gap-3">
               <div className="text-gray-500">Total Collateral</div>
               <div className="font-bold">
                 $
@@ -254,12 +277,12 @@ const Borrow = () => {
                 )}
               </div>
             </div>
-            <div className="flex gap-3">
+            <div className="flex justify-between gap-3">
               <div className="text-gray-500">Average APY</div>
               <div className="font-bold">5.0%</div>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-6">
+          <div className="flex flex-col sm:grid sm:grid-cols-3 gap-4 sm:gap-6">
             {positions.map((position, i) => (
               <Position
                 key={i}
@@ -304,23 +327,25 @@ const Borrow = () => {
       ) : (
         <></>
       )}
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-6 sm:gap-8 px-4 sm:p-0">
         <div className="flex items-center gap-6 justify-between">
-          <h2 className="font-bold text-2xl">Assets to borrow</h2>
+          <h2 className="font-bold text-base sm:text-2xl">Assets to borrow</h2>
           <div className="flex items-center gap-6">
-            <label htmlFor="epoch">How long are you going to borrow?</label>
+            <label htmlFor="epoch" className="hidden sm:flex">
+              How long are you going to borrow?
+            </label>
             <DateSelect />
           </div>
         </div>
         <div className="flex flex-col mb-12 gap-4">
-          <div className="flex gap-4 text-gray-500 text-xs">
+          <div className="hidden sm:flex gap-4 text-gray-500 text-xs">
             <div className="w-[156px]">Asset</div>
             <div className="w-[80px]">APY</div>
             <div className="w-[120px]">Available</div>
             <div className="w-[120px]">Total Borrowed</div>
             <div className="w-[136px]">Liquidation Threshold</div>
           </div>
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4 sm:gap-3">
             {assets.map((asset, i) => (
               <Asset
                 key={i}
