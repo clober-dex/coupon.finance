@@ -1,6 +1,7 @@
 import { isAddressEqual } from 'viem'
 
 import { MarketDto } from '../api/market'
+import { BigDecimal } from '../utils/big-decimal'
 
 import { Currency } from './currency'
 
@@ -222,28 +223,24 @@ export class Market {
   }
 }
 
-export const calculateDepositedAmount = (
+export const calculateTotalDeposit = (
   market: Market,
-  inputTokenAmount: bigint,
-  inputTokenUSDPrice: number,
-  ignoreMinUsdThreshold: number,
-): bigint => {
-  let depositedAmount = inputTokenAmount
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    const usdValueForInputAmount =
-      (Number(inputTokenAmount) / 10 ** market.baseToken.decimals) *
-      inputTokenUSDPrice
-    if (usdValueForInputAmount < ignoreMinUsdThreshold) {
-      break
-    }
-    const { market: newMarket, amountOut } = market.swap(
+  initialDeposit: BigDecimal,
+): BigDecimal => {
+  let totalDeposit = initialDeposit
+  let amountOut = BigInt(Number.MAX_SAFE_INTEGER)
+
+  while (amountOut > 0n) {
+    ;({ market, amountOut } = market.swap(
       market.baseToken.address,
-      inputTokenAmount,
+      BigInt(initialDeposit.toIntegerString()),
+    ))
+    initialDeposit = BigDecimal.fromIntegerValue(
+      market.quoteToken.decimals,
+      amountOut.toString(),
     )
-    market = newMarket
-    inputTokenAmount = amountOut
-    depositedAmount += amountOut
+    totalDeposit = totalDeposit.plus(initialDeposit)
   }
-  return depositedAmount
+
+  return totalDeposit
 }
