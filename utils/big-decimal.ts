@@ -47,6 +47,10 @@ export class BigDecimal {
     return new BigDecimal(this.decimals, this.value.times(bd.value))
   }
 
+  abs(): BigDecimal {
+    return new BigDecimal(this.decimals, this.value.abs())
+  }
+
   toDecimalString(decimalPlaces?: number): string {
     return this.value.toFixed(decimalPlaces ?? this.decimals)
   }
