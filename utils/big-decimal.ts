@@ -35,20 +35,24 @@ export class BigDecimal {
     )
   }
 
-  plus(dn: BigDecimal): BigDecimal {
-    return new BigDecimal(this.decimals, this.value.plus(dn.value))
+  plus(bd: BigDecimal): BigDecimal {
+    return new BigDecimal(this.decimals, this.value.plus(bd.value))
   }
 
-  minus(dn: BigDecimal): BigDecimal {
-    return new BigDecimal(this.decimals, this.value.minus(dn.value))
+  minus(bd: BigDecimal): BigDecimal {
+    return new BigDecimal(this.decimals, this.value.minus(bd.value))
   }
 
-  times(value: BigNumber.Value) {
-    return new BigDecimal(this.decimals, this.value.times(value))
+  times(bd: BigDecimal) {
+    return new BigDecimal(this.decimals, this.value.times(bd.value))
   }
 
-  toDecimalString(): string {
-    return this.value.toFixed(this.decimals)
+  toDecimalString(decimalPlaces?: number): string {
+    return this.value.toFixed(decimalPlaces ?? this.decimals)
+  }
+
+  toFormat(decimalPlaces?: number): string {
+    return this.value.toFormat(decimalPlaces ?? this.decimals)
   }
 
   toIntegerString(): string {
@@ -57,3 +61,5 @@ export class BigDecimal {
       .toFixed(0)
   }
 }
+
+export const ZERO = new BigDecimal(18, 0)
