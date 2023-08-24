@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 
-export class DecimalNumber {
+export class BigDecimal {
   decimals: number
   value: BigNumber // Decimal value, shown to users
 
@@ -12,39 +12,39 @@ export class DecimalNumber {
   static fromDecimalValue(
     decimals: number,
     value: BigNumber.Value,
-  ): DecimalNumber {
+  ): BigDecimal {
     const bigNumber = new BigNumber(value)
     if (bigNumber.isNaN()) {
-      return new DecimalNumber(decimals, 0)
+      return new BigDecimal(decimals, 0)
     }
-    return new DecimalNumber(decimals, value)
+    return new BigDecimal(decimals, value)
   }
 
   static fromIntegerValue(
     decimals: number,
     value: BigNumber.Value,
-  ): DecimalNumber {
+  ): BigDecimal {
     const bigNumber = new BigNumber(value)
     if (bigNumber.isNaN()) {
-      return new DecimalNumber(decimals, 0)
+      return new BigDecimal(decimals, 0)
     }
 
-    return new DecimalNumber(
+    return new BigDecimal(
       decimals,
       bigNumber.div(new BigNumber(10).pow(decimals)),
     )
   }
 
-  plus(dn: DecimalNumber): DecimalNumber {
-    return new DecimalNumber(this.decimals, this.value.plus(dn.value))
+  plus(dn: BigDecimal): BigDecimal {
+    return new BigDecimal(this.decimals, this.value.plus(dn.value))
   }
 
-  minus(dn: DecimalNumber): DecimalNumber {
-    return new DecimalNumber(this.decimals, this.value.minus(dn.value))
+  minus(dn: BigDecimal): BigDecimal {
+    return new BigDecimal(this.decimals, this.value.minus(dn.value))
   }
 
   times(value: BigNumber.Value) {
-    return new DecimalNumber(this.decimals, this.value.times(value))
+    return new BigDecimal(this.decimals, this.value.times(value))
   }
 
   toDecimalString(): string {

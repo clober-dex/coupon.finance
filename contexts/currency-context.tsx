@@ -2,21 +2,21 @@ import React, { useCallback } from 'react'
 import { useAccount, useQuery, useQueryClient } from 'wagmi'
 import { readContracts } from '@wagmi/core'
 
-import { fetchAssets } from '../api/token'
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { CouponOracle__factory, IERC20__factory } from '../typechain'
 import { Currency } from '../model/currency'
-import { DecimalNumber } from '../utils/decimal-number'
+import { BigDecimal } from '../utils/big-decimal'
 import { Asset } from '../model/asset'
+import { fetchAssets } from '../api/asset'
 
 type CurrencyContext = {
   assets: Asset[]
-  balances: { [key in `0x${string}`]: DecimalNumber }
+  balances: { [key in `0x${string}`]: BigDecimal }
   // contract address => token address => allowance
   allowances: {
-    [key in `0x${string}`]: { [key in `0x${string}`]: DecimalNumber }
+    [key in `0x${string}`]: { [key in `0x${string}`]: BigDecimal }
   }
-  prices: { [key in `0x${string}`]: DecimalNumber }
+  prices: { [key in `0x${string}`]: BigDecimal }
   invalidateBalances: () => void
   invalidateAllowances: () => void
 }
@@ -93,7 +93,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
             const currencyAddress = currencyAddresses[i]
             return {
               ...acc,
-              [currencyAddress]: DecimalNumber.fromIntegerValue(
+              [currencyAddress]: BigDecimal.fromIntegerValue(
                 decimals,
                 val.toString(),
               ),
@@ -124,7 +124,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
       const currency = currencies[i]
       return {
         ...acc,
-        [currency.address]: DecimalNumber.fromIntegerValue(
+        [currency.address]: BigDecimal.fromIntegerValue(
           currency.decimals,
           (result ?? 0n).toString(),
         ),
@@ -160,7 +160,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
       return results.reduce(
         (
           acc: {
-            [key in `0x${string}`]: { [key in `0x${string}`]: DecimalNumber }
+            [key in `0x${string}`]: { [key in `0x${string}`]: BigDecimal }
           },
           { result },
           i,
@@ -171,7 +171,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
             ...acc,
             [spender]: {
               ...acc[spender],
-              [currency.address]: DecimalNumber.fromIntegerValue(
+              [currency.address]: BigDecimal.fromIntegerValue(
                 currency.decimals,
                 (result ?? 0n).toString(),
               ),
