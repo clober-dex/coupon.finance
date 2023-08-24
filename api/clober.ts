@@ -1,22 +1,17 @@
 import { getAddress } from 'viem'
 
 import { getBuiltGraphSDK } from '../.graphclient'
+import { Market } from '../model/market'
 
-import { Market } from './market'
+const { getMarkets } = getBuiltGraphSDK()
 
-const { getOrderBooks } = getBuiltGraphSDK()
-
-export async function fetchOrderBooks(): Promise<Market[]> {
-  const { markets } = await getOrderBooks()
+export async function fetchMarkets(): Promise<Market[]> {
+  const { markets } = await getMarkets()
   return markets.map((market) =>
     Market.fromDto({
       address: getAddress(market.id),
       orderToken: getAddress(market.orderToken),
-      a: market.a,
-      r: market.r,
-      d: market.d,
       takerFee: market.takerFee,
-      makerFee: market.makerFee,
       quoteUnit: market.quoteUnit,
       quoteToken: {
         address: getAddress(market.quoteToken.id),

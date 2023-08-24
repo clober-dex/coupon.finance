@@ -308,7 +308,6 @@ export type Asset_orderBy =
   | 'underlying__symbol'
   | 'underlying__name'
   | 'underlying__decimals'
-  | 'underlying__hasPermit'
   | 'collaterals'
   | 'substitutes';
 
@@ -332,7 +331,6 @@ export type Token = {
   symbol: Scalars['String'];
   name: Scalars['String'];
   decimals: Scalars['BigInt'];
-  hasPermit: Scalars['Boolean'];
 };
 
 export type Token_filter = {
@@ -392,10 +390,6 @@ export type Token_filter = {
   decimals_lte?: InputMaybe<Scalars['BigInt']>;
   decimals_in?: InputMaybe<Array<Scalars['BigInt']>>;
   decimals_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  hasPermit?: InputMaybe<Scalars['Boolean']>;
-  hasPermit_not?: InputMaybe<Scalars['Boolean']>;
-  hasPermit_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  hasPermit_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<Token_filter>>>;
@@ -406,8 +400,7 @@ export type Token_orderBy =
   | 'id'
   | 'symbol'
   | 'name'
-  | 'decimals'
-  | 'hasPermit';
+  | 'decimals';
 
 export type _Block_ = {
   /** The hash of the block */
@@ -908,7 +901,6 @@ export type TokenResolvers<ContextType = MeshContext & { url: string }, ParentTy
   symbol?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   decimals?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  hasPermit?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -1076,11 +1068,11 @@ const merger = new(StitchingMerger as any)({
     get documents() {
       return [
       {
-        document: GetOrderBooksWithForkDocument,
+        document: GetMarketsWithForkDocument,
         get rawSDL() {
-          return printWithCache(GetOrderBooksWithForkDocument);
+          return printWithCache(GetMarketsWithForkDocument);
         },
-        location: 'GetOrderBooksWithForkDocument.graphql'
+        location: 'GetMarketsWithForkDocument.graphql'
       },{
         document: GetAssetsDocument,
         get rawSDL() {
@@ -1088,11 +1080,11 @@ const merger = new(StitchingMerger as any)({
         },
         location: 'GetAssetsDocument.graphql'
       },{
-        document: GetOrderBooksDocument,
+        document: GetMarketsDocument,
         get rawSDL() {
-          return printWithCache(GetOrderBooksDocument);
+          return printWithCache(GetMarketsDocument);
         },
-        location: 'GetOrderBooksDocument.graphql'
+        location: 'GetMarketsDocument.graphql'
       }
     ];
     },
@@ -1131,13 +1123,13 @@ export function getBuiltGraphSDK<TGlobalContext = any, TOperationContext = any>(
   const sdkRequester$ = getBuiltGraphClient().then(({ sdkRequesterFactory }) => sdkRequesterFactory(globalContext));
   return getSdk<TOperationContext, TGlobalContext>((...args) => sdkRequester$.then(sdkRequester => sdkRequester(...args)));
 }
-export type getOrderBooksWithForkQueryVariables = Exact<{
+export type getMarketsWithForkQueryVariables = Exact<{
   marketAddress: Scalars['ID'];
   blockNumber: Scalars['Int'];
 }>;
 
 
-export type getOrderBooksWithForkQuery = { markets: Array<(
+export type getMarketsWithForkQuery = { markets: Array<(
     Pick<Market, 'id' | 'orderToken' | 'a' | 'r' | 'd' | 'makerFee' | 'takerFee' | 'quoteUnit'>
     & { quoteToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>, baseToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>, depths: Array<Pick<Depth, 'price' | 'rawAmount' | 'isBid'>> }
   )> };
@@ -1147,17 +1139,17 @@ export type getAssetsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type getAssetsQuery = { assets: Array<{ underlying: Pick<Token, 'id' | 'symbol' | 'name' | 'decimals'>, substitutes: Array<Pick<Token, 'id' | 'symbol' | 'name' | 'decimals'>>, collaterals: Array<Pick<Token, 'id' | 'symbol' | 'name' | 'decimals'>> }> };
 
-export type getOrderBooksQueryVariables = Exact<{ [key: string]: never; }>;
+export type getMarketsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type getOrderBooksQuery = { markets: Array<(
-    Pick<Market, 'id' | 'orderToken' | 'a' | 'r' | 'd' | 'makerFee' | 'takerFee' | 'quoteUnit'>
+export type getMarketsQuery = { markets: Array<(
+    Pick<Market, 'id' | 'orderToken' | 'takerFee' | 'quoteUnit'>
     & { quoteToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>, baseToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>, depths: Array<Pick<Depth, 'price' | 'rawAmount' | 'isBid'>> }
   )> };
 
 
-export const getOrderBooksWithForkDocument = gql`
-    query getOrderBooksWithFork($marketAddress: ID!, $blockNumber: Int!) {
+export const getMarketsWithForkDocument = gql`
+    query getMarketsWithFork($marketAddress: ID!, $blockNumber: Int!) {
   markets(where: {id: $marketAddress}, block: {number: $blockNumber}) {
     id
     orderToken
@@ -1186,7 +1178,7 @@ export const getOrderBooksWithForkDocument = gql`
     }
   }
 }
-    ` as unknown as DocumentNode<getOrderBooksWithForkQuery, getOrderBooksWithForkQueryVariables>;
+    ` as unknown as DocumentNode<getMarketsWithForkQuery, getMarketsWithForkQueryVariables>;
 export const getAssetsDocument = gql`
     query getAssets {
   assets {
@@ -1211,15 +1203,11 @@ export const getAssetsDocument = gql`
   }
 }
     ` as unknown as DocumentNode<getAssetsQuery, getAssetsQueryVariables>;
-export const getOrderBooksDocument = gql`
-    query getOrderBooks {
+export const getMarketsDocument = gql`
+    query getMarkets {
   markets {
     id
     orderToken
-    a
-    r
-    d
-    makerFee
     takerFee
     quoteUnit
     quoteToken {
@@ -1241,7 +1229,7 @@ export const getOrderBooksDocument = gql`
     }
   }
 }
-    ` as unknown as DocumentNode<getOrderBooksQuery, getOrderBooksQueryVariables>;
+    ` as unknown as DocumentNode<getMarketsQuery, getMarketsQueryVariables>;
 
 
 
@@ -1249,14 +1237,14 @@ export const getOrderBooksDocument = gql`
 export type Requester<C = {}, E = unknown> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R> | AsyncIterable<R>
 export function getSdk<C, E>(requester: Requester<C, E>) {
   return {
-    getOrderBooksWithFork(variables: getOrderBooksWithForkQueryVariables, options?: C): Promise<getOrderBooksWithForkQuery> {
-      return requester<getOrderBooksWithForkQuery, getOrderBooksWithForkQueryVariables>(getOrderBooksWithForkDocument, variables, options) as Promise<getOrderBooksWithForkQuery>;
+    getMarketsWithFork(variables: getMarketsWithForkQueryVariables, options?: C): Promise<getMarketsWithForkQuery> {
+      return requester<getMarketsWithForkQuery, getMarketsWithForkQueryVariables>(getMarketsWithForkDocument, variables, options) as Promise<getMarketsWithForkQuery>;
     },
     getAssets(variables?: getAssetsQueryVariables, options?: C): Promise<getAssetsQuery> {
       return requester<getAssetsQuery, getAssetsQueryVariables>(getAssetsDocument, variables, options) as Promise<getAssetsQuery>;
     },
-    getOrderBooks(variables?: getOrderBooksQueryVariables, options?: C): Promise<getOrderBooksQuery> {
-      return requester<getOrderBooksQuery, getOrderBooksQueryVariables>(getOrderBooksDocument, variables, options) as Promise<getOrderBooksQuery>;
+    getMarkets(variables?: getMarketsQueryVariables, options?: C): Promise<getMarketsQuery> {
+      return requester<getMarketsQuery, getMarketsQueryVariables>(getMarketsDocument, variables, options) as Promise<getMarketsQuery>;
     }
   };
 }

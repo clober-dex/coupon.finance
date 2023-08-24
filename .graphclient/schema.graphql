@@ -294,7 +294,6 @@ enum Asset_orderBy {
   underlying__symbol
   underlying__name
   underlying__decimals
-  underlying__hasPermit
   collaterals
   substitutes
 }
@@ -326,7 +325,6 @@ type Token {
   symbol: String!
   name: String!
   decimals: BigInt!
-  hasPermit: Boolean!
 }
 
 input Token_filter {
@@ -386,10 +384,6 @@ input Token_filter {
   decimals_lte: BigInt
   decimals_in: [BigInt!]
   decimals_not_in: [BigInt!]
-  hasPermit: Boolean
-  hasPermit_not: Boolean
-  hasPermit_in: [Boolean!]
-  hasPermit_not_in: [Boolean!]
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
   and: [Token_filter]
@@ -401,7 +395,6 @@ enum Token_orderBy {
   symbol
   name
   decimals
-  hasPermit
 }
 
 type _Block_ {
