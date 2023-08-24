@@ -1,8 +1,7 @@
 import { getAddress } from 'viem'
 
 import { getBuiltGraphSDK } from '../.graphclient'
-
-import { Market } from './market'
+import { Market } from '../model/market'
 
 const { getMarkets } = getBuiltGraphSDK()
 

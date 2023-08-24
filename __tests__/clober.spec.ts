@@ -11,7 +11,7 @@ import {
   IERC20__factory,
   IERC20,
 } from '../typechain'
-import { Market } from '../api/market'
+import { Market } from '../model/market'
 
 const { getMarketsWithFork } = getBuiltGraphSDK()
 
