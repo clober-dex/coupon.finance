@@ -6,12 +6,8 @@ import { Asset } from '../model/asset'
 const { getAssets } = getBuiltGraphSDK()
 
 export async function fetchAssets(): Promise<Asset[]> {
-  const { assets } = await getAssets(
-    {},
-    // {
-    //   cacheOptions: { ttl: 60 * 60 * 24 },
-    // },
-  )
+  // TODO: Add caching
+  const { assets } = await getAssets()
 
   return assets.map((asset) => ({
     underlying: {

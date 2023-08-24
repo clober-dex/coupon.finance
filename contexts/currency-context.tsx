@@ -35,16 +35,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
   const { address: userAddress } = useAccount()
 
-  const { data: assets } = useQuery(
-    ['assets'],
-    async () => {
-      return fetchAssets()
-    },
-    {
-      refetchInterval: 1000,
-      refetchIntervalInBackground: true,
-    },
-  )
+  const { data: assets } = useQuery(['assets'], fetchAssets)
 
   const fetchCurrencies = async () => {
     const assets = await fetchAssets()
