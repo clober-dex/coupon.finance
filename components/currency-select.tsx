@@ -1,11 +1,11 @@
 import React from 'react'
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 
 import { Currency, getLogo } from '../model/currency'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { ZERO } from '../utils/big-decimal'
 
 import LeftSvg from './svg/left-svg'
+import SearchSvg from './svg/search-svg'
 
 const CurrencySelect = ({
   currencies,
@@ -21,28 +21,27 @@ const CurrencySelect = ({
     <div className="flex flex-col flex-1 p-4 mt-2 sm:mt-0 items-center sm:justify-center">
       <div className="flex flex-col shadow bg-gray-50 dark:bg-gray-900 rounded-xl sm:rounded-3xl w-full sm:w-[480px]">
         <div className="flex flex-col p-4 rounded-t-xl sm:rounded-t-3xl gap-4">
-          <div className="flex items-center justify-between">
-            <LeftSvg onClick={onBack} />
+          <div className="flex text-sm sm:text-xl font-bold items-center justify-between">
+            <button onClick={onBack}>
+              <LeftSvg className=" w-4 h-4 sm:w-6 sm:h-6" />
+            </button>
             Select a token
             <LeftSvg className="invisible" />
           </div>
           <div className="relative rounded shadow-sm">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <MagnifyingGlassIcon
-                className="h-5 w-5 text-gray-400"
-                aria-hidden="true"
-              />
+              <SearchSvg className="h-4 w-4" />
             </div>
             <input
               type="search"
               name="search"
               id="search"
-              className="block w-full rounded-md border-0 py-3 pl-10 text-gray-900 placeholder:text-gray-400 text-xs sm:text-sm"
+              className="block w-full rounded-md border-0 py-3 pl-10 text-gray-900 dark:bg-gray-800 placeholder:text-gray-400 text-xs sm:text-sm"
               placeholder="Search by token name, symbol, or address"
             />
           </div>
         </div>
-        <div className="bg-white rounded-b-xl sm:rounded-b-3xl">
+        <div className="bg-white dark:bg-gray-900 rounded-b-xl sm:rounded-b-3xl">
           {currencies.map((currency) => (
             <button
               key={currency.address}
