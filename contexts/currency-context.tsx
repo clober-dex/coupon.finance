@@ -4,10 +4,10 @@ import { readContracts } from '@wagmi/core'
 
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { CouponOracle__factory, IERC20__factory } from '../typechain'
-import { Currency } from '../model/currency'
 import { BigDecimal } from '../utils/big-decimal'
 import { Asset } from '../model/asset'
 import { fetchAssets } from '../api/asset'
+import { fetchCurrencies } from '../api/currency'
 
 type CurrencyContext = {
   assets: Asset[]
@@ -36,27 +36,6 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { address: userAddress } = useAccount()
 
   const { data: assets } = useQuery(['assets'], fetchAssets)
-
-  const fetchCurrencies = async () => {
-    const assets = await fetchAssets()
-    return Object.values<Currency>(
-      assets
-        .reduce(
-          (acc: Currency[], asset) => [
-            ...acc,
-            asset.underlying,
-            ...asset.collaterals,
-          ],
-          [],
-        )
-        .reduce((acc: { [key in `0x${string}`]: Currency }, currency) => {
-          return {
-            ...acc,
-            [currency.address]: currency,
-          }
-        }, {}),
-    )
-  }
 
   const { data: prices } = useQuery(
     ['prices'],
