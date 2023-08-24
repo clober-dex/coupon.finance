@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { NextPage } from 'next'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
@@ -7,6 +7,7 @@ import Slider from '../../components/slider'
 import NumberInput from '../../components/number-input'
 import BackSvg from '../../components/svg/back-svg'
 import { getLogo } from '../../model/currency'
+import { useCurrencyContext } from '../../contexts/currency-context'
 
 const dummy = [
   { date: '24-06-30', profit: '102.37' },
@@ -20,17 +21,17 @@ const Borrow: NextPage = () => {
 
   const router = useRouter()
 
-  const currency = {
-    address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1' as `0x${string}`,
-    name: 'Arbitrum',
-    symbol: 'ARB',
-    decimals: 18,
-  } // TODO: get from router
-  // const currency = useMemo(
-  //   () =>
-  //     CURRENCY_MAP[router.isReady ? (router.query.symbol as string) : 'USDC'],
-  //   [router.isReady, router.query.symbol],
-  // )
+  const { assets } = useCurrencyContext()
+
+  const asset = useMemo(
+    () =>
+      router.isReady
+        ? assets.find(
+            ({ underlying }) => underlying.symbol === router.query.symbol,
+          )
+        : undefined,
+    [router.isReady, router.query.symbol, assets],
+  )
 
   const setSelected = useCallback(
     (value: number) => {
@@ -41,7 +42,9 @@ const Borrow: NextPage = () => {
   return (
     <div className="flex flex-1">
       <Head>
-        <title>Borrow {currency.symbol}</title>
+        <title>
+          Borrow {router.isReady ? (router.query.symbol as string) : ''}
+        </title>
         <meta
           content="Cash in the coupons on your assets. The only liquidity protocol that enables a 100% utilization rate."
           name="description"
@@ -58,11 +61,11 @@ const Borrow: NextPage = () => {
             Borrow
             <div className="flex gap-2">
               <img
-                src={getLogo(currency)}
-                alt={currency.name}
+                src={getLogo(asset?.underlying)}
+                alt={asset?.underlying.name}
                 className="w-6 h-6 sm:w-8 sm:h-8"
               />
-              <div>{currency.symbol}</div>
+              <div>{asset?.underlying.symbol}</div>
             </div>
           </button>
           <div className="flex flex-1 sm:items-center justify-center">
@@ -86,12 +89,12 @@ const Borrow: NextPage = () => {
                   <div className="flex flex-col items-end justify-between">
                     <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
                       <img
-                        src={getLogo(currency)}
-                        alt={currency.name}
+                        src={getLogo(asset?.underlying)}
+                        alt={asset?.underlying.name}
                         className="w-5 h-5"
                       />
                       <div className="text-sm sm:text-base">
-                        {currency.symbol}
+                        {asset?.underlying.symbol}
                       </div>
                     </div>
                     <div className="flex text-xs sm:text-sm gap-1 sm:gap-2">
@@ -121,12 +124,12 @@ const Borrow: NextPage = () => {
                   <div className="flex flex-col items-end justify-between">
                     <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
                       <img
-                        src={getLogo(currency)}
-                        alt={currency.name}
+                        src={getLogo(asset?.underlying)}
+                        alt={asset?.underlying.name}
                         className="w-5 h-5"
                       />
                       <div className="text-sm sm:text-base">
-                        {currency.symbol}
+                        {asset?.underlying.symbol}
                       </div>
                     </div>
                     <div className="flex text-xs sm:text-sm gap-1 sm:gap-2">
@@ -163,7 +166,7 @@ const Borrow: NextPage = () => {
                     <div className="flex gap-1">
                       <div className="text-gray-800 dark:text-white">3.15%</div>
                       <div className="text-gray-400">
-                        (10.1234 {currency.symbol} in interest)
+                        (10.1234 {asset?.underlying.symbol} in interest)
                       </div>
                     </div>
                   </div>
