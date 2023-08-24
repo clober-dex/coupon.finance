@@ -43,6 +43,10 @@ export class BigDecimal {
     return new BigDecimal(this.decimals, this.value.minus(dn.value))
   }
 
+  abs(): BigDecimal {
+    return new BigDecimal(this.decimals, this.value.abs())
+  }
+
   times(value: BigNumber.Value) {
     return new BigDecimal(this.decimals, this.value.times(value))
   }

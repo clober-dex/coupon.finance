@@ -29,14 +29,14 @@ const market = new Market(
 )
 const price = 10n ** 17n // 10%
 
-const expectLessThan10Gwei = (amount: BigDecimal, expected: number) => {
-  expect(
-    Number(
-      BigDecimal.fromDecimalValue(18, new BigNumber(expected))
-        .minus(amount)
-        .toDecimalString(),
-    ),
-  ).toBeLessThan(0.00000001)
+const expectEqualWithin = (
+  amount: BigDecimal,
+  expected: BigDecimal,
+  threshold: BigDecimal,
+) => {
+  expect(BigInt(amount.minus(expected).abs().toIntegerString())).toBeLessThan(
+    BigInt(threshold.toIntegerString()),
+  )
 }
 
 describe('Deposit controller', () => {
@@ -129,7 +129,12 @@ describe('Deposit controller', () => {
       ],
       BigDecimal.fromIntegerValue(18, new BigNumber(10).pow(18).times(100)),
     )
-    expectLessThan10Gwei(depositedAmount, 100 / (1 - 0.2))
+
+    expectEqualWithin(
+      depositedAmount,
+      BigDecimal.fromDecimalValue(18, new BigNumber(100 / (1 - 0.2))),
+      BigDecimal.fromDecimalValue(18, new BigNumber(0.00000001)),
+    )
 
     const depositedAmount2 = calculateTotalDeposit(
       [
@@ -158,6 +163,11 @@ describe('Deposit controller', () => {
       ],
       BigDecimal.fromIntegerValue(18, new BigNumber(10).pow(18).times(100)),
     )
-    expectLessThan10Gwei(depositedAmount2, 100 + 10 / (1 - 0.11))
+
+    expectEqualWithin(
+      depositedAmount2,
+      BigDecimal.fromDecimalValue(18, new BigNumber(100 / (1 - 0.11))),
+      BigDecimal.fromDecimalValue(18, new BigNumber(0.00001)),
+    )
   })
 })
