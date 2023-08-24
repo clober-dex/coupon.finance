@@ -5,11 +5,15 @@ import { Asset } from '../model/asset'
 
 const { getAssets } = getBuiltGraphSDK()
 
+let cache: Asset[] | null = null
+
 export async function fetchAssets(): Promise<Asset[]> {
-  // TODO: Add caching
+  if (cache) {
+    return cache
+  }
   const { assets } = await getAssets()
 
-  return assets.map((asset) => ({
+  const result = assets.map((asset) => ({
     underlying: {
       address: getAddress(asset.underlying.id),
       name: asset.underlying.name,
@@ -29,4 +33,7 @@ export async function fetchAssets(): Promise<Asset[]> {
       decimals: substitute.decimals,
     })),
   }))
+
+  cache = result
+  return result
 }
