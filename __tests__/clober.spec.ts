@@ -13,7 +13,7 @@ import {
 } from '../typechain'
 import { Market } from '../api/market'
 
-const { OrderBookFork } = getBuiltGraphSDK()
+const { getOrderBooksWithFork } = getBuiltGraphSDK()
 
 const TIME_OUT = 1000 * 10000
 const MAX_UINT256 = 2n ** 256n - 1n
@@ -34,7 +34,7 @@ describe('Market Orders', () => {
   }: {
     blockNumber: number
   }): Promise<Market> => {
-    const { markets } = await OrderBookFork(
+    const { markets } = await getOrderBooksWithFork(
       {
         blockNumber,
         marketAddress: MARKER_ADDRESS,

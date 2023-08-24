@@ -1,4 +1,4 @@
-query OrderBookFork($marketAddress: ID!, $blockNumber: Int!) {
+query getOrderBooksWithFork($marketAddress: ID!, $blockNumber: Int!) {
   markets (where: { id: $marketAddress }, block: { number: $blockNumber }) {
     id
     orderToken

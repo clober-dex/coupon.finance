@@ -1,6 +1,6 @@
 import { isAddressEqual } from 'viem'
 
-import { Currency } from '../utils/currency'
+import { Currency } from '../model/currency'
 
 type DepthDto = {
   price: string

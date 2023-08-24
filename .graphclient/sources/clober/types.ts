@@ -39,7 +39,7 @@ export type Depth = {
   price: Scalars['BigInt'];
   isBid: Scalars['Boolean'];
   rawAmount: Scalars['BigInt'];
-  amount: Scalars['BigInt'];
+  baseAmount: Scalars['BigInt'];
 };
 
 export type Depth_filter = {
@@ -100,14 +100,14 @@ export type Depth_filter = {
   rawAmount_lte?: InputMaybe<Scalars['BigInt']>;
   rawAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   rawAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  amount?: InputMaybe<Scalars['BigInt']>;
-  amount_not?: InputMaybe<Scalars['BigInt']>;
-  amount_gt?: InputMaybe<Scalars['BigInt']>;
-  amount_lt?: InputMaybe<Scalars['BigInt']>;
-  amount_gte?: InputMaybe<Scalars['BigInt']>;
-  amount_lte?: InputMaybe<Scalars['BigInt']>;
-  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  baseAmount?: InputMaybe<Scalars['BigInt']>;
+  baseAmount_not?: InputMaybe<Scalars['BigInt']>;
+  baseAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  baseAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  baseAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  baseAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  baseAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  baseAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<Depth_filter>>>;
@@ -129,7 +129,7 @@ export type Depth_orderBy =
   | 'price'
   | 'isBid'
   | 'rawAmount'
-  | 'amount';
+  | 'baseAmount';
 
 export type Market = {
   id: Scalars['ID'];

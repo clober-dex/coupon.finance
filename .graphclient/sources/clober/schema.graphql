@@ -35,7 +35,7 @@ type Depth {
   price: BigInt!
   isBid: Boolean!
   rawAmount: BigInt!
-  amount: BigInt!
+  baseAmount: BigInt!
 }
 
 input Depth_filter {
@@ -96,14 +96,14 @@ input Depth_filter {
   rawAmount_lte: BigInt
   rawAmount_in: [BigInt!]
   rawAmount_not_in: [BigInt!]
-  amount: BigInt
-  amount_not: BigInt
-  amount_gt: BigInt
-  amount_lt: BigInt
-  amount_gte: BigInt
-  amount_lte: BigInt
-  amount_in: [BigInt!]
-  amount_not_in: [BigInt!]
+  baseAmount: BigInt
+  baseAmount_not: BigInt
+  baseAmount_gt: BigInt
+  baseAmount_lt: BigInt
+  baseAmount_gte: BigInt
+  baseAmount_lte: BigInt
+  baseAmount_in: [BigInt!]
+  baseAmount_not_in: [BigInt!]
   """Filter for the block changed event."""
   _change_block: BlockChangedFilter
   and: [Depth_filter]
@@ -125,7 +125,7 @@ enum Depth_orderBy {
   price
   isBid
   rawAmount
-  amount
+  baseAmount
 }
 
 """
