@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo, useState } from 'react'
-import { NextPage } from 'next'
+import React, { useCallback, useState } from 'react'
+import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
 import CountUp from 'react-countup'
 import { useRouter } from 'next/router'
@@ -8,7 +8,8 @@ import Slider from '../../components/slider'
 import NumberInput from '../../components/number-input'
 import BackSvg from '../../components/svg/back-svg'
 import { getLogo } from '../../model/currency'
-import { useCurrencyContext } from '../../contexts/currency-context'
+import { Asset } from '../../model/asset'
+import { fetchAssets } from '../../api/asset'
 
 const dummy = [
   { date: '24-06-30', profit: '102.37' },
@@ -16,23 +17,26 @@ const dummy = [
   { date: '25-06-30', profit: '102.37' },
   { date: '25-12-31', profit: '102.37' },
 ]
-const Deposit: NextPage = () => {
+
+export const getServerSideProps: GetServerSideProps<{
+  asset?: Asset
+}> = async ({ params }) => {
+  const assets = await fetchAssets()
+  const asset = assets.find(
+    ({ underlying }) => underlying.symbol === params?.symbol,
+  )
+  return {
+    props: { asset },
+  }
+}
+
+const Deposit: NextPage<
+  InferGetServerSidePropsType<typeof getServerSideProps>
+> = ({ asset }) => {
   const [selected, _setSelected] = useState(0)
   const [value, setValue] = useState('')
 
   const router = useRouter()
-
-  const { assets } = useCurrencyContext()
-
-  const asset = useMemo(
-    () =>
-      router.isReady
-        ? assets.find(
-            ({ underlying }) => underlying.symbol === router.query.symbol,
-          )
-        : undefined,
-    [router.isReady, router.query.symbol, assets],
-  )
 
   const setSelected = useCallback(
     (value: number) => {
@@ -43,9 +47,7 @@ const Deposit: NextPage = () => {
   return (
     <div className="flex flex-1">
       <Head>
-        <title>
-          Deposit {router.isReady ? (router.query.symbol as string) : ''}
-        </title>
+        <title>Deposit {asset ? asset.underlying.symbol : ''}</title>
         <meta
           content="Cash in the coupons on your assets. The only liquidity protocol that enables a 100% utilization rate."
           name="description"

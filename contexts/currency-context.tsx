@@ -5,12 +5,9 @@ import { readContracts } from '@wagmi/core'
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { CouponOracle__factory, IERC20__factory } from '../typechain'
 import { BigDecimal } from '../utils/big-decimal'
-import { Asset } from '../model/asset'
-import { fetchAssets } from '../api/asset'
 import { fetchCurrencies } from '../api/currency'
 
 type CurrencyContext = {
-  assets: Asset[]
   balances: { [key in `0x${string}`]: BigDecimal }
   // contract address => token address => allowance
   allowances: {
@@ -22,7 +19,6 @@ type CurrencyContext = {
 }
 
 const Context = React.createContext<CurrencyContext>({
-  assets: [],
   balances: {},
   allowances: {},
   prices: {},
@@ -34,8 +30,6 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient()
 
   const { address: userAddress } = useAccount()
-
-  const { data: assets } = useQuery(['assets'], fetchAssets)
 
   const { data: prices } = useQuery(
     ['prices'],
@@ -164,7 +158,6 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   return (
     <Context.Provider
       value={{
-        assets: assets ?? [],
         prices: prices ?? {},
         balances: balances ?? {},
         allowances: allowance ?? {},

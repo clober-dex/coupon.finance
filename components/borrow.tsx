@@ -3,6 +3,7 @@ import Link from 'next/link'
 
 import { useBorrowContext } from '../contexts/borrow-context'
 import { Currency, getLogo } from '../model/currency'
+import { Asset } from '../model/asset'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { BigDecimal, ZERO } from '../utils/big-decimal'
 
@@ -225,8 +226,8 @@ const Asset = ({
   )
 }
 
-const Borrow = () => {
-  const { assets, prices } = useCurrencyContext()
+const Borrow = ({ assets }: { assets: Asset[] }) => {
+  const { prices } = useCurrencyContext()
   const { positions, apy, available, borrowed } = useBorrowContext()
   const [repayPosition, setRepayPosition] = useState<{
     currency: Currency

@@ -3,6 +3,7 @@ import Link from 'next/link'
 
 import { useDepositContext } from '../contexts/deposit-context'
 import { Currency, getLogo } from '../model/currency'
+import { Asset } from '../model/asset'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { BigDecimal, ZERO } from '../utils/big-decimal'
 
@@ -145,8 +146,8 @@ const Asset = ({
   )
 }
 
-const Deposit = () => {
-  const { assets, prices } = useCurrencyContext()
+const Deposit = ({ assets }: { assets: Asset[] }) => {
+  const { prices } = useCurrencyContext()
   const { positions, apy, available, deposited } = useDepositContext()
   const [withdrawPosition, setWithdrawPosition] = useState<{
     currency: Currency
