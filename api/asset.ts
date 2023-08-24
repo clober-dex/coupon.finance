@@ -1,11 +1,28 @@
-import { getAddress } from 'viem'
+import { getAddress, zeroAddress } from 'viem'
 
-import { getBuiltGraphSDK } from '../.graphclient'
+import { getBuiltGraphSDK, Token } from '../.graphclient'
 import { Asset } from '../model/asset'
 
 const { getAssets } = getBuiltGraphSDK()
 
 let cache: Asset[] | null = null
+
+const toCurrency = (
+  token: Pick<Token, 'id' | 'symbol' | 'name' | 'decimals'>,
+) =>
+  token.name === 'Wrapped Ether'
+    ? {
+        address: zeroAddress,
+        name: 'Ethereum',
+        symbol: 'ETH',
+        decimals: 18,
+      }
+    : {
+        address: getAddress(token.id),
+        name: token.name,
+        symbol: token.symbol,
+        decimals: token.decimals,
+      }
 
 export async function fetchAssets(): Promise<Asset[]> {
   if (cache) {
@@ -14,24 +31,9 @@ export async function fetchAssets(): Promise<Asset[]> {
   const { assets } = await getAssets()
 
   const result = assets.map((asset) => ({
-    underlying: {
-      address: getAddress(asset.underlying.id),
-      name: asset.underlying.name,
-      symbol: asset.underlying.symbol,
-      decimals: asset.underlying.decimals,
-    },
-    collaterals: asset.collaterals.map((collateral) => ({
-      address: getAddress(collateral.id),
-      name: collateral.name,
-      symbol: collateral.symbol,
-      decimals: collateral.decimals,
-    })),
-    substitutes: asset.substitutes.map((substitute) => ({
-      address: getAddress(substitute.id),
-      name: substitute.name,
-      symbol: substitute.symbol,
-      decimals: substitute.decimals,
-    })),
+    underlying: toCurrency(asset.underlying),
+    collaterals: asset.collaterals.map((collateral) => toCurrency(collateral)),
+    substitutes: asset.substitutes.map((substitute) => toCurrency(substitute)),
   }))
 
   cache = result
