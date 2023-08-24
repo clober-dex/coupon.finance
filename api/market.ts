@@ -9,11 +9,7 @@ type DepthDto = {
 export type MarketDto = {
   address: string
   orderToken: string
-  a: string
-  r: string
-  d: string
   takerFee: string
-  makerFee: string
   quoteUnit: string
   quoteToken: Currency
   baseToken: Currency

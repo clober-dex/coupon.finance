@@ -17,11 +17,7 @@ export class Market {
 
   address: string
   orderToken: string
-  a: bigint
-  r: bigint
-  d: bigint
   takerFee: bigint
-  makerFee: bigint
   quoteUnit: bigint
   quoteToken: Currency
   baseToken: Currency
@@ -33,11 +29,7 @@ export class Market {
   constructor(
     address: string,
     orderToken: string,
-    a: bigint,
-    r: bigint,
-    d: bigint,
     takerFee: bigint,
-    makerFee: bigint,
     quoteUnit: bigint,
     quoteToken: Currency,
     baseToken: Currency,
@@ -48,11 +40,7 @@ export class Market {
   ) {
     this.address = address
     this.orderToken = orderToken
-    this.a = a
-    this.r = r
-    this.d = d
     this.takerFee = takerFee
-    this.makerFee = makerFee
     this.quoteUnit = quoteUnit
     this.quoteToken = quoteToken
     this.baseToken = baseToken
@@ -66,11 +54,7 @@ export class Market {
     return new Market(
       market.address,
       market.orderToken,
-      market.a,
-      market.r,
-      market.d,
       market.takerFee,
-      market.makerFee,
       market.quoteUnit,
       market.quoteToken,
       market.baseToken,
@@ -85,11 +69,7 @@ export class Market {
     return new Market(
       dto.address,
       dto.orderToken,
-      BigInt(dto.a),
-      BigInt(dto.r),
-      BigInt(dto.d),
       BigInt(dto.takerFee),
-      BigInt(dto.makerFee),
       BigInt(dto.quoteUnit),
       dto.quoteToken,
       dto.baseToken,

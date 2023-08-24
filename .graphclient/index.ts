@@ -1143,7 +1143,7 @@ export type getMarketsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type getMarketsQuery = { markets: Array<(
-    Pick<Market, 'id' | 'orderToken' | 'a' | 'r' | 'd' | 'makerFee' | 'takerFee' | 'quoteUnit'>
+    Pick<Market, 'id' | 'orderToken' | 'takerFee' | 'quoteUnit'>
     & { quoteToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>, baseToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>, depths: Array<Pick<Depth, 'price' | 'rawAmount' | 'isBid'>> }
   )> };
 
@@ -1208,10 +1208,6 @@ export const getMarketsDocument = gql`
   markets {
     id
     orderToken
-    a
-    r
-    d
-    makerFee
     takerFee
     quoteUnit
     quoteToken {

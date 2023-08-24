@@ -11,11 +11,7 @@ export async function fetchMarkets(): Promise<Market[]> {
     Market.fromDto({
       address: getAddress(market.id),
       orderToken: getAddress(market.orderToken),
-      a: market.a,
-      r: market.r,
-      d: market.d,
       takerFee: market.takerFee,
-      makerFee: market.makerFee,
       quoteUnit: market.quoteUnit,
       quoteToken: {
         address: getAddress(market.quoteToken.id),

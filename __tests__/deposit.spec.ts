@@ -9,10 +9,6 @@ const market = new Market(
   AddressZero,
   AddressZero,
   0n,
-  0n,
-  0n,
-  0n,
-  0n,
   10n ** 9n,
   {
     decimals: 18,
