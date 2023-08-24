@@ -103,7 +103,6 @@ export type Asset_orderBy =
   | 'underlying__symbol'
   | 'underlying__name'
   | 'underlying__decimals'
-  | 'underlying__hasPermit'
   | 'collaterals'
   | 'substitutes';
 
@@ -227,7 +226,6 @@ export type Token = {
   symbol: Scalars['String'];
   name: Scalars['String'];
   decimals: Scalars['BigInt'];
-  hasPermit: Scalars['Boolean'];
 };
 
 export type Token_filter = {
@@ -287,10 +285,6 @@ export type Token_filter = {
   decimals_lte?: InputMaybe<Scalars['BigInt']>;
   decimals_in?: InputMaybe<Array<Scalars['BigInt']>>;
   decimals_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  hasPermit?: InputMaybe<Scalars['Boolean']>;
-  hasPermit_not?: InputMaybe<Scalars['Boolean']>;
-  hasPermit_in?: InputMaybe<Array<Scalars['Boolean']>>;
-  hasPermit_not_in?: InputMaybe<Array<Scalars['Boolean']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<Token_filter>>>;
@@ -301,8 +295,7 @@ export type Token_orderBy =
   | 'id'
   | 'symbol'
   | 'name'
-  | 'decimals'
-  | 'hasPermit';
+  | 'decimals';
 
 export type _Block_ = {
   /** The hash of the block */

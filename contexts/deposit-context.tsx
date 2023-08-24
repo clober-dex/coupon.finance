@@ -1,7 +1,7 @@
 import React from 'react'
 import { useQuery } from 'wagmi'
 
-import { fetchOrderBooks } from '../api/clober'
+import { fetchMarkets } from '../api/clober'
 import { Currency } from '../model/currency'
 
 type DepositContext = {
@@ -29,16 +29,16 @@ const Context = React.createContext<DepositContext>({
 })
 
 export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
-  const { data: orderbook } = useQuery(
-    ['orderbook'],
+  const { data: markets } = useQuery(
+    ['markets'],
     async () => {
-      return fetchOrderBooks()
+      return fetchMarkets()
     },
     {
       refetchInterval: 1000,
     },
   )
-  console.log(orderbook)
+  console.log(markets)
 
   const dummyPositions = [
     {

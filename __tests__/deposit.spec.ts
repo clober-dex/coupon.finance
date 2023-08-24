@@ -32,52 +32,18 @@ describe('Deposit controller', () => {
       [
         {
           price,
-          rawAmount: 10n ** 9n * 10n, // 10 ETH (~$16000)
-          isBid: true,
-        },
-        {
-          price,
-          rawAmount: 10n ** 9n * 1n, // 1 ETH (~$1600)
-          isBid: true,
-        },
-        {
-          price,
-          rawAmount: 10n ** 8n, // 0.1 ETH (~$160)
-          isBid: true,
-        },
-        {
-          price,
-          rawAmount: 10n ** 7n, // 0.01 ETH (~$16)
-          isBid: true,
-        },
-        {
-          price,
-          rawAmount: 10n ** 6n, // 0.001 ETH (~$1.6)
-          isBid: true,
-        },
-        {
-          price,
-          rawAmount: 10n ** 5n, // 0.001 ETH (~$0.16)
-          isBid: true,
-        },
-        {
-          price,
-          rawAmount: 10n ** 4n, // 0.001 ETH (~$0.016)
-          isBid: true,
-        },
-        {
-          price,
-          rawAmount: 10n ** 3n, // 0.001 ETH (~$0.0016)
-          isBid: true,
-        },
-        {
-          price,
-          rawAmount: 10n ** 2n, // 0.001 ETH (~$0.00016)
-          isBid: true,
-        },
-        {
-          price,
-          rawAmount: 10n ** 1n, // 0.001 ETH (~$0.000016)
+          // 10 ETH (~$16000) + 1 ETH (~$1600) + 0.1 ETH (~$160) + 0.01 ETH (~$16) + 0.001 ETH (~$1.6) + 0.0001 ETH (~$0.16) + 0.00001 ETH (~$0.016) + 0.000001 ETH (~$0.0016) + 0.0000001 ETH (~$0.00016) + 0.00000001 ETH (~$0.000016)
+          rawAmount:
+            10n ** 9n * 10n +
+            10n ** 9n * 1n +
+            10n ** 8n +
+            10n ** 7n +
+            10n ** 6n +
+            10n ** 5n +
+            10n ** 4n +
+            10n ** 3n +
+            10n ** 2n +
+            10n ** 1n,
           isBid: true,
         },
       ],
