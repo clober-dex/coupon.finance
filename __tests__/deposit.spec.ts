@@ -29,59 +29,135 @@ const market = new Market(
 )
 const price = 10n ** 17n // 10%
 
+const expectLessThan10Gwei = (amount: BigDecimal, expected: number) => {
+  expect(
+    Number(
+      BigDecimal.fromDecimalValue(18, new BigNumber(expected))
+        .minus(amount)
+        .toDecimalString(),
+    ),
+  ).toBeLessThan(0.00000001)
+}
+
 describe('Deposit controller', () => {
-  it('check deposit', async () => {
+  it('check deposit to 1 market', () => {
     const depositedAmount = calculateTotalDeposit(
-      Market.from(
-        market,
-        [
-          {
-            price,
-            rawAmount: ONE_ETH * 1000000n, // 1000000 ETH
-            isBid: true,
-          },
-        ],
-        [],
-      ),
+      [
+        Market.from(
+          market,
+          [
+            {
+              price,
+              rawAmount: ONE_ETH * 1000000n, // 1000000 ETH
+              isBid: true,
+            },
+          ],
+          [],
+        ),
+      ],
       BigDecimal.fromIntegerValue(18, new BigNumber(10).pow(18).times(100)),
     )
     expect(depositedAmount.toIntegerString()).toEqual('111111111111000000000')
 
     const depositedAmount2 = calculateTotalDeposit(
-      Market.from(
-        market,
-        [
-          {
-            price,
-            rawAmount: ONE_ETH * 10n, // 10 ETH
-            isBid: true,
-          },
-        ],
-        [],
-      ),
+      [
+        Market.from(
+          market,
+          [
+            {
+              price,
+              rawAmount: ONE_ETH * 10n, // 10 ETH
+              isBid: true,
+            },
+          ],
+          [],
+        ),
+      ],
       BigDecimal.fromIntegerValue(18, new BigNumber(10).pow(18).times(100)),
     )
     expect(depositedAmount2.toIntegerString()).toEqual('110000000000000000000')
 
     const depositedAmount3 = calculateTotalDeposit(
-      Market.from(
-        market,
-        [
-          {
-            price: 10n ** 17n, // 10%,
-            rawAmount: ONE_ETH * 10n, // 10 ETH
-            isBid: true,
-          },
-          {
-            price: 10n ** 16n, // 1%,
-            rawAmount: ONE_ETH * 100000n, // 100000 ETH
-            isBid: true,
-          },
-        ],
-        [],
-      ),
+      [
+        Market.from(
+          market,
+          [
+            {
+              price: 10n ** 17n, // 10%,
+              rawAmount: ONE_ETH * 10n, // 10 ETH
+              isBid: true,
+            },
+            {
+              price: 10n ** 16n, // 1%,
+              rawAmount: ONE_ETH * 100000n, // 100000 ETH
+              isBid: true,
+            },
+          ],
+          [],
+        ),
+      ],
       BigDecimal.fromIntegerValue(18, new BigNumber(10).pow(18).times(100)),
     )
     expect(depositedAmount3.toIntegerString()).toEqual('110101010101000000000')
+  })
+
+  it('check deposit to 2 markets', () => {
+    const depositedAmount = calculateTotalDeposit(
+      [
+        Market.from(
+          market,
+          [
+            {
+              price,
+              rawAmount: ONE_ETH * 1000000n, // 1000000 ETH
+              isBid: true,
+            },
+          ],
+          [],
+        ),
+        Market.from(
+          market,
+          [
+            {
+              price,
+              rawAmount: ONE_ETH * 1000000n, // 1000000 ETH
+              isBid: true,
+            },
+          ],
+          [],
+        ),
+      ],
+      BigDecimal.fromIntegerValue(18, new BigNumber(10).pow(18).times(100)),
+    )
+    expectLessThan10Gwei(depositedAmount, 100 / (1 - 0.2))
+
+    const depositedAmount2 = calculateTotalDeposit(
+      [
+        Market.from(
+          market,
+          [
+            {
+              price: 10n ** 17n, // 10%,
+              rawAmount: ONE_ETH * 1000000n, // 1000000 ETH
+              isBid: true,
+            },
+          ],
+          [],
+        ),
+        Market.from(
+          market,
+          [
+            {
+              price: 10n ** 16n, // 1%,
+              rawAmount: ONE_ETH * 1000000n, // 1000000 ETH
+              isBid: true,
+            },
+          ],
+          [],
+        ),
+      ],
+      BigDecimal.fromIntegerValue(18, new BigNumber(10).pow(18).times(100)),
+    )
+    expectLessThan10Gwei(depositedAmount2, 100 + 10 / (1 - 0.11))
   })
 })

@@ -204,21 +204,29 @@ export class Market {
 }
 
 export const calculateTotalDeposit = (
-  market: Market,
+  markets: Market[],
   initialDeposit: BigDecimal,
 ): BigDecimal => {
   let totalDeposit = initialDeposit
-  let amountOut = BigInt(Number.MAX_SAFE_INTEGER)
+  const amountOuts = [...Array(markets.length).keys()].map(
+    () => 2n ** 256n - 1n,
+  )
 
-  while (amountOut > 0n) {
-    ;({ market, amountOut } = market.swap(
-      market.baseToken.address,
-      BigInt(initialDeposit.toIntegerString()),
-    ))
-    initialDeposit = BigDecimal.fromIntegerValue(
-      market.quoteToken.decimals,
-      amountOut.toString(),
-    )
+  while (amountOuts.reduce((a, b) => a + b, 0n) > 0n) {
+    for (let i = 0; i < markets.length; i++) {
+      ;({ market: markets[i], amountOut: amountOuts[i] } = markets[i].swap(
+        markets[i].baseToken.address,
+        BigInt(initialDeposit.toIntegerString()),
+      ))
+    }
+    initialDeposit = markets.reduce((acc, market, i) => {
+      return acc.plus(
+        BigDecimal.fromIntegerValue(
+          market.quoteToken.decimals,
+          amountOuts[i].toString(),
+        ),
+      )
+    }, BigDecimal.fromIntegerValue(18, 0))
     totalDeposit = totalDeposit.plus(initialDeposit)
   }
 
