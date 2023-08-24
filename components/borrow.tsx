@@ -2,7 +2,7 @@ import React, { SVGProps, useState } from 'react'
 import Link from 'next/link'
 
 import { useBorrowContext } from '../contexts/borrow-context'
-import { Currency } from '../utils/currency'
+import { Currency, getLogo } from '../model/currency'
 
 import RepayModal from './modal/repay-modal'
 import BorrowMoreModal from './modal/borrow-more-modal'
@@ -51,7 +51,7 @@ const Position = ({
   collateralSymbol,
   expiry,
   price,
-  // collateralPrice,
+  collateralPrice,
   ltv,
   liquidationThreshold,
   onRepay,
@@ -75,11 +75,16 @@ const Position = ({
   onEditCollateral: () => void
   onEditExpiry: () => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
+  collateralPrice // TODO remove
   return (
     <div className="rounded-xl shadow bg-gray-50 dark:bg-gray-900" {...props}>
       <div className="flex justify-between rounded-t-xl p-4 bg-white dark:bg-gray-800">
         <div className="flex items-center gap-3">
-          <img src={currency.logo} alt={currency.name} className="w-8 h-8" />
+          <img
+            src={getLogo(currency)}
+            alt={currency.name}
+            className="w-8 h-8"
+          />
           <div className="flex flex-col">
             <div className="font-bold">{currency.symbol}</div>
             <div className="text-gray-500 text-sm">{currency.name}</div>
@@ -169,7 +174,11 @@ const Asset = ({
       <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
         <div className="flex justify-between w-full sm:w-auto items-center gap-4 bg-white p-4 rounded-t-xl dark:bg-gray-800 dark:sm:bg-gray-900 sm:p-0 mb-2 sm:mb-0">
           <div className="flex items-center gap-3 sm:w-[140px]">
-            <img src={currency.logo} alt={currency.name} className="w-8 h-8" />
+            <img
+              src={getLogo(currency)}
+              alt={currency.name}
+              className="w-8 h-8"
+            />
             <div className="flex flex-col gap-0.5 sm:gap-0">
               <div className="font-bold text-sm sm:text-base">
                 {currency.symbol}

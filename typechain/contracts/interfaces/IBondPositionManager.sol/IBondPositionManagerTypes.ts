@@ -22,35 +22,32 @@ export interface IBondPositionManagerTypesInterface extends utils.Interface {
   functions: {};
 
   events: {
-    "AssetRegistered(address)": EventFragment;
-    "PositionUpdated(uint256,uint256,uint8)": EventFragment;
+    "RegisterAsset(address)": EventFragment;
+    "UpdatePosition(uint256,uint256,uint8)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "AssetRegistered"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "PositionUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RegisterAsset"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "UpdatePosition"): EventFragment;
 }
 
-export interface AssetRegisteredEventObject {
+export interface RegisterAssetEventObject {
   asset: string;
 }
-export type AssetRegisteredEvent = TypedEvent<
-  [string],
-  AssetRegisteredEventObject
->;
+export type RegisterAssetEvent = TypedEvent<[string], RegisterAssetEventObject>;
 
-export type AssetRegisteredEventFilter = TypedEventFilter<AssetRegisteredEvent>;
+export type RegisterAssetEventFilter = TypedEventFilter<RegisterAssetEvent>;
 
-export interface PositionUpdatedEventObject {
+export interface UpdatePositionEventObject {
   tokenId: BigNumber;
   amount: BigNumber;
   expiredWith: number;
 }
-export type PositionUpdatedEvent = TypedEvent<
+export type UpdatePositionEvent = TypedEvent<
   [BigNumber, BigNumber, number],
-  PositionUpdatedEventObject
+  UpdatePositionEventObject
 >;
 
-export type PositionUpdatedEventFilter = TypedEventFilter<PositionUpdatedEvent>;
+export type UpdatePositionEventFilter = TypedEventFilter<UpdatePositionEvent>;
 
 export interface IBondPositionManagerTypes extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -83,23 +80,23 @@ export interface IBondPositionManagerTypes extends BaseContract {
   callStatic: {};
 
   filters: {
-    "AssetRegistered(address)"(
+    "RegisterAsset(address)"(
       asset?: PromiseOrValue<string> | null
-    ): AssetRegisteredEventFilter;
-    AssetRegistered(
+    ): RegisterAssetEventFilter;
+    RegisterAsset(
       asset?: PromiseOrValue<string> | null
-    ): AssetRegisteredEventFilter;
+    ): RegisterAssetEventFilter;
 
-    "PositionUpdated(uint256,uint256,uint8)"(
+    "UpdatePosition(uint256,uint256,uint8)"(
       tokenId?: PromiseOrValue<BigNumberish> | null,
       amount?: null,
       expiredWith?: null
-    ): PositionUpdatedEventFilter;
-    PositionUpdated(
+    ): UpdatePositionEventFilter;
+    UpdatePosition(
       tokenId?: PromiseOrValue<BigNumberish> | null,
       amount?: null,
       expiredWith?: null
-    ): PositionUpdatedEventFilter;
+    ): UpdatePositionEventFilter;
   };
 
   estimateGas: {};

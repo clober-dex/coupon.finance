@@ -15,3 +15,4 @@ export type { CouponManager } from "./CouponManager";
 export type { CouponOracle } from "./CouponOracle";
 export type { DepositController } from "./DepositController";
 export type { LoanPositionManager } from "./LoanPositionManager";
+export type { OdosRepayAdapter } from "./OdosRepayAdapter";

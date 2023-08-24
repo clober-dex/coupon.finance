@@ -56,7 +56,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "AssetRegistered",
+    name: "RegisterAsset",
     type: "event",
   },
   {
@@ -81,7 +81,7 @@ const _abi = [
         type: "uint8",
       },
     ],
-    name: "PositionUpdated",
+    name: "UpdatePosition",
     type: "event",
   },
 ] as const;

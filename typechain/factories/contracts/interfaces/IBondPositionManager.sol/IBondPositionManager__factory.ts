@@ -26,6 +26,11 @@ const _abi = [
     type: "error",
   },
   {
+    inputs: [],
+    name: "InvalidSignature",
+    type: "error",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -39,6 +44,11 @@ const _abi = [
   {
     inputs: [],
     name: "NotSettled",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "PermitExpired",
     type: "error",
   },
   {
@@ -106,32 +116,7 @@ const _abi = [
         type: "address",
       },
     ],
-    name: "AssetRegistered",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "amount",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "Epoch",
-        name: "expiredWith",
-        type: "uint8",
-      },
-    ],
-    name: "PositionUpdated",
+    name: "RegisterAsset",
     type: "event",
   },
   {
@@ -160,6 +145,31 @@ const _abi = [
     type: "event",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "Epoch",
+        name: "expiredWith",
+        type: "uint8",
+      },
+    ],
+    name: "UpdatePosition",
+    type: "event",
+  },
+  {
     inputs: [],
     name: "DOMAIN_SEPARATOR",
     outputs: [
@@ -167,6 +177,19 @@ const _abi = [
         internalType: "bytes32",
         name: "",
         type: "bytes32",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "MAX_EPOCH",
+    outputs: [
+      {
+        internalType: "Epoch",
+        name: "maxEpoch",
+        type: "uint8",
       },
     ],
     stateMutability: "view",
@@ -428,19 +451,6 @@ const _abi = [
         internalType: "address",
         name: "operator",
         type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getMaxEpoch",
-    outputs: [
-      {
-        internalType: "Epoch",
-        name: "maxEpoch",
-        type: "uint8",
       },
     ],
     stateMutability: "view",

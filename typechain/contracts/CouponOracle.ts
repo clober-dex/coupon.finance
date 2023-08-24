@@ -179,7 +179,7 @@ export interface CouponOracle extends BaseContract {
     ): Promise<[BigNumber[]] & { prices: BigNumber[] }>;
 
     getFeed(
-      asset: PromiseOrValue<string>,
+      arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<[string]>;
 
@@ -221,7 +221,7 @@ export interface CouponOracle extends BaseContract {
   ): Promise<BigNumber[]>;
 
   getFeed(
-    asset: PromiseOrValue<string>,
+    arg0: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<string>;
 
@@ -263,7 +263,7 @@ export interface CouponOracle extends BaseContract {
     ): Promise<BigNumber[]>;
 
     getFeed(
-      asset: PromiseOrValue<string>,
+      arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -315,7 +315,7 @@ export interface CouponOracle extends BaseContract {
     ): Promise<BigNumber>;
 
     getFeed(
-      asset: PromiseOrValue<string>,
+      arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -358,7 +358,7 @@ export interface CouponOracle extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     getFeed(
-      asset: PromiseOrValue<string>,
+      arg0: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

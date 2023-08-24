@@ -20,8 +20,8 @@ import { getMesh, ExecuteMeshFn, SubscribeMeshFn, MeshContext as BaseMeshContext
 import { MeshStore, FsStoreStorageAdapter } from '@graphql-mesh/store';
 import { path as pathModule } from '@graphql-mesh/cross-helpers';
 import { ImportFn } from '@graphql-mesh/types';
-import type { CloberTypes } from './sources/clober/types';
 import type { CouponFinanceTypes } from './sources/coupon-finance/types';
+import type { CloberTypes } from './sources/clober/types';
 import * as importedModule$0 from "./sources/coupon-finance/introspectionSchema";
 import * as importedModule$1 from "./sources/clober/introspectionSchema";
 export type Maybe<T> = T | null;
@@ -47,34 +47,16 @@ export type Scalars = {
 };
 
 export type Query = {
-  asset?: Maybe<Asset>;
-  assets: Array<Asset>;
   token?: Maybe<Token>;
   tokens: Array<Token>;
+  asset?: Maybe<Asset>;
+  assets: Array<Asset>;
   /** Access to subgraph metadata */
   _meta?: Maybe<_Meta_>;
   market?: Maybe<Market>;
   markets: Array<Market>;
   depth?: Maybe<Depth>;
   depths: Array<Depth>;
-};
-
-
-export type QueryassetArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type QueryassetsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Asset_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<Asset_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
@@ -91,6 +73,24 @@ export type QuerytokensArgs = {
   orderBy?: InputMaybe<Token_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<Token_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryassetArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type QueryassetsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Asset_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<Asset_filter>;
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -137,34 +137,16 @@ export type QuerydepthsArgs = {
 };
 
 export type Subscription = {
-  asset?: Maybe<Asset>;
-  assets: Array<Asset>;
   token?: Maybe<Token>;
   tokens: Array<Token>;
+  asset?: Maybe<Asset>;
+  assets: Array<Asset>;
   /** Access to subgraph metadata */
   _meta?: Maybe<_Meta_>;
   market?: Maybe<Market>;
   markets: Array<Market>;
   depth?: Maybe<Depth>;
   depths: Array<Depth>;
-};
-
-
-export type SubscriptionassetArgs = {
-  id: Scalars['ID'];
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
-};
-
-
-export type SubscriptionassetsArgs = {
-  skip?: InputMaybe<Scalars['Int']>;
-  first?: InputMaybe<Scalars['Int']>;
-  orderBy?: InputMaybe<Asset_orderBy>;
-  orderDirection?: InputMaybe<OrderDirection>;
-  where?: InputMaybe<Asset_filter>;
-  block?: InputMaybe<Block_height>;
-  subgraphError?: _SubgraphErrorPolicy_;
 };
 
 
@@ -181,6 +163,24 @@ export type SubscriptiontokensArgs = {
   orderBy?: InputMaybe<Token_orderBy>;
   orderDirection?: InputMaybe<OrderDirection>;
   where?: InputMaybe<Token_filter>;
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionassetArgs = {
+  id: Scalars['ID'];
+  block?: InputMaybe<Block_height>;
+  subgraphError?: _SubgraphErrorPolicy_;
+};
+
+
+export type SubscriptionassetsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Asset_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<Asset_filter>;
   block?: InputMaybe<Block_height>;
   subgraphError?: _SubgraphErrorPolicy_;
 };
@@ -228,14 +228,22 @@ export type SubscriptiondepthsArgs = {
 
 export type Asset = {
   id: Scalars['ID'];
-  symbol: Scalars['String'];
-  name: Scalars['String'];
-  decimals: Scalars['BigInt'];
-  underlying: Array<Token>;
+  underlying: Token;
+  collaterals: Array<Token>;
+  substitutes: Array<Token>;
 };
 
 
-export type AssetunderlyingArgs = {
+export type AssetcollateralsArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Token_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<Token_filter>;
+};
+
+
+export type AssetsubstitutesArgs = {
   skip?: InputMaybe<Scalars['Int']>;
   first?: InputMaybe<Scalars['Int']>;
   orderBy?: InputMaybe<Token_orderBy>;
@@ -252,55 +260,41 @@ export type Asset_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  symbol?: InputMaybe<Scalars['String']>;
-  symbol_not?: InputMaybe<Scalars['String']>;
-  symbol_gt?: InputMaybe<Scalars['String']>;
-  symbol_lt?: InputMaybe<Scalars['String']>;
-  symbol_gte?: InputMaybe<Scalars['String']>;
-  symbol_lte?: InputMaybe<Scalars['String']>;
-  symbol_in?: InputMaybe<Array<Scalars['String']>>;
-  symbol_not_in?: InputMaybe<Array<Scalars['String']>>;
-  symbol_contains?: InputMaybe<Scalars['String']>;
-  symbol_contains_nocase?: InputMaybe<Scalars['String']>;
-  symbol_not_contains?: InputMaybe<Scalars['String']>;
-  symbol_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  symbol_starts_with?: InputMaybe<Scalars['String']>;
-  symbol_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  symbol_not_starts_with?: InputMaybe<Scalars['String']>;
-  symbol_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  symbol_ends_with?: InputMaybe<Scalars['String']>;
-  symbol_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  symbol_not_ends_with?: InputMaybe<Scalars['String']>;
-  symbol_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  name?: InputMaybe<Scalars['String']>;
-  name_not?: InputMaybe<Scalars['String']>;
-  name_gt?: InputMaybe<Scalars['String']>;
-  name_lt?: InputMaybe<Scalars['String']>;
-  name_gte?: InputMaybe<Scalars['String']>;
-  name_lte?: InputMaybe<Scalars['String']>;
-  name_in?: InputMaybe<Array<Scalars['String']>>;
-  name_not_in?: InputMaybe<Array<Scalars['String']>>;
-  name_contains?: InputMaybe<Scalars['String']>;
-  name_contains_nocase?: InputMaybe<Scalars['String']>;
-  name_not_contains?: InputMaybe<Scalars['String']>;
-  name_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  name_starts_with?: InputMaybe<Scalars['String']>;
-  name_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  name_not_starts_with?: InputMaybe<Scalars['String']>;
-  name_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  name_ends_with?: InputMaybe<Scalars['String']>;
-  name_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  name_not_ends_with?: InputMaybe<Scalars['String']>;
-  name_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  decimals?: InputMaybe<Scalars['BigInt']>;
-  decimals_not?: InputMaybe<Scalars['BigInt']>;
-  decimals_gt?: InputMaybe<Scalars['BigInt']>;
-  decimals_lt?: InputMaybe<Scalars['BigInt']>;
-  decimals_gte?: InputMaybe<Scalars['BigInt']>;
-  decimals_lte?: InputMaybe<Scalars['BigInt']>;
-  decimals_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  decimals_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  underlying?: InputMaybe<Scalars['String']>;
+  underlying_not?: InputMaybe<Scalars['String']>;
+  underlying_gt?: InputMaybe<Scalars['String']>;
+  underlying_lt?: InputMaybe<Scalars['String']>;
+  underlying_gte?: InputMaybe<Scalars['String']>;
+  underlying_lte?: InputMaybe<Scalars['String']>;
+  underlying_in?: InputMaybe<Array<Scalars['String']>>;
+  underlying_not_in?: InputMaybe<Array<Scalars['String']>>;
+  underlying_contains?: InputMaybe<Scalars['String']>;
+  underlying_contains_nocase?: InputMaybe<Scalars['String']>;
+  underlying_not_contains?: InputMaybe<Scalars['String']>;
+  underlying_not_contains_nocase?: InputMaybe<Scalars['String']>;
+  underlying_starts_with?: InputMaybe<Scalars['String']>;
+  underlying_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  underlying_not_starts_with?: InputMaybe<Scalars['String']>;
+  underlying_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
+  underlying_ends_with?: InputMaybe<Scalars['String']>;
+  underlying_ends_with_nocase?: InputMaybe<Scalars['String']>;
+  underlying_not_ends_with?: InputMaybe<Scalars['String']>;
+  underlying_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
   underlying_?: InputMaybe<Token_filter>;
+  collaterals?: InputMaybe<Array<Scalars['String']>>;
+  collaterals_not?: InputMaybe<Array<Scalars['String']>>;
+  collaterals_contains?: InputMaybe<Array<Scalars['String']>>;
+  collaterals_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  collaterals_not_contains?: InputMaybe<Array<Scalars['String']>>;
+  collaterals_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  collaterals_?: InputMaybe<Token_filter>;
+  substitutes?: InputMaybe<Array<Scalars['String']>>;
+  substitutes_not?: InputMaybe<Array<Scalars['String']>>;
+  substitutes_contains?: InputMaybe<Array<Scalars['String']>>;
+  substitutes_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  substitutes_not_contains?: InputMaybe<Array<Scalars['String']>>;
+  substitutes_not_contains_nocase?: InputMaybe<Array<Scalars['String']>>;
+  substitutes_?: InputMaybe<Token_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<Asset_filter>>>;
@@ -309,10 +303,13 @@ export type Asset_filter = {
 
 export type Asset_orderBy =
   | 'id'
-  | 'symbol'
-  | 'name'
-  | 'decimals'
-  | 'underlying';
+  | 'underlying'
+  | 'underlying__id'
+  | 'underlying__symbol'
+  | 'underlying__name'
+  | 'underlying__decimals'
+  | 'collaterals'
+  | 'substitutes';
 
 export type BlockChangedFilter = {
   number_gte: Scalars['Int'];
@@ -331,7 +328,6 @@ export type OrderDirection =
 
 export type Token = {
   id: Scalars['ID'];
-  asset: Asset;
   symbol: Scalars['String'];
   name: Scalars['String'];
   decimals: Scalars['BigInt'];
@@ -346,27 +342,6 @@ export type Token_filter = {
   id_lte?: InputMaybe<Scalars['ID']>;
   id_in?: InputMaybe<Array<Scalars['ID']>>;
   id_not_in?: InputMaybe<Array<Scalars['ID']>>;
-  asset?: InputMaybe<Scalars['String']>;
-  asset_not?: InputMaybe<Scalars['String']>;
-  asset_gt?: InputMaybe<Scalars['String']>;
-  asset_lt?: InputMaybe<Scalars['String']>;
-  asset_gte?: InputMaybe<Scalars['String']>;
-  asset_lte?: InputMaybe<Scalars['String']>;
-  asset_in?: InputMaybe<Array<Scalars['String']>>;
-  asset_not_in?: InputMaybe<Array<Scalars['String']>>;
-  asset_contains?: InputMaybe<Scalars['String']>;
-  asset_contains_nocase?: InputMaybe<Scalars['String']>;
-  asset_not_contains?: InputMaybe<Scalars['String']>;
-  asset_not_contains_nocase?: InputMaybe<Scalars['String']>;
-  asset_starts_with?: InputMaybe<Scalars['String']>;
-  asset_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_not_starts_with?: InputMaybe<Scalars['String']>;
-  asset_not_starts_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_ends_with?: InputMaybe<Scalars['String']>;
-  asset_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_not_ends_with?: InputMaybe<Scalars['String']>;
-  asset_not_ends_with_nocase?: InputMaybe<Scalars['String']>;
-  asset_?: InputMaybe<Asset_filter>;
   symbol?: InputMaybe<Scalars['String']>;
   symbol_not?: InputMaybe<Scalars['String']>;
   symbol_gt?: InputMaybe<Scalars['String']>;
@@ -423,11 +398,6 @@ export type Token_filter = {
 
 export type Token_orderBy =
   | 'id'
-  | 'asset'
-  | 'asset__id'
-  | 'asset__symbol'
-  | 'asset__name'
-  | 'asset__decimals'
   | 'symbol'
   | 'name'
   | 'decimals';
@@ -470,7 +440,7 @@ export type Depth = {
   price: Scalars['BigInt'];
   isBid: Scalars['Boolean'];
   rawAmount: Scalars['BigInt'];
-  amount: Scalars['BigInt'];
+  baseAmount: Scalars['BigInt'];
 };
 
 export type Depth_filter = {
@@ -531,14 +501,14 @@ export type Depth_filter = {
   rawAmount_lte?: InputMaybe<Scalars['BigInt']>;
   rawAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
   rawAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  amount?: InputMaybe<Scalars['BigInt']>;
-  amount_not?: InputMaybe<Scalars['BigInt']>;
-  amount_gt?: InputMaybe<Scalars['BigInt']>;
-  amount_lt?: InputMaybe<Scalars['BigInt']>;
-  amount_gte?: InputMaybe<Scalars['BigInt']>;
-  amount_lte?: InputMaybe<Scalars['BigInt']>;
-  amount_in?: InputMaybe<Array<Scalars['BigInt']>>;
-  amount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  baseAmount?: InputMaybe<Scalars['BigInt']>;
+  baseAmount_not?: InputMaybe<Scalars['BigInt']>;
+  baseAmount_gt?: InputMaybe<Scalars['BigInt']>;
+  baseAmount_lt?: InputMaybe<Scalars['BigInt']>;
+  baseAmount_gte?: InputMaybe<Scalars['BigInt']>;
+  baseAmount_lte?: InputMaybe<Scalars['BigInt']>;
+  baseAmount_in?: InputMaybe<Array<Scalars['BigInt']>>;
+  baseAmount_not_in?: InputMaybe<Array<Scalars['BigInt']>>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<Depth_filter>>>;
@@ -560,7 +530,7 @@ export type Depth_orderBy =
   | 'price'
   | 'isBid'
   | 'rawAmount'
-  | 'amount';
+  | 'baseAmount';
 
 export type Market = {
   id: Scalars['ID'];
@@ -883,10 +853,10 @@ export type derivedFromDirectiveArgs = {
 export type derivedFromDirectiveResolver<Result, Parent, ContextType = MeshContext & { url: string }, Args = derivedFromDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type QueryResolvers<ContextType = MeshContext & { url: string }, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
-  asset?: Resolver<Maybe<ResolversTypes['Asset']>, ParentType, ContextType, RequireFields<QueryassetArgs, 'id' | 'subgraphError'>>;
-  assets?: Resolver<Array<ResolversTypes['Asset']>, ParentType, ContextType, RequireFields<QueryassetsArgs, 'skip' | 'first' | 'subgraphError'>>;
   token?: Resolver<Maybe<ResolversTypes['Token']>, ParentType, ContextType, RequireFields<QuerytokenArgs, 'id' | 'subgraphError'>>;
   tokens?: Resolver<Array<ResolversTypes['Token']>, ParentType, ContextType, RequireFields<QuerytokensArgs, 'skip' | 'first' | 'subgraphError'>>;
+  asset?: Resolver<Maybe<ResolversTypes['Asset']>, ParentType, ContextType, RequireFields<QueryassetArgs, 'id' | 'subgraphError'>>;
+  assets?: Resolver<Array<ResolversTypes['Asset']>, ParentType, ContextType, RequireFields<QueryassetsArgs, 'skip' | 'first' | 'subgraphError'>>;
   _meta?: Resolver<Maybe<ResolversTypes['_Meta_']>, ParentType, ContextType, Partial<Query_metaArgs>>;
   market?: Resolver<Maybe<ResolversTypes['Market']>, ParentType, ContextType, RequireFields<QuerymarketArgs, 'id' | 'subgraphError'>>;
   markets?: Resolver<Array<ResolversTypes['Market']>, ParentType, ContextType, RequireFields<QuerymarketsArgs, 'skip' | 'first' | 'subgraphError'>>;
@@ -895,10 +865,10 @@ export type QueryResolvers<ContextType = MeshContext & { url: string }, ParentTy
 }>;
 
 export type SubscriptionResolvers<ContextType = MeshContext & { url: string }, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
-  asset?: SubscriptionResolver<Maybe<ResolversTypes['Asset']>, "asset", ParentType, ContextType, RequireFields<SubscriptionassetArgs, 'id' | 'subgraphError'>>;
-  assets?: SubscriptionResolver<Array<ResolversTypes['Asset']>, "assets", ParentType, ContextType, RequireFields<SubscriptionassetsArgs, 'skip' | 'first' | 'subgraphError'>>;
   token?: SubscriptionResolver<Maybe<ResolversTypes['Token']>, "token", ParentType, ContextType, RequireFields<SubscriptiontokenArgs, 'id' | 'subgraphError'>>;
   tokens?: SubscriptionResolver<Array<ResolversTypes['Token']>, "tokens", ParentType, ContextType, RequireFields<SubscriptiontokensArgs, 'skip' | 'first' | 'subgraphError'>>;
+  asset?: SubscriptionResolver<Maybe<ResolversTypes['Asset']>, "asset", ParentType, ContextType, RequireFields<SubscriptionassetArgs, 'id' | 'subgraphError'>>;
+  assets?: SubscriptionResolver<Array<ResolversTypes['Asset']>, "assets", ParentType, ContextType, RequireFields<SubscriptionassetsArgs, 'skip' | 'first' | 'subgraphError'>>;
   _meta?: SubscriptionResolver<Maybe<ResolversTypes['_Meta_']>, "_meta", ParentType, ContextType, Partial<Subscription_metaArgs>>;
   market?: SubscriptionResolver<Maybe<ResolversTypes['Market']>, "market", ParentType, ContextType, RequireFields<SubscriptionmarketArgs, 'id' | 'subgraphError'>>;
   markets?: SubscriptionResolver<Array<ResolversTypes['Market']>, "markets", ParentType, ContextType, RequireFields<SubscriptionmarketsArgs, 'skip' | 'first' | 'subgraphError'>>;
@@ -908,10 +878,9 @@ export type SubscriptionResolvers<ContextType = MeshContext & { url: string }, P
 
 export type AssetResolvers<ContextType = MeshContext & { url: string }, ParentType extends ResolversParentTypes['Asset'] = ResolversParentTypes['Asset']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  symbol?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  decimals?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  underlying?: Resolver<Array<ResolversTypes['Token']>, ParentType, ContextType, RequireFields<AssetunderlyingArgs, 'skip' | 'first'>>;
+  underlying?: Resolver<ResolversTypes['Token'], ParentType, ContextType>;
+  collaterals?: Resolver<Array<ResolversTypes['Token']>, ParentType, ContextType, RequireFields<AssetcollateralsArgs, 'skip' | 'first'>>;
+  substitutes?: Resolver<Array<ResolversTypes['Token']>, ParentType, ContextType, RequireFields<AssetsubstitutesArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -929,7 +898,6 @@ export interface BytesScalarConfig extends GraphQLScalarTypeConfig<ResolversType
 
 export type TokenResolvers<ContextType = MeshContext & { url: string }, ParentType extends ResolversParentTypes['Token'] = ResolversParentTypes['Token']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  asset?: Resolver<ResolversTypes['Asset'], ParentType, ContextType>;
   symbol?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   decimals?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
@@ -957,7 +925,7 @@ export type DepthResolvers<ContextType = MeshContext & { url: string }, ParentTy
   price?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   isBid?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   rawAmount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
-  amount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
+  baseAmount?: Resolver<ResolversTypes['BigInt'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -1100,23 +1068,23 @@ const merger = new(StitchingMerger as any)({
     get documents() {
       return [
       {
-        document: OrderBookForkDocument,
+        document: GetMarketsWithForkDocument,
         get rawSDL() {
-          return printWithCache(OrderBookForkDocument);
+          return printWithCache(GetMarketsWithForkDocument);
         },
-        location: 'OrderBookForkDocument.graphql'
+        location: 'GetMarketsWithForkDocument.graphql'
       },{
-        document: DepositAssetsDocument,
+        document: GetAssetsDocument,
         get rawSDL() {
-          return printWithCache(DepositAssetsDocument);
+          return printWithCache(GetAssetsDocument);
         },
-        location: 'DepositAssetsDocument.graphql'
+        location: 'GetAssetsDocument.graphql'
       },{
-        document: OrderBookDocument,
+        document: GetMarketsDocument,
         get rawSDL() {
-          return printWithCache(OrderBookDocument);
+          return printWithCache(GetMarketsDocument);
         },
-        location: 'OrderBookDocument.graphql'
+        location: 'GetMarketsDocument.graphql'
       }
     ];
     },
@@ -1155,36 +1123,33 @@ export function getBuiltGraphSDK<TGlobalContext = any, TOperationContext = any>(
   const sdkRequester$ = getBuiltGraphClient().then(({ sdkRequesterFactory }) => sdkRequesterFactory(globalContext));
   return getSdk<TOperationContext, TGlobalContext>((...args) => sdkRequester$.then(sdkRequester => sdkRequester(...args)));
 }
-export type OrderBookForkQueryVariables = Exact<{
+export type getMarketsWithForkQueryVariables = Exact<{
   marketAddress: Scalars['ID'];
   blockNumber: Scalars['Int'];
 }>;
 
 
-export type OrderBookForkQuery = { markets: Array<(
+export type getMarketsWithForkQuery = { markets: Array<(
     Pick<Market, 'id' | 'orderToken' | 'a' | 'r' | 'd' | 'makerFee' | 'takerFee' | 'quoteUnit'>
     & { quoteToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>, baseToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>, depths: Array<Pick<Depth, 'price' | 'rawAmount' | 'isBid'>> }
   )> };
 
-export type DepositAssetsQueryVariables = Exact<{ [key: string]: never; }>;
+export type getAssetsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type DepositAssetsQuery = { tokens: Array<(
-    Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
-    & { asset: Pick<Asset, 'id' | 'name' | 'symbol' | 'decimals'> }
-  )> };
+export type getAssetsQuery = { assets: Array<{ underlying: Pick<Token, 'id' | 'symbol' | 'name' | 'decimals'>, substitutes: Array<Pick<Token, 'id' | 'symbol' | 'name' | 'decimals'>>, collaterals: Array<Pick<Token, 'id' | 'symbol' | 'name' | 'decimals'>> }> };
 
-export type OrderBookQueryVariables = Exact<{ [key: string]: never; }>;
+export type getMarketsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type OrderBookQuery = { markets: Array<(
-    Pick<Market, 'id' | 'orderToken' | 'a' | 'r' | 'd' | 'makerFee' | 'takerFee' | 'quoteUnit'>
+export type getMarketsQuery = { markets: Array<(
+    Pick<Market, 'id' | 'orderToken' | 'takerFee' | 'quoteUnit'>
     & { quoteToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>, baseToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>, depths: Array<Pick<Depth, 'price' | 'rawAmount' | 'isBid'>> }
   )> };
 
 
-export const OrderBookForkDocument = gql`
-    query OrderBookFork($marketAddress: ID!, $blockNumber: Int!) {
+export const getMarketsWithForkDocument = gql`
+    query getMarketsWithFork($marketAddress: ID!, $blockNumber: Int!) {
   markets(where: {id: $marketAddress}, block: {number: $blockNumber}) {
     id
     orderToken
@@ -1213,32 +1178,36 @@ export const OrderBookForkDocument = gql`
     }
   }
 }
-    ` as unknown as DocumentNode<OrderBookForkQuery, OrderBookForkQueryVariables>;
-export const DepositAssetsDocument = gql`
-    query DepositAssets {
-  tokens {
-    id
-    name
-    symbol
-    decimals
-    asset {
+    ` as unknown as DocumentNode<getMarketsWithForkQuery, getMarketsWithForkQueryVariables>;
+export const getAssetsDocument = gql`
+    query getAssets {
+  assets {
+    underlying {
       id
-      name
       symbol
+      name
+      decimals
+    }
+    substitutes {
+      id
+      symbol
+      name
+      decimals
+    }
+    collaterals {
+      id
+      symbol
+      name
       decimals
     }
   }
 }
-    ` as unknown as DocumentNode<DepositAssetsQuery, DepositAssetsQueryVariables>;
-export const OrderBookDocument = gql`
-    query OrderBook {
+    ` as unknown as DocumentNode<getAssetsQuery, getAssetsQueryVariables>;
+export const getMarketsDocument = gql`
+    query getMarkets {
   markets {
     id
     orderToken
-    a
-    r
-    d
-    makerFee
     takerFee
     quoteUnit
     quoteToken {
@@ -1260,7 +1229,7 @@ export const OrderBookDocument = gql`
     }
   }
 }
-    ` as unknown as DocumentNode<OrderBookQuery, OrderBookQueryVariables>;
+    ` as unknown as DocumentNode<getMarketsQuery, getMarketsQueryVariables>;
 
 
 
@@ -1268,14 +1237,14 @@ export const OrderBookDocument = gql`
 export type Requester<C = {}, E = unknown> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R> | AsyncIterable<R>
 export function getSdk<C, E>(requester: Requester<C, E>) {
   return {
-    OrderBookFork(variables: OrderBookForkQueryVariables, options?: C): Promise<OrderBookForkQuery> {
-      return requester<OrderBookForkQuery, OrderBookForkQueryVariables>(OrderBookForkDocument, variables, options) as Promise<OrderBookForkQuery>;
+    getMarketsWithFork(variables: getMarketsWithForkQueryVariables, options?: C): Promise<getMarketsWithForkQuery> {
+      return requester<getMarketsWithForkQuery, getMarketsWithForkQueryVariables>(getMarketsWithForkDocument, variables, options) as Promise<getMarketsWithForkQuery>;
     },
-    DepositAssets(variables?: DepositAssetsQueryVariables, options?: C): Promise<DepositAssetsQuery> {
-      return requester<DepositAssetsQuery, DepositAssetsQueryVariables>(DepositAssetsDocument, variables, options) as Promise<DepositAssetsQuery>;
+    getAssets(variables?: getAssetsQueryVariables, options?: C): Promise<getAssetsQuery> {
+      return requester<getAssetsQuery, getAssetsQueryVariables>(getAssetsDocument, variables, options) as Promise<getAssetsQuery>;
     },
-    OrderBook(variables?: OrderBookQueryVariables, options?: C): Promise<OrderBookQuery> {
-      return requester<OrderBookQuery, OrderBookQueryVariables>(OrderBookDocument, variables, options) as Promise<OrderBookQuery>;
+    getMarkets(variables?: getMarketsQueryVariables, options?: C): Promise<getMarketsQuery> {
+      return requester<getMarketsQuery, getMarketsQueryVariables>(getMarketsDocument, variables, options) as Promise<getMarketsQuery>;
     }
   };
 }

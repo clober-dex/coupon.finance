@@ -66,12 +66,36 @@ const _abi = [
     inputs: [
       {
         indexed: true,
+        internalType: "uint256",
+        name: "positionId",
+        type: "uint256",
+      },
+      {
+        indexed: true,
         internalType: "address",
-        name: "asset",
+        name: "liquidator",
         type: "address",
       },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "liquidationAmount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "repayAmount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "protocolFeeAmount",
+        type: "uint256",
+      },
     ],
-    name: "AssetRegistered",
+    name: "LiquidatePosition",
     type: "event",
   },
   {
@@ -79,12 +103,42 @@ const _abi = [
     inputs: [
       {
         indexed: true,
-        internalType: "uint256",
-        name: "positionId",
-        type: "uint256",
+        internalType: "address",
+        name: "collateral",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "debt",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint32",
+        name: "liquidationThreshold",
+        type: "uint32",
+      },
+      {
+        indexed: false,
+        internalType: "uint32",
+        name: "liquidationFee",
+        type: "uint32",
+      },
+      {
+        indexed: false,
+        internalType: "uint32",
+        name: "liquidationProtocolFee",
+        type: "uint32",
+      },
+      {
+        indexed: false,
+        internalType: "uint32",
+        name: "liquidationTargetLtv",
+        type: "uint32",
       },
     ],
-    name: "PositionLiquidated",
+    name: "SetLoanConfiguration",
     type: "event",
   },
   {
@@ -115,7 +169,7 @@ const _abi = [
         type: "uint8",
       },
     ],
-    name: "PositionUpdated",
+    name: "UpdatePosition",
     type: "event",
   },
 ] as const;

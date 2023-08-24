@@ -1,8 +1,9 @@
 import React from 'react'
 
-import { Currency, CURRENCY_MAP } from '../utils/currency'
+import { Currency } from '../model/currency'
 
 type BorrowContext = {
+  // TODO: change to bigInt
   positions: {
     currency: Currency
     apy: string
@@ -33,7 +34,12 @@ const Context = React.createContext<BorrowContext>({
 export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const dummyPositions = [
     {
-      currency: CURRENCY_MAP['ETH'],
+      currency: {
+        address: '0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9' as `0x${string}`,
+        name: 'Ethereum',
+        symbol: 'ETH',
+        decimals: 18,
+      },
       apy: '5.00%',
       borrowed: '69.00',
       collateral: '69.00',
@@ -45,7 +51,12 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       liquidationThreshold: '60%',
     },
     {
-      currency: CURRENCY_MAP['ARB'],
+      currency: {
+        address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1' as `0x${string}`,
+        name: 'Arbitrum',
+        symbol: 'ARB',
+        decimals: 18,
+      },
       apy: '5.00%',
       borrowed: '42.00',
       collateral: '42.00',
@@ -60,7 +71,12 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   ]
   const dummyAssets = [
     {
-      currency: CURRENCY_MAP['USDC'],
+      currency: {
+        address: '0xA8CE8aee21bC2A48a5EF670afCc9274C7bbbC035' as `0x${string}`,
+        name: 'USD Coin',
+        symbol: 'USDC',
+        decimals: 6,
+      },
       apy: '5.00%',
       available: '420.00',
       borrowed: '9000.00',
@@ -68,7 +84,12 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       price: '1.00',
     },
     {
-      currency: CURRENCY_MAP['ETH'],
+      currency: {
+        address: '0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9' as `0x${string}`,
+        name: 'Ethereum',
+        symbol: 'ETH',
+        decimals: 18,
+      },
       apy: '5.00%',
       available: '500.00',
       borrowed: '69.00',
@@ -76,7 +97,12 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       price: '2000.00',
     },
     {
-      currency: CURRENCY_MAP['ARB'],
+      currency: {
+        address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1' as `0x${string}`,
+        name: 'Arbitrum',
+        symbol: 'ARB',
+        decimals: 18,
+      },
       apy: '5.00%',
       available: '50.00',
       borrowed: '42.00',

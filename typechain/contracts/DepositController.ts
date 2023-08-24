@@ -28,20 +28,6 @@ import type {
   PromiseOrValue,
 } from "../common";
 
-export type PermitParamsStruct = {
-  deadline: PromiseOrValue<BigNumberish>;
-  v: PromiseOrValue<BigNumberish>;
-  r: PromiseOrValue<BytesLike>;
-  s: PromiseOrValue<BytesLike>;
-};
-
-export type PermitParamsStructOutput = [BigNumber, number, string, string] & {
-  deadline: BigNumber;
-  v: number;
-  r: string;
-  s: string;
-};
-
 export type CouponKeyStruct = {
   asset: PromiseOrValue<string>;
   epoch: PromiseOrValue<BigNumberish>;
@@ -51,6 +37,22 @@ export type CouponKeyStructOutput = [string, number] & {
   asset: string;
   epoch: number;
 };
+
+export declare namespace IController {
+  export type PermitParamsStruct = {
+    deadline: PromiseOrValue<BigNumberish>;
+    v: PromiseOrValue<BigNumberish>;
+    r: PromiseOrValue<BytesLike>;
+    s: PromiseOrValue<BytesLike>;
+  };
+
+  export type PermitParamsStructOutput = [BigNumber, number, string, string] & {
+    deadline: BigNumber;
+    v: number;
+    r: string;
+    s: string;
+  };
+}
 
 export interface DepositControllerInterface extends utils.Interface {
   functions: {
@@ -98,7 +100,7 @@ export interface DepositControllerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "collect",
-    values: [PromiseOrValue<BigNumberish>, PermitParamsStruct]
+    values: [PromiseOrValue<BigNumberish>, IController.PermitParamsStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "deposit",
@@ -107,7 +109,7 @@ export interface DepositControllerInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      PermitParamsStruct
+      IController.PermitParamsStruct
     ]
   ): string;
   encodeFunctionData(
@@ -161,7 +163,7 @@ export interface DepositControllerInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      PermitParamsStruct
+      IController.PermitParamsStruct
     ]
   ): string;
 
@@ -263,7 +265,7 @@ export interface DepositController extends BaseContract {
 
     collect(
       positionId: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -272,7 +274,7 @@ export interface DepositController extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       lockEpochs: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      tokenPermitParams: PermitParamsStruct,
+      tokenPermitParams: IController.PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -330,7 +332,7 @@ export interface DepositController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       withdrawAmount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -346,7 +348,7 @@ export interface DepositController extends BaseContract {
 
   collect(
     positionId: PromiseOrValue<BigNumberish>,
-    positionPermitParams: PermitParamsStruct,
+    positionPermitParams: IController.PermitParamsStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -355,7 +357,7 @@ export interface DepositController extends BaseContract {
     amount: PromiseOrValue<BigNumberish>,
     lockEpochs: PromiseOrValue<BigNumberish>,
     minEarnInterest: PromiseOrValue<BigNumberish>,
-    tokenPermitParams: PermitParamsStruct,
+    tokenPermitParams: IController.PermitParamsStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -413,7 +415,7 @@ export interface DepositController extends BaseContract {
     positionId: PromiseOrValue<BigNumberish>,
     withdrawAmount: PromiseOrValue<BigNumberish>,
     maxPayInterest: PromiseOrValue<BigNumberish>,
-    positionPermitParams: PermitParamsStruct,
+    positionPermitParams: IController.PermitParamsStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -429,7 +431,7 @@ export interface DepositController extends BaseContract {
 
     collect(
       positionId: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -438,7 +440,7 @@ export interface DepositController extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       lockEpochs: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      tokenPermitParams: PermitParamsStruct,
+      tokenPermitParams: IController.PermitParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -494,7 +496,7 @@ export interface DepositController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       withdrawAmount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -522,7 +524,7 @@ export interface DepositController extends BaseContract {
 
     collect(
       positionId: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -531,7 +533,7 @@ export interface DepositController extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       lockEpochs: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      tokenPermitParams: PermitParamsStruct,
+      tokenPermitParams: IController.PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -589,7 +591,7 @@ export interface DepositController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       withdrawAmount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -606,7 +608,7 @@ export interface DepositController extends BaseContract {
 
     collect(
       positionId: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -615,7 +617,7 @@ export interface DepositController extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       lockEpochs: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      tokenPermitParams: PermitParamsStruct,
+      tokenPermitParams: IController.PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -673,7 +675,7 @@ export interface DepositController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       withdrawAmount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

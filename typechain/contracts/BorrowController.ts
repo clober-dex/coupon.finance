@@ -28,20 +28,6 @@ import type {
   PromiseOrValue,
 } from "../common";
 
-export type PermitParamsStruct = {
-  deadline: PromiseOrValue<BigNumberish>;
-  v: PromiseOrValue<BigNumberish>;
-  r: PromiseOrValue<BytesLike>;
-  s: PromiseOrValue<BytesLike>;
-};
-
-export type PermitParamsStructOutput = [BigNumber, number, string, string] & {
-  deadline: BigNumber;
-  v: number;
-  r: string;
-  s: string;
-};
-
 export type CouponKeyStruct = {
   asset: PromiseOrValue<string>;
   epoch: PromiseOrValue<BigNumberish>;
@@ -52,19 +38,19 @@ export type CouponKeyStructOutput = [string, number] & {
   epoch: number;
 };
 
-export declare namespace IBorrowController {
-  export type SwapDataStruct = {
-    swap: PromiseOrValue<string>;
-    inAmount: PromiseOrValue<BigNumberish>;
-    minOutAmount: PromiseOrValue<BigNumberish>;
-    data: PromiseOrValue<BytesLike>;
+export declare namespace IController {
+  export type PermitParamsStruct = {
+    deadline: PromiseOrValue<BigNumberish>;
+    v: PromiseOrValue<BigNumberish>;
+    r: PromiseOrValue<BytesLike>;
+    s: PromiseOrValue<BytesLike>;
   };
 
-  export type SwapDataStructOutput = [string, BigNumber, BigNumber, string] & {
-    swap: string;
-    inAmount: BigNumber;
-    minOutAmount: BigNumber;
-    data: string;
+  export type PermitParamsStructOutput = [BigNumber, number, string, string] & {
+    deadline: BigNumber;
+    v: number;
+    r: string;
+    s: string;
   };
 }
 
@@ -83,7 +69,6 @@ export interface BorrowControllerInterface extends utils.Interface {
     "removeCollateral(uint256,uint256,(uint256,uint8,bytes32,bytes32))": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "repay(uint256,uint256,uint256,(uint256,uint8,bytes32,bytes32),(uint256,uint8,bytes32,bytes32))": FunctionFragment;
-    "repayWithCollateral(uint256,uint256,(address,uint256,uint256,bytes),(uint256,uint8,bytes32,bytes32))": FunctionFragment;
     "setCollateralAllowance(address)": FunctionFragment;
     "setCouponMarket((address,uint8),address)": FunctionFragment;
     "shortenLoanDuration(uint256,uint8,uint256,(uint256,uint8,bytes32,bytes32))": FunctionFragment;
@@ -106,7 +91,6 @@ export interface BorrowControllerInterface extends utils.Interface {
       | "removeCollateral"
       | "renounceOwnership"
       | "repay"
-      | "repayWithCollateral"
       | "setCollateralAllowance"
       | "setCouponMarket"
       | "shortenLoanDuration"
@@ -119,8 +103,8 @@ export interface BorrowControllerInterface extends utils.Interface {
     values: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      PermitParamsStruct,
-      PermitParamsStruct
+      IController.PermitParamsStruct,
+      IController.PermitParamsStruct
     ]
   ): string;
   encodeFunctionData(
@@ -132,7 +116,7 @@ export interface BorrowControllerInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      PermitParamsStruct
+      IController.PermitParamsStruct
     ]
   ): string;
   encodeFunctionData(
@@ -141,7 +125,7 @@ export interface BorrowControllerInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      PermitParamsStruct
+      IController.PermitParamsStruct
     ]
   ): string;
   encodeFunctionData(
@@ -160,8 +144,8 @@ export interface BorrowControllerInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      PermitParamsStruct,
-      PermitParamsStruct
+      IController.PermitParamsStruct,
+      IController.PermitParamsStruct
     ]
   ): string;
   encodeFunctionData(
@@ -198,7 +182,7 @@ export interface BorrowControllerInterface extends utils.Interface {
     values: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      PermitParamsStruct
+      IController.PermitParamsStruct
     ]
   ): string;
   encodeFunctionData(
@@ -211,17 +195,8 @@ export interface BorrowControllerInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      PermitParamsStruct,
-      PermitParamsStruct
-    ]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "repayWithCollateral",
-    values: [
-      PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>,
-      IBorrowController.SwapDataStruct,
-      PermitParamsStruct
+      IController.PermitParamsStruct,
+      IController.PermitParamsStruct
     ]
   ): string;
   encodeFunctionData(
@@ -238,7 +213,7 @@ export interface BorrowControllerInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      PermitParamsStruct
+      IController.PermitParamsStruct
     ]
   ): string;
   encodeFunctionData(
@@ -290,10 +265,6 @@ export interface BorrowControllerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "repay", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "repayWithCollateral",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "setCollateralAllowance",
     data: BytesLike
@@ -364,8 +335,8 @@ export interface BorrowController extends BaseContract {
     addCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
-      collateralPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
+      collateralPermitParams: IController.PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -376,7 +347,7 @@ export interface BorrowController extends BaseContract {
       borrowAmount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
       loanEpochs: PromiseOrValue<BigNumberish>,
-      collateralPermitParams: PermitParamsStruct,
+      collateralPermitParams: IController.PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -384,7 +355,7 @@ export interface BorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -401,8 +372,8 @@ export interface BorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       epochs: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
-      debtPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
+      debtPermitParams: IController.PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -439,7 +410,7 @@ export interface BorrowController extends BaseContract {
     removeCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -451,17 +422,9 @@ export interface BorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
-      debtPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
+      debtPermitParams: IController.PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    repayWithCollateral(
-      positionId: PromiseOrValue<BigNumberish>,
-      maxDebtAmount: PromiseOrValue<BigNumberish>,
-      swapData: IBorrowController.SwapDataStruct,
-      positionPermitParams: PermitParamsStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     setCollateralAllowance(
@@ -479,7 +442,7 @@ export interface BorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       epochs: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -497,8 +460,8 @@ export interface BorrowController extends BaseContract {
   addCollateral(
     positionId: PromiseOrValue<BigNumberish>,
     amount: PromiseOrValue<BigNumberish>,
-    positionPermitParams: PermitParamsStruct,
-    collateralPermitParams: PermitParamsStruct,
+    positionPermitParams: IController.PermitParamsStruct,
+    collateralPermitParams: IController.PermitParamsStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -509,7 +472,7 @@ export interface BorrowController extends BaseContract {
     borrowAmount: PromiseOrValue<BigNumberish>,
     maxPayInterest: PromiseOrValue<BigNumberish>,
     loanEpochs: PromiseOrValue<BigNumberish>,
-    collateralPermitParams: PermitParamsStruct,
+    collateralPermitParams: IController.PermitParamsStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -517,7 +480,7 @@ export interface BorrowController extends BaseContract {
     positionId: PromiseOrValue<BigNumberish>,
     amount: PromiseOrValue<BigNumberish>,
     maxPayInterest: PromiseOrValue<BigNumberish>,
-    positionPermitParams: PermitParamsStruct,
+    positionPermitParams: IController.PermitParamsStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -534,8 +497,8 @@ export interface BorrowController extends BaseContract {
     positionId: PromiseOrValue<BigNumberish>,
     epochs: PromiseOrValue<BigNumberish>,
     maxPayInterest: PromiseOrValue<BigNumberish>,
-    positionPermitParams: PermitParamsStruct,
-    debtPermitParams: PermitParamsStruct,
+    positionPermitParams: IController.PermitParamsStruct,
+    debtPermitParams: IController.PermitParamsStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -572,7 +535,7 @@ export interface BorrowController extends BaseContract {
   removeCollateral(
     positionId: PromiseOrValue<BigNumberish>,
     amount: PromiseOrValue<BigNumberish>,
-    positionPermitParams: PermitParamsStruct,
+    positionPermitParams: IController.PermitParamsStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -584,17 +547,9 @@ export interface BorrowController extends BaseContract {
     positionId: PromiseOrValue<BigNumberish>,
     amount: PromiseOrValue<BigNumberish>,
     minEarnInterest: PromiseOrValue<BigNumberish>,
-    positionPermitParams: PermitParamsStruct,
-    debtPermitParams: PermitParamsStruct,
+    positionPermitParams: IController.PermitParamsStruct,
+    debtPermitParams: IController.PermitParamsStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  repayWithCollateral(
-    positionId: PromiseOrValue<BigNumberish>,
-    maxDebtAmount: PromiseOrValue<BigNumberish>,
-    swapData: IBorrowController.SwapDataStruct,
-    positionPermitParams: PermitParamsStruct,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   setCollateralAllowance(
@@ -612,7 +567,7 @@ export interface BorrowController extends BaseContract {
     positionId: PromiseOrValue<BigNumberish>,
     epochs: PromiseOrValue<BigNumberish>,
     minEarnInterest: PromiseOrValue<BigNumberish>,
-    positionPermitParams: PermitParamsStruct,
+    positionPermitParams: IController.PermitParamsStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -630,8 +585,8 @@ export interface BorrowController extends BaseContract {
     addCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
-      collateralPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
+      collateralPermitParams: IController.PermitParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -642,7 +597,7 @@ export interface BorrowController extends BaseContract {
       borrowAmount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
       loanEpochs: PromiseOrValue<BigNumberish>,
-      collateralPermitParams: PermitParamsStruct,
+      collateralPermitParams: IController.PermitParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -650,7 +605,7 @@ export interface BorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -667,8 +622,8 @@ export interface BorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       epochs: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
-      debtPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
+      debtPermitParams: IController.PermitParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -705,7 +660,7 @@ export interface BorrowController extends BaseContract {
     removeCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -715,16 +670,8 @@ export interface BorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
-      debtPermitParams: PermitParamsStruct,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    repayWithCollateral(
-      positionId: PromiseOrValue<BigNumberish>,
-      maxDebtAmount: PromiseOrValue<BigNumberish>,
-      swapData: IBorrowController.SwapDataStruct,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
+      debtPermitParams: IController.PermitParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -743,7 +690,7 @@ export interface BorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       epochs: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -773,8 +720,8 @@ export interface BorrowController extends BaseContract {
     addCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
-      collateralPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
+      collateralPermitParams: IController.PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -785,7 +732,7 @@ export interface BorrowController extends BaseContract {
       borrowAmount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
       loanEpochs: PromiseOrValue<BigNumberish>,
-      collateralPermitParams: PermitParamsStruct,
+      collateralPermitParams: IController.PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -793,7 +740,7 @@ export interface BorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -810,8 +757,8 @@ export interface BorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       epochs: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
-      debtPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
+      debtPermitParams: IController.PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -848,7 +795,7 @@ export interface BorrowController extends BaseContract {
     removeCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -860,17 +807,9 @@ export interface BorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
-      debtPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
+      debtPermitParams: IController.PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    repayWithCollateral(
-      positionId: PromiseOrValue<BigNumberish>,
-      maxDebtAmount: PromiseOrValue<BigNumberish>,
-      swapData: IBorrowController.SwapDataStruct,
-      positionPermitParams: PermitParamsStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     setCollateralAllowance(
@@ -888,7 +827,7 @@ export interface BorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       epochs: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -907,8 +846,8 @@ export interface BorrowController extends BaseContract {
     addCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
-      collateralPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
+      collateralPermitParams: IController.PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -919,7 +858,7 @@ export interface BorrowController extends BaseContract {
       borrowAmount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
       loanEpochs: PromiseOrValue<BigNumberish>,
-      collateralPermitParams: PermitParamsStruct,
+      collateralPermitParams: IController.PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -927,7 +866,7 @@ export interface BorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -944,8 +883,8 @@ export interface BorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       epochs: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
-      debtPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
+      debtPermitParams: IController.PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -982,7 +921,7 @@ export interface BorrowController extends BaseContract {
     removeCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -994,17 +933,9 @@ export interface BorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
-      debtPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
+      debtPermitParams: IController.PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    repayWithCollateral(
-      positionId: PromiseOrValue<BigNumberish>,
-      maxDebtAmount: PromiseOrValue<BigNumberish>,
-      swapData: IBorrowController.SwapDataStruct,
-      positionPermitParams: PermitParamsStruct,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     setCollateralAllowance(
@@ -1022,7 +953,7 @@ export interface BorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       epochs: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
