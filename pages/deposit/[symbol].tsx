@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { NextPage } from 'next'
 import Head from 'next/head'
 import CountUp from 'react-countup'
@@ -8,6 +8,7 @@ import Slider from '../../components/slider'
 import NumberInput from '../../components/number-input'
 import BackSvg from '../../components/svg/back-svg'
 import { getLogo } from '../../model/currency'
+import { useCurrencyContext } from '../../contexts/currency-context'
 
 const dummy = [
   { date: '24-06-30', profit: '102.37' },
@@ -21,17 +22,17 @@ const Deposit: NextPage = () => {
 
   const router = useRouter()
 
-  const currency = {
-    address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1' as `0x${string}`,
-    name: 'Arbitrum',
-    symbol: 'ARB',
-    decimals: 18,
-  } // TODO: get from router
-  // const currency = useMemo(
-  //   () =>
-  //     CURRENCY_MAP[router.isReady ? (router.query.symbol as string) : 'USDC'],
-  //   [router.isReady, router.query.symbol],
-  // )
+  const { assets } = useCurrencyContext()
+
+  const asset = useMemo(
+    () =>
+      router.isReady
+        ? assets.find(
+            ({ underlying }) => underlying.symbol === router.query.symbol,
+          )
+        : undefined,
+    [router.isReady, router.query.symbol, assets],
+  )
 
   const setSelected = useCallback(
     (value: number) => {
@@ -42,7 +43,9 @@ const Deposit: NextPage = () => {
   return (
     <div className="flex flex-1">
       <Head>
-        <title>Deposit {currency.symbol}</title>
+        <title>
+          Deposit {router.isReady ? (router.query.symbol as string) : ''}
+        </title>
         <meta
           content="Cash in the coupons on your assets. The only liquidity protocol that enables a 100% utilization rate."
           name="description"
@@ -59,11 +62,11 @@ const Deposit: NextPage = () => {
             Deposit
             <div className="flex items-center gap-2">
               <img
-                src={getLogo(currency)}
-                alt={currency.name}
+                src={getLogo(asset?.underlying)}
+                alt={asset?.underlying.name}
                 className="w-6 h-6 sm:w-8 sm:h-8"
               />
-              <div>{currency.symbol}</div>
+              <div>{asset?.underlying.symbol}</div>
             </div>
           </button>
           <div className="flex flex-1 sm:items-center justify-center">
@@ -87,12 +90,12 @@ const Deposit: NextPage = () => {
                   <div className="flex flex-col items-end justify-between">
                     <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
                       <img
-                        src={getLogo(currency)}
-                        alt={currency.name}
+                        src={getLogo(asset?.underlying)}
+                        alt={asset?.underlying.name}
                         className="w-5 h-5"
                       />
                       <div className="text-sm sm:text-base">
-                        {currency.symbol}
+                        {asset?.underlying.symbol}
                       </div>
                     </div>
                     <div className="flex text-xs sm:text-sm gap-1 sm:gap-2">
@@ -151,7 +154,7 @@ const Deposit: NextPage = () => {
                     end={dummy
                       .slice(0, selected)
                       .reduce((acc, { profit }) => acc + +profit, 0)}
-                    suffix={` ${currency.symbol}`}
+                    suffix={` ${asset?.underlying.symbol}`}
                     className={`flex gap-2 ${
                       selected === 0 ? 'text-gray-400' : ''
                     } text-xl`}
