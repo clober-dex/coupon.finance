@@ -1,6 +1,15 @@
-import React from 'react'
+import React, { useCallback } from 'react'
+import { usePublicClient, useWalletClient } from 'wagmi'
+import { formatUnits } from 'viem'
 
 import { Currency } from '../model/currency'
+import { CONTRACT_ADDRESSES } from '../utils/addresses'
+import { DepositController__factory } from '../typechain'
+import { zeroBytes32 } from '../utils/bytes'
+import { Asset } from '../model/asset'
+
+import { isEthereum } from './currency-context'
+import { useTransactionContext } from './transaction-context'
 
 type DepositContext = {
   // TODO: change to bigInt
@@ -15,6 +24,13 @@ type DepositContext = {
   apy: { [key in `0x${string}`]: number }
   available: { [key in `0x${string}`]: bigint }
   deposited: { [key in `0x${string}`]: bigint }
+  deposit: (
+    asset: Asset,
+    amount: bigint,
+    epochs: number,
+    expectedProceeds: bigint,
+    slippage: number,
+  ) => Promise<void>
 }
 
 const Context = React.createContext<DepositContext>({
@@ -22,6 +38,7 @@ const Context = React.createContext<DepositContext>({
   apy: {},
   available: {},
   deposited: {},
+  deposit: () => Promise.resolve(),
 })
 
 export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
@@ -69,6 +86,64 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
     [key in `0x${string}`]: bigint
   } = {}
 
+  const { data: walletClient } = useWalletClient()
+  const publicClient = usePublicClient()
+  const { setConfirmation } = useTransactionContext()
+
+  const deposit = useCallback(
+    async (
+      asset: Asset,
+      amount: bigint,
+      epochs: number,
+      expectedProceeds: bigint,
+      slippage: number,
+    ) => {
+      if (!walletClient) {
+        // TODO: alert wallet connect
+        return
+      }
+
+      const minimumInterestEarned = BigInt(
+        Math.floor(Number(expectedProceeds) * (1 - slippage)),
+      )
+
+      try {
+        setConfirmation({
+          title: 'Making Deposit',
+          body: 'Please confirm in your wallet.',
+          fields: [
+            {
+              currency: asset.underlying,
+              label: asset.underlying.symbol,
+              value: formatUnits(amount, asset.underlying.decimals),
+            },
+          ],
+        })
+        const { request } = await publicClient.simulateContract({
+          address: CONTRACT_ADDRESSES.DepositController,
+          abi: DepositController__factory.abi,
+          functionName: 'deposit',
+          args: [
+            asset.substitutes[0].address,
+            amount,
+            epochs,
+            minimumInterestEarned,
+            { deadline: 0n, v: 0, r: zeroBytes32, s: zeroBytes32 },
+          ],
+          value: isEthereum(asset.underlying) ? amount : 0n,
+          account: walletClient.account,
+        })
+
+        await walletClient.writeContract(request)
+      } catch (e) {
+        console.error(e)
+      } finally {
+        setConfirmation(undefined)
+      }
+    },
+    [publicClient, setConfirmation, walletClient],
+  )
+
   return (
     <Context.Provider
       value={{
@@ -76,6 +151,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         apy,
         available,
         deposited,
+        deposit,
       }}
     >
       {children}

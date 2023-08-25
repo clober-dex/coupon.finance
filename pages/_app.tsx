@@ -20,6 +20,7 @@ import { BorrowProvider } from '../contexts/borrow-context'
 import { couponFinanceChain } from '../utils/dev-chain'
 import Panel from '../components/panel'
 import { CurrencyProvider } from '../contexts/currency-context'
+import { TransactionProvider } from '../contexts/transaction-context'
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [process.env.BUILD === 'dev' ? couponFinanceChain : arbitrum],
@@ -70,17 +71,19 @@ function MyApp({ Component, pageProps }: AppProps) {
   return (
     <ThemeProvider>
       <WalletProvider>
-        <CurrencyProvider>
-          <DepositProvider>
-            <BorrowProvider>
-              <div className="flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white">
-                <Panel open={open} setOpen={setOpen} />
-                <Header onMenuClick={() => setOpen(true)} />
-                <Component {...pageProps} />
-              </div>
-            </BorrowProvider>
-          </DepositProvider>
-        </CurrencyProvider>
+        <TransactionProvider>
+          <CurrencyProvider>
+            <DepositProvider>
+              <BorrowProvider>
+                <div className="flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white">
+                  <Panel open={open} setOpen={setOpen} />
+                  <Header onMenuClick={() => setOpen(true)} />
+                  <Component {...pageProps} />
+                </div>
+              </BorrowProvider>
+            </DepositProvider>
+          </CurrencyProvider>
+        </TransactionProvider>
       </WalletProvider>
     </ThemeProvider>
   )

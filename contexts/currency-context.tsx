@@ -24,7 +24,7 @@ const Context = React.createContext<CurrencyContext>({
   invalidateAllowances: () => {},
 })
 
-const isEthereum = (currency: Currency) =>
+export const isEthereum = (currency: Currency) =>
   currency.name === 'Ethereum' &&
   currency.symbol === 'ETH' &&
   currency.decimals === 18

@@ -1,9 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
 import CountUp from 'react-countup'
 import { useRouter } from 'next/router'
 import { formatUnits } from 'viem'
+import BigNumber from 'bignumber.js'
 
 import Slider from '../../components/slider'
 import NumberInput from '../../components/number-input'
@@ -12,6 +13,7 @@ import { getLogo } from '../../model/currency'
 import { Asset } from '../../model/asset'
 import { fetchAssets } from '../../api/asset'
 import { useCurrencyContext } from '../../contexts/currency-context'
+import { useDepositContext } from '../../contexts/deposit-context'
 
 const dummy = [
   { date: '24-06-30', profit: '102.37' },
@@ -42,6 +44,7 @@ const Deposit: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ asset }) => {
   const { balances } = useCurrencyContext()
+  const { deposit } = useDepositContext()
   const [selected, _setSelected] = useState(0)
   const [value, setValue] = useState('')
   const [hydrated, setHydrated] = useState(false)
@@ -59,20 +62,10 @@ const Deposit: NextPage<
     [selected],
   )
 
-  if (!asset) {
-    return (
-      <div className="flex flex-1">
-        <Head>
-          <title>Deposit 404</title>
-          <meta
-            content="Cash in the coupons on your assets. The only liquidity protocol that enables a 100% utilization rate."
-            name="description"
-          />
-          <link href="/favicon.svg" rel="icon" />
-        </Head>
-      </div>
-    )
-  }
+  const amount = useMemo(() => {
+    const big = new BigNumber(10).pow(asset.underlying.decimals).times(value)
+    return big.isNaN() ? 0n : BigInt(big.toFixed(0))
+  }, [asset.underlying.decimals, value])
 
   return (
     <div className="flex flex-1">
@@ -206,8 +199,9 @@ const Deposit: NextPage<
                 </div>
               </div>
               <button
-                disabled={true}
-                className="font-bold text-base sm:text-xl disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg disabled:text-gray-300 dark:disabled:text-gray-500"
+                disabled={amount === 0n || selected === 0}
+                className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
+                onClick={() => deposit(asset, amount, selected, 0n, 0)}
               >
                 Confirm
               </button>
