@@ -21,12 +21,18 @@ const dummy = [
 ]
 
 export const getServerSideProps: GetServerSideProps<{
-  asset?: Asset
+  asset: Asset
 }> = async ({ params }) => {
   const assets = await fetchAssets()
   const asset = assets.find(
     ({ underlying }) => underlying.symbol === params?.symbol,
   )
+  if (!asset) {
+    return {
+      notFound: true,
+    }
+  }
+
   return {
     props: { asset },
   }
