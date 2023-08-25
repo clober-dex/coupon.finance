@@ -1,6 +1,12 @@
 import { isAddressEqual } from 'viem'
 
 import { MarketDto } from '../api/market'
+import {
+  getCurrentEpochIndex,
+  getEpochEndTimestamp,
+  getEpochStartTimestamp,
+  YEAR_IN_SECONDS,
+} from '../utils/epoch'
 
 import { Currency } from './currency'
 
@@ -238,4 +244,34 @@ export const calculateTotalDeposit = (
   }
 
   return totalDeposit
+}
+
+export const calculateDepositApy = (
+  substitute: Currency,
+  markets: Market[],
+  initialDeposit: bigint,
+  currentTimeStamp: number,
+): number => {
+  if (
+    markets.filter(
+      (market) =>
+        !isAddressEqual(
+          market.quoteToken.address,
+          substitute.address as `0x${string}`,
+        ),
+    ).length > 0
+  ) {
+    new Error('Substitute token is not supported')
+  }
+
+  const maxEpochIndex = markets.reduce(
+    (acc, market) => (market.epoch > acc ? market.epoch : acc),
+    0n,
+  )
+  const totalDeposit = calculateTotalDeposit(markets, initialDeposit)
+  const apy =
+    ((Number(totalDeposit) / Number(initialDeposit)) * YEAR_IN_SECONDS) /
+    Number(getEpochEndTimestamp(maxEpochIndex) - currentTimeStamp)
+
+  return apy
 }

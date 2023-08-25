@@ -1,6 +1,15 @@
 import { zeroAddress } from 'viem'
 
-import { calculateTotalDeposit, Market } from '../model/market'
+import {
+  calculateDepositApy,
+  calculateTotalDeposit,
+  Market,
+} from '../model/market'
+import {
+  getCurrentEpochIndex,
+  getEpochEndTimestamp,
+  getEpochStartTimestamp,
+} from '../utils/epoch'
 
 const ONE_ETH = 10n ** 9n
 const market = new Market(
@@ -170,5 +179,102 @@ describe('Deposit controller', () => {
       (100n * 10n ** 18n * 100n) / (100n - 11n),
       10n ** 13n,
     )
+  })
+
+  it('check date util functions', () => {
+    expect(getCurrentEpochIndex(1692949188)).toEqual(107n)
+    expect(getCurrentEpochIndex(1696948730)).toEqual(107n)
+    expect(getCurrentEpochIndex(1706948730)).toEqual(108n)
+    expect(getCurrentEpochIndex(1726948730)).toEqual(109n)
+
+    expect(getEpochStartTimestamp(107n)).toEqual(1672531200)
+    expect(getEpochStartTimestamp(108n)).toEqual(1688169600)
+    expect(getEpochStartTimestamp(109n)).toEqual(1704067200)
+    expect(getEpochStartTimestamp(110n)).toEqual(1719792000)
+
+    expect(getEpochEndTimestamp(107n)).toEqual(1688169599)
+    expect(getEpochEndTimestamp(108n)).toEqual(1704067199)
+    expect(getEpochEndTimestamp(109n)).toEqual(1719791999)
+    expect(getEpochEndTimestamp(110n)).toEqual(1735689599)
+  })
+
+  it('check deposit apr', () => {
+    const markets = [
+      new Market(
+        zeroAddress,
+        zeroAddress,
+        0n,
+        10n ** 9n,
+        107n,
+        0n,
+        0n,
+        {
+          decimals: 18,
+          address: '0x0000000000000000000000000000000000000000',
+          symbol: 'ETH',
+          name: '',
+        },
+        {
+          decimals: 18,
+          address: '0x0000000000000000000000000000000000000001',
+          symbol: 'ETH',
+          name: '',
+        },
+        1n,
+        1n,
+        [
+          {
+            price: 10n ** 17n, // 10%,
+            rawAmount: ONE_ETH * 1000000n, // 1000000 ETH
+            isBid: true,
+          },
+        ],
+        [],
+      ),
+      new Market(
+        zeroAddress,
+        zeroAddress,
+        0n,
+        10n ** 9n,
+        108n,
+        0n,
+        0n,
+        {
+          decimals: 18,
+          address: '0x0000000000000000000000000000000000000000',
+          symbol: 'ETH',
+          name: '',
+        },
+        {
+          decimals: 18,
+          address: '0x0000000000000000000000000000000000000001',
+          symbol: 'ETH',
+          name: '',
+        },
+        1n,
+        1n,
+        [
+          {
+            price: 10n ** 17n, // 10%,
+            rawAmount: ONE_ETH * 1000000n, // 1000000 ETH
+            isBid: true,
+          },
+        ],
+        [],
+      ),
+    ]
+    const initialDeposit = 10n ** 18n * 100n
+    const apr = calculateDepositApy(
+      {
+        decimals: 18,
+        address: '0x0000000000000000000000000000000000000000',
+        symbol: 'ETH',
+        name: '',
+      },
+      markets,
+      initialDeposit,
+      getEpochStartTimestamp(107n),
+    )
+    expect(apr).toBeCloseTo(100 / (1 - 0.2) / 100)
   })
 })
