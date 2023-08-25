@@ -19,6 +19,9 @@ export class Market {
   orderToken: string
   takerFee: bigint
   quoteUnit: bigint
+  epoch: bigint
+  startTimestamp: bigint
+  endTimestamp: bigint
   quoteToken: Currency
   baseToken: Currency
   quotePrecisionComplement: bigint
@@ -31,6 +34,9 @@ export class Market {
     orderToken: string,
     takerFee: bigint,
     quoteUnit: bigint,
+    epoch: bigint,
+    startTimestamp: bigint,
+    endTimestamp: bigint,
     quoteToken: Currency,
     baseToken: Currency,
     quotePrecisionComplement: bigint,
@@ -42,6 +48,9 @@ export class Market {
     this.orderToken = orderToken
     this.takerFee = takerFee
     this.quoteUnit = quoteUnit
+    this.epoch = epoch
+    this.startTimestamp = startTimestamp
+    this.endTimestamp = endTimestamp
     this.quoteToken = quoteToken
     this.baseToken = baseToken
     this.quotePrecisionComplement = quotePrecisionComplement
@@ -56,6 +65,9 @@ export class Market {
       market.orderToken,
       market.takerFee,
       market.quoteUnit,
+      market.epoch,
+      market.startTimestamp,
+      market.endTimestamp,
       market.quoteToken,
       market.baseToken,
       market.quotePrecisionComplement,
@@ -71,6 +83,9 @@ export class Market {
       dto.orderToken,
       BigInt(dto.takerFee),
       BigInt(dto.quoteUnit),
+      BigInt(dto.epoch),
+      BigInt(dto.startTimestamp),
+      BigInt(dto.endTimestamp),
       dto.quoteToken,
       dto.baseToken,
       10n ** (18n - BigInt(dto.quoteToken.decimals)),

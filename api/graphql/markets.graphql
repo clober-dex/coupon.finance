@@ -4,6 +4,9 @@ query getMarkets {
     orderToken
     takerFee
     quoteUnit
+    epoch
+    startTimestamp
+    endTimestamp
     quoteToken {
       id
       name

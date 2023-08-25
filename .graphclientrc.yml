@@ -1,12 +1,8 @@
 sources:
-  - name: clober
-    handler:
-      graphql:
-        endpoint: '{context.url:https://api.studio.thegraph.com/query/49804/core-v1-subgraph/version/latest}'
   - name: coupon-finance
     handler:
       graphql:
-        endpoint: 'http://dev-subgraph.coupon.finance:8000/subgraphs/name/coupon-subgraph'
+        endpoint: '{context.url:http://dev-subgraph.coupon.finance:8000/subgraphs/name/coupon-subgraph}'
 
 documents:
   - ./api/**/*.graphql
