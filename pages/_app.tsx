@@ -7,11 +7,12 @@ import {
   lightTheme,
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit'
-import type { AppProps } from 'next/app'
+import type { AppContext, AppInitialProps, AppProps } from 'next/app'
 import { configureChains, createConfig, WagmiConfig } from 'wagmi'
 import { arbitrum } from 'wagmi/chains'
 import { publicProvider } from 'wagmi/providers/public'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
+import { NextComponentType } from 'next'
 
 import Header from '../components/header'
 import { ThemeProvider, useThemeContext } from '../contexts/theme-context'
@@ -65,7 +66,10 @@ const WalletProvider = ({ children }: React.PropsWithChildren) => {
   )
 }
 
-function MyApp({ Component, pageProps }: AppProps) {
+const MyApp: NextComponentType<AppContext, AppInitialProps, AppProps> = ({
+  Component,
+  pageProps,
+}) => {
   const [open, setOpen] = useState(false)
   return (
     <ThemeProvider>
