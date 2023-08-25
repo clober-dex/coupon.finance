@@ -1,6 +1,15 @@
 import { zeroAddress } from 'viem'
 
-import { calculateTotalDeposit, Market } from '../model/market'
+import {
+  calculateDepositApy,
+  calculateTotalDeposit,
+  Market,
+} from '../model/market'
+import {
+  getCurrentEpochIndex,
+  getEpochEndTimestamp,
+  getEpochStartTimestamp,
+} from '../utils/epoch'
 
 const ONE_ETH = 10n ** 9n
 const market = new Market(
@@ -29,16 +38,6 @@ const market = new Market(
   [],
 )
 const price = 10n ** 17n // 10%
-
-const expectEqualWithin = (
-  amount: bigint,
-  expected: bigint,
-  threshold: bigint,
-) => {
-  expect(
-    amount > expected ? amount - expected : expected - amount,
-  ).toBeLessThan(threshold)
-}
 
 describe('Deposit controller', () => {
   it('check deposit to 1 market', () => {
@@ -131,11 +130,7 @@ describe('Deposit controller', () => {
       10n ** 18n * 100n,
     )
 
-    expectEqualWithin(
-      depositedAmount,
-      (100n * 10n ** 18n * 100n) / (100n - 20n),
-      10n ** 10n,
-    )
+    expect(Number(depositedAmount) / 10 ** 18).toBeCloseTo(125)
 
     const depositedAmount2 = calculateTotalDeposit(
       [
@@ -165,10 +160,104 @@ describe('Deposit controller', () => {
       10n ** 18n * 100n,
     )
 
-    expectEqualWithin(
-      depositedAmount2,
-      (100n * 10n ** 18n * 100n) / (100n - 11n),
-      10n ** 13n,
+    expect(Number(depositedAmount2) / 10 ** 18).toBeCloseTo(112.3595)
+  })
+
+  it('check date util functions', () => {
+    expect(getCurrentEpochIndex(1692949188)).toEqual(107n)
+    expect(getCurrentEpochIndex(1696948730)).toEqual(107n)
+    expect(getCurrentEpochIndex(1706948730)).toEqual(108n)
+    expect(getCurrentEpochIndex(1726948730)).toEqual(109n)
+
+    expect(getEpochStartTimestamp(107n)).toEqual(1672531200)
+    expect(getEpochStartTimestamp(108n)).toEqual(1688169600)
+    expect(getEpochStartTimestamp(109n)).toEqual(1704067200)
+    expect(getEpochStartTimestamp(110n)).toEqual(1719792000)
+
+    expect(getEpochEndTimestamp(107n)).toEqual(1688169599)
+    expect(getEpochEndTimestamp(108n)).toEqual(1704067199)
+    expect(getEpochEndTimestamp(109n)).toEqual(1719791999)
+    expect(getEpochEndTimestamp(110n)).toEqual(1735689599)
+  })
+
+  it('check deposit apy', () => {
+    const markets = [
+      new Market(
+        zeroAddress,
+        zeroAddress,
+        0n,
+        10n ** 9n,
+        107n,
+        0n,
+        0n,
+        {
+          decimals: 18,
+          address: '0x0000000000000000000000000000000000000000',
+          symbol: 'ETH',
+          name: '',
+        },
+        {
+          decimals: 18,
+          address: '0x0000000000000000000000000000000000000001',
+          symbol: 'ETH',
+          name: '',
+        },
+        1n,
+        1n,
+        [
+          {
+            price: 10n ** 17n, // 10%,
+            rawAmount: ONE_ETH * 1000000n, // 1000000 ETH
+            isBid: true,
+          },
+        ],
+        [],
+      ),
+      new Market(
+        zeroAddress,
+        zeroAddress,
+        0n,
+        10n ** 9n,
+        108n,
+        0n,
+        0n,
+        {
+          decimals: 18,
+          address: '0x0000000000000000000000000000000000000000',
+          symbol: 'ETH',
+          name: '',
+        },
+        {
+          decimals: 18,
+          address: '0x0000000000000000000000000000000000000001',
+          symbol: 'ETH',
+          name: '',
+        },
+        1n,
+        1n,
+        [
+          {
+            price: 10n ** 17n, // 10%,
+            rawAmount: ONE_ETH * 1000000n, // 1000000 ETH
+            isBid: true,
+          },
+        ],
+        [],
+      ),
+    ]
+    const initialDeposit = 10n ** 18n * 100n
+    const { apy, proceeds } = calculateDepositApy(
+      {
+        decimals: 18,
+        address: '0x0000000000000000000000000000000000000000',
+        symbol: 'ETH',
+        name: '',
+      },
+      markets,
+      initialDeposit,
+      getEpochStartTimestamp(107n),
     )
+    expect(apy).toBeCloseTo(100 / (1 - 0.2) / 100)
+    expect(Number(proceeds) / 10 ** 18).toBeCloseTo(25)
   })
 })
