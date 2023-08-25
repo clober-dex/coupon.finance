@@ -1,8 +1,9 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
 import CountUp from 'react-countup'
 import { useRouter } from 'next/router'
+import { zeroAddress } from 'viem'
 
 import Slider from '../../components/slider'
 import NumberInput from '../../components/number-input'
@@ -10,6 +11,8 @@ import BackSvg from '../../components/svg/back-svg'
 import { getLogo } from '../../model/currency'
 import { Asset } from '../../model/asset'
 import { fetchAssets } from '../../api/asset'
+import { useCurrencyContext } from '../../contexts/currency-context'
+import { ZERO } from '../../utils/big-decimal'
 
 const dummy = [
   { date: '24-06-30', profit: '102.37' },
@@ -33,6 +36,7 @@ export const getServerSideProps: GetServerSideProps<{
 const Deposit: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ asset }) => {
+  const { balances } = useCurrencyContext()
   const [selected, _setSelected] = useState(0)
   const [value, setValue] = useState('')
 
@@ -44,10 +48,35 @@ const Deposit: NextPage<
     },
     [selected],
   )
+  console.log('asset', asset)
+  console.log('balances', balances)
+  console.log('balance of', balances[asset?.underlying.address ?? zeroAddress])
+
+  const balance = useMemo(() => {
+    return (
+      balances[asset?.underlying.address ?? zeroAddress] ?? ZERO
+    ).toFormat(2)
+  }, [asset?.underlying.address, balances])
+
+  if (!asset) {
+    return (
+      <div className="flex flex-1">
+        <Head>
+          <title>Deposit 404</title>
+          <meta
+            content="Cash in the coupons on your assets. The only liquidity protocol that enables a 100% utilization rate."
+            name="description"
+          />
+          <link href="/favicon.svg" rel="icon" />
+        </Head>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-1">
       <Head>
-        <title>Deposit {asset ? asset.underlying.symbol : ''}</title>
+        <title>Deposit {asset.underlying.symbol}</title>
         <meta
           content="Cash in the coupons on your assets. The only liquidity protocol that enables a 100% utilization rate."
           name="description"
@@ -64,11 +93,11 @@ const Deposit: NextPage<
             Deposit
             <div className="flex items-center gap-2">
               <img
-                src={getLogo(asset?.underlying)}
-                alt={asset?.underlying.name}
+                src={getLogo(asset.underlying)}
+                alt={asset.underlying.name}
                 className="w-6 h-6 sm:w-8 sm:h-8"
               />
-              <div>{asset?.underlying.symbol}</div>
+              <div>{asset.underlying.symbol}</div>
             </div>
           </button>
           <div className="flex flex-1 sm:items-center justify-center">
@@ -92,17 +121,17 @@ const Deposit: NextPage<
                   <div className="flex flex-col items-end justify-between">
                     <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
                       <img
-                        src={getLogo(asset?.underlying)}
-                        alt={asset?.underlying.name}
+                        src={getLogo(asset.underlying)}
+                        alt={asset.underlying.name}
                         className="w-5 h-5"
                       />
                       <div className="text-sm sm:text-base">
-                        {asset?.underlying.symbol}
+                        {asset.underlying.symbol}
                       </div>
                     </div>
                     <div className="flex text-xs sm:text-sm gap-1 sm:gap-2">
                       <div className="text-gray-500">Available</div>
-                      <div>2.1839</div>
+                      <div>{balance}</div>
                       <button className="text-green-500">MAX</button>
                     </div>
                   </div>
@@ -156,7 +185,7 @@ const Deposit: NextPage<
                     end={dummy
                       .slice(0, selected)
                       .reduce((acc, { profit }) => acc + +profit, 0)}
-                    suffix={` ${asset?.underlying.symbol}`}
+                    suffix={` ${asset.underlying.symbol}`}
                     className={`flex gap-2 ${
                       selected === 0 ? 'text-gray-400' : ''
                     } text-xl`}
