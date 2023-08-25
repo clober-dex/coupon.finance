@@ -97,6 +97,9 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
         }
       }, {})
     },
+    {
+      refetchOnWindowFocus: true,
+    },
   )
 
   const { data: allowance } = useQuery(

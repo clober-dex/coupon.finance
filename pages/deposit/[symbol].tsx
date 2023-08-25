@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
 import CountUp from 'react-countup'
@@ -38,6 +38,11 @@ const Deposit: NextPage<
   const { balances } = useCurrencyContext()
   const [selected, _setSelected] = useState(0)
   const [value, setValue] = useState('')
+  const [hydrated, setHydrated] = useState(false)
+
+  useEffect(() => {
+    setHydrated(true)
+  }, [])
 
   const router = useRouter()
 
@@ -123,7 +128,9 @@ const Deposit: NextPage<
                       <div className="text-gray-500">Available</div>
                       <div>
                         {formatUnits(
-                          balances?.[asset.underlying.address] ?? 0n,
+                          hydrated
+                            ? balances[asset.underlying.address] ?? 0n
+                            : 0n,
                           asset.underlying.decimals,
                         )}
                       </div>
