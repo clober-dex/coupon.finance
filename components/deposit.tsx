@@ -117,7 +117,7 @@ const Asset = ({
               {formatUnits(available, currency.decimals)} {currency.symbol}
             </div>
             <div className="text-xs text-gray-500">
-              <span className="sm:hidden">(</span>$
+              <span className="sm:hidden">(</span>
               {formatDollarValue(available, currency.decimals, price)}
               <span className="sm:hidden">)</span>
             </div>
