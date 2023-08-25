@@ -1,9 +1,9 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
 import CountUp from 'react-countup'
 import { useRouter } from 'next/router'
-import { zeroAddress } from 'viem'
+import { formatUnits } from 'viem'
 
 import Slider from '../../components/slider'
 import NumberInput from '../../components/number-input'
@@ -12,7 +12,6 @@ import { getLogo } from '../../model/currency'
 import { Asset } from '../../model/asset'
 import { fetchAssets } from '../../api/asset'
 import { useCurrencyContext } from '../../contexts/currency-context'
-import { ZERO } from '../../utils/big-decimal'
 
 const dummy = [
   { date: '24-06-30', profit: '102.37' },
@@ -48,15 +47,6 @@ const Deposit: NextPage<
     },
     [selected],
   )
-  console.log('asset', asset)
-  console.log('balances', balances)
-  console.log('balance of', balances[asset?.underlying.address ?? zeroAddress])
-
-  const balance = useMemo(() => {
-    return (
-      balances[asset?.underlying.address ?? zeroAddress] ?? ZERO
-    ).toFormat(2)
-  }, [asset?.underlying.address, balances])
 
   if (!asset) {
     return (
@@ -131,7 +121,12 @@ const Deposit: NextPage<
                     </div>
                     <div className="flex text-xs sm:text-sm gap-1 sm:gap-2">
                       <div className="text-gray-500">Available</div>
-                      <div>{balance}</div>
+                      <div>
+                        {formatUnits(
+                          balances?.[asset.underlying.address] ?? 0n,
+                          asset.underlying.decimals,
+                        )}
+                      </div>
                       <button className="text-green-500">MAX</button>
                     </div>
                   </div>
