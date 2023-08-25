@@ -19,7 +19,7 @@ const CurrencySelect = ({
   const { prices, balances } = useCurrencyContext()
   return (
     <div className="flex flex-col flex-1 p-4 mt-2 sm:mt-0 items-center sm:justify-center">
-      <div className="flex flex-col shadow bg-gray-50 dark:bg-gray-900 rounded-xl sm:rounded-3xl w-full sm:w-[480px]">
+      <div className="flex flex-col shadow-md bg-gray-50 dark:bg-gray-900 rounded-xl sm:rounded-3xl w-full sm:w-[480px]">
         <div className="flex flex-col p-4 rounded-t-xl sm:rounded-t-3xl gap-4">
           <div className="flex text-sm sm:text-xl font-bold items-center justify-between">
             <button onClick={onBack}>
@@ -61,12 +61,19 @@ const CurrencySelect = ({
                   <div className="text-xs text-gray-500">{currency.name}</div>
                 </div>
               </div>
-              <div className="text-sm text-end">
-                $
-                {(prices[currency.address] ?? ZERO)
-                  .times(balances[currency.address] ?? ZERO)
-                  .toFormat(2)}
-              </div>
+              {(balances[currency.address] ?? ZERO).value.isZero() ? (
+                <div className="text-sm text-end">0</div>
+              ) : (
+                <div className="text-sm text-end">
+                  <div>{(balances[currency.address] ?? ZERO).toFormat(2)}</div>
+                  <div className="text-gray-500 text-xs">
+                    $
+                    {(prices[currency.address] ?? ZERO)
+                      .times(balances[currency.address] ?? ZERO)
+                      .toFormat(2)}
+                  </div>
+                </div>
+              )}
             </button>
           ))}
         </div>
