@@ -28,6 +28,12 @@ export const getServerSideProps: GetServerSideProps<{
   const asset = assets.find(
     ({ underlying }) => underlying.symbol === params?.symbol,
   )
+  if (!asset) {
+    return {
+      notFound: true,
+    }
+  }
+
   return {
     props: { asset },
   }
