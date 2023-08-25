@@ -1,7 +1,6 @@
 import React from 'react'
 
 import { Currency } from '../model/currency'
-import { BigDecimal } from '../utils/big-decimal'
 
 type BorrowContext = {
   // TODO: change to bigInt
@@ -17,9 +16,9 @@ type BorrowContext = {
     ltv: string
     liquidationThreshold: string
   }[]
-  apy: { [key in `0x${string}`]: BigDecimal }
-  available: { [key in `0x${string}`]: BigDecimal }
-  borrowed: { [key in `0x${string}`]: BigDecimal }
+  apy: { [key in `0x${string}`]: number }
+  available: { [key in `0x${string}`]: bigint }
+  borrowed: { [key in `0x${string}`]: bigint }
 }
 
 const Context = React.createContext<BorrowContext>({
@@ -70,17 +69,17 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
   // TODO: get apy from order book
   const apy: {
-    [key in `0x${string}`]: BigDecimal
+    [key in `0x${string}`]: number
   } = {}
 
   // TODO: get available
   const available: {
-    [key in `0x${string}`]: BigDecimal
+    [key in `0x${string}`]: bigint
   } = {}
 
   // TODO: get borrowed
   const borrowed: {
-    [key in `0x${string}`]: BigDecimal
+    [key in `0x${string}`]: bigint
   } = {}
 
   return (

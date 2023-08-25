@@ -2,6 +2,7 @@ import React, { useCallback, useState } from 'react'
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
+import { formatUnits } from 'viem'
 
 import Slider from '../../components/slider'
 import NumberInput from '../../components/number-input'
@@ -132,7 +133,10 @@ const Borrow: NextPage<
                         <div className="flex text-xs sm:text-sm gap-1 sm:gap-2">
                           <div className="text-gray-500">Available</div>
                           <div>
-                            {balances[collateral.address]?.toFormat(2) ?? '0'}
+                            {formatUnits(
+                              balances[collateral.address] ?? 0n,
+                              collateral.decimals,
+                            )}
                           </div>
                           <button className="text-green-500">MAX</button>
                         </div>

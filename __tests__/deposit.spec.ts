@@ -1,15 +1,16 @@
-import { AddressZero } from '@ethersproject/constants'
-import BigNumber from 'bignumber.js'
+import { zeroAddress } from 'viem'
 
 import { calculateTotalDeposit, Market } from '../model/market'
-import { BigDecimal } from '../utils/big-decimal'
 
 const ONE_ETH = 10n ** 9n
 const market = new Market(
-  AddressZero,
-  AddressZero,
+  zeroAddress,
+  zeroAddress,
   0n,
   10n ** 9n,
+  1n,
+  0n,
+  0n,
   {
     decimals: 18,
     address: '0x0000000000000000000000000000000000000000',
@@ -30,13 +31,13 @@ const market = new Market(
 const price = 10n ** 17n // 10%
 
 const expectEqualWithin = (
-  amount: BigDecimal,
-  expected: BigDecimal,
-  threshold: BigDecimal,
+  amount: bigint,
+  expected: bigint,
+  threshold: bigint,
 ) => {
-  expect(BigInt(amount.minus(expected).abs().toIntegerString())).toBeLessThan(
-    BigInt(threshold.toIntegerString()),
-  )
+  expect(
+    amount > expected ? amount - expected : expected - amount,
+  ).toBeLessThan(threshold)
 }
 
 describe('Deposit controller', () => {
@@ -55,9 +56,9 @@ describe('Deposit controller', () => {
           [],
         ),
       ],
-      BigDecimal.fromIntegerValue(18, new BigNumber(10).pow(18).times(100)),
+      10n ** 18n * 100n,
     )
-    expect(depositedAmount.toIntegerString()).toEqual('111111111111000000000')
+    expect(depositedAmount).toEqual(111111111111000000000n)
 
     const depositedAmount2 = calculateTotalDeposit(
       [
@@ -73,9 +74,9 @@ describe('Deposit controller', () => {
           [],
         ),
       ],
-      BigDecimal.fromIntegerValue(18, new BigNumber(10).pow(18).times(100)),
+      10n ** 18n * 100n,
     )
-    expect(depositedAmount2.toIntegerString()).toEqual('110000000000000000000')
+    expect(depositedAmount2).toEqual(110000000000000000000n)
 
     const depositedAmount3 = calculateTotalDeposit(
       [
@@ -96,9 +97,9 @@ describe('Deposit controller', () => {
           [],
         ),
       ],
-      BigDecimal.fromIntegerValue(18, new BigNumber(10).pow(18).times(100)),
+      10n ** 18n * 100n,
     )
-    expect(depositedAmount3.toIntegerString()).toEqual('110101010101000000000')
+    expect(depositedAmount3).toEqual(110101010101000000000n)
   })
 
   it('check deposit to 2 markets', () => {
@@ -127,13 +128,13 @@ describe('Deposit controller', () => {
           [],
         ),
       ],
-      BigDecimal.fromIntegerValue(18, new BigNumber(10).pow(18).times(100)),
+      10n ** 18n * 100n,
     )
 
     expectEqualWithin(
       depositedAmount,
-      BigDecimal.fromDecimalValue(18, new BigNumber(100 / (1 - 0.2))),
-      BigDecimal.fromDecimalValue(18, new BigNumber(0.00000001)),
+      (100n * 10n ** 18n * 100n) / (100n - 20n),
+      10n ** 10n,
     )
 
     const depositedAmount2 = calculateTotalDeposit(
@@ -161,13 +162,13 @@ describe('Deposit controller', () => {
           [],
         ),
       ],
-      BigDecimal.fromIntegerValue(18, new BigNumber(10).pow(18).times(100)),
+      10n ** 18n * 100n,
     )
 
     expectEqualWithin(
       depositedAmount2,
-      BigDecimal.fromDecimalValue(18, new BigNumber(100 / (1 - 0.11))),
-      BigDecimal.fromDecimalValue(18, new BigNumber(0.00001)),
+      (100n * 10n ** 18n * 100n) / (100n - 11n),
+      10n ** 13n,
     )
   })
 })

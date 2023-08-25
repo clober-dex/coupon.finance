@@ -1,11 +1,12 @@
 import React, { SVGProps, useState } from 'react'
 import Link from 'next/link'
+import { formatUnits } from 'viem'
 
 import { useBorrowContext } from '../contexts/borrow-context'
 import { Currency, getLogo } from '../model/currency'
 import { Asset } from '../model/asset'
 import { useCurrencyContext } from '../contexts/currency-context'
-import { BigDecimal, ZERO } from '../utils/big-decimal'
+import { formatDollarValue } from '../utils/numbers'
 
 import RepayModal from './modal/repay-modal'
 import BorrowMoreModal from './modal/borrow-more-modal'
@@ -162,10 +163,10 @@ const Asset = ({
   ...props
 }: {
   currency: Currency
-  apy: BigDecimal
-  available: BigDecimal
-  borrowed: BigDecimal
-  price: BigDecimal
+  apy: number
+  available: bigint
+  borrowed: bigint
+  price: number
 } & React.HTMLAttributes<HTMLDivElement>) => {
   return (
     <div
@@ -187,17 +188,17 @@ const Asset = ({
               <div className="text-gray-500 text-xs">{currency.name}</div>
             </div>
           </div>
-          <div className="text-sm font-bold sm:w-[80px]">{apy.toFormat(2)}</div>
+          <div className="text-sm font-bold sm:w-[80px]">{apy.toFixed(2)}</div>
         </div>
         <div className="flex flex-row sm:flex-col w-full sm:w-[120px] justify-between px-4 sm:p-0">
           <div className="sm:hidden text-gray-500 text-xs">Available</div>
           <div className="flex flex-row sm:flex-col items-center sm:items-start gap-1 sm:gap-0">
             <div className="text-xs sm:text-sm">
-              {available.toFormat(2)} {currency.symbol}
+              {formatUnits(available, currency.decimals)} {currency.symbol}
             </div>
             <div className="text-xs text-gray-500">
-              <span className="sm:hidden">(</span>$
-              {available.times(price).toFormat(2)}
+              <span className="sm:hidden">(</span>
+              {formatDollarValue(available, currency.decimals, price)}
               <span className="sm:hidden">)</span>
             </div>
           </div>
@@ -206,11 +207,11 @@ const Asset = ({
           <div className="sm:hidden text-gray-500 text-xs">Total Borrowed</div>
           <div className="flex flex-row sm:flex-col sm:w-[120px] gap-1 sm:gap-0">
             <div className="text-xs sm:text-sm">
-              {borrowed.toFormat(2)} {currency.symbol}
+              {formatUnits(borrowed, currency.decimals)} {currency.symbol}
             </div>
             <div className="text-xs text-gray-500">
-              <span className="sm:hidden">(</span>$
-              {borrowed.times(price).toFormat(2)}
+              <span className="sm:hidden">(</span>
+              {formatDollarValue(borrowed, currency.decimals, price)}
               <span className="sm:hidden">)</span>
             </div>
           </div>
@@ -353,10 +354,10 @@ const Borrow = ({ assets }: { assets: Asset[] }) => {
               <Asset
                 key={i}
                 currency={asset.underlying}
-                apy={apy[asset.underlying.address] ?? ZERO}
-                available={available[asset.underlying.address] ?? ZERO}
-                borrowed={borrowed[asset.underlying.address] ?? ZERO}
-                price={prices[asset.underlying.address] ?? ZERO}
+                apy={apy[asset.underlying.address] ?? 0}
+                available={available[asset.underlying.address] ?? 0n}
+                borrowed={borrowed[asset.underlying.address] ?? 0n}
+                price={prices[asset.underlying.address] ?? 0}
               />
             ))}
           </div>
