@@ -1,8 +1,9 @@
 import React from 'react'
+import { formatUnits } from 'viem'
 
 import { Currency, getLogo } from '../model/currency'
 import { useCurrencyContext } from '../contexts/currency-context'
-import { ZERO } from '../utils/big-decimal'
+import { formatDollarValue } from '../utils/numbers'
 
 import LeftSvg from './svg/left-svg'
 import SearchSvg from './svg/search-svg'
@@ -61,16 +62,25 @@ const CurrencySelect = ({
                   <div className="text-xs text-gray-500">{currency.name}</div>
                 </div>
               </div>
-              {(balances[currency.address] ?? ZERO).value.isZero() ? (
+              {formatUnits(
+                balances[currency.address] ?? 0n,
+                currency.decimals,
+              ) ? (
                 <div className="text-sm text-end">0</div>
               ) : (
                 <div className="text-sm text-end">
-                  <div>{(balances[currency.address] ?? ZERO).toFormat(2)}</div>
+                  <div>
+                    {formatUnits(
+                      balances[currency.address] ?? 0n,
+                      currency.decimals,
+                    )}
+                  </div>
                   <div className="text-gray-500 text-xs">
-                    $
-                    {(prices[currency.address] ?? ZERO)
-                      .times(balances[currency.address] ?? ZERO)
-                      .toFormat(2)}
+                    {formatDollarValue(
+                      balances[currency.address] ?? 0n,
+                      currency.decimals,
+                      prices[currency.address] ?? 0,
+                    )}
                   </div>
                 </div>
               )}

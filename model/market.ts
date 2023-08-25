@@ -1,7 +1,6 @@
 import { isAddressEqual } from 'viem'
 
 import { MarketDto } from '../api/market'
-import { BigDecimal } from '../utils/big-decimal'
 
 import { Currency } from './currency'
 
@@ -220,8 +219,8 @@ export class Market {
 
 export const calculateTotalDeposit = (
   markets: Market[],
-  initialDeposit: BigDecimal,
-): BigDecimal => {
+  initialDeposit: bigint,
+): bigint => {
   let totalDeposit = initialDeposit
   const amountOuts = [...Array(markets.length).keys()].map(
     () => 2n ** 256n - 1n,
@@ -231,18 +230,11 @@ export const calculateTotalDeposit = (
     for (let i = 0; i < markets.length; i++) {
       ;({ market: markets[i], amountOut: amountOuts[i] } = markets[i].swap(
         markets[i].baseToken.address,
-        BigInt(initialDeposit.toIntegerString()),
+        initialDeposit,
       ))
     }
-    initialDeposit = markets.reduce((acc, market, i) => {
-      return acc.plus(
-        BigDecimal.fromIntegerValue(
-          market.quoteToken.decimals,
-          amountOuts[i].toString(),
-        ),
-      )
-    }, BigDecimal.fromIntegerValue(18, 0))
-    totalDeposit = totalDeposit.plus(initialDeposit)
+    initialDeposit = markets.reduce((acc, market, i) => acc + amountOuts[i], 0n)
+    totalDeposit = totalDeposit + initialDeposit
   }
 
   return totalDeposit

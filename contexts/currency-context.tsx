@@ -4,16 +4,15 @@ import { readContracts } from '@wagmi/core'
 
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { CouponOracle__factory, IERC20__factory } from '../typechain'
-import { BigDecimal } from '../utils/big-decimal'
 import { fetchCurrencies } from '../api/currency'
 
 type CurrencyContext = {
-  balances: { [key in `0x${string}`]: BigDecimal }
+  balances: { [key in `0x${string}`]: bigint }
   // contract address => token address => allowance
   allowances: {
-    [key in `0x${string}`]: { [key in `0x${string}`]: BigDecimal }
+    [key in `0x${string}`]: { [key in `0x${string}`]: bigint }
   }
-  prices: { [key in `0x${string}`]: BigDecimal }
+  prices: { [key in `0x${string}`]: number }
   invalidateBalances: () => void
   invalidateAllowances: () => void
 }
@@ -57,10 +56,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
             const currencyAddress = currencyAddresses[i]
             return {
               ...acc,
-              [currencyAddress]: BigDecimal.fromIntegerValue(
-                decimals,
-                val.toString(),
-              ),
+              [currencyAddress]: Number(val) / 10 ** decimals,
             }
           }, {})
         : {}
@@ -88,10 +84,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
       const currency = currencies[i]
       return {
         ...acc,
-        [currency.address]: BigDecimal.fromIntegerValue(
-          currency.decimals,
-          (result ?? 0n).toString(),
-        ),
+        [currency.address]: result,
       }
     }, {})
   })
@@ -124,7 +117,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
       return results.reduce(
         (
           acc: {
-            [key in `0x${string}`]: { [key in `0x${string}`]: BigDecimal }
+            [key in `0x${string}`]: { [key in `0x${string}`]: bigint }
           },
           { result },
           i,
@@ -135,10 +128,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
             ...acc,
             [spender]: {
               ...acc[spender],
-              [currency.address]: BigDecimal.fromIntegerValue(
-                currency.decimals,
-                (result ?? 0n).toString(),
-              ),
+              [currency.address]: result,
             },
           }
         },

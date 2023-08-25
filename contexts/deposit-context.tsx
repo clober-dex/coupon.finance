@@ -1,7 +1,6 @@
 import React from 'react'
 
 import { Currency } from '../model/currency'
-import { BigDecimal } from '../utils/big-decimal'
 
 type DepositContext = {
   // TODO: change to bigInt
@@ -13,9 +12,9 @@ type DepositContext = {
     expiry: string
     price: string
   }[]
-  apy: { [key in `0x${string}`]: BigDecimal }
-  available: { [key in `0x${string}`]: BigDecimal }
-  deposited: { [key in `0x${string}`]: BigDecimal }
+  apy: { [key in `0x${string}`]: number }
+  available: { [key in `0x${string}`]: bigint }
+  deposited: { [key in `0x${string}`]: bigint }
 }
 
 const Context = React.createContext<DepositContext>({
@@ -57,17 +56,17 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
   // TODO: get apy from order book
   const apy: {
-    [key in `0x${string}`]: BigDecimal
+    [key in `0x${string}`]: number
   } = {}
 
   // TODO: get available
   const available: {
-    [key in `0x${string}`]: BigDecimal
+    [key in `0x${string}`]: bigint
   } = {}
 
   // TODO: get deposited
   const deposited: {
-    [key in `0x${string}`]: BigDecimal
+    [key in `0x${string}`]: bigint
   } = {}
 
   return (
