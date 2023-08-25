@@ -2,7 +2,10 @@ import React, { SVGProps, useState } from 'react'
 import Link from 'next/link'
 
 import { useBorrowContext } from '../contexts/borrow-context'
-import { Currency } from '../utils/currency'
+import { Currency, getLogo } from '../model/currency'
+import { Asset } from '../model/asset'
+import { useCurrencyContext } from '../contexts/currency-context'
+import { BigDecimal, ZERO } from '../utils/big-decimal'
 
 import RepayModal from './modal/repay-modal'
 import BorrowMoreModal from './modal/borrow-more-modal'
@@ -51,7 +54,7 @@ const Position = ({
   collateralSymbol,
   expiry,
   price,
-  // collateralPrice,
+  collateralPrice,
   ltv,
   liquidationThreshold,
   onRepay,
@@ -75,11 +78,16 @@ const Position = ({
   onEditCollateral: () => void
   onEditExpiry: () => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
+  collateralPrice // TODO remove
   return (
     <div className="rounded-xl shadow bg-gray-50 dark:bg-gray-900" {...props}>
       <div className="flex justify-between rounded-t-xl p-4 bg-white dark:bg-gray-800">
         <div className="flex items-center gap-3">
-          <img src={currency.logo} alt={currency.name} className="w-8 h-8" />
+          <img
+            src={getLogo(currency)}
+            alt={currency.name}
+            className="w-8 h-8"
+          />
           <div className="flex flex-col">
             <div className="font-bold">{currency.symbol}</div>
             <div className="text-gray-500 text-sm">{currency.name}</div>
@@ -150,16 +158,14 @@ const Asset = ({
   apy,
   available,
   borrowed,
-  liquidationThreshold,
   price,
   ...props
 }: {
   currency: Currency
-  apy: string
-  available: string
-  borrowed: string
-  liquidationThreshold: string
-  price: string
+  apy: BigDecimal
+  available: BigDecimal
+  borrowed: BigDecimal
+  price: BigDecimal
 } & React.HTMLAttributes<HTMLDivElement>) => {
   return (
     <div
@@ -169,7 +175,11 @@ const Asset = ({
       <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
         <div className="flex justify-between w-full sm:w-auto items-center gap-4 bg-white p-4 rounded-t-xl dark:bg-gray-800 dark:sm:bg-gray-900 sm:p-0 mb-2 sm:mb-0">
           <div className="flex items-center gap-3 sm:w-[140px]">
-            <img src={currency.logo} alt={currency.name} className="w-8 h-8" />
+            <img
+              src={getLogo(currency)}
+              alt={currency.name}
+              className="w-8 h-8"
+            />
             <div className="flex flex-col gap-0.5 sm:gap-0">
               <div className="font-bold text-sm sm:text-base">
                 {currency.symbol}
@@ -177,16 +187,17 @@ const Asset = ({
               <div className="text-gray-500 text-xs">{currency.name}</div>
             </div>
           </div>
-          <div className="text-sm font-bold sm:w-[80px]">{apy}</div>
+          <div className="text-sm font-bold sm:w-[80px]">{apy.toFormat(2)}</div>
         </div>
         <div className="flex flex-row sm:flex-col w-full sm:w-[120px] justify-between px-4 sm:p-0">
           <div className="sm:hidden text-gray-500 text-xs">Available</div>
           <div className="flex flex-row sm:flex-col items-center sm:items-start gap-1 sm:gap-0">
             <div className="text-xs sm:text-sm">
-              {available} {currency.symbol}
+              {available.toFormat(2)} {currency.symbol}
             </div>
             <div className="text-xs text-gray-500">
-              <span className="sm:hidden">(</span>${+available * +price}
+              <span className="sm:hidden">(</span>$
+              {available.times(price).toFormat(2)}
               <span className="sm:hidden">)</span>
             </div>
           </div>
@@ -195,20 +206,13 @@ const Asset = ({
           <div className="sm:hidden text-gray-500 text-xs">Total Borrowed</div>
           <div className="flex flex-row sm:flex-col sm:w-[120px] gap-1 sm:gap-0">
             <div className="text-xs sm:text-sm">
-              {borrowed} {currency.symbol}
+              {borrowed.toFormat(2)} {currency.symbol}
             </div>
             <div className="text-xs text-gray-500">
-              <span className="sm:hidden">(</span>${+borrowed * +price}
+              <span className="sm:hidden">(</span>$
+              {borrowed.times(price).toFormat(2)}
               <span className="sm:hidden">)</span>
             </div>
-          </div>
-        </div>
-        <div className="flex flex-row sm:flex-col w-full sm:w-[120px] justify-between px-4 sm:p-0">
-          <div className="sm:hidden text-gray-500 text-xs">
-            Liquidation Threshold
-          </div>
-          <div className="flex flex-col sm:w-[120px] text-xs sm:text-sm">
-            {liquidationThreshold}
           </div>
         </div>
       </div>
@@ -222,8 +226,9 @@ const Asset = ({
   )
 }
 
-const Borrow = () => {
-  const { positions, assets } = useBorrowContext()
+const Borrow = ({ assets }: { assets: Asset[] }) => {
+  const { prices } = useCurrencyContext()
+  const { positions, apy, available, borrowed } = useBorrowContext()
   const [repayPosition, setRepayPosition] = useState<{
     currency: Currency
     amount: string
@@ -342,18 +347,16 @@ const Borrow = () => {
             <div className="w-[80px]">APY</div>
             <div className="w-[120px]">Available</div>
             <div className="w-[120px]">Total Borrowed</div>
-            <div className="w-[136px]">Liquidation Threshold</div>
           </div>
           <div className="flex flex-col gap-4 sm:gap-3">
             {assets.map((asset, i) => (
               <Asset
                 key={i}
-                currency={asset.currency}
-                apy={asset.apy}
-                available={asset.available}
-                borrowed={asset.borrowed}
-                price={asset.price}
-                liquidationThreshold={asset.liquidationThreshold}
+                currency={asset.underlying}
+                apy={apy[asset.underlying.address] ?? ZERO}
+                available={available[asset.underlying.address] ?? ZERO}
+                borrowed={borrowed[asset.underlying.address] ?? ZERO}
+                price={prices[asset.underlying.address] ?? ZERO}
               />
             ))}
           </div>

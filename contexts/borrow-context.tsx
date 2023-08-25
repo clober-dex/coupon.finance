@@ -1,8 +1,10 @@
 import React from 'react'
 
-import { Currency, CURRENCY_MAP } from '../utils/currency'
+import { Currency } from '../model/currency'
+import { BigDecimal } from '../utils/big-decimal'
 
 type BorrowContext = {
+  // TODO: change to bigInt
   positions: {
     currency: Currency
     apy: string
@@ -15,25 +17,27 @@ type BorrowContext = {
     ltv: string
     liquidationThreshold: string
   }[]
-  assets: {
-    currency: Currency
-    apy: string
-    available: string
-    borrowed: string
-    liquidationThreshold: string
-    price: string
-  }[]
+  apy: { [key in `0x${string}`]: BigDecimal }
+  available: { [key in `0x${string}`]: BigDecimal }
+  borrowed: { [key in `0x${string}`]: BigDecimal }
 }
 
 const Context = React.createContext<BorrowContext>({
   positions: [],
-  assets: [],
+  apy: {},
+  available: {},
+  borrowed: {},
 })
 
 export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const dummyPositions = [
     {
-      currency: CURRENCY_MAP['ETH'],
+      currency: {
+        address: '0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9' as `0x${string}`,
+        name: 'Ethereum',
+        symbol: 'ETH',
+        decimals: 18,
+      },
       apy: '5.00%',
       borrowed: '69.00',
       collateral: '69.00',
@@ -45,7 +49,12 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       liquidationThreshold: '60%',
     },
     {
-      currency: CURRENCY_MAP['ARB'],
+      currency: {
+        address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1' as `0x${string}`,
+        name: 'Arbitrum',
+        symbol: 'ARB',
+        decimals: 18,
+      },
       apy: '5.00%',
       borrowed: '42.00',
       collateral: '42.00',
@@ -58,37 +67,29 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       liquidationThreshold: '60%',
     },
   ]
-  const dummyAssets = [
-    {
-      currency: CURRENCY_MAP['USDC'],
-      apy: '5.00%',
-      available: '420.00',
-      borrowed: '9000.00',
-      liquidationThreshold: '60%',
-      price: '1.00',
-    },
-    {
-      currency: CURRENCY_MAP['ETH'],
-      apy: '5.00%',
-      available: '500.00',
-      borrowed: '69.00',
-      liquidationThreshold: '60%',
-      price: '2000.00',
-    },
-    {
-      currency: CURRENCY_MAP['ARB'],
-      apy: '5.00%',
-      available: '50.00',
-      borrowed: '42.00',
-      liquidationThreshold: '60%',
-      price: '1.20',
-    },
-  ]
+
+  // TODO: get apy from order book
+  const apy: {
+    [key in `0x${string}`]: BigDecimal
+  } = {}
+
+  // TODO: get available
+  const available: {
+    [key in `0x${string}`]: BigDecimal
+  } = {}
+
+  // TODO: get borrowed
+  const borrowed: {
+    [key in `0x${string}`]: BigDecimal
+  } = {}
+
   return (
     <Context.Provider
       value={{
         positions: dummyPositions,
-        assets: dummyAssets,
+        apy,
+        available,
+        borrowed,
       }}
     >
       {children}

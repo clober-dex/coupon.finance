@@ -24,19 +24,21 @@ import type {
   PromiseOrValue,
 } from "../../common";
 
-export type PermitParamsStruct = {
-  deadline: PromiseOrValue<BigNumberish>;
-  v: PromiseOrValue<BigNumberish>;
-  r: PromiseOrValue<BytesLike>;
-  s: PromiseOrValue<BytesLike>;
-};
+export declare namespace IController {
+  export type PermitParamsStruct = {
+    deadline: PromiseOrValue<BigNumberish>;
+    v: PromiseOrValue<BigNumberish>;
+    r: PromiseOrValue<BytesLike>;
+    s: PromiseOrValue<BytesLike>;
+  };
 
-export type PermitParamsStructOutput = [BigNumber, number, string, string] & {
-  deadline: BigNumber;
-  v: number;
-  r: string;
-  s: string;
-};
+  export type PermitParamsStructOutput = [BigNumber, number, string, string] & {
+    deadline: BigNumber;
+    v: number;
+    r: string;
+    s: string;
+  };
+}
 
 export interface IDepositControllerInterface extends utils.Interface {
   functions: {
@@ -51,7 +53,7 @@ export interface IDepositControllerInterface extends utils.Interface {
 
   encodeFunctionData(
     functionFragment: "collect",
-    values: [PromiseOrValue<BigNumberish>, PermitParamsStruct]
+    values: [PromiseOrValue<BigNumberish>, IController.PermitParamsStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "deposit",
@@ -60,7 +62,7 @@ export interface IDepositControllerInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      PermitParamsStruct
+      IController.PermitParamsStruct
     ]
   ): string;
   encodeFunctionData(
@@ -69,7 +71,7 @@ export interface IDepositControllerInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      PermitParamsStruct
+      IController.PermitParamsStruct
     ]
   ): string;
 
@@ -109,7 +111,7 @@ export interface IDepositController extends BaseContract {
   functions: {
     collect(
       positionId: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -118,7 +120,7 @@ export interface IDepositController extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       lockEpochs: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      tokenPermitParams: PermitParamsStruct,
+      tokenPermitParams: IController.PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -126,14 +128,14 @@ export interface IDepositController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       withdrawAmount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
 
   collect(
     positionId: PromiseOrValue<BigNumberish>,
-    positionPermitParams: PermitParamsStruct,
+    positionPermitParams: IController.PermitParamsStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -142,7 +144,7 @@ export interface IDepositController extends BaseContract {
     amount: PromiseOrValue<BigNumberish>,
     lockEpochs: PromiseOrValue<BigNumberish>,
     minEarnInterest: PromiseOrValue<BigNumberish>,
-    tokenPermitParams: PermitParamsStruct,
+    tokenPermitParams: IController.PermitParamsStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -150,14 +152,14 @@ export interface IDepositController extends BaseContract {
     positionId: PromiseOrValue<BigNumberish>,
     withdrawAmount: PromiseOrValue<BigNumberish>,
     maxPayInterest: PromiseOrValue<BigNumberish>,
-    positionPermitParams: PermitParamsStruct,
+    positionPermitParams: IController.PermitParamsStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
     collect(
       positionId: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -166,7 +168,7 @@ export interface IDepositController extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       lockEpochs: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      tokenPermitParams: PermitParamsStruct,
+      tokenPermitParams: IController.PermitParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -174,7 +176,7 @@ export interface IDepositController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       withdrawAmount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
   };
@@ -184,7 +186,7 @@ export interface IDepositController extends BaseContract {
   estimateGas: {
     collect(
       positionId: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -193,7 +195,7 @@ export interface IDepositController extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       lockEpochs: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      tokenPermitParams: PermitParamsStruct,
+      tokenPermitParams: IController.PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -201,7 +203,7 @@ export interface IDepositController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       withdrawAmount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -209,7 +211,7 @@ export interface IDepositController extends BaseContract {
   populateTransaction: {
     collect(
       positionId: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -218,7 +220,7 @@ export interface IDepositController extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       lockEpochs: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      tokenPermitParams: PermitParamsStruct,
+      tokenPermitParams: IController.PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -226,7 +228,7 @@ export interface IDepositController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       withdrawAmount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: PermitParamsStruct,
+      positionPermitParams: IController.PermitParamsStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

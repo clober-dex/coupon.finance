@@ -2,11 +2,25 @@ import React from 'react'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
+import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 
 import Deposit from '../components/deposit'
 import Borrow from '../components/borrow'
+import { Asset } from '../model/asset'
+import { fetchAssets } from '../api/asset'
 
-const Home: NextPage = () => {
+export const getServerSideProps: GetServerSideProps<{
+  assets: Asset[]
+}> = async () => {
+  const assets = await fetchAssets()
+  return {
+    props: { assets },
+  }
+}
+
+const Home: NextPage<
+  InferGetServerSidePropsType<typeof getServerSideProps>
+> = ({ assets }) => {
   const router = useRouter()
 
   return (
@@ -39,7 +53,11 @@ const Home: NextPage = () => {
             Borrow
           </button>
         </div>
-        {router.query.mode !== 'borrow' ? <Deposit /> : <Borrow />}
+        {router.query.mode !== 'borrow' ? (
+          <Deposit assets={assets} />
+        ) : (
+          <Borrow assets={assets} />
+        )}
       </main>
     </div>
   )

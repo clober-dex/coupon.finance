@@ -1,13 +1,12 @@
-query OrderBook {
+query getMarkets {
   markets {
     id
     orderToken
-    a
-    r
-    d
-    makerFee
     takerFee
     quoteUnit
+    epoch
+    startTimestamp
+    endTimestamp
     quoteToken {
       id
       name

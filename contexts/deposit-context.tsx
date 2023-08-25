@@ -1,10 +1,10 @@
 import React from 'react'
-import { useQuery } from 'wagmi'
 
-import { Currency, CURRENCY_MAP } from '../utils/currency'
-import { fetchOrderBooks } from '../api/clober'
+import { Currency } from '../model/currency'
+import { BigDecimal } from '../utils/big-decimal'
 
 type DepositContext = {
+  // TODO: change to bigInt
   positions: {
     currency: Currency
     apy: string
@@ -13,35 +13,27 @@ type DepositContext = {
     expiry: string
     price: string
   }[]
-  assets: {
-    currency: Currency
-    apy: string
-    available: string
-    deposited: string
-    price: string
-  }[]
+  apy: { [key in `0x${string}`]: BigDecimal }
+  available: { [key in `0x${string}`]: BigDecimal }
+  deposited: { [key in `0x${string}`]: BigDecimal }
 }
 
 const Context = React.createContext<DepositContext>({
   positions: [],
-  assets: [],
+  apy: {},
+  available: {},
+  deposited: {},
 })
 
 export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
-  const { data: orderbook } = useQuery(
-    ['orderbook'],
-    async () => {
-      return fetchOrderBooks()
-    },
-    {
-      refetchInterval: 1000,
-    },
-  )
-  console.log(orderbook)
-
   const dummyPositions = [
     {
-      currency: CURRENCY_MAP['ETH'],
+      currency: {
+        address: '0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9' as `0x${string}`,
+        name: 'Ethereum',
+        symbol: 'ETH',
+        decimals: 18,
+      },
       apy: '5.00%',
       interestEarned: '3.45',
       deposited: '69.00',
@@ -49,7 +41,12 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       price: '2000.00',
     },
     {
-      currency: CURRENCY_MAP['ARB'],
+      currency: {
+        address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1' as `0x${string}`,
+        name: 'Arbitrum',
+        symbol: 'ARB',
+        decimals: 18,
+      },
       apy: '5.00%',
       interestEarned: '2.1',
       deposited: '42.00',
@@ -57,34 +54,29 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       price: '30000.00',
     },
   ]
-  const dummyAssets = [
-    {
-      currency: CURRENCY_MAP['USDC'],
-      apy: '5.00%',
-      available: '420.00',
-      deposited: '9000.00',
-      price: '1.00',
-    },
-    {
-      currency: CURRENCY_MAP['ETH'],
-      apy: '5.00%',
-      available: '500.00',
-      deposited: '69.00',
-      price: '2000.00',
-    },
-    {
-      currency: CURRENCY_MAP['ARB'],
-      apy: '5.00%',
-      available: '50.00',
-      deposited: '42.00',
-      price: '1.20',
-    },
-  ]
+
+  // TODO: get apy from order book
+  const apy: {
+    [key in `0x${string}`]: BigDecimal
+  } = {}
+
+  // TODO: get available
+  const available: {
+    [key in `0x${string}`]: BigDecimal
+  } = {}
+
+  // TODO: get deposited
+  const deposited: {
+    [key in `0x${string}`]: BigDecimal
+  } = {}
+
   return (
     <Context.Provider
       value={{
         positions: dummyPositions,
-        assets: dummyAssets,
+        apy,
+        available,
+        deposited,
       }}
     >
       {children}

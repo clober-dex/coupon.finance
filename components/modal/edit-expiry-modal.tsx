@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
-import { Currency } from '../../utils/currency'
 import Slider from '../slider'
+import { Currency } from '../../model/currency'
 
 import Modal from './modal'
 

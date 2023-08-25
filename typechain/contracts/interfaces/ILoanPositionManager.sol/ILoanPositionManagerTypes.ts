@@ -22,49 +22,59 @@ export interface ILoanPositionManagerTypesInterface extends utils.Interface {
   functions: {};
 
   events: {
-    "AssetRegistered(address)": EventFragment;
-    "PositionLiquidated(uint256)": EventFragment;
-    "PositionUpdated(uint256,uint256,uint256,uint8)": EventFragment;
+    "LiquidatePosition(uint256,address,uint256,uint256,uint256)": EventFragment;
+    "SetLoanConfiguration(address,address,uint32,uint32,uint32,uint32)": EventFragment;
+    "UpdatePosition(uint256,uint256,uint256,uint8)": EventFragment;
   };
 
-  getEvent(nameOrSignatureOrTopic: "AssetRegistered"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "PositionLiquidated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "PositionUpdated"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "LiquidatePosition"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SetLoanConfiguration"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "UpdatePosition"): EventFragment;
 }
 
-export interface AssetRegisteredEventObject {
-  asset: string;
-}
-export type AssetRegisteredEvent = TypedEvent<
-  [string],
-  AssetRegisteredEventObject
->;
-
-export type AssetRegisteredEventFilter = TypedEventFilter<AssetRegisteredEvent>;
-
-export interface PositionLiquidatedEventObject {
+export interface LiquidatePositionEventObject {
   positionId: BigNumber;
+  liquidator: string;
+  liquidationAmount: BigNumber;
+  repayAmount: BigNumber;
+  protocolFeeAmount: BigNumber;
 }
-export type PositionLiquidatedEvent = TypedEvent<
-  [BigNumber],
-  PositionLiquidatedEventObject
+export type LiquidatePositionEvent = TypedEvent<
+  [BigNumber, string, BigNumber, BigNumber, BigNumber],
+  LiquidatePositionEventObject
 >;
 
-export type PositionLiquidatedEventFilter =
-  TypedEventFilter<PositionLiquidatedEvent>;
+export type LiquidatePositionEventFilter =
+  TypedEventFilter<LiquidatePositionEvent>;
 
-export interface PositionUpdatedEventObject {
+export interface SetLoanConfigurationEventObject {
+  collateral: string;
+  debt: string;
+  liquidationThreshold: number;
+  liquidationFee: number;
+  liquidationProtocolFee: number;
+  liquidationTargetLtv: number;
+}
+export type SetLoanConfigurationEvent = TypedEvent<
+  [string, string, number, number, number, number],
+  SetLoanConfigurationEventObject
+>;
+
+export type SetLoanConfigurationEventFilter =
+  TypedEventFilter<SetLoanConfigurationEvent>;
+
+export interface UpdatePositionEventObject {
   positionId: BigNumber;
   collateralAmount: BigNumber;
   debtAmount: BigNumber;
   unlockedAt: number;
 }
-export type PositionUpdatedEvent = TypedEvent<
+export type UpdatePositionEvent = TypedEvent<
   [BigNumber, BigNumber, BigNumber, number],
-  PositionUpdatedEventObject
+  UpdatePositionEventObject
 >;
 
-export type PositionUpdatedEventFilter = TypedEventFilter<PositionUpdatedEvent>;
+export type UpdatePositionEventFilter = TypedEventFilter<UpdatePositionEvent>;
 
 export interface ILoanPositionManagerTypes extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -97,32 +107,50 @@ export interface ILoanPositionManagerTypes extends BaseContract {
   callStatic: {};
 
   filters: {
-    "AssetRegistered(address)"(
-      asset?: PromiseOrValue<string> | null
-    ): AssetRegisteredEventFilter;
-    AssetRegistered(
-      asset?: PromiseOrValue<string> | null
-    ): AssetRegisteredEventFilter;
+    "LiquidatePosition(uint256,address,uint256,uint256,uint256)"(
+      positionId?: PromiseOrValue<BigNumberish> | null,
+      liquidator?: PromiseOrValue<string> | null,
+      liquidationAmount?: null,
+      repayAmount?: null,
+      protocolFeeAmount?: null
+    ): LiquidatePositionEventFilter;
+    LiquidatePosition(
+      positionId?: PromiseOrValue<BigNumberish> | null,
+      liquidator?: PromiseOrValue<string> | null,
+      liquidationAmount?: null,
+      repayAmount?: null,
+      protocolFeeAmount?: null
+    ): LiquidatePositionEventFilter;
 
-    "PositionLiquidated(uint256)"(
-      positionId?: PromiseOrValue<BigNumberish> | null
-    ): PositionLiquidatedEventFilter;
-    PositionLiquidated(
-      positionId?: PromiseOrValue<BigNumberish> | null
-    ): PositionLiquidatedEventFilter;
+    "SetLoanConfiguration(address,address,uint32,uint32,uint32,uint32)"(
+      collateral?: PromiseOrValue<string> | null,
+      debt?: PromiseOrValue<string> | null,
+      liquidationThreshold?: null,
+      liquidationFee?: null,
+      liquidationProtocolFee?: null,
+      liquidationTargetLtv?: null
+    ): SetLoanConfigurationEventFilter;
+    SetLoanConfiguration(
+      collateral?: PromiseOrValue<string> | null,
+      debt?: PromiseOrValue<string> | null,
+      liquidationThreshold?: null,
+      liquidationFee?: null,
+      liquidationProtocolFee?: null,
+      liquidationTargetLtv?: null
+    ): SetLoanConfigurationEventFilter;
 
-    "PositionUpdated(uint256,uint256,uint256,uint8)"(
+    "UpdatePosition(uint256,uint256,uint256,uint8)"(
       positionId?: PromiseOrValue<BigNumberish> | null,
       collateralAmount?: null,
       debtAmount?: null,
       unlockedAt?: null
-    ): PositionUpdatedEventFilter;
-    PositionUpdated(
+    ): UpdatePositionEventFilter;
+    UpdatePosition(
       positionId?: PromiseOrValue<BigNumberish> | null,
       collateralAmount?: null,
       debtAmount?: null,
       unlockedAt?: null
-    ): PositionUpdatedEventFilter;
+    ): UpdatePositionEventFilter;
   };
 
   estimateGas: {};
