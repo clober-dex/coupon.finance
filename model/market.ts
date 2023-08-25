@@ -2,6 +2,11 @@ import { isAddressEqual } from 'viem'
 
 import { MarketDto } from '../api/market'
 import { BigDecimal } from '../utils/big-decimal'
+import {
+  getCurrentEpochIndex,
+  getEpochEndTimestamp,
+  YEAR_IN_SECONDS,
+} from '../utils/date'
 
 import { Currency } from './currency'
 
@@ -246,4 +251,31 @@ export const calculateTotalDeposit = (
   }
 
   return totalDeposit
+}
+
+export const calculateDepositApr = (
+  substitute: Currency,
+  markets: Market[],
+  initialDeposit: BigDecimal,
+  currentTimeStamp: number,
+  lockedEpoch: bigint,
+): number => {
+  const currentEpochIndex = getCurrentEpochIndex(currentTimeStamp)
+  const selectedMarkets = markets.filter((market) => {
+    return (
+      isAddressEqual(
+        market.quoteToken.address as `0x${string}`,
+        substitute.address as `0x${string}`,
+      ) &&
+      currentEpochIndex <= market.epoch &&
+      market.epoch <= lockedEpoch
+    )
+  })
+  const lockedEpochEndTimestamp = getEpochEndTimestamp(lockedEpoch)
+  const totalDeposit = calculateTotalDeposit(selectedMarkets, initialDeposit)
+  const apr =
+    (Number(totalDeposit.div(initialDeposit).toDecimalString()) *
+      YEAR_IN_SECONDS) /
+    (lockedEpochEndTimestamp - currentTimeStamp)
+  return apr
 }
