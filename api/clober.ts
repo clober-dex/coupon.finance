@@ -13,6 +13,9 @@ export async function fetchMarkets(): Promise<Market[]> {
       orderToken: getAddress(market.orderToken),
       takerFee: market.takerFee,
       quoteUnit: market.quoteUnit,
+      epoch: market.epoch,
+      startTimestamp: market.startTimestamp,
+      endTimestamp: market.endTimestamp,
       quoteToken: {
         address: getAddress(market.quoteToken.id),
         name: market.quoteToken.name,

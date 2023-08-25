@@ -11,6 +11,9 @@ export type MarketDto = {
   orderToken: string
   takerFee: string
   quoteUnit: string
+  epoch: string
+  startTimestamp: string
+  endTimestamp: string
   quoteToken: Currency
   baseToken: Currency
   depths: DepthDto[]

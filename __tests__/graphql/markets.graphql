@@ -2,10 +2,6 @@ query getMarketsWithFork($marketAddress: ID!, $blockNumber: Int!) {
   markets (where: { id: $marketAddress }, block: { number: $blockNumber }) {
     id
     orderToken
-    a
-    r
-    d
-    makerFee
     takerFee
     quoteUnit
     quoteToken {
