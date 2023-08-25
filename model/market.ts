@@ -251,7 +251,12 @@ export const calculateDepositApy = (
   markets: Market[],
   initialDeposit: bigint,
   currentTimestamp: number,
-): number => {
+): {
+  epochStart: Date
+  epochEnd: Date
+  proceeds: bigint
+  apy: number
+} => {
   if (
     markets.filter(
       (market) =>
@@ -273,5 +278,11 @@ export const calculateDepositApy = (
     ((Number(totalDeposit) / Number(initialDeposit)) * YEAR_IN_SECONDS) /
     Number(getEpochEndTimestamp(maxEpochIndex) - currentTimestamp)
 
-  return apy
+  const startEpochIndex = getCurrentEpochIndex(currentTimestamp)
+  return {
+    apy,
+    epochStart: new Date(getEpochStartTimestamp(startEpochIndex) * 1000),
+    epochEnd: new Date(getEpochEndTimestamp(maxEpochIndex) * 1000),
+    proceeds: totalDeposit - initialDeposit,
+  }
 }
