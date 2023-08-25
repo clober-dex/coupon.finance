@@ -19,12 +19,18 @@ const dummy = [
 ]
 
 export const getServerSideProps: GetServerSideProps<{
-  asset?: Asset
+  asset: Asset
 }> = async ({ params }) => {
   const assets = await fetchAssets()
   const asset = assets.find(
     ({ underlying }) => underlying.symbol === params?.symbol,
   )
+  if (!asset) {
+    return {
+      notFound: true,
+    }
+  }
+
   return {
     props: { asset },
   }
@@ -47,7 +53,7 @@ const Deposit: NextPage<
   return (
     <div className="flex flex-1">
       <Head>
-        <title>Deposit {asset ? asset.underlying.symbol : ''}</title>
+        <title>Deposit {asset.underlying.symbol}</title>
         <meta
           content="Cash in the coupons on your assets. The only liquidity protocol that enables a 100% utilization rate."
           name="description"
@@ -64,11 +70,11 @@ const Deposit: NextPage<
             Deposit
             <div className="flex items-center gap-2">
               <img
-                src={getLogo(asset?.underlying)}
-                alt={asset?.underlying.name}
+                src={getLogo(asset.underlying)}
+                alt={asset.underlying.name}
                 className="w-6 h-6 sm:w-8 sm:h-8"
               />
-              <div>{asset?.underlying.symbol}</div>
+              <div>{asset.underlying.symbol}</div>
             </div>
           </button>
           <div className="flex flex-1 sm:items-center justify-center">
@@ -92,12 +98,12 @@ const Deposit: NextPage<
                   <div className="flex flex-col items-end justify-between">
                     <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
                       <img
-                        src={getLogo(asset?.underlying)}
-                        alt={asset?.underlying.name}
+                        src={getLogo(asset.underlying)}
+                        alt={asset.underlying.name}
                         className="w-5 h-5"
                       />
                       <div className="text-sm sm:text-base">
-                        {asset?.underlying.symbol}
+                        {asset.underlying.symbol}
                       </div>
                     </div>
                     <div className="flex text-xs sm:text-sm gap-1 sm:gap-2">
@@ -156,7 +162,7 @@ const Deposit: NextPage<
                     end={dummy
                       .slice(0, selected)
                       .reduce((acc, { profit }) => acc + +profit, 0)}
-                    suffix={` ${asset?.underlying.symbol}`}
+                    suffix={` ${asset.underlying.symbol}`}
                     className={`flex gap-2 ${
                       selected === 0 ? 'text-gray-400' : ''
                     } text-xl`}
