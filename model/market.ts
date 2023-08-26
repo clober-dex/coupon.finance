@@ -227,6 +227,7 @@ export const calculateTotalDeposit = (
   markets: Market[],
   initialDeposit: bigint,
 ): bigint => {
+  console.log('initialMarket', markets[0].bids[0].rawAmount)
   let totalDeposit = initialDeposit
   const amountOuts = [...Array(markets.length).keys()].map(
     () => 2n ** 256n - 1n,
@@ -239,7 +240,8 @@ export const calculateTotalDeposit = (
         initialDeposit,
       ))
     }
-    initialDeposit = markets.reduce((acc, market, i) => acc + amountOuts[i], 0n)
+    console.log('amountOuts', amountOuts, markets)
+    initialDeposit = amountOuts.reduce((a, b) => a + b, 0n)
     totalDeposit = totalDeposit + initialDeposit
   }
 
@@ -273,6 +275,7 @@ export const calculateDepositApy = (
     (acc, market) => (market.epoch > acc ? market.epoch : acc),
     0n,
   )
+  console.log('-mmmmarkets', markets[0].bids[0].rawAmount)
   const totalDeposit = calculateTotalDeposit(markets, initialDeposit)
   const apy =
     ((Number(totalDeposit) / Number(initialDeposit)) * YEAR_IN_SECONDS) /

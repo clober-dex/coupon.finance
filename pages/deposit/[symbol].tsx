@@ -1,9 +1,10 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
 import CountUp from 'react-countup'
 import { useRouter } from 'next/router'
 import BigNumber from 'bignumber.js'
+import { isAddressEqual } from 'viem'
 
 import Slider from '../../components/slider'
 import NumberInput from '../../components/number-input'
@@ -13,13 +14,9 @@ import { Asset } from '../../model/asset'
 import { fetchAssets } from '../../api/asset'
 import { useDepositContext } from '../../contexts/deposit-context'
 import BalanceClient from '../../components/clients/balance-client'
-
-const dummy = [
-  { date: '24-06-30', profit: '102.37' },
-  { date: '24-12-31', profit: '102.37' },
-  { date: '25-06-30', profit: '102.37' },
-  { date: '25-12-31', profit: '102.37' },
-]
+import { useCurrencyContext } from '../../contexts/currency-context'
+import { calculateDepositApy, Market } from '../../model/market'
+import { fetchMarkets } from '../../api/clober'
 
 export const getServerSideProps: GetServerSideProps<{
   asset: Asset
@@ -42,7 +39,12 @@ export const getServerSideProps: GetServerSideProps<{
 const Deposit: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ asset }) => {
+  const { balances, markets } = useCurrencyContext()
   const { deposit } = useDepositContext()
+
+  const [proceeds, setProceeds] = useState<{ date: string; profit: string }[]>(
+    [],
+  )
   const [selected, _setSelected] = useState(0)
   const [value, setValue] = useState('')
 
@@ -55,10 +57,91 @@ const Deposit: NextPage<
     [selected],
   )
 
+  const onBlurValue = useCallback(() => {
+    if (!balances || !balances[asset.underlying.address]) {
+      return
+    }
+    const maxValue = new BigNumber(
+      balances[asset.underlying.address].toString(),
+    ).div(10 ** asset.underlying.decimals)
+    setValue(
+      new BigNumber(value).isGreaterThan(maxValue)
+        ? maxValue.toString()
+        : value,
+    )
+  }, [asset.underlying.address, asset.underlying.decimals, balances, value])
+
+  const setMaxValue = useCallback(() => {
+    setValue(
+      new BigNumber(balances[asset.underlying.address].toString())
+        .div(10 ** asset.underlying.decimals)
+        .toString(),
+    )
+  }, [asset.underlying.address, asset.underlying.decimals, balances])
+
   const amount = useMemo(() => {
     const big = new BigNumber(10).pow(asset.underlying.decimals).times(value)
     return big.isNaN() ? 0n : BigInt(big.toFixed(0))
   }, [asset.underlying.decimals, value])
+
+  useEffect(() => {
+    if (!markets) {
+      return
+    }
+    const selectedMarkets = markets
+      .map(
+        (market) =>
+          new Market(
+            market.address,
+            market.orderToken,
+            market.takerFee,
+            market.quoteUnit,
+            market.epoch,
+            market.startTimestamp,
+            market.endTimestamp,
+            market.quoteToken,
+            market.baseToken,
+            market.quotePrecisionComplement,
+            market.basePrecisionComplement,
+            market.bids,
+            market.asks,
+          ),
+      )
+      .filter((market) =>
+        isAddressEqual(market.quoteToken.address, asset.substitutes[0].address),
+      )
+      .sort((a, b) => Number(a.epoch) - Number(b.epoch))
+    console.log(
+      'selectedMarkets',
+      selectedMarkets.map((market, i) => [...selectedMarkets.slice(0, i + 1)]),
+    )
+    const currentTimestamp = Math.floor(new Date().getTime() / 1000)
+    const _proceeds: { date: string; profit: string }[] = selectedMarkets
+      .map((market, i) => [...selectedMarkets.slice(0, i + 1)])
+      .map((markets) => {
+        console.log('mmarkets bid', markets[0].bids[0])
+        const { proceeds, epochEnd } = calculateDepositApy(
+          asset.substitutes[0],
+          markets,
+          new BigNumber(value).isNaN() ? 0n : amount,
+          currentTimestamp,
+        )
+        return {
+          date: epochEnd.toISOString().slice(2, 10).replace(/-/g, '/'),
+          profit: (Number(proceeds) / 10 ** asset.underlying.decimals).toFixed(
+            8,
+          ),
+        }
+      })
+    setProceeds(_proceeds)
+  }, [
+    amount,
+    asset.substitutes,
+    asset.underlying.address,
+    asset.underlying.decimals,
+    markets,
+    value,
+  ])
 
   return (
     <div className="flex flex-1">
@@ -99,6 +182,7 @@ const Deposit: NextPage<
                       className="text-xl sm:text-2xl placeholder-gray-400 outline-none bg-transparent w-40 sm:w-auto"
                       value={value}
                       onValueChange={setValue}
+                      onBlur={onBlurValue}
                       placeholder="0.0000"
                     />
                     <div className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm">
@@ -121,7 +205,9 @@ const Deposit: NextPage<
                       <div>
                         <BalanceClient currency={asset.underlying} />
                       </div>
-                      <button className="text-green-500">MAX</button>
+                      <button className="text-green-500" onClick={setMaxValue}>
+                        MAX
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -140,7 +226,7 @@ const Deposit: NextPage<
                     <Slider value={selected} onValueChange={setSelected} />
                   </div>
                   <div className="flex flex-col sm:flex-row justify-between">
-                    {dummy.map(({ date, profit }, i) => (
+                    {proceeds.map(({ date, profit }, i) => (
                       <button
                         key={i}
                         className="flex sm:flex-col items-center gap-1 sm:gap-2 sm:w-[72px]"
@@ -171,7 +257,7 @@ const Deposit: NextPage<
                     Your interest payout will be
                   </label>
                   <CountUp
-                    end={dummy
+                    end={proceeds
                       .slice(0, selected)
                       .reduce((acc, { profit }) => acc + +profit, 0)}
                     suffix={` ${asset.underlying.symbol}`}
