@@ -14,6 +14,7 @@ import { Asset } from '../../model/asset'
 import { fetchAssets } from '../../api/asset'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { useDepositContext } from '../../contexts/deposit-context'
+import BalanceClient from '../../components/clients/balance-client'
 
 const dummy = [
   { date: '24-06-30', profit: '102.37' },
@@ -53,15 +54,9 @@ export const getStaticProps: GetStaticProps<{
 const Deposit: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
   asset,
 }) => {
-  const { balances } = useCurrencyContext()
   const { deposit } = useDepositContext()
   const [selected, _setSelected] = useState(0)
   const [value, setValue] = useState('')
-  const [hydrated, setHydrated] = useState(false)
-
-  useEffect(() => {
-    setHydrated(true)
-  }, [])
 
   const router = useRouter()
 
@@ -136,12 +131,7 @@ const Deposit: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
                     <div className="flex text-xs sm:text-sm gap-1 sm:gap-2">
                       <div className="text-gray-500">Available</div>
                       <div>
-                        {formatUnits(
-                          hydrated
-                            ? balances[asset.underlying.address] ?? 0n
-                            : 0n,
-                          asset.underlying.decimals,
-                        )}
+                        <BalanceClient currency={asset.underlying} />
                       </div>
                       <button className="text-green-500">MAX</button>
                     </div>
