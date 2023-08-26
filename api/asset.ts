@@ -5,8 +5,6 @@ import { Asset } from '../model/asset'
 
 const { getAssets } = getBuiltGraphSDK()
 
-let cache: Asset[] | null = null
-
 const toCurrency = (
   token: Pick<Token, 'id' | 'symbol' | 'name' | 'decimals'>,
 ) =>
@@ -25,9 +23,6 @@ const toCurrency = (
       }
 
 export async function fetchAssets(): Promise<Asset[]> {
-  if (cache) {
-    return cache
-  }
   const { assets } = await getAssets()
 
   const result = assets.map((asset) => ({
@@ -36,6 +31,5 @@ export async function fetchAssets(): Promise<Asset[]> {
     substitutes: asset.substitutes.map((substitute) => toCurrency(substitute)),
   }))
 
-  cache = result
   return result
 }

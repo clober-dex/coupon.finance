@@ -34,11 +34,14 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
   const { address: userAddress } = useAccount()
   const { data: balance } = useBalance({ address: userAddress })
+  const { data: currencies } = useQuery(['currencies'], async () => {
+    return fetchCurrencies()
+  })
 
   const { data: prices } = useQuery(
     ['prices'],
     async () => {
-      const currencyAddresses = (await fetchCurrencies()).map(
+      const currencyAddresses = (currencies || []).map(
         (currency) => currency.address,
       )
       const [{ result: prices }, { result: decimals }] = await readContracts({
@@ -75,8 +78,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { data: balances } = useQuery(
     ['balances', userAddress, balance],
     async () => {
-      const currencies = await fetchCurrencies()
-      if (!userAddress) {
+      if (!userAddress || !currencies) {
         return {}
       }
       const results = await readContracts({
@@ -105,15 +107,14 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { data: allowance } = useQuery(
     ['allowances', userAddress],
     async () => {
-      const currencies = await fetchCurrencies()
+      if (!userAddress || !currencies) {
+        return {}
+      }
       const spenders = [
         CONTRACT_ADDRESSES.BorrowController,
         CONTRACT_ADDRESSES.DepositController,
         CONTRACT_ADDRESSES.OdosRepayAdapter,
       ]
-      if (!userAddress) {
-        return {}
-      }
       const contracts = spenders
         .map((spender) => {
           return currencies.map((currency) => ({
