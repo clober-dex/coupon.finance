@@ -2,14 +2,14 @@ import React from 'react'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import { GetStaticProps, InferGetStaticPropsType } from 'next'
 
 import Deposit from '../components/deposit'
 import Borrow from '../components/borrow'
 import { Asset } from '../model/asset'
 import { fetchAssets } from '../api/asset'
 
-export const getServerSideProps: GetServerSideProps<{
+export const getStaticProps: GetStaticProps<{
   assets: Asset[]
 }> = async () => {
   const assets = await fetchAssets()
@@ -18,9 +18,9 @@ export const getServerSideProps: GetServerSideProps<{
   }
 }
 
-const Home: NextPage<
-  InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ assets }) => {
+const Home: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
+  assets,
+}) => {
   const router = useRouter()
 
   return (

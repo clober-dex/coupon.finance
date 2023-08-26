@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
+import { GetStaticProps, InferGetStaticPropsType, NextPage } from 'next'
 import Head from 'next/head'
 import CountUp from 'react-countup'
 import { useRouter } from 'next/router'
@@ -22,7 +22,17 @@ const dummy = [
   { date: '25-12-31', profit: '102.37' },
 ]
 
-export const getServerSideProps: GetServerSideProps<{
+export const getStaticPaths = async () => {
+  const assets = await fetchAssets()
+  return {
+    paths: assets.map(({ underlying }) => ({
+      params: { symbol: underlying.symbol },
+    })),
+    fallback: false,
+  }
+}
+
+export const getStaticProps: GetStaticProps<{
   asset: Asset
 }> = async ({ params }) => {
   const assets = await fetchAssets()
@@ -40,9 +50,9 @@ export const getServerSideProps: GetServerSideProps<{
   }
 }
 
-const Deposit: NextPage<
-  InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ asset }) => {
+const Deposit: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
+  asset,
+}) => {
   const { balances } = useCurrencyContext()
   const { deposit } = useDepositContext()
   const [selected, _setSelected] = useState(0)
