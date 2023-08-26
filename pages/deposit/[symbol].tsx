@@ -39,12 +39,12 @@ export const getServerSideProps: GetServerSideProps<{
 const Deposit: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ asset }) => {
-  const { balances, markets } = useCurrencyContext()
+  const { balances } = useCurrencyContext()
   const { deposit } = useDepositContext()
 
-  const [proceeds, setProceeds] = useState<{ date: string; profit: string }[]>(
-    [],
-  )
+  const [proceeds, setProceeds] = useState<
+    { date: string; profit: string; apy: number }[]
+  >([])
   const [selected, _setSelected] = useState(0)
   const [value, setValue] = useState('')
 
@@ -84,64 +84,61 @@ const Deposit: NextPage<
     return big.isNaN() ? 0n : BigInt(big.toFixed(0))
   }, [asset.underlying.decimals, value])
 
+  const depositApy = useMemo(() => {
+    return proceeds[selected - 1]?.apy || 0
+  }, [proceeds, selected])
+
   useEffect(() => {
-    if (!markets) {
-      return
-    }
-    const selectedMarkets = markets
-      .map(
-        (market) =>
-          new Market(
-            market.address,
-            market.orderToken,
-            market.takerFee,
-            market.quoteUnit,
-            market.epoch,
-            market.startTimestamp,
-            market.endTimestamp,
-            market.quoteToken,
-            market.baseToken,
-            market.quotePrecisionComplement,
-            market.basePrecisionComplement,
-            market.bids,
-            market.asks,
+    fetchMarkets().then((markets) => {
+      const currentTimestamp = Math.floor(new Date().getTime() / 1000)
+      const selectedMarkets = markets
+        .filter((market) =>
+          isAddressEqual(
+            market.quoteToken.address,
+            asset.substitutes[0].address,
           ),
-      )
-      .filter((market) =>
-        isAddressEqual(market.quoteToken.address, asset.substitutes[0].address),
-      )
-      .sort((a, b) => Number(a.epoch) - Number(b.epoch))
-    console.log(
-      'selectedMarkets',
-      selectedMarkets.map((market, i) => [...selectedMarkets.slice(0, i + 1)]),
-    )
-    const currentTimestamp = Math.floor(new Date().getTime() / 1000)
-    const _proceeds: { date: string; profit: string }[] = selectedMarkets
-      .map((market, i) => [...selectedMarkets.slice(0, i + 1)])
-      .map((markets) => {
-        console.log('mmarkets bid', markets[0].bids[0])
-        const { proceeds, epochEnd } = calculateDepositApy(
-          asset.substitutes[0],
-          markets,
-          new BigNumber(value).isNaN() ? 0n : amount,
-          currentTimestamp,
         )
-        return {
-          date: epochEnd.toISOString().slice(2, 10).replace(/-/g, '/'),
-          profit: (Number(proceeds) / 10 ** asset.underlying.decimals).toFixed(
-            8,
-          ),
-        }
-      })
-    setProceeds(_proceeds)
-  }, [
-    amount,
-    asset.substitutes,
-    asset.underlying.address,
-    asset.underlying.decimals,
-    markets,
-    value,
-  ])
+        .sort((a, b) => Number(a.epoch) - Number(b.epoch))
+
+      setProceeds(
+        selectedMarkets
+          .map((_, i) => selectedMarkets.slice(0, i + 1))
+          .map((markets) => {
+            const { apy, proceeds, epochEnd } = calculateDepositApy(
+              asset.substitutes[0],
+              markets.map(
+                (market) =>
+                  new Market(
+                    market.address,
+                    market.orderToken,
+                    market.takerFee,
+                    market.quoteUnit,
+                    market.epoch,
+                    market.startTimestamp,
+                    market.endTimestamp,
+                    market.quoteToken,
+                    market.baseToken,
+                    market.quotePrecisionComplement,
+                    market.basePrecisionComplement,
+                    market.bids,
+                    market.asks,
+                  ),
+              ),
+              new BigNumber(value).isNaN() ? 0n : amount,
+              currentTimestamp,
+            )
+            return {
+              date: epochEnd.toISOString().slice(2, 10).replace(/-/g, '/'),
+              profit: (
+                Number(proceeds) /
+                10 ** asset.underlying.decimals
+              ).toFixed(4),
+              apy: isNaN(apy) ? 0 : apy,
+            }
+          }),
+      )
+    })
+  }, [amount, asset.substitutes, asset.underlying.decimals, value])
 
   return (
     <div className="flex flex-1">
@@ -269,7 +266,9 @@ const Deposit: NextPage<
                 </div>
                 <div className="flex px-2 sm:px-3 py-1.5 bg-gray-100 dark:bg-gray-800 w-fit h-fit rounded font-bold text-xs sm:text-sm gap-1 sm:gap-2">
                   <span className="text-gray-400">APY</span>
-                  <div className="text-gray-800 dark:text-white">3.15%</div>
+                  <div className="text-gray-800 dark:text-white">
+                    {depositApy.toFixed(2)}%
+                  </div>
                 </div>
               </div>
               <button
