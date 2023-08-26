@@ -6,15 +6,12 @@ import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { CouponOracle__factory, IERC20__factory } from '../typechain'
 import { fetchCurrencies } from '../api/currency'
 import { Currency } from '../model/currency'
-import { fetchMarkets } from '../api/clober'
-import { Market } from '../model/market'
 
 type CurrencyContext = {
   balances: { [key in `0x${string}`]: bigint }
   // contract address => token address => allowance
   allowances: { [key in `0x${string}`]: { [key in `0x${string}`]: bigint } }
   prices: { [key in `0x${string}`]: number }
-  markets: Market[]
   invalidateBalances: () => void
   invalidateAllowances: () => void
 }
@@ -23,7 +20,6 @@ const Context = React.createContext<CurrencyContext>({
   balances: {},
   allowances: {},
   prices: {},
-  markets: [],
   invalidateBalances: () => {},
   invalidateAllowances: () => {},
 })
@@ -38,13 +34,8 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
   const { address: userAddress } = useAccount()
   const { data: balance } = useBalance({ address: userAddress })
-
   const { data: currencies } = useQuery(['currencies'], async () => {
     return fetchCurrencies()
-  })
-
-  const { data: markets } = useQuery(['markets'], async () => {
-    return fetchMarkets()
   })
 
   const { data: prices } = useQuery(
@@ -177,7 +168,6 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
         prices: prices ?? {},
         balances: balances ?? {},
         allowances: allowance ?? {},
-        markets: markets ?? [],
         invalidateBalances,
         invalidateAllowances,
       }}
