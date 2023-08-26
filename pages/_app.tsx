@@ -66,13 +66,25 @@ const WalletProvider = ({ children }: React.PropsWithChildren) => {
   )
 }
 
+const AccountProvider = ({ children }: React.PropsWithChildren) => {
+  const { address: userAddress } = useAccount()
+  const { data: balance } = useBalance({ address: userAddress })
+  useEffect(() => {
+    async function register() {
+      await registerUser(userAddress, balance?.value)
+    }
+    register()
+  }, [balance?.value, userAddress])
+  return children
+}
+
 function MyApp({ Component, pageProps }: AppProps) {
   const [open, setOpen] = useState(false)
   return (
     <ThemeProvider>
       <WalletProvider>
-        <TransactionProvider>
-          <CurrencyProvider>
+        <AccountProvider>
+          <TransactionProvider>
             <DepositProvider>
               <BorrowProvider>
                 <div className="flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white">
@@ -82,8 +94,8 @@ function MyApp({ Component, pageProps }: AppProps) {
                 </div>
               </BorrowProvider>
             </DepositProvider>
-          </CurrencyProvider>
-        </TransactionProvider>
+          </TransactionProvider>
+        </AccountProvider>
       </WalletProvider>
     </ThemeProvider>
   )
