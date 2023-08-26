@@ -1,10 +1,12 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
 import CountUp from 'react-countup'
 import { useRouter } from 'next/router'
 import { formatUnits } from 'viem'
 import BigNumber from 'bignumber.js'
+import { dehydrate, QueryClient } from '@tanstack/query-core'
+import { useQuery } from '@tanstack/react-query'
 
 import Slider from '../../components/slider'
 import NumberInput from '../../components/number-input'
@@ -12,8 +14,9 @@ import BackSvg from '../../components/svg/back-svg'
 import { getLogo } from '../../model/currency'
 import { Asset } from '../../model/asset'
 import { fetchAssets } from '../../api/asset'
-import { useCurrencyContext } from '../../contexts/currency-context'
 import { useDepositContext } from '../../contexts/deposit-context'
+import { fetchUser } from '../../api/user'
+import { fetchBalances } from '../../api/balances'
 
 const dummy = [
   { date: '24-06-30', profit: '102.37' },
@@ -23,9 +26,20 @@ const dummy = [
 ]
 
 export const getServerSideProps: GetServerSideProps<{
+  userAddress: string | null
+  balance: string
   asset: Asset
 }> = async ({ params }) => {
-  const assets = await fetchAssets()
+  const { userAddress, balance } = await fetchUser()
+
+  const queryClient = new QueryClient()
+  const [, assets] = await Promise.all([
+    queryClient.prefetchQuery(['balances'], () =>
+      fetchBalances(userAddress, balance),
+    ),
+    fetchAssets(),
+  ])
+
   const asset = assets.find(
     ({ underlying }) => underlying.symbol === params?.symbol,
   )
@@ -36,22 +50,24 @@ export const getServerSideProps: GetServerSideProps<{
   }
 
   return {
-    props: { asset },
+    props: {
+      userAddress: userAddress || null,
+      balance: (balance || '0').toString(),
+      asset,
+      dehydratedProps: dehydrate(queryClient),
+    },
   }
 }
 
 const Deposit: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ asset }) => {
-  const { balances } = useCurrencyContext()
+> = ({ userAddress, balance, asset }) => {
+  const { data: balances } = useQuery(['balances'], () =>
+    fetchBalances(userAddress as `0x${string}` | null, BigInt(balance)),
+  )
   const { deposit } = useDepositContext()
   const [selected, _setSelected] = useState(0)
   const [value, setValue] = useState('')
-  const [hydrated, setHydrated] = useState(false)
-
-  useEffect(() => {
-    setHydrated(true)
-  }, [])
 
   const router = useRouter()
 
@@ -127,9 +143,7 @@ const Deposit: NextPage<
                       <div className="text-gray-500">Available</div>
                       <div>
                         {formatUnits(
-                          hydrated
-                            ? balances[asset.underlying.address] ?? 0n
-                            : 0n,
+                          BigInt(balances?.[asset.underlying.address] || '0'),
                           asset.underlying.decimals,
                         )}
                       </div>

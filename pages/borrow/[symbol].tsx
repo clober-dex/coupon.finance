@@ -3,6 +3,8 @@ import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { formatUnits } from 'viem'
+import { dehydrate, QueryClient } from '@tanstack/query-core'
+import { useQuery } from '@tanstack/react-query'
 
 import Slider from '../../components/slider'
 import NumberInput from '../../components/number-input'
@@ -11,8 +13,10 @@ import { Currency, getLogo } from '../../model/currency'
 import { Asset } from '../../model/asset'
 import { fetchAssets } from '../../api/asset'
 import DownSvg from '../../components/svg/down-svg'
+import { fetchUser } from '../../api/user'
+import { fetchBalances } from '../../api/balances'
 import CurrencySelect from '../../components/currency-select'
-import { useCurrencyContext } from '../../contexts/currency-context'
+import { fetchPrices } from '../../api/prices'
 
 const dummy = [
   { date: '24-06-30', profit: '102.37' },
@@ -22,9 +26,21 @@ const dummy = [
 ]
 
 export const getServerSideProps: GetServerSideProps<{
+  userAddress: string | null
+  balance: string
   asset: Asset
 }> = async ({ params }) => {
-  const assets = await fetchAssets()
+  const { userAddress, balance } = await fetchUser()
+
+  const queryClient = new QueryClient()
+  const [, , assets] = await Promise.all([
+    queryClient.prefetchQuery(['balances'], () =>
+      fetchBalances(userAddress, balance),
+    ),
+    queryClient.prefetchQuery(['prices'], () => fetchPrices()),
+    fetchAssets(),
+  ])
+
   const asset = assets.find(
     ({ underlying }) => underlying.symbol === params?.symbol,
   )
@@ -35,14 +51,23 @@ export const getServerSideProps: GetServerSideProps<{
   }
 
   return {
-    props: { asset },
+    props: {
+      userAddress: userAddress || null,
+      balance: (balance || '0').toString(),
+      asset,
+      dehydratedProps: dehydrate(queryClient),
+    },
   }
 }
 
 const Borrow: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ asset }) => {
-  const { balances } = useCurrencyContext()
+> = ({ userAddress, balance, asset }) => {
+  const { data: balances } = useQuery(['balances'], () =>
+    fetchBalances(userAddress as `0x${string}` | null, BigInt(balance)),
+  )
+  const { data: prices } = useQuery(['prices'], () => fetchPrices())
+
   const [selected, _setSelected] = useState(0)
   const [value, setValue] = useState('')
   const [collateral, setCollateral] = useState<Currency | undefined>(undefined)
@@ -92,6 +117,8 @@ const Borrow: NextPage<
                 setCollateral(currency)
                 setShowCollateralSelect(false)
               }}
+              prices={prices || {}}
+              balances={balances || {}}
             />
           ) : (
             <div className="flex flex-1 sm:items-center justify-center">
@@ -140,7 +167,7 @@ const Borrow: NextPage<
                           <div className="text-gray-500">Available</div>
                           <div>
                             {formatUnits(
-                              balances[collateral.address] ?? 0n,
+                              BigInt(balances?.[collateral.address] || '0'),
                               collateral.decimals,
                             )}
                           </div>

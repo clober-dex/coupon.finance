@@ -3,25 +3,53 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import { dehydrate, QueryClient } from '@tanstack/query-core'
+import { useQuery } from '@tanstack/react-query'
 
 import Deposit from '../components/deposit'
 import Borrow from '../components/borrow'
 import { Asset } from '../model/asset'
 import { fetchAssets } from '../api/asset'
+import { fetchUser } from '../api/user'
+import { fetchBalances } from '../api/balances'
+import { fetchPrices } from '../api/prices'
 
 export const getServerSideProps: GetServerSideProps<{
+  userAddress: string | null
+  balance: string
   assets: Asset[]
 }> = async () => {
-  const assets = await fetchAssets()
+  const { userAddress, balance } = await fetchUser()
+
+  const queryClient = new QueryClient()
+
+  const [, , assets] = await Promise.all([
+    queryClient.prefetchQuery(['balances'], () =>
+      fetchBalances(userAddress, balance),
+    ),
+    queryClient.prefetchQuery(['prices'], () => fetchPrices()),
+    fetchAssets(),
+  ])
+
   return {
-    props: { assets },
+    props: {
+      userAddress: userAddress || null,
+      balance: (balance || '0').toString(),
+      assets,
+      dehydratedProps: dehydrate(queryClient),
+    },
   }
 }
 
 const Home: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ assets }) => {
+> = ({ userAddress, balance, assets }) => {
+  const { data: balances } = useQuery(['balances'], () =>
+    fetchBalances(userAddress as `0x${string}` | null, BigInt(balance)),
+  )
+  const { data: prices } = useQuery(['prices'], () => fetchPrices())
   const router = useRouter()
+  console.log('balances', balances)
 
   return (
     <div className="flex flex-1">
@@ -54,9 +82,9 @@ const Home: NextPage<
           </button>
         </div>
         {router.query.mode !== 'borrow' ? (
-          <Deposit assets={assets} />
+          <Deposit assets={assets} prices={prices || {}} />
         ) : (
-          <Borrow assets={assets} />
+          <Borrow assets={assets} prices={prices || {}} />
         )}
       </main>
     </div>
