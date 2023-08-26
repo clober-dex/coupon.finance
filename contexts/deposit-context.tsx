@@ -1,3 +1,4 @@
+'use client'
 import React, { useCallback } from 'react'
 import { usePublicClient, useWalletClient } from 'wagmi'
 import { formatUnits } from 'viem'

@@ -1,3 +1,4 @@
+'use client'
 import React, { useContext } from 'react'
 
 import ConfirmationModal from '../components/modal/confirmation-modal'

@@ -1,3 +1,4 @@
+'use client'
 import React, { SVGProps } from 'react'
 
 const Check = (props: SVGProps<any>) => (
