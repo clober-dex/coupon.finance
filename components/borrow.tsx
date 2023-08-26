@@ -5,7 +5,6 @@ import { formatUnits } from 'viem'
 import { useBorrowContext } from '../contexts/borrow-context'
 import { Currency, getLogo } from '../model/currency'
 import { Asset } from '../model/asset'
-import { useCurrencyContext } from '../contexts/currency-context'
 import { formatDollarValue } from '../utils/numbers'
 
 import RepayModal from './modal/repay-modal'
@@ -227,8 +226,13 @@ const Asset = ({
   )
 }
 
-const Borrow = ({ assets }: { assets: Asset[] }) => {
-  const { prices } = useCurrencyContext()
+const Borrow = ({
+  assets,
+  prices,
+}: {
+  assets: Asset[]
+  prices: { [address in `0x${string}`]: number }
+}) => {
   const { positions, apy, available, borrowed } = useBorrowContext()
   const [repayPosition, setRepayPosition] = useState<{
     currency: Currency

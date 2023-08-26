@@ -2,7 +2,6 @@ import React from 'react'
 import { formatUnits } from 'viem'
 
 import { Currency, getLogo } from '../model/currency'
-import { useCurrencyContext } from '../contexts/currency-context'
 import { formatDollarValue } from '../utils/numbers'
 
 import LeftSvg from './svg/left-svg'
@@ -10,14 +9,17 @@ import SearchSvg from './svg/search-svg'
 
 const CurrencySelect = ({
   currencies,
+  prices,
+  balances,
   onBack,
   onCurrencySelect,
 }: {
   currencies: Currency[]
+  prices: { [address in `0x${string}`]: number }
+  balances: { [address in `0x${string}`]: string }
   onBack: () => void
   onCurrencySelect: (currency: Currency) => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
-  const { prices, balances } = useCurrencyContext()
   return (
     <div className="flex flex-col flex-1 p-4 mt-2 sm:mt-0 items-center sm:justify-center">
       <div className="flex flex-col shadow-md bg-gray-50 dark:bg-gray-900 rounded-xl sm:rounded-3xl w-full sm:w-[480px]">
@@ -63,7 +65,7 @@ const CurrencySelect = ({
                 </div>
               </div>
               {formatUnits(
-                balances[currency.address] ?? 0n,
+                BigInt(balances[currency.address] ?? 0n),
                 currency.decimals,
               ) ? (
                 <div className="text-sm text-end">0</div>
@@ -71,13 +73,13 @@ const CurrencySelect = ({
                 <div className="text-sm text-end">
                   <div>
                     {formatUnits(
-                      balances[currency.address] ?? 0n,
+                      BigInt(balances[currency.address] ?? 0n),
                       currency.decimals,
                     )}
                   </div>
                   <div className="text-gray-500 text-xs">
                     {formatDollarValue(
-                      balances[currency.address] ?? 0n,
+                      BigInt(balances[currency.address] ?? 0n),
                       currency.decimals,
                       prices[currency.address] ?? 0,
                     )}

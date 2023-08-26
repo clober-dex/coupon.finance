@@ -5,7 +5,6 @@ import { formatUnits } from 'viem'
 import { useDepositContext } from '../contexts/deposit-context'
 import { Currency, getLogo } from '../model/currency'
 import { Asset } from '../model/asset'
-import { useCurrencyContext } from '../contexts/currency-context'
 import { formatDollarValue } from '../utils/numbers'
 
 import WithdrawModal from './modal/withdraw-modal'
@@ -147,8 +146,13 @@ const Asset = ({
   )
 }
 
-const Deposit = ({ assets }: { assets: Asset[] }) => {
-  const { prices } = useCurrencyContext()
+const Deposit = ({
+  assets,
+  prices,
+}: {
+  assets: Asset[]
+  prices: { [address in `0x${string}`]: number }
+}) => {
   const { positions, apy, available, deposited } = useDepositContext()
   const [withdrawPosition, setWithdrawPosition] = useState<{
     currency: Currency

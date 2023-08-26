@@ -7,8 +7,8 @@ import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { DepositController__factory } from '../typechain'
 import { zeroBytes32 } from '../utils/bytes'
 import { Asset } from '../model/asset'
+import { isEthereum } from '../utils/currency'
 
-import { isEthereum } from './currency-context'
 import { useTransactionContext } from './transaction-context'
 
 type DepositContext = {
