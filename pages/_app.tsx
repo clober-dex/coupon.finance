@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import '../styles/globals.css'
 import '@rainbow-me/rainbowkit/styles.css'
 import {
@@ -8,10 +8,19 @@ import {
   RainbowKitProvider,
 } from '@rainbow-me/rainbowkit'
 import type { AppProps } from 'next/app'
-import { configureChains, createConfig, WagmiConfig } from 'wagmi'
+import {
+  configureChains,
+  createConfig,
+  useAccount,
+  useBalance,
+  WagmiConfig,
+} from 'wagmi'
 import { arbitrum } from 'wagmi/chains'
 import { publicProvider } from 'wagmi/providers/public'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
+import { Hydrate, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClient } from '@tanstack/query-core'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 import Header from '../components/header'
 import { ThemeProvider, useThemeContext } from '../contexts/theme-context'
@@ -19,8 +28,8 @@ import { DepositProvider } from '../contexts/deposit-context'
 import { BorrowProvider } from '../contexts/borrow-context'
 import { couponFinanceChain } from '../utils/dev-chain'
 import Panel from '../components/panel'
-import { CurrencyProvider } from '../contexts/currency-context'
 import { TransactionProvider } from '../contexts/transaction-context'
+import { registerUser } from '../api/user'
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [process.env.BUILD === 'dev' ? couponFinanceChain : arbitrum],
@@ -79,6 +88,7 @@ const AccountProvider = ({ children }: React.PropsWithChildren) => {
 }
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const [queryClient] = React.useState(() => new QueryClient())
   const [open, setOpen] = useState(false)
   return (
     <ThemeProvider>
@@ -90,7 +100,17 @@ function MyApp({ Component, pageProps }: AppProps) {
                 <div className="flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white">
                   <Panel open={open} setOpen={setOpen} />
                   <Header onMenuClick={() => setOpen(true)} />
-                  <Component {...pageProps} />
+                  <QueryClientProvider client={queryClient}>
+                    <Hydrate state={pageProps.dehydratedState}>
+                      <Component {...pageProps} />
+                      {process.env.BUILD === 'dev' && (
+                        <ReactQueryDevtools
+                          initialIsOpen={false}
+                          position="bottom-right"
+                        />
+                      )}
+                    </Hydrate>
+                  </QueryClientProvider>
                 </div>
               </BorrowProvider>
             </DepositProvider>
