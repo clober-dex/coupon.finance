@@ -39,7 +39,7 @@ export const getServerSideProps: GetServerSideProps<{
 const Deposit: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ asset }) => {
-  const { balances } = useCurrencyContext()
+  const { balances, prices } = useCurrencyContext()
   const { deposit } = useDepositContext()
 
   const [proceeds, setProceeds] = useState<
@@ -183,7 +183,10 @@ const Deposit: NextPage<
                       placeholder="0.0000"
                     />
                     <div className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm">
-                      ~$0.0000
+                      ~$
+                      {(
+                        Number(value) * prices[asset.underlying.address]
+                      )?.toFixed(2)}
                     </div>
                   </div>
                   <div className="flex flex-col items-end justify-between">
