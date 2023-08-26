@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react'
-import { GetStaticProps, InferGetStaticPropsType, NextPage } from 'next'
+import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { formatUnits } from 'viem'
@@ -21,17 +21,7 @@ const dummy = [
   { date: '25-12-31', profit: '102.37' },
 ]
 
-export const getStaticPaths = async () => {
-  const assets = await fetchAssets()
-  return {
-    paths: assets.map(({ underlying }) => ({
-      params: { symbol: underlying.symbol },
-    })),
-    fallback: false,
-  }
-}
-
-export const getStaticProps: GetStaticProps<{
+export const getServerSideProps: GetServerSideProps<{
   asset: Asset
 }> = async ({ params }) => {
   const assets = await fetchAssets()
@@ -49,9 +39,9 @@ export const getStaticProps: GetStaticProps<{
   }
 }
 
-const Borrow: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
-  asset,
-}) => {
+const Borrow: NextPage<
+  InferGetServerSidePropsType<typeof getServerSideProps>
+> = ({ asset }) => {
   const { balances } = useCurrencyContext()
   const [selected, _setSelected] = useState(0)
   const [value, setValue] = useState('')

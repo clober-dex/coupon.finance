@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { GetStaticProps, InferGetStaticPropsType, NextPage } from 'next'
+import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
 import CountUp from 'react-countup'
 import { useRouter } from 'next/router'
-import { formatUnits } from 'viem'
 import BigNumber from 'bignumber.js'
 
 import Slider from '../../components/slider'
@@ -12,7 +11,6 @@ import BackSvg from '../../components/svg/back-svg'
 import { getLogo } from '../../model/currency'
 import { Asset } from '../../model/asset'
 import { fetchAssets } from '../../api/asset'
-import { useCurrencyContext } from '../../contexts/currency-context'
 import { useDepositContext } from '../../contexts/deposit-context'
 import BalanceClient from '../../components/clients/balance-client'
 
@@ -23,17 +21,7 @@ const dummy = [
   { date: '25-12-31', profit: '102.37' },
 ]
 
-export const getStaticPaths = async () => {
-  const assets = await fetchAssets()
-  return {
-    paths: assets.map(({ underlying }) => ({
-      params: { symbol: underlying.symbol },
-    })),
-    fallback: false,
-  }
-}
-
-export const getStaticProps: GetStaticProps<{
+export const getServerSideProps: GetServerSideProps<{
   asset: Asset
 }> = async ({ params }) => {
   const assets = await fetchAssets()
@@ -51,9 +39,9 @@ export const getStaticProps: GetStaticProps<{
   }
 }
 
-const Deposit: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
-  asset,
-}) => {
+const Deposit: NextPage<
+  InferGetServerSidePropsType<typeof getServerSideProps>
+> = ({ asset }) => {
   const { deposit } = useDepositContext()
   const [selected, _setSelected] = useState(0)
   const [value, setValue] = useState('')
