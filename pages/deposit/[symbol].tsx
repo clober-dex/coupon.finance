@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
 import CountUp from 'react-countup'

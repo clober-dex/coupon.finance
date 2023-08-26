@@ -1,7 +1,7 @@
 'use client'
 
 import { formatUnits } from 'viem'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { Currency } from '../../model/currency'
