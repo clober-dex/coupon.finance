@@ -45,16 +45,16 @@ const Deposit: NextPage<
   const [proceeds, setProceeds] = useState<
     { date: string; profit: string; apy: number }[]
   >([])
-  const [selected, _setSelected] = useState(0)
+  const [selectedEpochIndex, _setSelectedEpochIndex] = useState(0)
   const [value, setValue] = useState('')
 
   const router = useRouter()
 
   const setSelected = useCallback(
     (value: number) => {
-      _setSelected(value === selected ? value - 1 : value)
+      _setSelectedEpochIndex(value === selectedEpochIndex ? value - 1 : value)
     },
-    [selected],
+    [selectedEpochIndex],
   )
 
   const onBlurValue = useCallback(() => {
@@ -87,8 +87,8 @@ const Deposit: NextPage<
   }, [asset.underlying.decimals, value])
 
   const depositApy = useMemo(() => {
-    return proceeds[selected - 1]?.apy || 0
-  }, [proceeds, selected])
+    return proceeds[selectedEpochIndex - 1]?.apy || 0
+  }, [proceeds, selectedEpochIndex])
 
   useEffect(() => {
     fetchMarkets().then((markets) => {
@@ -233,7 +233,10 @@ const Deposit: NextPage<
                 </div>
                 <div className="flex flex-row-reverse justify-between sm:flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4">
                   <div className="sm:px-6 sm:mb-2">
-                    <Slider value={selected} onValueChange={setSelected} />
+                    <Slider
+                      value={selectedEpochIndex}
+                      onValueChange={setSelected}
+                    />
                   </div>
                   <div className="flex flex-col sm:flex-row justify-between">
                     {proceeds.map(({ date, profit }, i) => (
@@ -247,14 +250,16 @@ const Deposit: NextPage<
                         </div>
                         <div
                           className={`px-2 py-1 rounded-full text-xs ${
-                            selected === i + 1
+                            selectedEpochIndex === i + 1
                               ? 'bg-gray-100 dark:bg-white dark:bg-opacity-10'
-                              : selected <= i + 1
+                              : selectedEpochIndex <= i + 1
                               ? 'bg-green-500 text-green-500 bg-opacity-10'
                               : 'bg-red-500 text-red-500 bg-opacity-10'
                           }`}
                         >
-                          {selected <= i + 1 ? `+${profit}` : `-${profit}`}
+                          {selectedEpochIndex <= i + 1
+                            ? `+${profit}`
+                            : `-${profit}`}
                         </div>
                       </button>
                     ))}
@@ -268,11 +273,11 @@ const Deposit: NextPage<
                   </label>
                   <CountUp
                     end={proceeds
-                      .slice(0, selected)
+                      .slice(0, selectedEpochIndex)
                       .reduce((acc, { profit }) => acc + +profit, 0)}
                     suffix={` ${asset.underlying.symbol}`}
                     className={`flex gap-2 ${
-                      selected === 0 ? 'text-gray-400' : ''
+                      selectedEpochIndex === 0 ? 'text-gray-400' : ''
                     } text-xl`}
                     preserveValue
                   />
@@ -285,9 +290,11 @@ const Deposit: NextPage<
                 </div>
               </div>
               <button
-                disabled={amount === 0n || selected === 0}
+                disabled={amount === 0n || selectedEpochIndex === 0}
                 className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
-                onClick={() => deposit(asset, amount, selected, 0n, 0)}
+                onClick={() =>
+                  deposit(asset, amount, selectedEpochIndex, 0n, 10)
+                }
               >
                 Confirm
               </button>
