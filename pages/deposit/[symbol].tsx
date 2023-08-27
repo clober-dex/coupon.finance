@@ -17,6 +17,7 @@ import BalanceClient from '../../components/clients/balance-client'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { calculateDepositApy, Market } from '../../model/market'
 import { fetchMarkets } from '../../api/clober'
+import { ClientComponent } from '../../components/client-component'
 
 export const getServerSideProps: GetServerSideProps<{
   asset: Asset
@@ -183,10 +184,11 @@ const Deposit: NextPage<
                       placeholder="0.0000"
                     />
                     <div className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm">
-                      ~$
-                      {(
-                        Number(value) * prices[asset.underlying.address]
-                      )?.toFixed(2)}
+                      <ClientComponent>
+                        <>
+                          ~$ {Number(value) * prices[asset.underlying.address]}
+                        </>
+                      </ClientComponent>
                     </div>
                   </div>
                   <div className="flex flex-col items-end justify-between">
@@ -203,7 +205,14 @@ const Deposit: NextPage<
                     <div className="flex text-xs sm:text-sm gap-1 sm:gap-2">
                       <div className="text-gray-500">Available</div>
                       <div>
-                        <BalanceClient currency={asset.underlying} />
+                        <ClientComponent>
+                          <>
+                            {formatUnits(
+                              balances[asset.underlying.address] || 0n,
+                              asset.underlying.decimals,
+                            )}
+                          </>
+                        </ClientComponent>
                       </div>
                       <button className="text-green-500" onClick={setMaxValue}>
                         MAX
