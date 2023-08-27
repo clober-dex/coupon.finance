@@ -12,6 +12,11 @@ import { configureChains, createConfig, WagmiConfig } from 'wagmi'
 import { arbitrum } from 'wagmi/chains'
 import { publicProvider } from 'wagmi/providers/public'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
+import {
+  Hydrate,
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query'
 
 import Header from '../components/header'
 import { ThemeProvider, useThemeContext } from '../contexts/theme-context'
@@ -68,27 +73,32 @@ const WalletProvider = ({ children }: React.PropsWithChildren) => {
 }
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const [queryClient] = useState(() => new QueryClient())
   const [open, setOpen] = useState(false)
   return (
-    <ThemeProvider>
-      <WalletProvider>
-        <TransactionProvider>
-          <CurrencyProvider>
-            <PermitProvider>
-              <DepositProvider>
-                <BorrowProvider>
-                  <div className="flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white">
-                    <Panel open={open} setOpen={setOpen} />
-                    <Header onMenuClick={() => setOpen(true)} />
-                    <Component {...pageProps} />
-                  </div>
-                </BorrowProvider>
-              </DepositProvider>
-            </PermitProvider>
-          </CurrencyProvider>
-        </TransactionProvider>
-      </WalletProvider>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <Hydrate state={pageProps.dehydratedState}>
+        <ThemeProvider>
+          <WalletProvider>
+            <TransactionProvider>
+              <CurrencyProvider>
+                <PermitProvider>
+                  <DepositProvider>
+                    <BorrowProvider>
+                      <div className="flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white">
+                        <Panel open={open} setOpen={setOpen} />
+                        <Header onMenuClick={() => setOpen(true)} />
+                        <Component {...pageProps} />
+                      </div>
+                    </BorrowProvider>
+                  </DepositProvider>
+                </PermitProvider>
+              </CurrencyProvider>
+            </TransactionProvider>
+          </WalletProvider>
+        </ThemeProvider>
+      </Hydrate>
+    </QueryClientProvider>
   )
 }
 

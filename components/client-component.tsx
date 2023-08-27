@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react'
 export const ClientComponent = ({
   children,
   ...props
-}: React.PropsWithChildren<{}>) => {
+}: React.PropsWithChildren<React.HTMLAttributes<HTMLDivElement>>) => {
   const [hydrated, setHydrated] = useState(false)
 
   useEffect(() => {

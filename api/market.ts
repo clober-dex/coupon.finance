@@ -1,8 +1,9 @@
-import { getAddress } from 'viem'
+import { getAddress, isAddressEqual } from 'viem'
 
 import { getBuiltGraphSDK } from '../.graphclient'
-import { Market } from '../model/market'
+import { calculateDepositApy, Market } from '../model/market'
 import { Currency } from '../model/currency'
+import { Asset } from '../model/asset'
 
 const { getMarkets } = getBuiltGraphSDK()
 
@@ -54,4 +55,35 @@ export async function fetchMarkets(): Promise<Market[]> {
       })),
     }),
   )
+}
+
+// Returns an array with the of proceeds depending on how many epochs deposited.
+export async function fetchDepositApyByEpochsDeposited(
+  asset: Asset,
+  amount: bigint,
+) {
+  const substitute = asset.substitutes[0]
+  const markets = (await fetchMarkets())
+    .filter((market) =>
+      isAddressEqual(market.quoteToken.address, substitute.address),
+    )
+    .sort((a, b) => Number(a.epoch) - Number(b.epoch))
+
+  const currentTimestamp = Math.floor(new Date().getTime() / 1000)
+
+  return markets
+    .map((_, i) => markets.slice(0, i + 1))
+    .map((markets) => {
+      const { apy, proceeds, epochEnd } = calculateDepositApy(
+        substitute,
+        markets,
+        amount,
+        currentTimestamp,
+      )
+      return {
+        date: epochEnd.toISOString().slice(2, 10).replace(/-/g, '/'), // TODO: format properly
+        proceeds: proceeds,
+        apy,
+      }
+    })
 }
