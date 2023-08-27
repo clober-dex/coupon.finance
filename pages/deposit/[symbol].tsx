@@ -4,7 +4,7 @@ import Head from 'next/head'
 import CountUp from 'react-countup'
 import { useRouter } from 'next/router'
 import BigNumber from 'bignumber.js'
-import { isAddressEqual } from 'viem'
+import { formatUnits, isAddressEqual } from 'viem'
 
 import Slider from '../../components/slider'
 import NumberInput from '../../components/number-input'
@@ -13,7 +13,6 @@ import { getLogo } from '../../model/currency'
 import { Asset } from '../../model/asset'
 import { fetchAssets } from '../../api/asset'
 import { useDepositContext } from '../../contexts/deposit-context'
-import BalanceClient from '../../components/clients/balance-client'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { calculateDepositApy, Market } from '../../model/market'
 import { fetchMarkets } from '../../api/clober'
@@ -62,21 +61,23 @@ const Deposit: NextPage<
     if (!balances || !balances[asset.underlying.address]) {
       return
     }
-    const maxValue = new BigNumber(
-      balances[asset.underlying.address].toString(),
-    ).div(10 ** asset.underlying.decimals)
     setValue(
-      new BigNumber(value).isGreaterThan(maxValue)
-        ? maxValue.toString()
+      BigInt(value) * 10n ** BigInt(asset.underlying.decimals) >
+        balances[asset.underlying.address]
+        ? formatUnits(
+            balances[asset.underlying.address] ?? 0n,
+            asset.underlying.decimals,
+          )
         : value,
     )
   }, [asset.underlying.address, asset.underlying.decimals, balances, value])
 
   const setMaxValue = useCallback(() => {
     setValue(
-      new BigNumber(balances[asset.underlying.address].toString())
-        .div(10 ** asset.underlying.decimals)
-        .toString(),
+      formatUnits(
+        balances[asset.underlying.address] ?? 0n,
+        asset.underlying.decimals,
+      ),
     )
   }, [asset.underlying.address, asset.underlying.decimals, balances])
 
