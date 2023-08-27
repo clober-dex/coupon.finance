@@ -12,5 +12,5 @@ export const ClientComponent = ({
     setHydrated(true)
   }, [])
 
-  return (hydrated && <div {...props}>{children}</div>) || null
+  return hydrated ? <div {...props}>{children}</div> : <></>
 }
