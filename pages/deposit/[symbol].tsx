@@ -15,8 +15,8 @@ import { fetchAssets } from '../../api/asset'
 import { useDepositContext } from '../../contexts/deposit-context'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { calculateDepositApy, Market } from '../../model/market'
-import { fetchMarkets } from '../../api/clober'
 import { ClientComponent } from '../../components/client-component'
+import { fetchMarkets } from '../../api/market'
 
 export const getServerSideProps: GetServerSideProps<{
   asset: Asset
