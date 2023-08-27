@@ -10,6 +10,7 @@ import { Asset } from '../model/asset'
 
 import { isEthereum } from './currency-context'
 import { useTransactionContext } from './transaction-context'
+import { usePermitContext } from './permit-context'
 
 type DepositContext = {
   // TODO: change to bigInt
@@ -89,6 +90,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
+  const { permit } = usePermitContext()
 
   const deposit = useCallback(
     async (
@@ -104,7 +106,16 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
 
       const minimumInterestEarned = BigInt(
-        Math.floor(Number(expectedProceeds) * (1 - slippage)),
+        Math.floor(Number(expectedProceeds) * (1 - slippage / 100)),
+      )
+
+      const deadline = Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)
+      const { r, s, v } = await permit(
+        asset.underlying,
+        walletClient.account.address,
+        CONTRACT_ADDRESSES.DepositController,
+        amount,
+        deadline,
       )
 
       try {
@@ -128,7 +139,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
             amount,
             epochs,
             minimumInterestEarned,
-            { deadline: 0n, v: 0, r: zeroBytes32, s: zeroBytes32 },
+            { deadline: 0n, v, r, s },
           ],
           value: isEthereum(asset.underlying) ? amount : 0n,
           account: walletClient.account,

@@ -43,7 +43,7 @@ const Deposit: NextPage<
   const { deposit } = useDepositContext()
 
   const [proceeds, setProceeds] = useState<
-    { date: string; profit: string; apy: number }[]
+    { date: string; profit: string; apy: number; proceed: bigint }[]
   >([])
   const [selectedEpochIndex, _setSelectedEpochIndex] = useState(0)
   const [value, setValue] = useState('')
@@ -136,6 +136,7 @@ const Deposit: NextPage<
                 10 ** asset.underlying.decimals
               ).toFixed(4),
               apy: isNaN(apy) ? 0 : apy,
+              proceed: proceeds,
             }
           }),
       )
@@ -293,7 +294,15 @@ const Deposit: NextPage<
                 disabled={amount === 0n || selectedEpochIndex === 0}
                 className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
                 onClick={() =>
-                  deposit(asset, amount, selectedEpochIndex, 0n, 10)
+                  deposit(
+                    asset,
+                    amount,
+                    selectedEpochIndex,
+                    proceeds
+                      .slice(0, selectedEpochIndex)
+                      .reduce((acc, { proceed }) => acc + proceed, 0n),
+                    10,
+                  )
                 }
               >
                 Confirm
