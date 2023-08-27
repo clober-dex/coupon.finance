@@ -1,14 +1,13 @@
 import React, { useCallback } from 'react'
-import { usePublicClient, useWalletClient } from 'wagmi'
+import { useAccount, useBalance, usePublicClient, useWalletClient } from 'wagmi'
 import { formatUnits } from 'viem'
 
 import { Currency } from '../model/currency'
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { DepositController__factory } from '../typechain'
-import { zeroBytes32 } from '../utils/bytes'
 import { Asset } from '../model/asset'
 
-import { isEthereum } from './currency-context'
+import { isEthereum, useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
 import { usePermitContext } from './permit-context'
 
@@ -87,9 +86,13 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
     [key in `0x${string}`]: bigint
   } = {}
 
+  const { address: userAddress } = useAccount()
+  const { data: balance } = useBalance({ address: userAddress })
+
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
+  const { balances } = useCurrencyContext()
   const { permit } = usePermitContext()
 
   const deposit = useCallback(
@@ -108,13 +111,23 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       const minimumInterestEarned = BigInt(
         Math.floor(Number(expectedProceeds) * (1 - slippage / 100)),
       )
+      const wethBalance = isEthereum(asset.underlying)
+        ? balances[asset.underlying.address] - (balance?.value || 0n)
+        : 0n
 
-      const deadline = Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)
+      const deadline = BigInt(
+        Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24),
+      )
+
       const { r, s, v } = await permit(
         asset.underlying,
         walletClient.account.address,
         CONTRACT_ADDRESSES.DepositController,
-        amount,
+        isEthereum(asset.underlying)
+          ? wethBalance >= amount
+            ? amount
+            : wethBalance
+          : amount,
         deadline,
       )
 
@@ -130,7 +143,27 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
             },
           ],
         })
-        const { request } = await publicClient.simulateContract({
+        // const { request } = await publicClient.simulateContract({
+        //   address: CONTRACT_ADDRESSES.DepositController,
+        //   abi: DepositController__factory.abi,
+        //   functionName: 'deposit',
+        //   args: [
+        //     asset.substitutes[0].address,
+        //     amount,
+        //     epochs,
+        //     minimumInterestEarned,
+        //     { deadline, v, r, s },
+        //   ],
+        //   value: isEthereum(asset.underlying)
+        //     ? wethBalance >= amount
+        //       ? amount
+        //       : wethBalance
+        //     : 0n,
+        //   account: walletClient.account,
+        // })
+        // await walletClient.writeContract(request)
+
+        await walletClient.writeContract({
           address: CONTRACT_ADDRESSES.DepositController,
           abi: DepositController__factory.abi,
           functionName: 'deposit',
@@ -139,20 +172,30 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
             amount,
             epochs,
             minimumInterestEarned,
-            { deadline: 0n, v, r, s },
+            { deadline, v, r, s },
           ],
-          value: isEthereum(asset.underlying) ? amount : 0n,
+          value: isEthereum(asset.underlying)
+            ? wethBalance >= amount
+              ? amount
+              : wethBalance
+            : 0n,
           account: walletClient.account,
+          gas: 10000000n,
         })
-
-        await walletClient.writeContract(request)
       } catch (e) {
         console.error(e)
       } finally {
         setConfirmation(undefined)
       }
     },
-    [publicClient, setConfirmation, walletClient],
+    [
+      balance?.value,
+      balances,
+      permit,
+      publicClient,
+      setConfirmation,
+      walletClient,
+    ],
   )
 
   return (

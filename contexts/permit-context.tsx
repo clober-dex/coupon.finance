@@ -4,6 +4,7 @@ import { hexToSignature } from 'viem'
 
 import { Currency } from '../model/currency'
 import { zeroBytes32 } from '../utils/bytes'
+import { TOKEN_VERSIONS } from '../utils/token-versions'
 
 import { useCurrencyContext } from './currency-context'
 
@@ -13,7 +14,7 @@ type PermitContext = {
     owner: `0x${string}`,
     spender: `0x${string}`,
     value: bigint,
-    deadline: number,
+    deadline: bigint,
   ) => Promise<{
     r: `0x${string}`
     s: `0x${string}`
@@ -31,9 +32,9 @@ const Context = React.createContext<PermitContext>({
 })
 
 export const PermitProvider = ({ children }: React.PropsWithChildren<{}>) => {
-  const { allowances, invalidateAllowances } = useCurrencyContext()
-  const { data: walletClient } = useWalletClient()
+  const { allowances } = useCurrencyContext()
   const publicClient = usePublicClient()
+  const { data: walletClient } = useWalletClient()
 
   const permit = useCallback(
     async (
@@ -41,7 +42,7 @@ export const PermitProvider = ({ children }: React.PropsWithChildren<{}>) => {
       owner: `0x${string}`,
       spender: `0x${string}`,
       value: bigint,
-      deadline: number,
+      deadline: bigint,
     ): Promise<{
       r: `0x${string}`
       s: `0x${string}`
@@ -57,44 +58,36 @@ export const PermitProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
       const domain = {
         name: asset.name,
-        version: '4',
+        version: TOKEN_VERSIONS[asset.address] ?? '1',
         chainId: walletClient.chain.id,
         verifyingContract: asset.address,
       }
 
       const types = {
         Permit: [
-          {
-            name: 'owner',
-            type: 'address',
-          },
-          {
-            name: 'spender',
-            type: 'address',
-          },
-          {
-            name: 'value',
-            type: 'uint256',
-          },
-          {
-            name: 'nonce',
-            type: 'uint256',
-          },
-          {
-            name: 'deadline',
-            type: 'uint256',
-          },
+          { name: 'owner', type: 'address' },
+          { name: 'spender', type: 'address' },
+          { name: 'value', type: 'uint256' },
+          { name: 'nonce', type: 'uint256' },
+          { name: 'deadline', type: 'uint256' },
+        ],
+        Domain: [
+          { name: 'name', type: 'string' },
+          { name: 'version', type: 'string' },
+          { name: 'chainId', type: 'uint256' },
+          { name: 'verifyingContract', type: 'address' },
         ],
       }
 
       const nonce = await publicClient.getTransactionCount({
         address: owner,
       })
+      console.log(owner, spender, value, nonce, deadline)
       const message = {
         owner,
         spender,
         value,
-        nonce,
+        nonce: 0,
         deadline,
       }
 
@@ -105,9 +98,6 @@ export const PermitProvider = ({ children }: React.PropsWithChildren<{}>) => {
         primaryType: 'Permit',
         types,
       })
-
-      invalidateAllowances()
-
       const { v, s, r } = hexToSignature(signature)
       return {
         v: Number(v),
@@ -115,7 +105,7 @@ export const PermitProvider = ({ children }: React.PropsWithChildren<{}>) => {
         r,
       }
     },
-    [allowances, invalidateAllowances, publicClient, walletClient],
+    [allowances, publicClient, walletClient],
   )
 
   return (
