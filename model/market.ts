@@ -246,7 +246,7 @@ export const calculateTotalDeposit = (
         initialDeposit,
       ))
     }
-    initialDeposit = amountOuts.reduce((a, b) => a + b, 0n)
+    initialDeposit = amountOuts.reduce((acc, val) => acc + val, 0n)
     totalDeposit = totalDeposit + initialDeposit
   }
 
