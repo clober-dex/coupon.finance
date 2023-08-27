@@ -265,13 +265,13 @@ export const calculateDepositApy = (
   apy: number
 } => {
   if (
-    markets.filter(
+    markets.some(
       (market) =>
         !isAddressEqual(
           market.quoteToken.address,
           substitute.address as `0x${string}`,
         ),
-    ).length > 0
+    )
   ) {
     new Error('Substitute token is not supported')
   }
