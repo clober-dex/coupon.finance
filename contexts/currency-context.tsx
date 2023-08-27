@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react'
-import { useAccount, useBalance } from 'wagmi'
+import { useAccount, useBalance, useQuery, useQueryClient } from 'wagmi'
 import { readContracts } from '@wagmi/core'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { CouponOracle__factory, IERC20__factory } from '../typechain'
