@@ -1,3 +1,4 @@
+export const MAX_EPOCH = 4
 export const YEAR_IN_SECONDS = 31536000
 export const getCurrentEpochIndex = (timestamp: number): bigint => {
   const date = new Date(timestamp * 1000)

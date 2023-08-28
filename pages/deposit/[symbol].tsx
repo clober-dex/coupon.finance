@@ -17,6 +17,7 @@ import { useDepositContext } from '../../contexts/deposit-context'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { ClientComponent } from '../../components/client-component'
 import { fetchDepositApyByEpochsDeposited } from '../../api/market'
+import { MAX_EPOCH } from '../../utils/epoch'
 
 export const getServerSideProps: GetServerSideProps<{
   asset: Asset
@@ -94,10 +95,23 @@ const Deposit: NextPage<
   )
 
   const depositApy = useMemo(() => {
-    if (epochs === 0) {
+    if (!proceedsByEpochsDeposited || epochs === 0) {
       return 0
     }
-    return proceedsByEpochsDeposited?.[epochs - 1]?.apy ?? 0
+    return (
+      proceedsByEpochsDeposited?.[
+        epochs - (MAX_EPOCH - proceedsByEpochsDeposited.length) - 1
+      ]?.apy ?? 0
+    )
+  }, [proceedsByEpochsDeposited, epochs])
+
+  const expectedProceeds = useMemo(() => {
+    if (!proceedsByEpochsDeposited || epochs === 0) {
+      return 0n
+    }
+    return proceedsByEpochsDeposited
+      .slice(0, epochs - (MAX_EPOCH - proceedsByEpochsDeposited.length))
+      .reduce((acc, { proceeds }) => acc + proceeds, 0n)
   }, [proceedsByEpochsDeposited, epochs])
 
   return (
@@ -193,6 +207,7 @@ const Deposit: NextPage<
                   <div className="sm:px-6 sm:mb-2">
                     <ClientComponent>
                       <Slider
+                        key={'deposit-slider'}
                         count={proceedsByEpochsDeposited.length}
                         value={epochs}
                         onValueChange={setEpochs}
@@ -230,12 +245,7 @@ const Deposit: NextPage<
                   </label>
                   <CountUp
                     end={
-                      +formatUnits(
-                        (proceedsByEpochsDeposited ?? [])
-                          .slice(0, epochs)
-                          .reduce((acc, { proceeds }) => acc + proceeds, 0n),
-                        asset.underlying.decimals,
-                      )
+                      +formatUnits(expectedProceeds, asset.underlying.decimals)
                     }
                     suffix={` ${asset.underlying.symbol}`}
                     className={`flex gap-2 ${
@@ -257,11 +267,9 @@ const Deposit: NextPage<
                 onClick={() =>
                   deposit(
                     asset,
-                    amount,
+                    amount + expectedProceeds,
                     epochs,
-                    (proceedsByEpochsDeposited ?? [])
-                      .slice(0, epochs)
-                      .reduce((acc, { proceeds }) => acc + proceeds, 0n),
+                    expectedProceeds,
                   )
                 }
               >
