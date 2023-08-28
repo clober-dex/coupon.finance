@@ -8,12 +8,14 @@ import { fetchCurrencies } from '../api/currency'
 import { Currency } from '../model/currency'
 
 type CurrencyContext = {
+  currencies: Currency[]
   balances: { [key in `0x${string}`]: bigint }
   prices: { [key in `0x${string}`]: number }
   invalidateBalances: () => void
 }
 
 const Context = React.createContext<CurrencyContext>({
+  currencies: [],
   balances: {},
   prices: {},
   invalidateBalances: () => {},
@@ -29,13 +31,17 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
   const { address: userAddress } = useAccount()
   const { data: balance } = useBalance({ address: userAddress })
+  const { data: currencies } = useQuery(['currency'], async () => {
+    return fetchCurrencies()
+  })
 
   const { data: prices } = useQuery(
-    ['prices'],
+    ['prices', currencies],
     async () => {
-      const currencyAddresses = (await fetchCurrencies()).map(
-        (currency) => currency.address,
-      )
+      if (!currencies) {
+        return {}
+      }
+      const currencyAddresses = currencies.map((currency) => currency.address)
       const [{ result: prices }, { result: decimals }] = await readContracts({
         contracts: [
           {
@@ -68,10 +74,9 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   )
 
   const { data: balances } = useQuery(
-    ['balances', userAddress, balance],
+    ['balances', currencies, userAddress, balance],
     async () => {
-      const currencies = await fetchCurrencies()
-      if (!userAddress) {
+      if (!userAddress || !currencies) {
         return {}
       }
       const results = await readContracts({
@@ -104,6 +109,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   return (
     <Context.Provider
       value={{
+        currencies: currencies ?? [],
         prices: prices ?? {},
         balances: balances ?? {},
         invalidateBalances,
