@@ -14,6 +14,7 @@ import DownSvg from '../../components/svg/down-svg'
 import CurrencySelect from '../../components/currency-select'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { MAX_EPOCHS } from '../../utils/epoch'
+import CurrencyAmountInput from '../../components/currency-amount-input'
 
 const dummy = [
   { date: '24-06-30', profit: '102.37' },
@@ -43,7 +44,7 @@ export const getServerSideProps: GetServerSideProps<{
 const Borrow: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ asset }) => {
-  const { balances } = useCurrencyContext()
+  const { balances, prices } = useCurrencyContext()
   const [selected, _setSelected] = useState(0)
   const [value, setValue] = useState('')
   const [collateral, setCollateral] = useState<Currency | undefined>(undefined)
@@ -101,92 +102,26 @@ const Borrow: NextPage<
                   <div className="font-bold text-sm sm:text-lg">
                     How much collateral would you like to add?
                   </div>
-                  <div className="flex bg-white dark:bg-gray-800 rounded-lg p-3">
-                    <div className="flex flex-col flex-1 justify-between gap-2">
-                      <NumberInput
-                        className="text-xl sm:text-2xl placeholder-gray-400 outline-none bg-transparent w-40 sm:w-auto"
-                        value={value}
-                        onValueChange={setValue}
-                        placeholder="0.0000"
-                      />
-                      <div className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm">
-                        ~$0.0000
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-end justify-between">
-                      {collateral ? (
-                        <button
-                          className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2"
-                          onClick={() => setShowCollateralSelect(true)}
-                        >
-                          <img
-                            src={getLogo(collateral)}
-                            alt={collateral.name}
-                            className="w-5 h-5"
-                          />
-                          <div className="text-sm sm:text-base">
-                            {collateral.symbol}
-                          </div>
-                        </button>
-                      ) : (
-                        <button
-                          className="flex items-center rounded-full bg-green-500 text-white pl-3 pr-2 py-1 gap-2 text-sm sm:text-base"
-                          onClick={() => setShowCollateralSelect(true)}
-                        >
-                          Select token <DownSvg />
-                        </button>
-                      )}
-                      {collateral ? (
-                        <div className="flex text-xs sm:text-sm gap-1 sm:gap-2">
-                          <div className="text-gray-500">Available</div>
-                          <div>
-                            {formatUnits(
-                              balances[collateral.address] ?? 0n,
-                              collateral.decimals,
-                            )}
-                          </div>
-                          <button className="text-green-500">MAX</button>
-                        </div>
-                      ) : (
-                        <></>
-                      )}
-                    </div>
-                  </div>
+                  <CurrencyAmountInput
+                    currency={collateral}
+                    value={value}
+                    onValueChange={setValue}
+                    balance={2000000n}
+                    price={collateral ? prices[collateral?.address] ?? 0 : 0}
+                    onCurrencyClick={() => setShowCollateralSelect(true)}
+                  />
                 </div>
                 <div className="flex flex-col gap-4">
                   <div className="font-bold text-sm sm:text-lg">
                     How much would you like to borrow?
                   </div>
-                  <div className="flex bg-white dark:bg-gray-800 rounded-lg p-3">
-                    <div className="flex flex-col flex-1 justify-between gap-2">
-                      <NumberInput
-                        className="text-xl sm:text-2xl placeholder-gray-400 outline-none bg-transparent w-40 sm:w-auto"
-                        value={value}
-                        onValueChange={setValue}
-                        placeholder="0.0000"
-                      />
-                      <div className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm">
-                        ~$0.0000
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-end justify-between">
-                      <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
-                        <img
-                          src={getLogo(asset.underlying)}
-                          alt={asset.underlying.name}
-                          className="w-5 h-5"
-                        />
-                        <div className="text-sm sm:text-base">
-                          {asset.underlying.symbol}
-                        </div>
-                      </div>
-                      <div className="flex text-xs sm:text-sm gap-1 sm:gap-2">
-                        <div className="text-gray-500">Available</div>
-                        <div>2.1839</div>
-                        <button className="text-green-500">MAX</button>
-                      </div>
-                    </div>
-                  </div>
+                  <CurrencyAmountInput
+                    currency={asset.underlying}
+                    value={value}
+                    onValueChange={setValue}
+                    price={prices[asset.underlying.address] ?? 0}
+                    balance={218390000n}
+                  />
                 </div>
                 <div className="flex flex-col gap-4">
                   <div className="font-bold text-sm sm:text-lg">
