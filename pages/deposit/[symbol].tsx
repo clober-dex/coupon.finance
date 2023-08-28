@@ -60,8 +60,9 @@ const Deposit: NextPage<
       return
     }
     setValue(
-      BigInt(value) * 10n ** BigInt(asset.underlying.decimals) >
-        balances[asset.underlying.address]
+      new BigNumber(value)
+        .times(10 ** asset.underlying.decimals)
+        .gt(balances[asset.underlying.address].toString())
         ? formatUnits(
             balances[asset.underlying.address] ?? 0n,
             asset.underlying.decimals,

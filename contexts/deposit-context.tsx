@@ -6,6 +6,7 @@ import { Currency } from '../model/currency'
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { DepositController__factory } from '../typechain'
 import { Asset } from '../model/asset'
+import { bigIntMax } from '../utils/bigint'
 
 import { isEthereum, useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -29,7 +30,6 @@ type DepositContext = {
     amount: bigint,
     epochs: number,
     expectedProceeds: bigint,
-    slippage: number,
   ) => Promise<void>
 }
 
@@ -40,6 +40,8 @@ const Context = React.createContext<DepositContext>({
   deposited: {},
   deposit: () => Promise.resolve(),
 })
+
+const SLIPPAGE_PERCENTAGE = 0.1
 
 export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const dummyPositions = [
@@ -92,7 +94,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
-  const { balances } = useCurrencyContext()
+  const { balances, invalidateBalances } = useCurrencyContext()
   const { permit } = usePermitContext()
 
   const deposit = useCallback(
@@ -101,7 +103,6 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       amount: bigint,
       epochs: number,
       expectedProceeds: bigint,
-      slippage: number,
     ) => {
       if (!walletClient) {
         // TODO: alert wallet connect
@@ -109,26 +110,21 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
 
       const minimumInterestEarned = BigInt(
-        Math.floor(Number(expectedProceeds) * (1 - slippage / 100)),
+        Math.floor(Number(expectedProceeds) * (1 - SLIPPAGE_PERCENTAGE)),
       )
       const wethBalance = isEthereum(asset.underlying)
         ? balances[asset.underlying.address] - (balance?.value || 0n)
         : 0n
-
-      const deadline = BigInt(
-        Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24),
-      )
-
-      const { r, s, v } = await permit(
+      const { deadline, r, s, v } = await permit(
         asset.underlying,
         walletClient.account.address,
         CONTRACT_ADDRESSES.DepositController,
-        isEthereum(asset.underlying)
-          ? wethBalance >= amount
-            ? amount
-            : wethBalance
-          : amount,
-        deadline,
+        BigInt(
+          Math.floor(
+            Number(amount + expectedProceeds) * (1 + SLIPPAGE_PERCENTAGE),
+          ),
+        ),
+        BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
       )
 
       try {
@@ -143,27 +139,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
             },
           ],
         })
-        // const { request } = await publicClient.simulateContract({
-        //   address: CONTRACT_ADDRESSES.DepositController,
-        //   abi: DepositController__factory.abi,
-        //   functionName: 'deposit',
-        //   args: [
-        //     asset.substitutes[0].address,
-        //     amount,
-        //     epochs,
-        //     minimumInterestEarned,
-        //     { deadline, v, r, s },
-        //   ],
-        //   value: isEthereum(asset.underlying)
-        //     ? wethBalance >= amount
-        //       ? amount
-        //       : wethBalance
-        //     : 0n,
-        //   account: walletClient.account,
-        // })
-        // await walletClient.writeContract(request)
-
-        await walletClient.writeContract({
+        const { request } = await publicClient.simulateContract({
           address: CONTRACT_ADDRESSES.DepositController,
           abi: DepositController__factory.abi,
           functionName: 'deposit',
@@ -175,22 +151,22 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
             { deadline, v, r, s },
           ],
           value: isEthereum(asset.underlying)
-            ? wethBalance >= amount
-              ? amount
-              : wethBalance
+            ? bigIntMax(amount - wethBalance, 0n)
             : 0n,
           account: walletClient.account,
-          gas: 10000000n,
         })
+        await walletClient.writeContract(request)
       } catch (e) {
         console.error(e)
       } finally {
+        invalidateBalances()
         setConfirmation(undefined)
       }
     },
     [
       balance?.value,
       balances,
+      invalidateBalances,
       permit,
       publicClient,
       setConfirmation,
