@@ -34,7 +34,6 @@ const Context = React.createContext<PermitContext>({
 })
 
 export const PermitProvider = ({ children }: React.PropsWithChildren<{}>) => {
-  const publicClient = usePublicClient()
   const { data: walletClient } = useWalletClient()
 
   const permit = useCallback(

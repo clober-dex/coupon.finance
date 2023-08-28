@@ -119,11 +119,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         asset.underlying,
         walletClient.account.address,
         CONTRACT_ADDRESSES.DepositController,
-        BigInt(
-          Math.floor(
-            Number(amount + expectedProceeds) * (1 + SLIPPAGE_PERCENTAGE),
-          ),
-        ),
+        amount,
         BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
       )
 
