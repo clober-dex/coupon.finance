@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 
 import Slider from '../slider'
 import { Currency } from '../../model/currency'
+import { MAX_EPOCH } from '../../utils/epoch'
 
 import Modal from './modal'
 
@@ -32,7 +33,11 @@ const EditExpiryModal = ({
       </div>
       <div className="flex flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
         <div className="px-6 mb-2">
-          <Slider count={4} value={selected} onValueChange={setSelected} />
+          <Slider
+            count={MAX_EPOCH}
+            value={selected}
+            onValueChange={setSelected}
+          />
         </div>
         <div className="flex justify-between">
           {dummy.map(({ date }, i) => (

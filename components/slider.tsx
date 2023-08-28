@@ -1,5 +1,7 @@
 import React, { SVGProps } from 'react'
 
+import { MAX_EPOCH } from '../utils/epoch'
+
 const Check = (props: SVGProps<any>) => (
   <svg
     width="14"
@@ -28,7 +30,10 @@ const Slider = ({
   value: number
   onValueChange: (value: number) => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
-  const arr = Array.from(Array(4).keys()).slice(4 - count, 4)
+  const arr = Array.from(Array(MAX_EPOCH).keys()).slice(
+    MAX_EPOCH - count,
+    MAX_EPOCH,
+  )
   return (
     <div
       className="flex flex-col sm:flex-row h-36 sm:h-auto justify-between"
@@ -37,6 +42,7 @@ const Slider = ({
       {arr.map((i, index) => (
         <>
           <button
+            key={`slider-${i}-${index}`}
             className={`flex items-center justify-center w-6 h-6 rounded-full border-2 border-solid ${
               value > i
                 ? 'bg-green-500 border-green-500'
