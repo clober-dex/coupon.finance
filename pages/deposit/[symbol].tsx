@@ -1,8 +1,11 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
 import CountUp from 'react-countup'
 import { useRouter } from 'next/router'
+import BigNumber from 'bignumber.js'
+import { formatUnits } from 'viem'
+import { useQuery } from 'wagmi'
 
 import Slider from '../../components/slider'
 import NumberInput from '../../components/number-input'
@@ -10,13 +13,12 @@ import BackSvg from '../../components/svg/back-svg'
 import { getLogo } from '../../model/currency'
 import { Asset } from '../../model/asset'
 import { fetchAssets } from '../../api/asset'
-
-const dummy = [
-  { date: '24-06-30', profit: '102.37' },
-  { date: '24-12-31', profit: '102.37' },
-  { date: '25-06-30', profit: '102.37' },
-  { date: '25-12-31', profit: '102.37' },
-]
+import { useDepositContext } from '../../contexts/deposit-context'
+import { useCurrencyContext } from '../../contexts/currency-context'
+import { ClientComponent } from '../../components/client-component'
+import { fetchDepositApyByEpochsDeposited } from '../../api/market'
+import { MAX_EPOCHS } from '../../utils/epoch'
+import { formatDollarValue } from '../../utils/numbers'
 
 export const getServerSideProps: GetServerSideProps<{
   asset: Asset
@@ -39,17 +41,81 @@ export const getServerSideProps: GetServerSideProps<{
 const Deposit: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ asset }) => {
-  const [selected, _setSelected] = useState(0)
+  const { balances, prices } = useCurrencyContext()
+  const { deposit } = useDepositContext()
+
+  const [epochs, _setEpochs] = useState(0)
   const [value, setValue] = useState('')
 
   const router = useRouter()
 
-  const setSelected = useCallback(
+  const setEpochs = useCallback(
     (value: number) => {
-      _setSelected(value === selected ? value - 1 : value)
+      _setEpochs(value === epochs ? value - 1 : value)
     },
-    [selected],
+    [epochs],
   )
+
+  const onBlurValue = useCallback(() => {
+    if (!balances || !balances[asset.underlying.address]) {
+      return
+    }
+    setValue(
+      new BigNumber(value)
+        .times(10 ** asset.underlying.decimals)
+        .gt(balances[asset.underlying.address].toString())
+        ? formatUnits(
+            balances[asset.underlying.address] ?? 0n,
+            asset.underlying.decimals,
+          )
+        : value,
+    )
+  }, [asset.underlying.address, asset.underlying.decimals, balances, value])
+
+  const setMaxValue = useCallback(() => {
+    setValue(
+      formatUnits(
+        balances[asset.underlying.address] ?? 0n,
+        asset.underlying.decimals,
+      ),
+    )
+  }, [asset.underlying.address, asset.underlying.decimals, balances])
+
+  const amount = useMemo(() => {
+    const big = new BigNumber(10).pow(asset.underlying.decimals).times(value)
+    return big.isNaN() ? 0n : BigInt(big.toFixed(0))
+  }, [asset.underlying.decimals, value])
+
+  const { data: proceedsByEpochsDeposited } = useQuery(
+    ['deposit-apy', asset, amount], // TODO: useDebounce
+    () => fetchDepositApyByEpochsDeposited(asset, amount),
+    {
+      refetchOnWindowFocus: true,
+      keepPreviousData: true,
+      initialData: [],
+    },
+  )
+
+  const depositApy = useMemo(() => {
+    if (!proceedsByEpochsDeposited || epochs === 0) {
+      return 0
+    }
+    return (
+      proceedsByEpochsDeposited?.[
+        epochs - (MAX_EPOCHS - proceedsByEpochsDeposited.length) - 1
+      ]?.apy ?? 0
+    )
+  }, [proceedsByEpochsDeposited, epochs])
+
+  const expectedProceeds = useMemo(() => {
+    if (!proceedsByEpochsDeposited || epochs === 0) {
+      return 0n
+    }
+    return proceedsByEpochsDeposited
+      .slice(0, epochs - (MAX_EPOCHS - proceedsByEpochsDeposited.length))
+      .reduce((acc, { proceeds }) => acc + proceeds, 0n)
+  }, [proceedsByEpochsDeposited, epochs])
+
   return (
     <div className="flex flex-1">
       <Head>
@@ -78,7 +144,7 @@ const Deposit: NextPage<
             </div>
           </button>
           <div className="flex flex-1 sm:items-center justify-center">
-            <div className="flex flex-col sm:shadow bg-gray-50 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 w-full sm:w-[480px] gap-8">
+            <div className="flex flex-col sm:shadow bg-gray-50 dark:bg-gray-950 sm:rounded-3xl p-4 sm:p-6 w-full sm:w-[480px] gap-8">
               <div className="flex flex-col gap-4">
                 <div className="font-bold text-sm sm:text-lg">
                   How much would you like to deposit?
@@ -89,10 +155,21 @@ const Deposit: NextPage<
                       className="text-xl sm:text-2xl placeholder-gray-400 outline-none bg-transparent w-40 sm:w-auto"
                       value={value}
                       onValueChange={setValue}
+                      onBlur={onBlurValue}
                       placeholder="0.0000"
                     />
                     <div className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm">
-                      ~$0.0000
+                      <ClientComponent>
+                        <>
+                          ~
+                          {' ' +
+                            formatDollarValue(
+                              amount,
+                              asset.underlying.decimals,
+                              prices[asset.underlying.address],
+                            )}
+                        </>
+                      </ClientComponent>
                     </div>
                   </div>
                   <div className="flex flex-col items-end justify-between">
@@ -108,8 +185,19 @@ const Deposit: NextPage<
                     </div>
                     <div className="flex text-xs sm:text-sm gap-1 sm:gap-2">
                       <div className="text-gray-500">Available</div>
-                      <div>2.1839</div>
-                      <button className="text-green-500">MAX</button>
+                      <div>
+                        <ClientComponent>
+                          <>
+                            {formatUnits(
+                              balances[asset.underlying.address] || 0n,
+                              asset.underlying.decimals,
+                            )}
+                          </>
+                        </ClientComponent>
+                      </div>
+                      <button className="text-green-500" onClick={setMaxValue}>
+                        MAX
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -123,34 +211,39 @@ const Deposit: NextPage<
                     The longer you deposit, the more interest you earn!
                   </div>
                 </div>
-                <div className="flex flex-row-reverse justify-between sm:flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4">
+                <div className="flex flex-row-reverse justify-between sm:flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4 sm:h-[116px]">
                   <div className="sm:px-6 sm:mb-2">
-                    <Slider value={selected} onValueChange={setSelected} />
+                    <ClientComponent>
+                      <Slider
+                        key={'deposit-slider'}
+                        count={proceedsByEpochsDeposited.length}
+                        value={epochs}
+                        onValueChange={setEpochs}
+                      />
+                    </ClientComponent>
                   </div>
-                  <div className="flex flex-col sm:flex-row justify-between">
-                    {dummy.map(({ date, profit }, i) => (
+                  <ClientComponent className="flex flex-col sm:flex-row justify-between">
+                    {proceedsByEpochsDeposited.map(({ date, proceeds }, i) => (
                       <button
                         key={i}
                         className="flex sm:flex-col items-center gap-1 sm:gap-2 sm:w-[72px]"
-                        onClick={() => setSelected(i + 1)}
+                        onClick={() => setEpochs(i + 1)}
                       >
                         <div className="text-sm w-20 sm:w-fit text-start">
                           {date}
                         </div>
                         <div
-                          className={`px-2 py-1 rounded-full text-xs ${
-                            selected === i + 1
-                              ? 'bg-gray-100 dark:bg-white dark:bg-opacity-10'
-                              : selected <= i + 1
-                              ? 'bg-green-500 text-green-500 bg-opacity-10'
-                              : 'bg-red-500 text-red-500 bg-opacity-10'
-                          }`}
+                          className={
+                            'px-2 py-1 rounded-full text-xs bg-green-500 text-green-500 bg-opacity-10'
+                          }
                         >
-                          {selected <= i + 1 ? `+${profit}` : `-${profit}`}
+                          {`+${Number(
+                            formatUnits(proceeds, asset.underlying.decimals),
+                          ).toFixed(2)}`}
                         </div>
                       </button>
                     ))}
-                  </div>
+                  </ClientComponent>
                 </div>
               </div>
               <div className="flex p-4 border-solid border-[1.5px] border-gray-200 dark:border-gray-700 rounded-lg gap-2 sm:gap-3">
@@ -159,24 +252,34 @@ const Deposit: NextPage<
                     Your interest payout will be
                   </label>
                   <CountUp
-                    end={dummy
-                      .slice(0, selected)
-                      .reduce((acc, { profit }) => acc + +profit, 0)}
+                    end={
+                      +formatUnits(expectedProceeds, asset.underlying.decimals)
+                    }
                     suffix={` ${asset.underlying.symbol}`}
                     className={`flex gap-2 ${
-                      selected === 0 ? 'text-gray-400' : ''
+                      epochs === 0 ? 'text-gray-400' : ''
                     } text-xl`}
                     preserveValue
                   />
                 </div>
                 <div className="flex px-2 sm:px-3 py-1.5 bg-gray-100 dark:bg-gray-800 w-fit h-fit rounded font-bold text-xs sm:text-sm gap-1 sm:gap-2">
                   <span className="text-gray-400">APY</span>
-                  <div className="text-gray-800 dark:text-white">3.15%</div>
+                  <div className="text-gray-800 dark:text-white">
+                    {depositApy.toFixed(2)}%
+                  </div>
                 </div>
               </div>
               <button
-                disabled={true}
-                className="font-bold text-base sm:text-xl disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg disabled:text-gray-300 dark:disabled:text-gray-500"
+                disabled={amount === 0n || epochs === 0}
+                className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
+                onClick={() =>
+                  deposit(
+                    asset,
+                    amount + expectedProceeds,
+                    epochs,
+                    expectedProceeds,
+                  )
+                }
               >
                 Confirm
               </button>

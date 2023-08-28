@@ -1,6 +1,16 @@
-import React from 'react'
+import React, { useCallback } from 'react'
+import { useAccount, useBalance, usePublicClient, useWalletClient } from 'wagmi'
+import { formatUnits } from 'viem'
 
 import { Currency } from '../model/currency'
+import { CONTRACT_ADDRESSES } from '../utils/addresses'
+import { DepositController__factory } from '../typechain'
+import { Asset } from '../model/asset'
+import { bigIntMax } from '../utils/bigint'
+import { permit } from '../utils/permit'
+
+import { isEthereum, useCurrencyContext } from './currency-context'
+import { useTransactionContext } from './transaction-context'
 
 type DepositContext = {
   // TODO: change to bigInt
@@ -15,6 +25,12 @@ type DepositContext = {
   apy: { [key in `0x${string}`]: number }
   available: { [key in `0x${string}`]: bigint }
   deposited: { [key in `0x${string}`]: bigint }
+  deposit: (
+    asset: Asset,
+    amount: bigint,
+    epochs: number,
+    expectedProceeds: bigint,
+  ) => Promise<void>
 }
 
 const Context = React.createContext<DepositContext>({
@@ -22,7 +38,10 @@ const Context = React.createContext<DepositContext>({
   apy: {},
   available: {},
   deposited: {},
+  deposit: () => Promise.resolve(),
 })
+
+const SLIPPAGE_PERCENTAGE = 0.1
 
 export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const dummyPositions = [
@@ -69,6 +88,87 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
     [key in `0x${string}`]: bigint
   } = {}
 
+  const { address: userAddress } = useAccount()
+  const { data: balance } = useBalance({ address: userAddress })
+
+  const { data: walletClient } = useWalletClient()
+  const publicClient = usePublicClient()
+  const { setConfirmation } = useTransactionContext()
+  const { balances, invalidateBalances } = useCurrencyContext()
+
+  const deposit = useCallback(
+    async (
+      asset: Asset,
+      amount: bigint,
+      epochs: number,
+      expectedProceeds: bigint,
+    ) => {
+      if (!walletClient) {
+        // TODO: alert wallet connect
+        return
+      }
+
+      const minimumInterestEarned = BigInt(
+        Math.floor(Number(expectedProceeds) * (1 - SLIPPAGE_PERCENTAGE)),
+      )
+      const wethBalance = isEthereum(asset.underlying)
+        ? balances[asset.underlying.address] - (balance?.value || 0n)
+        : 0n
+      const { deadline, r, s, v } = await permit(
+        walletClient,
+        asset.underlying,
+        walletClient.account.address,
+        CONTRACT_ADDRESSES.DepositController,
+        amount,
+        BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
+      )
+
+      try {
+        setConfirmation({
+          title: 'Making Deposit',
+          body: 'Please confirm in your wallet.',
+          fields: [
+            {
+              currency: asset.underlying,
+              label: asset.underlying.symbol,
+              value: formatUnits(amount, asset.underlying.decimals),
+            },
+          ],
+        })
+        const { request } = await publicClient.simulateContract({
+          address: CONTRACT_ADDRESSES.DepositController,
+          abi: DepositController__factory.abi,
+          functionName: 'deposit',
+          args: [
+            asset.substitutes[0].address,
+            amount,
+            epochs,
+            minimumInterestEarned,
+            { deadline, v, r, s },
+          ],
+          value: isEthereum(asset.underlying)
+            ? bigIntMax(amount - wethBalance, 0n)
+            : 0n,
+          account: walletClient.account,
+        })
+        await walletClient.writeContract(request)
+      } catch (e) {
+        console.error(e)
+      } finally {
+        invalidateBalances()
+        setConfirmation(undefined)
+      }
+    },
+    [
+      balance?.value,
+      balances,
+      invalidateBalances,
+      publicClient,
+      setConfirmation,
+      walletClient,
+    ],
+  )
+
   return (
     <Context.Provider
       value={{
@@ -76,6 +176,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         apy,
         available,
         deposited,
+        deposit,
       }}
     >
       {children}

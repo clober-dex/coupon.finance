@@ -171,6 +171,13 @@ export class Market {
     )
   }
 
+  clone(): Market {
+    return Object.create(
+      Object.getPrototypeOf(this),
+      Object.getOwnPropertyDescriptors(this),
+    )
+  }
+
   swap(
     tokenIn: string,
     amountIn: bigint,
@@ -239,7 +246,7 @@ export const calculateTotalDeposit = (
         initialDeposit,
       ))
     }
-    initialDeposit = markets.reduce((acc, market, i) => acc + amountOuts[i], 0n)
+    initialDeposit = amountOuts.reduce((acc, val) => acc + val, 0n)
     totalDeposit = totalDeposit + initialDeposit
   }
 
@@ -258,13 +265,13 @@ export const calculateDepositApy = (
   apy: number
 } => {
   if (
-    markets.filter(
+    markets.some(
       (market) =>
         !isAddressEqual(
           market.quoteToken.address,
           substitute.address as `0x${string}`,
         ),
-    ).length > 0
+    )
   ) {
     new Error('Substitute token is not supported')
   }
@@ -275,8 +282,10 @@ export const calculateDepositApy = (
   )
   const totalDeposit = calculateTotalDeposit(markets, initialDeposit)
   const apy =
-    ((Number(totalDeposit) / Number(initialDeposit)) * YEAR_IN_SECONDS) /
-    Number(getEpochEndTimestamp(maxEpochIndex) - currentTimestamp)
+    totalDeposit === initialDeposit
+      ? 0
+      : ((Number(totalDeposit) / Number(initialDeposit)) * YEAR_IN_SECONDS) /
+        Number(getEpochEndTimestamp(maxEpochIndex) - currentTimestamp)
 
   const startEpochIndex = getCurrentEpochIndex(currentTimestamp)
   return {

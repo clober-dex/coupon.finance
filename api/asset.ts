@@ -1,4 +1,4 @@
-import { getAddress, zeroAddress } from 'viem'
+import { getAddress } from 'viem'
 
 import { getBuiltGraphSDK, Token } from '../.graphclient'
 import { Asset } from '../model/asset'
@@ -12,7 +12,7 @@ const toCurrency = (
 ) =>
   token.name === 'Wrapped Ether'
     ? {
-        address: zeroAddress,
+        address: getAddress(token.id),
         name: 'Ethereum',
         symbol: 'ETH',
         decimals: 18,
