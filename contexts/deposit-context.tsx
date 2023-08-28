@@ -7,10 +7,10 @@ import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { DepositController__factory } from '../typechain'
 import { Asset } from '../model/asset'
 import { bigIntMax } from '../utils/bigint'
+import { permit } from '../utils/permit'
 
 import { isEthereum, useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
-import { usePermitContext } from './permit-context'
 
 type DepositContext = {
   // TODO: change to bigInt
@@ -95,7 +95,6 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
   const { balances, invalidateBalances } = useCurrencyContext()
-  const { permit } = usePermitContext()
 
   const deposit = useCallback(
     async (
@@ -116,6 +115,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         ? balances[asset.underlying.address] - (balance?.value || 0n)
         : 0n
       const { deadline, r, s, v } = await permit(
+        walletClient,
         asset.underlying,
         walletClient.account.address,
         CONTRACT_ADDRESSES.DepositController,
@@ -163,7 +163,6 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       balance?.value,
       balances,
       invalidateBalances,
-      permit,
       publicClient,
       setConfirmation,
       walletClient,
