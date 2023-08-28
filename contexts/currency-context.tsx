@@ -8,14 +8,12 @@ import { fetchCurrencies } from '../api/currency'
 import { Currency } from '../model/currency'
 
 type CurrencyContext = {
-  currencies: Currency[]
   balances: { [key in `0x${string}`]: bigint }
   prices: { [key in `0x${string}`]: number }
   invalidateBalances: () => void
 }
 
 const Context = React.createContext<CurrencyContext>({
-  currencies: [],
   balances: {},
   prices: {},
   invalidateBalances: () => {},
@@ -109,7 +107,6 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   return (
     <Context.Provider
       value={{
-        currencies: currencies ?? [],
         prices: prices ?? {},
         balances: balances ?? {},
         invalidateBalances,
