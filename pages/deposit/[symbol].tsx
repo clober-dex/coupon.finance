@@ -18,6 +18,7 @@ import { useCurrencyContext } from '../../contexts/currency-context'
 import { ClientComponent } from '../../components/client-component'
 import { fetchDepositApyByEpochsDeposited } from '../../api/market'
 import { MAX_EPOCHS } from '../../utils/epoch'
+import { formatDollarValue } from '../../utils/numbers'
 
 export const getServerSideProps: GetServerSideProps<{
   asset: Asset
@@ -160,7 +161,13 @@ const Deposit: NextPage<
                     <div className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm">
                       <ClientComponent>
                         <>
-                          ~$ {Number(value) * prices[asset.underlying.address]}
+                          ~
+                          {' ' +
+                            formatDollarValue(
+                              amount,
+                              asset.underlying.decimals,
+                              prices[asset.underlying.address],
+                            )}
                         </>
                       </ClientComponent>
                     </div>
