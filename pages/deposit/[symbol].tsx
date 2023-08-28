@@ -3,8 +3,7 @@ import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
 import CountUp from 'react-countup'
 import { useRouter } from 'next/router'
-import BigNumber from 'bignumber.js'
-import { formatUnits } from 'viem'
+import { formatUnits, parseUnits } from 'viem'
 import { useQuery } from 'wagmi'
 
 import Slider from '../../components/slider'
@@ -55,10 +54,10 @@ const Deposit: NextPage<
     [epochs],
   )
 
-  const amount = useMemo(() => {
-    const big = new BigNumber(10).pow(asset.underlying.decimals).times(value)
-    return big.isNaN() ? 0n : BigInt(big.toFixed(0))
-  }, [asset.underlying.decimals, value])
+  const amount = useMemo(
+    () => parseUnits(value, asset.underlying.decimals),
+    [asset.underlying.decimals, value],
+  )
 
   const { data: proceedsByEpochsDeposited } = useQuery(
     ['deposit-apy', asset, amount], // TODO: useDebounce
@@ -207,6 +206,7 @@ const Deposit: NextPage<
                     amount + expectedProceeds,
                     epochs,
                     expectedProceeds,
+                    0.01, // TODO: use real slippage
                   )
                 }
               >
