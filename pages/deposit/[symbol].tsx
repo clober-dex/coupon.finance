@@ -8,7 +8,6 @@ import { formatUnits } from 'viem'
 import { useQuery } from 'wagmi'
 
 import Slider from '../../components/slider'
-import NumberInput from '../../components/number-input'
 import BackSvg from '../../components/svg/back-svg'
 import { getLogo } from '../../model/currency'
 import { Asset } from '../../model/asset'
@@ -18,7 +17,6 @@ import { useCurrencyContext } from '../../contexts/currency-context'
 import { ClientComponent } from '../../components/client-component'
 import { fetchDepositApyByEpochsDeposited } from '../../api/market'
 import { MAX_EPOCHS } from '../../utils/epoch'
-import { formatDollarValue } from '../../utils/numbers'
 import CurrencyAmountInput from '../../components/currency-amount-input'
 
 export const getServerSideProps: GetServerSideProps<{
@@ -56,31 +54,6 @@ const Deposit: NextPage<
     },
     [epochs],
   )
-
-  const onBlurValue = useCallback(() => {
-    if (!balances || !balances[asset.underlying.address]) {
-      return
-    }
-    setValue(
-      new BigNumber(value)
-        .times(10 ** asset.underlying.decimals)
-        .gt(balances[asset.underlying.address].toString())
-        ? formatUnits(
-            balances[asset.underlying.address] ?? 0n,
-            asset.underlying.decimals,
-          )
-        : value,
-    )
-  }, [asset.underlying.address, asset.underlying.decimals, balances, value])
-
-  const setMaxValue = useCallback(() => {
-    setValue(
-      formatUnits(
-        balances[asset.underlying.address] ?? 0n,
-        asset.underlying.decimals,
-      ),
-    )
-  }, [asset.underlying.address, asset.underlying.decimals, balances])
 
   const amount = useMemo(() => {
     const big = new BigNumber(10).pow(asset.underlying.decimals).times(value)
@@ -156,7 +129,6 @@ const Deposit: NextPage<
                   onValueChange={setValue}
                   balance={balances[asset.underlying.address] ?? 0n}
                   price={prices[asset.underlying.address] ?? 0}
-                  onBlur={onBlurValue}
                 />
               </div>
               <div className="flex flex-col gap-6">

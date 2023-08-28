@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { formatUnits } from 'viem'
+import { formatUnits, parseUnits } from 'viem'
 
 import { Currency, getLogo } from '../model/currency'
 import { formatDollarValue } from '../utils/numbers'
@@ -10,10 +10,11 @@ import { ClientComponent } from './client-component'
 
 const CurrencyAmountInput = ({
   currency,
+  value,
+  onValueChange,
   balance,
   price,
   onCurrencyClick,
-  onValueChange,
   ...props
 }: {
   currency?: Currency
@@ -23,6 +24,12 @@ const CurrencyAmountInput = ({
   price: number
   onCurrencyClick?: () => void
 } & React.HTMLAttributes<HTMLInputElement>) => {
+  const onBlur = useCallback(() => {
+    const decimals = currency?.decimals ?? 18
+    const amount = parseUnits(value, decimals)
+    const min = balance > amount ? amount : balance
+    onValueChange(min ? formatUnits(min, decimals) : '')
+  }, [balance, currency?.decimals, onValueChange, value])
   const onMaxClick = useCallback(() => {
     onValueChange(balance ? formatUnits(balance, currency?.decimals ?? 18) : '')
   }, [balance, currency?.decimals, onValueChange])
@@ -31,7 +38,9 @@ const CurrencyAmountInput = ({
       <div className="flex flex-1 justify-between gap-2">
         <NumberInput
           className="text-xl sm:text-2xl placeholder-gray-400 outline-none bg-transparent"
+          value={value}
           onValueChange={onValueChange}
+          onBlur={onBlur}
           placeholder="0.0000"
           {...props}
         />
