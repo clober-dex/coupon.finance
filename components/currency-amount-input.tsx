@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { formatUnits, parseUnits } from 'viem'
 
 import { Currency, getLogo } from '../model/currency'
@@ -24,15 +24,18 @@ const CurrencyAmountInput = ({
   price: number
   onCurrencyClick?: () => void
 } & React.HTMLAttributes<HTMLInputElement>) => {
+  const decimals = useMemo(() => currency?.decimals ?? 18, [currency])
+
   const onBlur = useCallback(() => {
-    const decimals = currency?.decimals ?? 18
     const amount = parseUnits(value, decimals)
     const min = balance > amount ? amount : balance
     onValueChange(min ? formatUnits(min, decimals) : '')
-  }, [balance, currency?.decimals, onValueChange, value])
+  }, [balance, decimals, onValueChange, value])
+
   const onMaxClick = useCallback(() => {
     onValueChange(balance ? formatUnits(balance, currency?.decimals ?? 18) : '')
   }, [balance, currency?.decimals, onValueChange])
+
   return (
     <div className="flex flex-col bg-white dark:bg-gray-800 rounded-lg p-3 gap-2">
       <div className="flex flex-1 justify-between gap-2">
@@ -80,7 +83,7 @@ const CurrencyAmountInput = ({
       </div>
       <div className="flex items-end justify-between">
         <ClientComponent className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm">
-          ~{formatDollarValue(balance, currency?.decimals ?? 18, price)}
+          ~{formatDollarValue(parseUnits(value, decimals), decimals, price)}
         </ClientComponent>
         {currency ? (
           <div className="flex text-xs sm:text-sm gap-1 sm:gap-2">
