@@ -215,7 +215,6 @@ const Deposit: NextPage<
                   <div className="sm:px-6 sm:mb-2">
                     <ClientComponent>
                       <Slider
-                        key={'deposit-slider'}
                         count={proceedsByEpochsDeposited.length}
                         value={epochs}
                         onValueChange={setEpochs}
