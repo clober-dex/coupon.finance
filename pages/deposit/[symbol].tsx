@@ -191,7 +191,13 @@ const Deposit: NextPage<
                 </div>
                 <div className="flex flex-row-reverse justify-between sm:flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4 sm:h-[116px]">
                   <div className="sm:px-6 sm:mb-2">
-                    <Slider value={epochs} onValueChange={setEpochs} />
+                    <ClientComponent>
+                      <Slider
+                        count={proceedsByEpochsDeposited.length}
+                        value={epochs}
+                        onValueChange={setEpochs}
+                      />
+                    </ClientComponent>
                   </div>
                   <ClientComponent className="flex flex-col sm:flex-row justify-between">
                     {proceedsByEpochsDeposited.map(({ date, proceeds }, i) => (
@@ -204,27 +210,13 @@ const Deposit: NextPage<
                           {date}
                         </div>
                         <div
-                          className={`px-2 py-1 rounded-full text-xs ${
-                            epochs === i + 1
-                              ? 'bg-gray-100 dark:bg-white dark:bg-opacity-10'
-                              : epochs <= i + 1
-                              ? 'bg-green-500 text-green-500 bg-opacity-10'
-                              : 'bg-red-500 text-red-500 bg-opacity-10'
-                          }`}
+                          className={
+                            'px-2 py-1 rounded-full text-xs bg-green-500 text-green-500 bg-opacity-10'
+                          }
                         >
-                          {epochs <= i + 1
-                            ? `+${Number(
-                                formatUnits(
-                                  proceeds,
-                                  asset.underlying.decimals,
-                                ),
-                              ).toFixed(2)}`
-                            : `-${Number(
-                                formatUnits(
-                                  proceeds,
-                                  asset.underlying.decimals,
-                                ),
-                              ).toFixed(2)}`}
+                          {`+${Number(
+                            formatUnits(proceeds, asset.underlying.decimals),
+                          ).toFixed(2)}`}
                         </div>
                       </button>
                     ))}
@@ -270,7 +262,6 @@ const Deposit: NextPage<
                     (proceedsByEpochsDeposited ?? [])
                       .slice(0, epochs)
                       .reduce((acc, { proceeds }) => acc + proceeds, 0n),
-                    10,
                   )
                 }
               >

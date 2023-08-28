@@ -193,7 +193,11 @@ const Borrow: NextPage<
                   </div>
                   <div className="flex flex-row-reverse justify-between sm:flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4">
                     <div className="sm:px-6 sm:mb-2">
-                      <Slider value={selected} onValueChange={setSelected} />
+                      <Slider
+                        count={4}
+                        value={selected}
+                        onValueChange={setSelected}
+                      />
                     </div>
                     <div className="flex flex-col sm:flex-row justify-between">
                       {dummy.map(({ date }, i) => (
