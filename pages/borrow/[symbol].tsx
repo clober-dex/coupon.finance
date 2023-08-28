@@ -13,7 +13,7 @@ import { fetchAssets } from '../../api/asset'
 import DownSvg from '../../components/svg/down-svg'
 import CurrencySelect from '../../components/currency-select'
 import { useCurrencyContext } from '../../contexts/currency-context'
-import { MAX_EPOCH } from '../../utils/epoch'
+import { MAX_EPOCHS } from '../../utils/epoch'
 
 const dummy = [
   { date: '24-06-30', profit: '102.37' },
@@ -195,7 +195,7 @@ const Borrow: NextPage<
                   <div className="flex flex-row-reverse justify-between sm:flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4">
                     <div className="sm:px-6 sm:mb-2">
                       <Slider
-                        count={MAX_EPOCH}
+                        count={MAX_EPOCHS}
                         value={selected}
                         onValueChange={setSelected}
                       />

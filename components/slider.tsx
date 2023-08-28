@@ -1,6 +1,6 @@
 import React, { SVGProps } from 'react'
 
-import { MAX_EPOCH } from '../utils/epoch'
+import { MAX_EPOCHS } from '../utils/epoch'
 
 const Check = (props: SVGProps<any>) => (
   <svg
@@ -30,9 +30,9 @@ const Slider = ({
   value: number
   onValueChange: (value: number) => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
-  const arr = Array.from(Array(MAX_EPOCH).keys()).slice(
-    MAX_EPOCH - count,
-    MAX_EPOCH,
+  const arr = Array.from(Array(MAX_EPOCHS).keys()).slice(
+    MAX_EPOCHS - count,
+    MAX_EPOCHS,
   )
   return (
     <div

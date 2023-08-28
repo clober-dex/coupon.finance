@@ -17,7 +17,7 @@ import { useDepositContext } from '../../contexts/deposit-context'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { ClientComponent } from '../../components/client-component'
 import { fetchDepositApyByEpochsDeposited } from '../../api/market'
-import { MAX_EPOCH } from '../../utils/epoch'
+import { MAX_EPOCHS } from '../../utils/epoch'
 
 export const getServerSideProps: GetServerSideProps<{
   asset: Asset
@@ -101,7 +101,7 @@ const Deposit: NextPage<
     }
     return (
       proceedsByEpochsDeposited?.[
-        epochs - (MAX_EPOCH - proceedsByEpochsDeposited.length) - 1
+        epochs - (MAX_EPOCHS - proceedsByEpochsDeposited.length) - 1
       ]?.apy ?? 0
     )
   }, [proceedsByEpochsDeposited, epochs])
@@ -111,7 +111,7 @@ const Deposit: NextPage<
       return 0n
     }
     return proceedsByEpochsDeposited
-      .slice(0, epochs - (MAX_EPOCH - proceedsByEpochsDeposited.length))
+      .slice(0, epochs - (MAX_EPOCHS - proceedsByEpochsDeposited.length))
       .reduce((acc, { proceeds }) => acc + proceeds, 0n)
   }, [proceedsByEpochsDeposited, epochs])
 
