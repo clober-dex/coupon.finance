@@ -40,7 +40,7 @@ const CurrencyAmountInput = ({
     <div className="flex flex-col bg-white dark:bg-gray-800 rounded-lg p-3 gap-2">
       <div className="flex flex-1 justify-between gap-2">
         <NumberInput
-          className="text-xl sm:text-2xl placeholder-gray-400 outline-none bg-transparent"
+          className="flex-1 text-xl sm:text-2xl placeholder-gray-400 outline-none bg-transparent"
           value={value}
           onValueChange={onValueChange}
           onBlur={onBlur}

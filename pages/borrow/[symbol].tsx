@@ -1,16 +1,14 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { formatUnits } from 'viem'
+import { parseUnits } from 'viem'
 
 import Slider from '../../components/slider'
-import NumberInput from '../../components/number-input'
 import BackSvg from '../../components/svg/back-svg'
 import { Currency, getLogo } from '../../model/currency'
 import { Asset } from '../../model/asset'
 import { fetchAssets } from '../../api/asset'
-import DownSvg from '../../components/svg/down-svg'
 import CurrencySelect from '../../components/currency-select'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { MAX_EPOCHS } from '../../utils/epoch'
@@ -45,19 +43,32 @@ const Borrow: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ asset }) => {
   const { balances, prices } = useCurrencyContext()
-  const [selected, _setSelected] = useState(0)
-  const [value, setValue] = useState('')
+  const [epochs, _setEpochs] = useState(0)
+  const [collateralValue, setCollateralValue] = useState('')
+  const [loanValue, setLoanValue] = useState('')
   const [collateral, setCollateral] = useState<Currency | undefined>(undefined)
   const [showCollateralSelect, setShowCollateralSelect] = useState(false)
 
   const router = useRouter()
 
-  const setSelected = useCallback(
+  const setEpochs = useCallback(
     (value: number) => {
-      _setSelected(value === selected ? value - 1 : value)
+      _setEpochs(value === epochs ? value - 1 : value)
     },
-    [selected],
+    [epochs],
   )
+
+  const collateralAmount = useMemo(
+    () => parseUnits(collateralValue, collateral?.decimals ?? 18),
+    [collateralValue, collateral?.decimals],
+  )
+
+  const loanAmount = useMemo(
+    () => parseUnits(loanValue, asset.underlying.decimals),
+    [loanValue, asset.underlying.decimals],
+  )
+
+  console.log(collateralAmount, loanAmount)
 
   return (
     <div className="flex flex-1">
@@ -104,9 +115,11 @@ const Borrow: NextPage<
                   </div>
                   <CurrencyAmountInput
                     currency={collateral}
-                    value={value}
-                    onValueChange={setValue}
-                    balance={2000000n}
+                    value={collateralValue}
+                    onValueChange={setCollateralValue}
+                    balance={
+                      collateral ? balances[collateral?.address] ?? 0n : 0n
+                    }
                     price={collateral ? prices[collateral?.address] ?? 0 : 0}
                     onCurrencyClick={() => setShowCollateralSelect(true)}
                   />
@@ -117,8 +130,8 @@ const Borrow: NextPage<
                   </div>
                   <CurrencyAmountInput
                     currency={asset.underlying}
-                    value={value}
-                    onValueChange={setValue}
+                    value={loanValue}
+                    onValueChange={setLoanValue}
                     price={prices[asset.underlying.address] ?? 0}
                     balance={218390000n}
                   />
@@ -131,8 +144,8 @@ const Borrow: NextPage<
                     <div className="sm:px-6 sm:mb-2">
                       <Slider
                         count={MAX_EPOCHS}
-                        value={selected}
-                        onValueChange={setSelected}
+                        value={epochs}
+                        onValueChange={setEpochs}
                       />
                     </div>
                     <div className="flex flex-col sm:flex-row justify-between">
@@ -140,7 +153,7 @@ const Borrow: NextPage<
                         <button
                           key={i}
                           className="flex flex-col items-center gap-2 w-[72px]"
-                          onClick={() => setSelected(i + 1)}
+                          onClick={() => setEpochs(i + 1)}
                         >
                           <div className="text-sm">{date}</div>
                         </button>
