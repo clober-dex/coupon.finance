@@ -195,6 +195,7 @@ const Borrow: NextPage<
                   <div className="flex flex-row-reverse justify-between sm:flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4">
                     <div className="sm:px-6 sm:mb-2">
                       <Slider
+                        key={`borrow-slider-${selected}`}
                         count={MAX_EPOCHS}
                         value={selected}
                         onValueChange={setSelected}
