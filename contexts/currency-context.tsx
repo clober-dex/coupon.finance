@@ -9,19 +9,14 @@ import { Currency } from '../model/currency'
 
 type CurrencyContext = {
   balances: { [key in `0x${string}`]: bigint }
-  // contract address => token address => allowance
-  allowances: { [key in `0x${string}`]: { [key in `0x${string}`]: bigint } }
   prices: { [key in `0x${string}`]: number }
   invalidateBalances: () => void
-  invalidateAllowances: () => void
 }
 
 const Context = React.createContext<CurrencyContext>({
   balances: {},
-  allowances: {},
   prices: {},
   invalidateBalances: () => {},
-  invalidateAllowances: () => {},
 })
 
 export const isEthereum = (currency: Currency) =>
@@ -102,63 +97,8 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
     },
   )
 
-  const { data: allowance } = useQuery(
-    ['allowances', userAddress],
-    async () => {
-      const currencies = await fetchCurrencies()
-      const spenders = [
-        CONTRACT_ADDRESSES.BorrowController,
-        CONTRACT_ADDRESSES.DepositController,
-        CONTRACT_ADDRESSES.OdosRepayAdapter,
-      ]
-      if (!userAddress) {
-        return {}
-      }
-      const contracts = spenders
-        .map((spender) => {
-          return currencies.map((currency) => ({
-            address: currency.address,
-            abi: IERC20__factory.abi,
-            functionName: 'allowance',
-            args: [userAddress, spender],
-          }))
-        }, [])
-        .flat()
-      const results = await readContracts({
-        contracts,
-      })
-      return results.reduce(
-        (
-          acc: {
-            [key in `0x${string}`]: { [key in `0x${string}`]: bigint }
-          },
-          { result },
-          i,
-        ) => {
-          const currency = currencies[i % currencies.length]
-          const spender = spenders[Math.floor(i / currencies.length)]
-          const resultValue = (result ?? 0n) as bigint
-          return {
-            ...acc,
-            [spender]: {
-              ...acc[spender],
-              [currency.address]: isEthereum(currency)
-                ? resultValue + (balance?.value ?? 0n)
-                : resultValue,
-            },
-          }
-        },
-        spenders.reduce((acc, spender) => ({ ...acc, [spender]: {} }), {}),
-      )
-    },
-  )
-
   const invalidateBalances = useCallback(async () => {
     await queryClient.invalidateQueries(['balances', userAddress])
-  }, [queryClient, userAddress])
-
-  const invalidateAllowances = useCallback(async () => {
-    await queryClient.invalidateQueries(['allowances', userAddress])
   }, [queryClient, userAddress])
 
   return (
@@ -166,9 +106,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
       value={{
         prices: prices ?? {},
         balances: balances ?? {},
-        allowances: allowance ?? {},
         invalidateBalances,
-        invalidateAllowances,
       }}
     >
       {children}
