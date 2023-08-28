@@ -282,8 +282,10 @@ export const calculateDepositApy = (
   )
   const totalDeposit = calculateTotalDeposit(markets, initialDeposit)
   const apy =
-    ((Number(totalDeposit) / Number(initialDeposit)) * YEAR_IN_SECONDS) /
-    Number(getEpochEndTimestamp(maxEpochIndex) - currentTimestamp)
+    totalDeposit === initialDeposit
+      ? 0
+      : ((Number(totalDeposit) / Number(initialDeposit)) * YEAR_IN_SECONDS) /
+        Number(getEpochEndTimestamp(maxEpochIndex) - currentTimestamp)
 
   const startEpochIndex = getCurrentEpochIndex(currentTimestamp)
   return {
