@@ -1,14 +1,15 @@
 import React, { useCallback } from 'react'
-import { usePublicClient, useWalletClient } from 'wagmi'
+import { useAccount, useBalance, usePublicClient, useWalletClient } from 'wagmi'
 import { formatUnits } from 'viem'
 
 import { Currency } from '../model/currency'
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { DepositController__factory } from '../typechain'
-import { zeroBytes32 } from '../utils/bytes'
 import { Asset } from '../model/asset'
+import { bigIntMax } from '../utils/bigint'
+import { permit } from '../utils/permit'
 
-import { isEthereum } from './currency-context'
+import { isEthereum, useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
 
 type DepositContext = {
@@ -29,7 +30,6 @@ type DepositContext = {
     amount: bigint,
     epochs: number,
     expectedProceeds: bigint,
-    slippage: number,
   ) => Promise<void>
 }
 
@@ -40,6 +40,8 @@ const Context = React.createContext<DepositContext>({
   deposited: {},
   deposit: () => Promise.resolve(),
 })
+
+const SLIPPAGE_PERCENTAGE = 0.1
 
 export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const dummyPositions = [
@@ -86,9 +88,13 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
     [key in `0x${string}`]: bigint
   } = {}
 
+  const { address: userAddress } = useAccount()
+  const { data: balance } = useBalance({ address: userAddress })
+
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
+  const { balances, invalidateBalances } = useCurrencyContext()
 
   const deposit = useCallback(
     async (
@@ -96,7 +102,6 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       amount: bigint,
       epochs: number,
       expectedProceeds: bigint,
-      slippage: number,
     ) => {
       if (!walletClient) {
         // TODO: alert wallet connect
@@ -104,7 +109,18 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
 
       const minimumInterestEarned = BigInt(
-        Math.floor(Number(expectedProceeds) * (1 - slippage)),
+        Math.floor(Number(expectedProceeds) * (1 - SLIPPAGE_PERCENTAGE)),
+      )
+      const wethBalance = isEthereum(asset.underlying)
+        ? balances[asset.underlying.address] - (balance?.value || 0n)
+        : 0n
+      const { deadline, r, s, v } = await permit(
+        walletClient,
+        asset.underlying,
+        walletClient.account.address,
+        CONTRACT_ADDRESSES.DepositController,
+        amount,
+        BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
       )
 
       try {
@@ -128,20 +144,29 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
             amount,
             epochs,
             minimumInterestEarned,
-            { deadline: 0n, v: 0, r: zeroBytes32, s: zeroBytes32 },
+            { deadline, v, r, s },
           ],
-          value: isEthereum(asset.underlying) ? amount : 0n,
+          value: isEthereum(asset.underlying)
+            ? bigIntMax(amount - wethBalance, 0n)
+            : 0n,
           account: walletClient.account,
         })
-
         await walletClient.writeContract(request)
       } catch (e) {
         console.error(e)
       } finally {
+        invalidateBalances()
         setConfirmation(undefined)
       }
     },
-    [publicClient, setConfirmation, walletClient],
+    [
+      balance?.value,
+      balances,
+      invalidateBalances,
+      publicClient,
+      setConfirmation,
+      walletClient,
+    ],
   )
 
   return (

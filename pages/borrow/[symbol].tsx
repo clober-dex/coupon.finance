@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react'
-import { GetStaticProps, InferGetStaticPropsType, NextPage } from 'next'
+import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { formatUnits } from 'viem'
@@ -13,6 +13,7 @@ import { fetchAssets } from '../../api/asset'
 import DownSvg from '../../components/svg/down-svg'
 import CurrencySelect from '../../components/currency-select'
 import { useCurrencyContext } from '../../contexts/currency-context'
+import { MAX_EPOCHS } from '../../utils/epoch'
 
 const dummy = [
   { date: '24-06-30', profit: '102.37' },
@@ -21,17 +22,7 @@ const dummy = [
   { date: '25-12-31', profit: '102.37' },
 ]
 
-export const getStaticPaths = async () => {
-  const assets = await fetchAssets()
-  return {
-    paths: assets.map(({ underlying }) => ({
-      params: { symbol: underlying.symbol },
-    })),
-    fallback: false,
-  }
-}
-
-export const getStaticProps: GetStaticProps<{
+export const getServerSideProps: GetServerSideProps<{
   asset: Asset
 }> = async ({ params }) => {
   const assets = await fetchAssets()
@@ -49,9 +40,9 @@ export const getStaticProps: GetStaticProps<{
   }
 }
 
-const Borrow: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
-  asset,
-}) => {
+const Borrow: NextPage<
+  InferGetServerSidePropsType<typeof getServerSideProps>
+> = ({ asset }) => {
   const { balances } = useCurrencyContext()
   const [selected, _setSelected] = useState(0)
   const [value, setValue] = useState('')
@@ -203,7 +194,11 @@ const Borrow: NextPage<InferGetStaticPropsType<typeof getStaticProps>> = ({
                   </div>
                   <div className="flex flex-row-reverse justify-between sm:flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4">
                     <div className="sm:px-6 sm:mb-2">
-                      <Slider value={selected} onValueChange={setSelected} />
+                      <Slider
+                        count={MAX_EPOCHS}
+                        value={selected}
+                        onValueChange={setSelected}
+                      />
                     </div>
                     <div className="flex flex-col sm:flex-row justify-between">
                       {dummy.map(({ date }, i) => (

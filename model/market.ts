@@ -1,6 +1,12 @@
 import { isAddressEqual } from 'viem'
 
 import { MarketDto } from '../api/market'
+import {
+  getCurrentEpochIndex,
+  getEpochEndTimestamp,
+  getEpochStartTimestamp,
+  YEAR_IN_SECONDS,
+} from '../utils/epoch'
 
 import { Currency } from './currency'
 
@@ -165,6 +171,13 @@ export class Market {
     )
   }
 
+  clone(): Market {
+    return Object.create(
+      Object.getPrototypeOf(this),
+      Object.getOwnPropertyDescriptors(this),
+    )
+  }
+
   swap(
     tokenIn: string,
     amountIn: bigint,
@@ -233,9 +246,52 @@ export const calculateTotalDeposit = (
         initialDeposit,
       ))
     }
-    initialDeposit = markets.reduce((acc, market, i) => acc + amountOuts[i], 0n)
+    initialDeposit = amountOuts.reduce((acc, val) => acc + val, 0n)
     totalDeposit = totalDeposit + initialDeposit
   }
 
   return totalDeposit
+}
+
+export const calculateDepositApy = (
+  substitute: Currency,
+  markets: Market[],
+  initialDeposit: bigint,
+  currentTimestamp: number,
+): {
+  epochStart: Date
+  epochEnd: Date
+  proceeds: bigint
+  apy: number
+} => {
+  if (
+    markets.some(
+      (market) =>
+        !isAddressEqual(
+          market.quoteToken.address,
+          substitute.address as `0x${string}`,
+        ),
+    )
+  ) {
+    new Error('Substitute token is not supported')
+  }
+
+  const maxEpochIndex = markets.reduce(
+    (acc, market) => (market.epoch > acc ? market.epoch : acc),
+    0n,
+  )
+  const totalDeposit = calculateTotalDeposit(markets, initialDeposit)
+  const apy =
+    totalDeposit === initialDeposit
+      ? 0
+      : ((Number(totalDeposit) / Number(initialDeposit)) * YEAR_IN_SECONDS) /
+        Number(getEpochEndTimestamp(maxEpochIndex) - currentTimestamp)
+
+  const startEpochIndex = getCurrentEpochIndex(currentTimestamp)
+  return {
+    apy,
+    epochStart: new Date(getEpochStartTimestamp(startEpochIndex) * 1000),
+    epochEnd: new Date(getEpochEndTimestamp(maxEpochIndex) * 1000),
+    proceeds: totalDeposit - initialDeposit,
+  }
 }
