@@ -206,7 +206,6 @@ const Deposit: NextPage<
                     amount + expectedProceeds,
                     epochs,
                     expectedProceeds,
-                    0.01, // TODO: use real slippage
                   )
                 }
               >
