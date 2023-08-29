@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
 import CountUp from 'react-countup'
@@ -15,7 +15,7 @@ import { useDepositContext } from '../../contexts/deposit-context'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { ClientComponent } from '../../components/client-component'
 import { fetchDepositApyByEpochsDeposited } from '../../api/market'
-import { MAX_EPOCHS } from '../../utils/epoch'
+import { DEFAULT_SELECTED_EPOCH } from '../../utils/epoch'
 import CurrencyAmountInput from '../../components/currency-amount-input'
 
 export const getServerSideProps: GetServerSideProps<{
@@ -42,17 +42,10 @@ const Deposit: NextPage<
   const { balances, prices } = useCurrencyContext()
   const { deposit } = useDepositContext()
 
-  const [epochs, _setEpochs] = useState(0)
+  const [selectedEpoch, setSelectedEpoch] = useState(DEFAULT_SELECTED_EPOCH)
   const [value, setValue] = useState('')
 
   const router = useRouter()
-
-  const setEpochs = useCallback(
-    (value: number) => {
-      _setEpochs(value === epochs ? value - 1 : value)
-    },
-    [epochs],
-  )
 
   const amount = useMemo(
     () => parseUnits(value, asset.underlying.decimals),
@@ -68,26 +61,6 @@ const Deposit: NextPage<
       initialData: [],
     },
   )
-
-  const depositApy = useMemo(() => {
-    if (!proceedsByEpochsDeposited || epochs === 0) {
-      return 0
-    }
-    return (
-      proceedsByEpochsDeposited?.[
-        epochs - (MAX_EPOCHS - proceedsByEpochsDeposited.length) - 1
-      ]?.apy ?? 0
-    )
-  }, [proceedsByEpochsDeposited, epochs])
-
-  const expectedProceeds = useMemo(() => {
-    if (!proceedsByEpochsDeposited || epochs === 0) {
-      return 0n
-    }
-    return proceedsByEpochsDeposited
-      .slice(0, epochs - (MAX_EPOCHS - proceedsByEpochsDeposited.length))
-      .reduce((acc, { proceeds }) => acc + proceeds, 0n)
-  }, [proceedsByEpochsDeposited, epochs])
 
   return (
     <div className="flex flex-1">
@@ -143,34 +116,37 @@ const Deposit: NextPage<
                   <div className="sm:px-6 sm:mb-2">
                     <ClientComponent>
                       <Slider
-                        key={'deposit-slider'}
-                        count={proceedsByEpochsDeposited.length}
-                        value={epochs}
-                        onValueChange={setEpochs}
+                        epochs={Object.keys(proceedsByEpochsDeposited).map(
+                          (epoch) => Number(epoch),
+                        )}
+                        value={selectedEpoch}
+                        onValueChange={setSelectedEpoch}
                       />
                     </ClientComponent>
                   </div>
                   <ClientComponent className="flex flex-col sm:flex-row justify-between">
-                    {proceedsByEpochsDeposited.map(({ date, proceeds }, i) => (
-                      <button
-                        key={i}
-                        className="flex sm:flex-col items-center gap-1 sm:gap-2 sm:w-[72px]"
-                        onClick={() => setEpochs(i + 1)}
-                      >
-                        <div className="text-sm w-20 sm:w-fit text-start">
-                          {date}
-                        </div>
-                        <div
-                          className={
-                            'px-2 py-1 rounded-full text-xs bg-green-500 text-green-500 bg-opacity-10'
-                          }
+                    {Object.entries(proceedsByEpochsDeposited).map(
+                      ([epoch, { proceeds, date }], i) => (
+                        <button
+                          key={i}
+                          className="flex sm:flex-col items-center gap-1 sm:gap-2 sm:w-[72px]"
+                          onClick={() => setSelectedEpoch(Number(epoch))}
                         >
-                          {`+${Number(
-                            formatUnits(proceeds, asset.underlying.decimals),
-                          ).toFixed(2)}`}
-                        </div>
-                      </button>
-                    ))}
+                          <div className="text-sm w-20 sm:w-fit text-start">
+                            {date}
+                          </div>
+                          <div
+                            className={
+                              'px-2 py-1 rounded-full text-xs bg-green-500 text-green-500 bg-opacity-10'
+                            }
+                          >
+                            {`+${Number(
+                              formatUnits(proceeds, asset.underlying.decimals),
+                            ).toFixed(2)}`}
+                          </div>
+                        </button>
+                      ),
+                    )}
                   </ClientComponent>
                 </div>
               </div>
@@ -181,31 +157,36 @@ const Deposit: NextPage<
                   </label>
                   <CountUp
                     end={
-                      +formatUnits(expectedProceeds, asset.underlying.decimals)
+                      +formatUnits(
+                        proceedsByEpochsDeposited[selectedEpoch]?.proceeds ||
+                          0n,
+                        asset.underlying.decimals,
+                      )
                     }
                     suffix={` ${asset.underlying.symbol}`}
-                    className={`flex gap-2 ${
-                      epochs === 0 ? 'text-gray-400' : ''
-                    } text-xl`}
+                    className={`flex gap-2 text-xl`}
                     preserveValue
                   />
                 </div>
                 <div className="flex px-2 sm:px-3 py-1.5 bg-gray-100 dark:bg-gray-800 w-fit h-fit rounded font-bold text-xs sm:text-sm gap-1 sm:gap-2">
                   <span className="text-gray-400">APY</span>
                   <div className="text-gray-800 dark:text-white">
-                    {depositApy.toFixed(2)}%
+                    {(
+                      proceedsByEpochsDeposited[selectedEpoch]?.apy || 0
+                    ).toFixed(2)}
+                    %
                   </div>
                 </div>
               </div>
               <button
-                disabled={amount === 0n || epochs === 0}
+                disabled={amount === 0n || selectedEpoch === 0}
                 className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
                 onClick={() =>
                   deposit(
                     asset,
-                    amount + expectedProceeds,
-                    epochs,
-                    expectedProceeds,
+                    amount,
+                    selectedEpoch,
+                    proceedsByEpochsDeposited[selectedEpoch].proceeds,
                   )
                 }
               >

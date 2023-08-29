@@ -61,7 +61,13 @@ export async function fetchMarkets(): Promise<Market[]> {
 export async function fetchDepositApyByEpochsDeposited(
   asset: Asset,
   amount: bigint,
-) {
+): Promise<{
+  [epoch in number]: {
+    date: string
+    proceeds: bigint
+    apy: number
+  }
+}> {
   const substitute = asset.substitutes[0]
   const markets = (await fetchMarkets())
     .filter((market) =>
@@ -76,16 +82,25 @@ export async function fetchDepositApyByEpochsDeposited(
   return marketAfterCurrentTimestamp
     .map((_, i) => marketAfterCurrentTimestamp.slice(0, i + 1))
     .map((markets) => {
-      const { apy, proceeds, epochEnd } = calculateDepositApy(
+      const { apy, proceeds, endTimestamp, endEpoch } = calculateDepositApy(
         substitute,
         markets,
         amount,
         currentTimestamp,
       )
       return {
-        date: epochEnd.toISOString().slice(2, 10).replace(/-/g, '/'), // TODO: format properly
+        date: endTimestamp.toISOString().slice(2, 10).replace(/-/g, '/'), // TODO: format properly
         proceeds: proceeds,
+        epoch: endEpoch,
         apy,
       }
     })
+    .reduce((acc, val) => {
+      acc[Number(val.epoch)] = {
+        date: val.date,
+        proceeds: val.proceeds,
+        apy: val.apy,
+      }
+      return acc
+    }, {} as { [key in number]: { date: string; proceeds: bigint; apy: number } })
 }

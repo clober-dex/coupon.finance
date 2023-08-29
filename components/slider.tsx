@@ -1,7 +1,5 @@
 import React, { SVGProps } from 'react'
 
-import { MAX_EPOCHS } from '../utils/epoch'
-
 const Check = (props: SVGProps<any>) => (
   <svg
     width="14"
@@ -21,45 +19,40 @@ const Check = (props: SVGProps<any>) => (
 )
 
 const Slider = ({
-  count,
+  epochs,
   value,
   onValueChange,
   ...props
 }: {
-  count: number
+  epochs: number[]
   value: number
   onValueChange: (value: number) => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
-  const arr = Array.from(Array(MAX_EPOCHS).keys()).slice(
-    MAX_EPOCHS - count,
-    MAX_EPOCHS,
-  )
   return (
     <div
       className="flex flex-col sm:flex-row h-36 sm:h-auto justify-between"
       {...props}
     >
-      {arr.map((i, index) => (
-        <>
+      {epochs.map((e, index) => (
+        <React.Fragment key={index}>
           <button
-            key={`slider-${i}-${index}`}
             className={`flex items-center justify-center w-6 h-6 rounded-full border-2 border-solid ${
-              value > i
+              value >= e
                 ? 'bg-green-500 border-green-500'
                 : 'bg-white dark:bg-gray-800 border-gray-300 '
             } z-10`}
-            onClick={() => onValueChange(i + 1)}
+            onClick={() => onValueChange(e)}
           >
-            {value === i + 1 ? <Check /> : <></>}
+            {value === e ? <Check /> : <></>}
           </button>
-          {index !== arr.length - 1 && (
+          {index !== epochs.length - 1 && (
             <div
               className={`flex-1 w-1 ml-2.5 sm:ml-0 sm:h-1 sm:mt-2.5 ${
-                value > i + 1 ? 'bg-green-500' : 'bg-gray-200 dark:bg-gray-700'
+                value > e ? 'bg-green-500' : 'bg-gray-200 dark:bg-gray-700'
               }`}
             />
           )}
-        </>
+        </React.Fragment>
       ))}
     </div>
   )
