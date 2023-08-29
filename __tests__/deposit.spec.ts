@@ -5,11 +5,7 @@ import {
   calculateTotalDeposit,
   Market,
 } from '../model/market'
-import {
-  getCurrentEpochIndex,
-  getEpochEndTimestamp,
-  getEpochStartTimestamp,
-} from '../utils/epoch'
+import { getCurrentEpochIndex } from '../utils/epoch'
 
 const ONE_ETH = 10n ** 9n
 const market = new Market(
@@ -164,20 +160,12 @@ describe('Deposit controller', () => {
   })
 
   it('check date util functions', () => {
-    expect(getCurrentEpochIndex(1692949188)).toEqual(107n)
-    expect(getCurrentEpochIndex(1696948730)).toEqual(107n)
-    expect(getCurrentEpochIndex(1706948730)).toEqual(108n)
-    expect(getCurrentEpochIndex(1726948730)).toEqual(109n)
-
-    expect(getEpochStartTimestamp(107n)).toEqual(1672531200)
-    expect(getEpochStartTimestamp(108n)).toEqual(1688169600)
-    expect(getEpochStartTimestamp(109n)).toEqual(1704067200)
-    expect(getEpochStartTimestamp(110n)).toEqual(1719792000)
-
-    expect(getEpochEndTimestamp(107n)).toEqual(1688169599)
-    expect(getEpochEndTimestamp(108n)).toEqual(1704067199)
-    expect(getEpochEndTimestamp(109n)).toEqual(1719791999)
-    expect(getEpochEndTimestamp(110n)).toEqual(1735689599)
+    expect(getCurrentEpochIndex(1)).toEqual(0n)
+    expect(getCurrentEpochIndex(1688169601)).toEqual(107n)
+    expect(getCurrentEpochIndex(1704067198)).toEqual(107n)
+    expect(getCurrentEpochIndex(1704067201)).toEqual(108n)
+    expect(getCurrentEpochIndex(1719792001)).toEqual(109n)
+    expect(getCurrentEpochIndex(1735689601)).toEqual(110n)
   })
 
   it('check deposit apy', () => {
@@ -188,8 +176,8 @@ describe('Deposit controller', () => {
         0n,
         10n ** 9n,
         107n,
-        0n,
-        0n,
+        1688169600n,
+        1704067199n,
         {
           decimals: 18,
           address: '0x0000000000000000000000000000000000000000',
@@ -219,8 +207,8 @@ describe('Deposit controller', () => {
         0n,
         10n ** 9n,
         108n,
-        0n,
-        0n,
+        1704067200n,
+        1719791999n,
         {
           decimals: 18,
           address: '0x0000000000000000000000000000000000000000',
@@ -255,7 +243,7 @@ describe('Deposit controller', () => {
       },
       markets,
       initialDeposit,
-      getEpochStartTimestamp(107n),
+      1688169600,
     )
     expect(apy).toBeCloseTo(100 / (1 - 0.2) / 100)
     expect(Number(proceeds) / 10 ** 18).toBeCloseTo(25)
