@@ -188,26 +188,30 @@ const Deposit = ({ assets }: { assets: Asset[] }) => {
               <div className="text-gray-500">Total Deposit</div>
               <div className="font-bold">
                 $
-                {positions.reduce(
-                  (acc, { underlying, principal }) =>
-                    +formatUnits(principal, underlying.decimals) *
-                      (prices[underlying.address] ?? 0) +
-                    acc,
-                  0,
-                )}
+                {positions
+                  .reduce(
+                    (acc, { underlying, principal }) =>
+                      +formatUnits(principal, underlying.decimals) *
+                        (prices[underlying.address] ?? 0) +
+                      acc,
+                    0,
+                  )
+                  .toFixed(2)}
               </div>
             </div>
             <div className="flex justify-between gap-3">
               <div className="text-gray-500">Total Earned</div>
               <div className="font-bold">
-                $ $
-                {positions.reduce(
-                  (acc, { underlying, interest }) =>
-                    +formatUnits(interest, underlying.decimals) *
-                      (prices[underlying.address] ?? 0) +
-                    acc,
-                  0,
-                )}
+                $
+                {positions
+                  .reduce(
+                    (acc, { underlying, interest }) =>
+                      +formatUnits(interest, underlying.decimals) *
+                        (prices[underlying.address] ?? 0) +
+                      acc,
+                    0,
+                  )
+                  .toFixed(2)}
               </div>
             </div>
             <div className="flex justify-between gap-3">
