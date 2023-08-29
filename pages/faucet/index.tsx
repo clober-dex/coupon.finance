@@ -23,34 +23,37 @@ const FaucetForm = ({ assets }: { assets: Asset[] }) => {
   const { executeRecaptcha } = useGoogleReCaptcha()
   const { setConfirmation } = useTransactionContext()
   const [address, setAddress] = useState('')
-  const submitEnquiryForm = async (gReCaptchaToken: any) => {
-    setConfirmation({
-      title: 'Faucet',
-      body: 'You will receive test tokens in a few seconds.',
-      fields: assets.map((asset) => ({
-        currency: asset.underlying,
-        label: asset.underlying.symbol,
-        value: FAUCET_AMOUNTS[asset.underlying.symbol].toString(),
-      })),
-    })
+  const submitEnquiryForm = useCallback(
+    async (gReCaptchaToken: any) => {
+      setConfirmation({
+        title: 'Faucet',
+        body: 'You will receive test tokens in a few seconds.',
+        fields: assets.map((asset) => ({
+          currency: asset.underlying,
+          label: asset.underlying.symbol,
+          value: FAUCET_AMOUNTS[asset.underlying.symbol].toString(),
+        })),
+      })
 
-    const response = await fetch('/api/faucet', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        address,
-        gRecaptchaToken: gReCaptchaToken,
-      }),
-    })
+      const response = await fetch('/api/faucet', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          address,
+          gRecaptchaToken: gReCaptchaToken,
+        }),
+      })
 
-    if (response.status === 200) {
-      const { txHash } = await response.json()
-      window.open(`http://dev-rpc.coupon.finance:4000/tx/${txHash}`, '_blank')
-      setConfirmation(undefined)
-    }
-  }
+      if (response.status === 200) {
+        const { txHash } = await response.json()
+        window.open(`http://dev-rpc.coupon.finance:4000/tx/${txHash}`, '_blank')
+        setConfirmation(undefined)
+      }
+    },
+    [address, assets, setConfirmation],
+  )
 
   const handleSumitForm = useCallback(
     (e: any) => {
