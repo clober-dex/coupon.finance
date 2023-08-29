@@ -84,7 +84,7 @@ export async function fetchDepositApyByEpochsDeposited(
       )
       return {
         date: epochEnd.toISOString().slice(2, 10).replace(/-/g, '/'), // TODO: format properly
-        proceeds: proceeds,
+        proceeds,
         apy,
       }
     })
