@@ -5,7 +5,7 @@ import {
   calculateTotalDeposit,
   Market,
 } from '../model/market'
-import { getCurrentEpochIndex } from '../utils/epoch'
+import { getEpoch } from '../utils/epoch'
 
 const ONE_ETH = 10n ** 9n
 const market = new Market(
@@ -160,12 +160,12 @@ describe('Deposit controller', () => {
   })
 
   it('check date util functions', () => {
-    expect(getCurrentEpochIndex(1)).toEqual(0n)
-    expect(getCurrentEpochIndex(1688169601)).toEqual(107n)
-    expect(getCurrentEpochIndex(1704067198)).toEqual(107n)
-    expect(getCurrentEpochIndex(1704067201)).toEqual(108n)
-    expect(getCurrentEpochIndex(1719792001)).toEqual(109n)
-    expect(getCurrentEpochIndex(1735689601)).toEqual(110n)
+    expect(getEpoch(1)).toEqual(0n)
+    expect(getEpoch(1688169601)).toEqual(107n)
+    expect(getEpoch(1704067198)).toEqual(107n)
+    expect(getEpoch(1704067201)).toEqual(108n)
+    expect(getEpoch(1719792001)).toEqual(109n)
+    expect(getEpoch(1735689601)).toEqual(110n)
   })
 
   it('check deposit apy', () => {
