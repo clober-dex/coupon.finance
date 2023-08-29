@@ -1,8 +1,6 @@
 import React, { useState } from 'react'
 
-import Slider from '../slider'
 import { Currency } from '../../model/currency'
-import { MAX_EPOCHS } from '../../utils/epoch'
 
 import Modal from './modal'
 
@@ -22,7 +20,7 @@ const EditExpiryModal = ({
   } | null
   onClose: () => void
 }) => {
-  const [selected, setSelected] = useState(0)
+  const [, setSelected] = useState(0)
   return (
     <Modal show={!!position} onClose={onClose}>
       <h1 className="font-bold text-xl mb-3">Please select expiry date</h1>
@@ -33,11 +31,11 @@ const EditExpiryModal = ({
       </div>
       <div className="flex flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
         <div className="px-6 mb-2">
-          <Slider
-            count={MAX_EPOCHS}
-            value={selected}
-            onValueChange={setSelected}
-          />
+          {/*<Slider*/}
+          {/*  count={MAX_EPOCHS}*/}
+          {/*  value={selected}*/}
+          {/*  onValueChange={setSelected}*/}
+          {/*/>*/}
         </div>
         <div className="flex justify-between">
           {dummy.map(({ date }, i) => (

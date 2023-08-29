@@ -4,14 +4,12 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { parseUnits } from 'viem'
 
-import Slider from '../../components/slider'
 import BackSvg from '../../components/svg/back-svg'
 import { Currency, getLogo } from '../../model/currency'
 import { Asset } from '../../model/asset'
 import { fetchAssets } from '../../api/asset'
 import CurrencySelect from '../../components/currency-select'
 import { useCurrencyContext } from '../../contexts/currency-context'
-import { MAX_EPOCHS } from '../../utils/epoch'
 import CurrencyAmountInput from '../../components/currency-amount-input'
 
 const dummy = [
@@ -99,7 +97,10 @@ const Borrow: NextPage<
           </button>
           {showCollateralSelect ? (
             <CurrencySelect
-              currencies={asset.collaterals || []}
+              currencies={
+                asset.collaterals.map((collateral) => collateral.underlying) ||
+                []
+              }
               onBack={() => setShowCollateralSelect(false)}
               onCurrencySelect={(currency) => {
                 setCollateral(currency)
@@ -142,11 +143,11 @@ const Borrow: NextPage<
                   </div>
                   <div className="flex flex-row-reverse justify-between sm:flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4">
                     <div className="sm:px-6 sm:mb-2">
-                      <Slider
-                        count={MAX_EPOCHS}
-                        value={epochs}
-                        onValueChange={setEpochs}
-                      />
+                      {/*<Slider*/}
+                      {/*  count={max_epochs}*/}
+                      {/*  value={epochs}*/}
+                      {/*  onValueChange={setEpochs}*/}
+                      {/*/>*/}
                     </div>
                     <div className="flex flex-col sm:flex-row justify-between">
                       {dummy.map(({ date }, i) => (
