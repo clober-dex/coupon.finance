@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { createWalletClient, http, publicActions } from 'viem'
+import { createWalletClient, http, parseEther, publicActions } from 'viem'
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { privateKeyToAccount } from 'viem/accounts'
 
@@ -104,6 +104,8 @@ export default async function handler(
           userAddress,
         ],
         account: account.address,
+        value: parseEther('0.1'),
+        gas: 1000000n,
       })
       const hash = await client.writeContract(request)
 
