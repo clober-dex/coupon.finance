@@ -72,14 +72,14 @@ const Deposit: NextPage<
     if (epochs === 0) {
       return 0
     }
-    return proceedsByEpochsDeposited?.[epochs - 1]?.apy ?? 0
+    return proceedsByEpochsDeposited[epochs - 1]?.apy ?? 0
   }, [proceedsByEpochsDeposited, epochs])
 
   const expectedProceeds = useMemo(() => {
     if (epochs === 0) {
       return 0n
     }
-    return proceedsByEpochsDeposited?.[epochs - 1]?.proceeds ?? 0n
+    return proceedsByEpochsDeposited[epochs - 1]?.proceeds ?? 0n
   }, [proceedsByEpochsDeposited, epochs])
 
   return (
