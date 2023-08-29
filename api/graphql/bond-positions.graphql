@@ -1,0 +1,15 @@
+query getBondPositions($userAddress: String!) {
+  bondPositions(where: { user: $userAddress }) {
+    id
+    user
+    amount
+    underlying {
+      id
+      decimals
+      name
+      symbol
+    }
+    expiryEpoch
+    expiryTimestamp
+  }
+}

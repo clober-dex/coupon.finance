@@ -7,26 +7,19 @@ import { Currency, getLogo } from '../model/currency'
 import { Asset } from '../model/asset'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { formatDollarValue } from '../utils/numbers'
+import { BondPosition } from '../model/bond-position'
 
 import WithdrawModal from './modal/withdraw-modal'
 import DateSelect from './date-select'
 
 const Position = ({
-  currency,
-  apy,
-  interestEarned,
-  deposited,
-  expiry,
+  position,
   price,
   onWithdraw,
   ...props
 }: {
-  currency: Currency
-  apy: string
-  interestEarned: string
-  deposited: string
-  expiry: string
-  price: string
+  position: BondPosition
+  price: number
   onWithdraw: () => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
   return (
@@ -34,31 +27,52 @@ const Position = ({
       <div className="flex justify-between rounded-t-xl p-4 bg-white dark:bg-gray-800">
         <div className="flex items-center gap-3">
           <img
-            src={getLogo(currency)}
-            alt={currency.name}
+            src={getLogo(position.underlying)}
+            alt={position.underlying.name}
             className="w-8 h-8"
           />
           <div className="flex flex-col">
-            <div className="font-bold">{currency.symbol}</div>
-            <div className="text-gray-500 text-sm">{currency.name}</div>
+            <div className="font-bold">{position.underlying.symbol}</div>
+            <div className="text-gray-500 text-sm">
+              {position.underlying.name}
+            </div>
           </div>
         </div>
         <div className="flex flex-col items-end">
-          <div className="font-bold">{apy}</div>
-          <div className="text-xs sm:text-sm">{expiry}</div>
+          <div className="font-bold">5.00%</div>
+          <div className="text-xs sm:text-sm">
+            {new Date(Number(position.expiryTimestamp) * 1000)
+              .toISOString()
+              .slice(2, 10)
+              .replace(/-/g, '/')}
+          </div>
         </div>
       </div>
       <div className="flex flex-col rounded-b-xl p-4 gap-4">
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <div className="text-gray-500 text-xs">Interest</div>
-            <div className="text-xs sm:text-sm">${interestEarned}</div>
+            <div className="text-xs sm:text-sm">
+              {formatDollarValue(
+                position.interest,
+                position.underlying.decimals,
+                price,
+              )}
+            </div>
           </div>
           <div className="flex items-center justify-between text-xs">
             <div className="text-gray-500">Deposited</div>
             <div className="flex gap-1 text-xs sm:text-sm">
-              {deposited}
-              <span className="text-gray-500">(${+deposited * +price})</span>
+              {formatUnits(position.principal, position.underlying.decimals)}
+              <span className="text-gray-500">
+                (
+                {formatDollarValue(
+                  position.principal,
+                  position.underlying.decimals,
+                  price,
+                )}
+                )
+              </span>
             </div>
           </div>
         </div>
@@ -174,8 +188,10 @@ const Deposit = ({ assets }: { assets: Asset[] }) => {
               <div className="font-bold">
                 $
                 {positions.reduce(
-                  (acc, position) =>
-                    +position.price * +position.deposited + acc,
+                  (acc, { underlying, principal }) =>
+                    +formatUnits(principal, underlying.decimals) *
+                      (prices[underlying.address] ?? 0) +
+                    acc,
                   0,
                 )}
               </div>
@@ -183,10 +199,12 @@ const Deposit = ({ assets }: { assets: Asset[] }) => {
             <div className="flex justify-between gap-3">
               <div className="text-gray-500">Total Earned</div>
               <div className="font-bold">
-                $
+                $ $
                 {positions.reduce(
-                  (acc, position) =>
-                    +position.price * +position.interestEarned + acc,
+                  (acc, { underlying, interest }) =>
+                    +formatUnits(interest, underlying.decimals) *
+                      (prices[underlying.address] ?? 0) +
+                    acc,
                   0,
                 )}
               </div>
@@ -200,16 +218,12 @@ const Deposit = ({ assets }: { assets: Asset[] }) => {
             {positions.map((position, i) => (
               <Position
                 key={i}
-                currency={position.currency}
-                apy={position.apy}
-                interestEarned={position.interestEarned}
-                deposited={position.deposited}
-                expiry={position.expiry}
-                price={position.price}
+                position={position}
+                price={prices[position.underlying.address] ?? 0}
                 onWithdraw={() =>
                   setWithdrawPosition({
-                    currency: position.currency,
-                    amount: position.deposited,
+                    currency: position.underlying,
+                    amount: '',
                   })
                 }
               />
