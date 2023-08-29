@@ -12,8 +12,10 @@ const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
   return (
     <div className="fixed w-full flex justify-between items-center py-4 px-4 sm:px-8 bg-white bg-opacity-5 backdrop-blur">
       <div className="flex items-center gap-12">
-        <LogoSvg className="h-9 hidden sm:flex w-fit" />
-        <LogotypeSvg className="h-4 sm:hidden w-fit" />
+        <a target="_blank" href="/" rel="noreferrer">
+          <LogoSvg className="h-9 hidden sm:flex w-fit" />
+          <LogotypeSvg className="h-4 sm:hidden w-fit" />
+        </a>
         <div className="hidden sm:flex items-center gap-8">
           <a
             target="_blank"
