@@ -8,6 +8,7 @@ import { DepositController__factory } from '../typechain'
 import { Asset } from '../model/asset'
 import { bigIntMax } from '../utils/bigint'
 import { permit } from '../utils/permit'
+import { getCurrentEpochIndex } from '../utils/epoch'
 
 import { isEthereum, useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -41,7 +42,7 @@ const Context = React.createContext<DepositContext>({
   deposit: () => Promise.resolve(),
 })
 
-const SLIPPAGE_PERCENTAGE = 0.1
+const SLIPPAGE_PERCENTAGE = 0
 
 export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const dummyPositions = [
@@ -119,9 +120,14 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         asset.underlying,
         walletClient.account.address,
         CONTRACT_ADDRESSES.DepositController,
-        amount,
+        amount + minimumInterestEarned, // TODO: change to `amount`
         BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
       )
+
+      const currentEpoch = getCurrentEpochIndex(
+        Math.floor(new Date().getTime() / 1000),
+      )
+      const lockedEpochs = epochs - Number(currentEpoch) + 1
 
       try {
         setConfirmation({
@@ -141,10 +147,10 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           functionName: 'deposit',
           args: [
             asset.substitutes[0].address,
-            amount,
-            epochs,
+            amount + minimumInterestEarned,
+            lockedEpochs,
             minimumInterestEarned,
-            { deadline, v, r, s },
+            { deadline, v, r, s }, // add `permittedAmount` from `permit` function
           ],
           value: isEthereum(asset.underlying)
             ? bigIntMax(amount - wethBalance, 0n)
