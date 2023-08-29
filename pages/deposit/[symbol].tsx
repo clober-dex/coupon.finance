@@ -15,7 +15,6 @@ import { useDepositContext } from '../../contexts/deposit-context'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { ClientComponent } from '../../components/client-component'
 import { fetchDepositApyByEpochsDeposited } from '../../api/market'
-import { MAX_EPOCHS } from '../../utils/epoch'
 import CurrencyAmountInput from '../../components/currency-amount-input'
 
 export const getServerSideProps: GetServerSideProps<{
@@ -70,23 +69,17 @@ const Deposit: NextPage<
   )
 
   const depositApy = useMemo(() => {
-    if (!proceedsByEpochsDeposited || epochs === 0) {
+    if (epochs === 0) {
       return 0
     }
-    return (
-      proceedsByEpochsDeposited?.[
-        epochs - (MAX_EPOCHS - proceedsByEpochsDeposited.length) - 1
-      ]?.apy ?? 0
-    )
+    return proceedsByEpochsDeposited?.[epochs - 1]?.apy ?? 0
   }, [proceedsByEpochsDeposited, epochs])
 
   const expectedProceeds = useMemo(() => {
-    if (!proceedsByEpochsDeposited || epochs === 0) {
+    if (epochs === 0) {
       return 0n
     }
-    return proceedsByEpochsDeposited
-      .slice(0, epochs - (MAX_EPOCHS - proceedsByEpochsDeposited.length))
-      .reduce((acc, { proceeds }) => acc + proceeds, 0n)
+    return proceedsByEpochsDeposited?.[epochs - 1]?.proceeds ?? 0n
   }, [proceedsByEpochsDeposited, epochs])
 
   return (
@@ -143,7 +136,6 @@ const Deposit: NextPage<
                   <div className="sm:px-6 sm:mb-2">
                     <ClientComponent>
                       <Slider
-                        key={'deposit-slider'}
                         length={proceedsByEpochsDeposited.length}
                         value={epochs}
                         onValueChange={setEpochs}
@@ -180,13 +172,17 @@ const Deposit: NextPage<
                     Your interest payout will be
                   </label>
                   <CountUp
-                    end={
-                      +formatUnits(expectedProceeds, asset.underlying.decimals)
-                    }
+                    end={Number(expectedProceeds)}
                     suffix={` ${asset.underlying.symbol}`}
                     className={`flex gap-2 ${
                       epochs === 0 ? 'text-gray-400' : ''
                     } text-xl`}
+                    formattingFn={(value) =>
+                      `${formatUnits(
+                        BigInt(value),
+                        asset.underlying.decimals,
+                      )} ${asset.underlying.symbol}`
+                    }
                     preserveValue
                   />
                 </div>
