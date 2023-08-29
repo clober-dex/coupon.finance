@@ -14,7 +14,7 @@ export async function fetchBondPositions(
   return bondPositions.map((bondPosition) => ({
     underlying: toCurrency(bondPosition.underlying),
     interest: bondPosition.amount, // TODO: use real interest
-    principal: bondPosition.amount,
+    amount: bondPosition.amount,
     expiryEpoch: bondPosition.expiryEpoch,
     expiryTimestamp: bondPosition.expiryTimestamp,
   }))

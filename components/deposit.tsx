@@ -64,11 +64,11 @@ const Position = ({
           <div className="flex items-center justify-between text-xs">
             <div className="text-gray-500">Deposited</div>
             <div className="flex gap-1 text-xs sm:text-sm">
-              {formatUnits(position.principal, position.underlying.decimals)}
+              {formatUnits(position.amount, position.underlying.decimals)}
               <span className="text-gray-500">
                 (
                 {formatDollarValue(
-                  position.principal,
+                  position.amount,
                   position.underlying.decimals,
                   price,
                 )}
@@ -165,10 +165,9 @@ const Asset = ({
 const Deposit = ({ assets }: { assets: Asset[] }) => {
   const { prices } = useCurrencyContext()
   const { positions, apy, available, deposited } = useDepositContext()
-  const [withdrawPosition, setWithdrawPosition] = useState<{
-    currency: Currency
-    amount: string
-  } | null>(null)
+  const [withdrawPosition, setWithdrawPosition] = useState<BondPosition | null>(
+    null,
+  )
   return (
     <div className="flex flex-1 flex-col w-full sm:w-fit">
       <h1 className="flex justify-center text-center font-bold text-lg sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-12 mb-8 sm:mb-16">
@@ -190,8 +189,8 @@ const Deposit = ({ assets }: { assets: Asset[] }) => {
                 $
                 {positions
                   .reduce(
-                    (acc, { underlying, principal }) =>
-                      +formatUnits(principal, underlying.decimals) *
+                    (acc, { underlying, amount }) =>
+                      +formatUnits(amount, underlying.decimals) *
                         (prices[underlying.address] ?? 0) +
                       acc,
                     0,
@@ -225,12 +224,7 @@ const Deposit = ({ assets }: { assets: Asset[] }) => {
                 key={i}
                 position={position}
                 price={prices[position.underlying.address] ?? 0}
-                onWithdraw={() =>
-                  setWithdrawPosition({
-                    currency: position.underlying,
-                    amount: '',
-                  })
-                }
+                onWithdraw={() => setWithdrawPosition(position)}
               />
             ))}
           </div>
