@@ -33,22 +33,22 @@ const Slider = ({
       className="flex flex-col sm:flex-row h-36 sm:h-auto justify-between"
       {...props}
     >
-      {epochs.map((e, index) => (
+      {epochs.map((epoch, index) => (
         <React.Fragment key={index}>
           <button
             className={`flex items-center justify-center w-6 h-6 rounded-full border-2 border-solid ${
-              value >= e
+              value >= epoch
                 ? 'bg-green-500 border-green-500'
                 : 'bg-white dark:bg-gray-800 border-gray-300 '
             } z-10`}
-            onClick={() => onValueChange(e)}
+            onClick={() => onValueChange(epoch)}
           >
-            {value === e ? <Check /> : <></>}
+            {value === epoch ? <Check /> : <></>}
           </button>
           {index !== epochs.length - 1 && (
             <div
               className={`flex-1 w-1 ml-2.5 sm:ml-0 sm:h-1 sm:mt-2.5 ${
-                value > e ? 'bg-green-500' : 'bg-gray-200 dark:bg-gray-700'
+                value > epoch ? 'bg-green-500' : 'bg-gray-200 dark:bg-gray-700'
               }`}
             />
           )}
