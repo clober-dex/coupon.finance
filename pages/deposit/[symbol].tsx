@@ -3,12 +3,10 @@ import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
 import CountUp from 'react-countup'
 import { useRouter } from 'next/router'
-import BigNumber from 'bignumber.js'
-import { formatUnits } from 'viem'
+import { formatUnits, parseUnits } from 'viem'
 import { useQuery } from 'wagmi'
 
 import Slider from '../../components/slider'
-import NumberInput from '../../components/number-input'
 import BackSvg from '../../components/svg/back-svg'
 import { getLogo } from '../../model/currency'
 import { Asset } from '../../model/asset'
@@ -18,7 +16,7 @@ import { useCurrencyContext } from '../../contexts/currency-context'
 import { ClientComponent } from '../../components/client-component'
 import { fetchDepositApyByEpochsDeposited } from '../../api/market'
 import { MAX_EPOCHS } from '../../utils/epoch'
-import { formatDollarValue } from '../../utils/numbers'
+import CurrencyAmountInput from '../../components/currency-amount-input'
 
 export const getServerSideProps: GetServerSideProps<{
   asset: Asset
@@ -56,35 +54,10 @@ const Deposit: NextPage<
     [epochs],
   )
 
-  const onBlurValue = useCallback(() => {
-    if (!balances || !balances[asset.underlying.address]) {
-      return
-    }
-    setValue(
-      new BigNumber(value)
-        .times(10 ** asset.underlying.decimals)
-        .gt(balances[asset.underlying.address].toString())
-        ? formatUnits(
-            balances[asset.underlying.address] ?? 0n,
-            asset.underlying.decimals,
-          )
-        : value,
-    )
-  }, [asset.underlying.address, asset.underlying.decimals, balances, value])
-
-  const setMaxValue = useCallback(() => {
-    setValue(
-      formatUnits(
-        balances[asset.underlying.address] ?? 0n,
-        asset.underlying.decimals,
-      ),
-    )
-  }, [asset.underlying.address, asset.underlying.decimals, balances])
-
-  const amount = useMemo(() => {
-    const big = new BigNumber(10).pow(asset.underlying.decimals).times(value)
-    return big.isNaN() ? 0n : BigInt(big.toFixed(0))
-  }, [asset.underlying.decimals, value])
+  const amount = useMemo(
+    () => parseUnits(value, asset.underlying.decimals),
+    [asset.underlying.decimals, value],
+  )
 
   const { data: proceedsByEpochsDeposited } = useQuery(
     ['deposit-apy', asset, amount], // TODO: useDebounce
@@ -149,58 +122,13 @@ const Deposit: NextPage<
                 <div className="font-bold text-sm sm:text-lg">
                   How much would you like to deposit?
                 </div>
-                <div className="flex bg-white dark:bg-gray-800 rounded-lg p-3">
-                  <div className="flex flex-col flex-1 justify-between gap-2">
-                    <NumberInput
-                      className="text-xl sm:text-2xl placeholder-gray-400 outline-none bg-transparent w-40 sm:w-auto"
-                      value={value}
-                      onValueChange={setValue}
-                      onBlur={onBlurValue}
-                      placeholder="0.0000"
-                    />
-                    <div className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm">
-                      <ClientComponent>
-                        <>
-                          ~
-                          {' ' +
-                            formatDollarValue(
-                              amount,
-                              asset.underlying.decimals,
-                              prices[asset.underlying.address],
-                            )}
-                        </>
-                      </ClientComponent>
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-end justify-between">
-                    <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
-                      <img
-                        src={getLogo(asset.underlying)}
-                        alt={asset.underlying.name}
-                        className="w-5 h-5"
-                      />
-                      <div className="text-sm sm:text-base">
-                        {asset.underlying.symbol}
-                      </div>
-                    </div>
-                    <div className="flex text-xs sm:text-sm gap-1 sm:gap-2">
-                      <div className="text-gray-500">Available</div>
-                      <div>
-                        <ClientComponent>
-                          <>
-                            {formatUnits(
-                              balances[asset.underlying.address] || 0n,
-                              asset.underlying.decimals,
-                            )}
-                          </>
-                        </ClientComponent>
-                      </div>
-                      <button className="text-green-500" onClick={setMaxValue}>
-                        MAX
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                <CurrencyAmountInput
+                  currency={asset.underlying}
+                  value={value}
+                  onValueChange={setValue}
+                  balance={balances[asset.underlying.address] ?? 0n}
+                  price={prices[asset.underlying.address] ?? 0}
+                />
               </div>
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col gap-2">
