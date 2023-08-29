@@ -34,7 +34,7 @@ const EditExpiryModal = ({
       <div className="flex flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
         <div className="px-6 mb-2">
           <Slider
-            count={MAX_EPOCHS}
+            length={MAX_EPOCHS}
             value={selected}
             onValueChange={setSelected}
           />
