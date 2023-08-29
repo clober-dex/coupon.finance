@@ -19,6 +19,7 @@ export const permit = async (
   s: `0x${string}`
   v: number
   deadline: bigint
+  permittedAmount: bigint
 }> => {
   const allowance = await fetchAllowance(currency, owner, spender)
   if (!walletClient || allowance >= value) {
@@ -27,6 +28,7 @@ export const permit = async (
       s: zeroBytes32 as `0x${string}`,
       v: 0,
       deadline: 0n,
+      permittedAmount: 0n,
     }
   }
 
@@ -106,5 +108,6 @@ export const permit = async (
     s: s as `0x${string}`,
     r: r as `0x${string}`,
     deadline,
+    permittedAmount: value,
   }
 }
