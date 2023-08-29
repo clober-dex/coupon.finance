@@ -1,9 +1,11 @@
 import React, { useMemo, useState } from 'react'
 import { formatUnits, parseUnits } from 'viem'
+import { useQuery } from 'wagmi'
 
 import { BondPosition } from '../../model/bond-position'
 import CurrencyAmountInput from '../currency-amount-input'
 import { useCurrencyContext } from '../../contexts/currency-context'
+import { fetchCouponRepurchaseFee } from '../../api/market'
 
 import Modal from './modal'
 
@@ -20,6 +22,21 @@ const WithdrawModal = ({
   const amount = useMemo(
     () => (position ? parseUnits(value, position.underlying.decimals) : 0n),
     [position, value],
+  )
+
+  const { data: couponRepurchaseFee } = useQuery(
+    ['coupon-repurchase-fee', position?.underlying.address, amount],
+    async () =>
+      position
+        ? fetchCouponRepurchaseFee(
+            position.substitute,
+            position.amount,
+            position.expiryEpoch,
+          )
+        : 0n,
+    {
+      initialData: 0n,
+    },
   )
 
   if (!position) {
@@ -45,8 +62,9 @@ const WithdrawModal = ({
         {position.underlying.symbol}
       </div>
       <div className="flex text-xs sm:text-sm gap-3 mb-6 sm:mb-8 justify-between sm:justify-start">
-        <span className="text-gray-500">Coupon repurchase cost</span>
-        1.00 {position.underlying.symbol}
+        <span className="text-gray-500">Coupon repurchase fee</span>
+        {formatUnits(couponRepurchaseFee, position.underlying.decimals)}{' '}
+        {position.underlying.symbol}
       </div>
       <button
         disabled={amount === 0n}

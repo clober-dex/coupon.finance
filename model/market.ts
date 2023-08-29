@@ -173,8 +173,9 @@ export class Market {
     )
   }
 
+  // TODO: rename to spend
   swap(
-    tokenIn: string,
+    tokenIn: `0x${string}`,
     amountIn: bigint,
   ): {
     market: Market
@@ -183,12 +184,7 @@ export class Market {
     const asks = [...this.asks]
     const bids = [...this.bids]
     let amountOut: bigint = 0n
-    if (
-      isAddressEqual(
-        tokenIn as `0x${string}`,
-        this.quoteToken.address as `0x${string}`,
-      )
-    ) {
+    if (isAddressEqual(tokenIn, this.quoteToken.address as `0x${string}`)) {
       while (asks.length > 0) {
         const { price, rawAmount } = asks[0]
         const amountInRaw = this.quoteToRaw(amountIn, false)
@@ -220,6 +216,59 @@ export class Market {
     amountOut -= this.calculateTakerFeeAmount(amountOut, true)
     return {
       amountOut,
+      market: Market.from(this, bids, asks),
+    }
+  }
+
+  take(
+    tokenIn: string,
+    amountOut: bigint,
+  ): {
+    market: Market
+    amountIn: bigint
+  } {
+    const asks = [...this.asks]
+    const bids = [...this.bids]
+    let amountIn: bigint = 0n
+    if (
+      isAddressEqual(
+        tokenIn as `0x${string}`,
+        this.quoteToken.address as `0x${string}`,
+      )
+    ) {
+      while (asks.length > 0) {
+        const { price, rawAmount } = asks[0]
+        const availableOut = this.rawToBase(rawAmount, price, false)
+        if (amountOut >= availableOut) {
+          amountOut -= availableOut
+          amountIn += this.rawToQuote(rawAmount)
+          asks.shift()
+        } else {
+          const amountInRaw = this.baseToRaw(amountOut, price, true)
+          amountIn += this.rawToQuote(amountInRaw)
+          asks[0].rawAmount = rawAmount - amountInRaw
+          break
+        }
+      }
+    } else {
+      while (bids.length > 0) {
+        const { price, rawAmount } = bids[0]
+        const availableOut = this.rawToQuote(rawAmount)
+        if (amountOut >= availableOut) {
+          amountOut -= availableOut
+          amountIn += this.rawToBase(rawAmount, price, true)
+          bids.shift()
+        } else {
+          const amountInRaw = this.quoteToRaw(amountOut, true)
+          amountIn += this.rawToBase(amountInRaw, price, true)
+          bids[0].rawAmount = rawAmount - amountInRaw
+          break
+        }
+      }
+    }
+    // TODO: check maker fee
+    return {
+      amountIn,
       market: Market.from(this, bids, asks),
     }
   }

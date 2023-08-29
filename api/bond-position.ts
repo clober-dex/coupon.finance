@@ -12,6 +12,7 @@ export async function fetchBondPositions(
     userAddress: userAddress.toLowerCase(),
   })
   return bondPositions.map((bondPosition) => ({
+    substitute: toCurrency(bondPosition.substitute),
     underlying: toCurrency(bondPosition.underlying),
     interest: bondPosition.amount, // TODO: use real interest
     amount: bondPosition.amount,

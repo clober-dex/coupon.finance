@@ -70,6 +70,7 @@ export async function fetchDepositApyByEpochsDeposited(
     .sort((a, b) => Number(a.epoch) - Number(b.epoch))
 
   const currentTimestamp = Math.floor(new Date().getTime() / 1000)
+  // TODO: filter out markets using currentTimestamp on subgraph
   const marketAfterCurrentTimestamp = markets.filter(
     (market) => market.endTimestamp > currentTimestamp,
   )
@@ -91,4 +92,23 @@ export async function fetchDepositApyByEpochsDeposited(
         apy,
       }
     })
+}
+
+export async function fetchCouponRepurchaseFee(
+  substitute: Currency,
+  amount: bigint,
+  epoch: bigint,
+): Promise<bigint> {
+  const markets = (await fetchMarkets())
+    .filter((market) =>
+      isAddressEqual(market.quoteToken.address, substitute.address),
+    )
+    .filter((market) => market.epoch <= epoch)
+    // TODO: filter out markets using currentTimestamp on subgraph
+    .sort((a, b) => Number(a.epoch) - Number(b.epoch))
+
+  return markets.reduce(
+    (acc, market) => acc + market.take(substitute.address, amount).amountIn,
+    0n,
+  )
 }
