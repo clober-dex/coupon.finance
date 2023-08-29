@@ -196,14 +196,7 @@ const Deposit: NextPage<
               <button
                 disabled={amount === 0n || epochs === 0}
                 className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
-                onClick={() =>
-                  deposit(
-                    asset,
-                    amount + expectedProceeds,
-                    epochs,
-                    expectedProceeds,
-                  )
-                }
+                onClick={() => deposit(asset, amount, epochs, expectedProceeds)}
               >
                 Confirm
               </button>
