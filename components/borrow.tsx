@@ -1,18 +1,20 @@
-import React, { SVGProps, useState } from 'react'
+import React, { SVGProps, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { formatUnits } from 'viem'
+import { useQuery } from 'wagmi'
 
 import { useBorrowContext } from '../contexts/borrow-context'
 import { Currency, getLogo } from '../model/currency'
 import { Asset } from '../model/asset'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { formatDollarValue } from '../utils/numbers'
+import { fetchEpochs } from '../api/market'
 
 import RepayModal from './modal/repay-modal'
 import BorrowMoreModal from './modal/borrow-more-modal'
 import EditCollateralModal from './modal/edit-collateral-modal'
 import EditExpiryModal from './modal/edit-expiry-modal'
-import DateSelect from './date-select'
+import DateSelect, { epoch } from './date-select'
 
 const EditSvg = (props: SVGProps<any>) => (
   <svg
@@ -246,6 +248,17 @@ const Borrow = ({ assets }: { assets: Asset[] }) => {
     currency: Currency
     amount: string
   } | null>(null)
+  const [selected, setSelected] = useState<epoch>()
+
+  const { data: epochs } = useQuery(['epochs'], async () => {
+    return fetchEpochs()
+  })
+
+  useEffect(() => {
+    if (epochs) {
+      setSelected(epochs[epochs.length - 1])
+    }
+  }, [epochs])
 
   return (
     <div className="flex flex-1 flex-col w-full sm:w-fit">
@@ -339,7 +352,13 @@ const Borrow = ({ assets }: { assets: Asset[] }) => {
             <label htmlFor="epoch" className="hidden sm:flex">
               How long are you going to borrow?
             </label>
-            <DateSelect />
+            {epochs && selected && (
+              <DateSelect
+                epochs={epochs}
+                selected={selected}
+                setSelected={setSelected}
+              />
+            )}
           </div>
         </div>
         <div className="flex flex-col mb-12 gap-4">

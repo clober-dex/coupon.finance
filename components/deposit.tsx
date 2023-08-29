@@ -1,15 +1,17 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { formatUnits } from 'viem'
+import { useQuery } from 'wagmi'
 
 import { useDepositContext } from '../contexts/deposit-context'
 import { Currency, getLogo } from '../model/currency'
 import { Asset } from '../model/asset'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { formatDollarValue } from '../utils/numbers'
+import { fetchEpochs } from '../api/market'
 
 import WithdrawModal from './modal/withdraw-modal'
-import DateSelect from './date-select'
+import DateSelect, { epoch } from './date-select'
 
 const Position = ({
   currency,
@@ -154,6 +156,18 @@ const Deposit = ({ assets }: { assets: Asset[] }) => {
     currency: Currency
     amount: string
   } | null>(null)
+  const [selected, setSelected] = useState<epoch>()
+
+  const { data: epochs } = useQuery(['epochs'], async () => {
+    return fetchEpochs()
+  })
+
+  useEffect(() => {
+    if (epochs) {
+      setSelected(epochs[epochs.length - 1])
+    }
+  }, [epochs])
+
   return (
     <div className="flex flex-1 flex-col w-full sm:w-fit">
       <h1 className="flex justify-center text-center font-bold text-lg sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-12 mb-8 sm:mb-16">
@@ -226,7 +240,13 @@ const Deposit = ({ assets }: { assets: Asset[] }) => {
             <label htmlFor="epoch" className="hidden sm:flex">
               How long are you going to deposit?
             </label>
-            <DateSelect />
+            {epochs && selected && (
+              <DateSelect
+                epochs={epochs}
+                selected={selected}
+                setSelected={setSelected}
+              />
+            )}
           </div>
         </div>
         <div className="flex flex-col mb-12 gap-4">

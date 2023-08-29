@@ -4,6 +4,7 @@ import { getBuiltGraphSDK } from '../.graphclient'
 import { calculateDepositApy, Market } from '../model/market'
 import { Currency } from '../model/currency'
 import { Asset } from '../model/asset'
+import { MAX_EPOCHS } from '../utils/epoch'
 
 const { getMarkets } = getBuiltGraphSDK()
 
@@ -88,4 +89,32 @@ export async function fetchDepositApyByEpochsDeposited(
         apy,
       }
     })
+}
+
+export async function fetchEpochs() {
+  const currentTimestamp = Math.floor(Date.now() / 1000)
+  const markets = await fetchMarkets()
+  const marketsByOneAsset = markets
+    .filter(
+      (market) =>
+        market.endTimestamp > currentTimestamp &&
+        isAddressEqual(
+          market.quoteToken.address,
+          markets[0].quoteToken.address,
+        ),
+    )
+    .sort((a, b) => Number(a.epoch) - Number(b.epoch))
+
+  return marketsByOneAsset
+    .map(
+      (market) =>
+        new Date(Number(market.endTimestamp) * 1000)
+          .toISOString()
+          .slice(2, 10)
+          .replace(/-/g, '/'), // TODO: format properly
+    )
+    .map((date, i) => ({
+      id: i + (MAX_EPOCHS - marketsByOneAsset.length) + 1,
+      name: date,
+    }))
 }

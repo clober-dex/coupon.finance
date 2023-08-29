@@ -1,21 +1,25 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment } from 'react'
 import { Listbox, Transition } from '@headlessui/react'
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
 
-const epochs = [
-  { id: 1, name: '2023-12-31' },
-  { id: 2, name: '2024-06-30' },
-  { id: 3, name: '2024-12-31' },
-  { id: 4, name: '2025-06-30' },
-]
+export type epoch = {
+  name: string
+  id: number
+}
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function DateSelect() {
-  const [selected, setSelected] = useState(epochs[3])
-
+export default function DateSelect({
+  epochs,
+  selected,
+  setSelected,
+}: {
+  epochs: epoch[]
+  selected: epoch
+  setSelected: (epoch: epoch) => void
+}) {
   return (
     <Listbox value={selected} onChange={setSelected}>
       {({ open }) => (
