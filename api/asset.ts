@@ -32,7 +32,11 @@ export async function fetchAssets(): Promise<Asset[]> {
 
   const result = assets.map((asset) => ({
     underlying: toCurrency(asset.underlying),
-    collaterals: asset.collaterals.map((collateral) => toCurrency(collateral)),
+    collaterals: asset.collaterals.map((collateral) => ({
+      underlying: toCurrency(collateral.underlying),
+      liquidationThreshold: collateral.liquidationThreshold,
+      liquidationTargetLtv: collateral.liquidationTargetLtv,
+    })),
     substitutes: asset.substitutes.map((substitute) => toCurrency(substitute)),
   }))
 

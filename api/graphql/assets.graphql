@@ -13,10 +13,14 @@ query getAssets {
       decimals
     }
     collaterals {
-      id
-      symbol
-      name
-      decimals
+      underlying {
+        id
+        symbol
+        name
+        decimals
+      }
+      liquidationThreshold
+      liquidationTargetLtv
     }
   }
 }
