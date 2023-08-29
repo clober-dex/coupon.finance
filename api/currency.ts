@@ -10,7 +10,7 @@ export async function fetchCurrencies() {
         (acc: Currency[], asset) => [
           ...acc,
           asset.underlying,
-          ...asset.collaterals,
+          ...asset.collaterals.map((collateral) => collateral.underlying),
         ],
         [],
       )

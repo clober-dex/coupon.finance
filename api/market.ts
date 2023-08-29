@@ -76,15 +76,18 @@ export async function fetchDepositApyByEpochsDeposited(
   return marketAfterCurrentTimestamp
     .map((_, i) => marketAfterCurrentTimestamp.slice(0, i + 1))
     .map((markets) => {
-      const { apy, proceeds, epochEnd } = calculateDepositApy(
+      const { apy, proceeds } = calculateDepositApy(
         substitute,
         markets,
         amount,
         currentTimestamp,
       )
       return {
-        date: epochEnd.toISOString().slice(2, 10).replace(/-/g, '/'), // TODO: format properly
-        proceeds: proceeds,
+        date: new Date(Number(markets.at(-1)?.endTimestamp ?? 0n) * 1000)
+          .toISOString()
+          .slice(2, 10)
+          .replace(/-/g, '/'), // TODO: format properly
+        proceeds,
         apy,
       }
     })
