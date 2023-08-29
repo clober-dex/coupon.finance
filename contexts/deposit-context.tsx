@@ -41,7 +41,7 @@ const Context = React.createContext<DepositContext>({
   deposit: () => Promise.resolve(),
 })
 
-const SLIPPAGE_PERCENTAGE = 0.1
+const SLIPPAGE_PERCENTAGE = 0
 
 export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const dummyPositions = [
@@ -119,7 +119,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         asset.underlying,
         walletClient.account.address,
         CONTRACT_ADDRESSES.DepositController,
-        amount,
+        amount + minimumInterestEarned, // TODO: change after contract change
         BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
       )
 
@@ -141,7 +141,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           functionName: 'deposit',
           args: [
             asset.substitutes[0].address,
-            amount,
+            amount + minimumInterestEarned,
             epochs,
             minimumInterestEarned,
             { deadline, v, r, s },

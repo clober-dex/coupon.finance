@@ -1,12 +1,7 @@
 import { isAddressEqual } from 'viem'
 
 import { MarketDto } from '../api/market'
-import {
-  getCurrentEpochIndex,
-  getEpochEndTimestamp,
-  getEpochStartTimestamp,
-  YEAR_IN_SECONDS,
-} from '../utils/epoch'
+import { YEAR_IN_SECONDS } from '../utils/epoch'
 
 import { Currency } from './currency'
 
@@ -259,8 +254,6 @@ export const calculateDepositApy = (
   initialDeposit: bigint,
   currentTimestamp: number,
 ): {
-  epochStart: Date
-  epochEnd: Date
   proceeds: bigint
   apy: number
 } => {
@@ -276,22 +269,18 @@ export const calculateDepositApy = (
     new Error('Substitute token is not supported')
   }
 
-  const maxEpochIndex = markets.reduce(
-    (acc, market) => (market.epoch > acc ? market.epoch : acc),
-    0n,
-  )
+  const endTimestamp = markets
+    .map((market) => market.endTimestamp)
+    .reduce((acc, val) => (acc < val ? val : acc), 0n)
   const totalDeposit = calculateTotalDeposit(markets, initialDeposit)
   const apy =
     totalDeposit === initialDeposit
       ? 0
       : ((Number(totalDeposit) / Number(initialDeposit)) * YEAR_IN_SECONDS) /
-        Number(getEpochEndTimestamp(maxEpochIndex) - currentTimestamp)
+        (Number(endTimestamp) - currentTimestamp)
 
-  const startEpochIndex = getCurrentEpochIndex(currentTimestamp)
   return {
     apy,
-    epochStart: new Date(getEpochStartTimestamp(startEpochIndex) * 1000),
-    epochEnd: new Date(getEpochEndTimestamp(maxEpochIndex) * 1000),
     proceeds: totalDeposit - initialDeposit,
   }
 }

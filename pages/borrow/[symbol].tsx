@@ -11,7 +11,6 @@ import { Asset } from '../../model/asset'
 import { fetchAssets } from '../../api/asset'
 import CurrencySelect from '../../components/currency-select'
 import { useCurrencyContext } from '../../contexts/currency-context'
-import { MAX_EPOCHS } from '../../utils/epoch'
 import CurrencyAmountInput from '../../components/currency-amount-input'
 
 const dummy = [
@@ -145,7 +144,7 @@ const Borrow: NextPage<
                   <div className="flex flex-row-reverse justify-between sm:flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4">
                     <div className="sm:px-6 sm:mb-2">
                       <Slider
-                        length={MAX_EPOCHS}
+                        length={4}
                         value={epochs}
                         onValueChange={setEpochs}
                       />
