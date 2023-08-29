@@ -40,7 +40,7 @@ const Slider = ({
       {...props}
     >
       {arr.map((i, index) => (
-        <>
+        <React.Fragment key={`slider-${i}-${index}`}>
           <button
             key={`slider-${i}-${index}`}
             className={`flex items-center justify-center w-6 h-6 rounded-full border-2 border-solid ${
@@ -59,7 +59,7 @@ const Slider = ({
               }`}
             />
           )}
-        </>
+        </React.Fragment>
       ))}
     </div>
   )
