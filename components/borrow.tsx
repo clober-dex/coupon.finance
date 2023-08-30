@@ -14,6 +14,8 @@ import EditCollateralModal from './modal/edit-collateral-modal'
 import EditExpiryModal from './modal/edit-expiry-modal'
 import DateSelect from './date-select'
 
+const dates = ['2023-12-31', '2024-06-30', '2024-12-31', '2025-06-30']
+
 const EditSvg = (props: SVGProps<any>) => (
   <svg
     width="16"
@@ -339,7 +341,7 @@ const Borrow = ({ assets }: { assets: Asset[] }) => {
             <label htmlFor="epoch" className="hidden sm:flex">
               How long are you going to borrow?
             </label>
-            <DateSelect />
+            <DateSelect dates={dates} />
           </div>
         </div>
         <div className="flex flex-col mb-12 gap-4">

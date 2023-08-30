@@ -11,6 +11,8 @@ import { formatDollarValue } from '../utils/numbers'
 import WithdrawModal from './modal/withdraw-modal'
 import DateSelect from './date-select'
 
+const dates = ['2023-12-31', '2024-06-30', '2024-12-31', '2025-06-30']
+
 const Position = ({
   currency,
   apy,
@@ -226,7 +228,7 @@ const Deposit = ({ assets }: { assets: Asset[] }) => {
             <label htmlFor="epoch" className="hidden sm:flex">
               How long are you going to deposit?
             </label>
-            <DateSelect />
+            <DateSelect dates={dates} />
           </div>
         </div>
         <div className="flex flex-col mb-12 gap-4">
