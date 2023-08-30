@@ -15,7 +15,15 @@ query getBondPositions($userAddress: String!) {
       name
       symbol
     }
-    expiryEpoch
-    expiryTimestamp
+    fromEpoch {
+      id
+      startTimestamp
+      endTimestamp
+    }
+    toEpoch {
+      id
+      startTimestamp
+      endTimestamp
+    }
   }
 }

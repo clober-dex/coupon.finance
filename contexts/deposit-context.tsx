@@ -6,7 +6,6 @@ import {
   useQuery,
   useWalletClient,
 } from 'wagmi'
-import { formatUnits } from 'viem'
 
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { DepositController__factory } from '../typechain'
@@ -15,6 +14,7 @@ import { bigIntMax } from '../utils/bigint'
 import { permit } from '../utils/permit'
 import { fetchBondPositions } from '../api/bond-position'
 import { BondPosition } from '../model/bond-position'
+import { formatUnits } from '../utils/numbers'
 
 import { isEthereum, useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
