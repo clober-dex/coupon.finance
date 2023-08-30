@@ -1,11 +1,10 @@
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback } from 'react'
 import {
   GoogleReCaptchaProvider,
   useGoogleReCaptcha,
 } from 'react-google-recaptcha-v3'
-import { getAddress } from 'viem'
 import { useAccount } from 'wagmi'
 
 import { useTransactionContext } from '../../contexts/transaction-context'
@@ -57,7 +56,7 @@ const FaucetForm = ({ assets }: { assets: Asset[] }) => {
     [address, assets, setConfirmation],
   )
 
-  const handleSumitForm = useCallback(
+  const handleSubmit = useCallback(
     (e: any) => {
       e.preventDefault()
       if (!executeRecaptcha) {
@@ -79,7 +78,7 @@ const FaucetForm = ({ assets }: { assets: Asset[] }) => {
       }}
       className="faucet-form"
       method="POST"
-      onSubmit={handleSumitForm}
+      onSubmit={handleSubmit}
     >
       <div className="flex flex-col gap-4">
         <div className="font-bold text-sm sm:text-lg">
@@ -133,7 +132,7 @@ const Faucet: NextPage<
     >
       <div className="flex flex-1">
         <Head>
-          <title>Coupon Finance</title>
+          <title>Faucet</title>
           <meta
             content="Cash in the coupons on your assets. The only liquidity protocol that enables a 100% utilization rate."
             name="description"
