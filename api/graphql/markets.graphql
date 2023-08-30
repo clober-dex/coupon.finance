@@ -1,12 +1,14 @@
-query getMarkets ($timestamp: BigInt!) {
-  markets (where: { endTimestamp_gt: $timestamp }) {
+query getMarkets ($epoch: String!) {
+  markets (where: {epoch_gte: $epoch}) {
     id
     orderToken
     takerFee
     quoteUnit
-    epoch
-    startTimestamp
-    endTimestamp
+    epoch {
+      id
+      startTimestamp
+      endTimestamp
+    }
     quoteToken {
       id
       name

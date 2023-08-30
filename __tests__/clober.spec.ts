@@ -49,9 +49,11 @@ describe('Market Orders', () => {
       orderToken: getAddress(market.orderToken),
       takerFee: market.takerFee,
       quoteUnit: market.quoteUnit,
-      epoch: '0',
-      startTimestamp: '0',
-      endTimestamp: '0',
+      epoch: {
+        id: '0',
+        startTimestamp: '0',
+        endTimestamp: '0',
+      },
       quoteToken: {
         address: getAddress(market.quoteToken.id),
         name: market.quoteToken.name,

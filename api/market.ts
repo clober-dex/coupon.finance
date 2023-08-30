@@ -4,6 +4,7 @@ import { getBuiltGraphSDK } from '../.graphclient'
 import { calculateDepositApy, Market } from '../model/market'
 import { Currency } from '../model/currency'
 import { Asset } from '../model/asset'
+import { getEpoch } from '../utils/epoch'
 
 const { getMarkets } = getBuiltGraphSDK()
 
@@ -18,16 +19,18 @@ export type MarketDto = {
   orderToken: string
   takerFee: string
   quoteUnit: string
-  epoch: string
-  startTimestamp: string
-  endTimestamp: string
+  epoch: {
+    id: string
+    startTimestamp: string
+    endTimestamp: string
+  }
   quoteToken: Currency
   baseToken: Currency
   depths: DepthDto[]
 }
 export async function fetchMarkets(): Promise<Market[]> {
   const { markets } = await getMarkets({
-    timestamp: Math.floor(new Date().getTime() / 1000),
+    epoch: getEpoch(Math.floor(new Date().getTime() / 1000)).toString(),
   })
   return markets.map((market) =>
     Market.fromDto({
@@ -35,9 +38,11 @@ export async function fetchMarkets(): Promise<Market[]> {
       orderToken: getAddress(market.orderToken),
       takerFee: market.takerFee,
       quoteUnit: market.quoteUnit,
-      epoch: market.epoch,
-      startTimestamp: market.startTimestamp,
-      endTimestamp: market.endTimestamp,
+      epoch: {
+        id: market.epoch.id,
+        startTimestamp: market.epoch.startTimestamp,
+        endTimestamp: market.epoch.endTimestamp,
+      },
       quoteToken: {
         address: getAddress(market.quoteToken.id),
         name: market.quoteToken.name,
