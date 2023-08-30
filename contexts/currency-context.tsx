@@ -29,13 +29,20 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
   const { address: userAddress } = useAccount()
   const { data: balance } = useBalance({ address: userAddress })
+  const { data: currencies } = useQuery(
+    ['currencies'],
+    async () => {
+      return fetchCurrencies()
+    },
+    {
+      initialData: [],
+    },
+  )
 
   const { data: prices } = useQuery(
-    ['prices'],
+    ['prices', currencies],
     async () => {
-      const currencyAddresses = (await fetchCurrencies()).map(
-        (currency) => currency.address,
-      )
+      const currencyAddresses = currencies.map((currency) => currency.address)
       const [{ result: prices }, { result: decimals }] = await readContracts({
         contracts: [
           {
@@ -68,9 +75,8 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   )
 
   const { data: balances } = useQuery(
-    ['balances', userAddress, balance],
+    ['balances', userAddress, balance, currencies],
     async () => {
-      const currencies = await fetchCurrencies()
       if (!userAddress) {
         return {}
       }
