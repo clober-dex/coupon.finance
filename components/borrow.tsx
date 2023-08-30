@@ -362,16 +362,18 @@ const Borrow = ({
             <div className="w-[120px]">Total Borrowed</div>
           </div>
           <div className="flex flex-col gap-4 sm:gap-3">
-            {assetStatuses.map((assetStatus, index) => (
-              <Asset
-                key={index}
-                currency={assetStatus.underlying}
-                apy={apy[assetStatus.underlying.address] ?? 0}
-                available={available[assetStatus.underlying.address] ?? 0n}
-                borrowed={borrowed[assetStatus.underlying.address] ?? 0n}
-                price={prices[assetStatus.underlying.address] ?? 0}
-              />
-            ))}
+            {assetStatuses
+              .filter((assetStatus) => assetStatus.epoch.id === epoch.id)
+              .map((assetStatus, i) => (
+                <Asset
+                  key={i}
+                  currency={assetStatus.underlying}
+                  apy={apy[assetStatus.underlying.address] ?? 0}
+                  available={available[assetStatus.underlying.address] ?? 0n}
+                  borrowed={borrowed[assetStatus.underlying.address] ?? 0n}
+                  price={prices[assetStatus.underlying.address] ?? 0}
+                />
+              ))}
           </div>
         </div>
       </div>
