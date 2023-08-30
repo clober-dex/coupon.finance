@@ -1,0 +1,7 @@
+query getEpochs ($timestamp: BigInt!) {
+  epoches (where: {endTimestamp_gte: $timestamp}) {
+    id
+    startTimestamp
+    endTimestamp
+  }
+}

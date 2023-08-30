@@ -10,19 +10,19 @@ import Borrow from '../components/borrow'
 import { Asset } from '../model/asset'
 import { fetchAssets } from '../api/asset'
 import { fetchMarkets } from '../api/market'
+import { fetchEpochs } from '../api/epoch'
 
 export const getServerSideProps: GetServerSideProps<{
   assets: Asset[]
   dates: string[]
 }> = async () => {
-  const [assets, markets] = await Promise.all([fetchAssets(), fetchMarkets()])
+  const [assets, epochs] = await Promise.all([fetchAssets(), fetchEpochs()])
   return {
     props: {
       assets,
-      dates: markets
+      dates: epochs
         .map((market) => market.endTimestamp)
         .sort()
-        .filter((date, index, self) => self.indexOf(date) === index)
         .map((timestamp) =>
           new Date(Number(timestamp) * 1000).toISOString().slice(0, 10),
         ),
