@@ -21,7 +21,7 @@ export const getServerSideProps: GetServerSideProps<{
       dates: markets
         .map((market) => market.endTimestamp)
         .sort()
-        .filter((date, idx, self) => self.indexOf(date) === idx)
+        .filter((date, index, self) => self.indexOf(date) === index)
         .map((timestamp) =>
           new Date(Number(timestamp) * 1000).toISOString().slice(0, 10),
         ),
