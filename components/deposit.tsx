@@ -258,32 +258,33 @@ const Deposit = ({
             {assetStatuses
               .filter((assetStatus) => assetStatus.epoch.id === epoch.id)
               .map((assetStatus, i) => {
-                const proceeds = assetStatuses
-                  .filter(
-                    ({ underlying, epoch }) =>
-                      isAddressEqual(
-                        underlying.address,
-                        assetStatus.underlying.address,
-                      ) && epoch.id <= assetStatus.epoch.id,
-                  )
-                  .reduce(
-                    (acc, { bestCouponPrice }) => acc + bestCouponPrice,
-                    0,
-                  )
+                const validAssetStatuses = assetStatuses.filter(
+                  ({ underlying, epoch }) =>
+                    isAddressEqual(
+                      underlying.address,
+                      assetStatus.underlying.address,
+                    ) && epoch.id <= assetStatus.epoch.id,
+                )
+                const proceeds = validAssetStatuses.reduce(
+                  (acc, { bestCouponPrice }) => acc + bestCouponPrice,
+                  0,
+                )
                 const currentTimestamp = Math.floor(new Date().getTime() / 1000)
                 const apy = calculateApy(
                   proceeds,
                   assetStatus.epoch.endTimestamp - currentTimestamp,
                 )
+                const available = validAssetStatuses
+                  .map(({ totalAvailable }) =>
+                    parseUnits(totalAvailable, assetStatus.underlying.decimals),
+                  )
+                  .reduce((acc, val) => (acc > val ? acc : val), 0n)
                 return (
                   <Asset
                     key={i}
                     currency={assetStatus.underlying}
                     apy={apy}
-                    available={parseUnits(
-                      assetStatus.totalAvailable,
-                      assetStatus.underlying.decimals,
-                    )}
+                    available={available}
                     deposited={parseUnits(
                       assetStatus.totalDeposits,
                       assetStatus.underlying.decimals,
