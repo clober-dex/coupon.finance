@@ -2,9 +2,8 @@ import React, { useCallback } from 'react'
 import { useAccount, useBalance, useQuery, useQueryClient } from 'wagmi'
 import { readContracts } from '@wagmi/core'
 
-import { CONTRACT_ADDRESSES } from '../utils/addresses'
-import { CouponOracle__factory, IERC20__factory } from '../typechain'
-import { fetchCurrencies } from '../api/currency'
+import { IERC20__factory } from '../typechain'
+import { fetchCurrencies, fetchPrices } from '../api/currency'
 import { Currency } from '../model/currency'
 
 type CurrencyContext = {
@@ -43,30 +42,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
     ['prices', currencies],
     async () => {
       const currencyAddresses = currencies.map((currency) => currency.address)
-      const [{ result: prices }, { result: decimals }] = await readContracts({
-        contracts: [
-          {
-            address: CONTRACT_ADDRESSES.CouponOracle,
-            abi: CouponOracle__factory.abi,
-            functionName: 'getAssetsPrices',
-            args: [currencyAddresses],
-          },
-          {
-            address: CONTRACT_ADDRESSES.CouponOracle,
-            abi: CouponOracle__factory.abi,
-            functionName: 'decimals',
-          },
-        ],
-      })
-      return prices && decimals
-        ? prices.reduce((acc, val, i) => {
-            const currencyAddress = currencyAddresses[i]
-            return {
-              ...acc,
-              [currencyAddress]: Number(val) / 10 ** decimals,
-            }
-          }, {})
-        : {}
+      return fetchPrices(currencyAddresses)
     },
     {
       refetchInterval: 5 * 1000,

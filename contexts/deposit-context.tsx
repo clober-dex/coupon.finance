@@ -22,9 +22,6 @@ type DepositContext = {
     expiry: string
     price: string
   }[]
-  apy: { [key in `0x${string}`]: number }
-  available: { [key in `0x${string}`]: bigint }
-  deposited: { [key in `0x${string}`]: bigint }
   deposit: (
     asset: Asset,
     amount: bigint,
@@ -35,9 +32,6 @@ type DepositContext = {
 
 const Context = React.createContext<DepositContext>({
   positions: [],
-  apy: {},
-  available: {},
-  deposited: {},
   deposit: () => Promise.resolve(),
 })
 
@@ -72,21 +66,6 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       price: '30000.00',
     },
   ]
-
-  // TODO: get apy from order book
-  const apy: {
-    [key in `0x${string}`]: number
-  } = {}
-
-  // TODO: get available
-  const available: {
-    [key in `0x${string}`]: bigint
-  } = {}
-
-  // TODO: get deposited
-  const deposited: {
-    [key in `0x${string}`]: bigint
-  } = {}
 
   const { address: userAddress } = useAccount()
   const { data: balance } = useBalance({ address: userAddress })
@@ -173,9 +152,6 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
     <Context.Provider
       value={{
         positions: dummyPositions,
-        apy,
-        available,
-        deposited,
         deposit,
       }}
     >

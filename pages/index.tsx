@@ -1,37 +1,36 @@
 import React from 'react'
 import type { NextPage } from 'next'
+import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import Link from 'next/link'
 
 import Deposit from '../components/deposit'
 import Borrow from '../components/borrow'
-import { Asset } from '../model/asset'
-import { fetchAssets } from '../api/asset'
+import { AssetStatus } from '../model/asset'
+import { fetchAssetStatuses } from '../api/asset'
 import { fetchEpochs } from '../api/epoch'
+import { Epoch } from '../model/epoch'
 
 export const getServerSideProps: GetServerSideProps<{
-  assets: Asset[]
-  dates: string[]
+  assetStatuses: AssetStatus[]
+  epochs: Epoch[]
 }> = async () => {
-  const [assets, epochs] = await Promise.all([fetchAssets(), fetchEpochs()])
+  const [assetStatuses, epochs] = await Promise.all([
+    fetchAssetStatuses(),
+    fetchEpochs(),
+  ])
   return {
     props: {
-      assets,
-      dates: epochs
-        .map((epoch) => epoch.endTimestamp)
-        .sort()
-        .map((timestamp) =>
-          new Date(Number(timestamp) * 1000).toISOString().slice(0, 10),
-        ),
+      assetStatuses,
+      epochs,
     },
   }
 }
 
 const Home: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ assets, dates }) => {
+> = ({ assetStatuses, epochs }) => {
   const router = useRouter()
 
   return (
@@ -73,9 +72,9 @@ const Home: NextPage<
           </Link>
         </div>
         {router.query.mode !== 'borrow' ? (
-          <Deposit assets={assets} dates={dates} />
+          <Deposit assetStatuses={assetStatuses} epochs={epochs} />
         ) : (
-          <Borrow assets={assets} dates={dates} />
+          <Borrow assetStatuses={assetStatuses} epochs={epochs} />
         )}
       </main>
     </div>

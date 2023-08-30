@@ -1,9 +1,11 @@
 import { getAddress } from 'viem'
 
 import { getBuiltGraphSDK, Token } from '../.graphclient'
-import { Asset } from '../model/asset'
+import { Asset, AssetStatus } from '../model/asset'
+import { Market } from '../model/market'
+import { formatUnits } from '../utils/numbers'
 
-const { getAssets } = getBuiltGraphSDK()
+const { getAssets, getAssetStatuses } = getBuiltGraphSDK()
 
 let cache: Asset[] | null = null
 
@@ -42,4 +44,52 @@ export async function fetchAssets(): Promise<Asset[]> {
 
   cache = result
   return result
+}
+
+export async function fetchAssetStatuses(): Promise<AssetStatus[]> {
+  const { assetStatuses } = await getAssetStatuses()
+
+  return assetStatuses.map((assetStatus) => {
+    const underlying = toCurrency(assetStatus.asset.underlying)
+    const epochId = +assetStatus.epoch.id
+    const market = Market.fromDto({
+      address: getAddress(assetStatus.market.id),
+      orderToken: getAddress(assetStatus.market.orderToken),
+      takerFee: assetStatus.market.takerFee,
+      quoteUnit: assetStatus.market.quoteUnit,
+      epoch: {
+        id: assetStatus.market.epoch.id,
+        startTimestamp: assetStatus.market.epoch.startTimestamp,
+        endTimestamp: assetStatus.market.epoch.endTimestamp,
+      },
+      quoteToken: {
+        address: getAddress(assetStatus.market.quoteToken.id),
+        name: assetStatus.market.quoteToken.name,
+        symbol: assetStatus.market.quoteToken.symbol,
+        decimals: assetStatus.market.quoteToken.decimals,
+      },
+      baseToken: {
+        address: getAddress(assetStatus.market.baseToken.id),
+        name: assetStatus.market.baseToken.name,
+        symbol: assetStatus.market.baseToken.symbol,
+        decimals: assetStatus.market.baseToken.decimals,
+      },
+      depths: assetStatus.market.depths.map((depth) => ({
+        price: depth.price,
+        rawAmount: depth.rawAmount,
+        isBid: depth.isBid,
+      })),
+    })
+    const decimals = assetStatus.asset.underlying.decimals
+    const totalAvailable = formatUnits(market.totalBidsInBase(), decimals)
+    const totalDeposits = formatUnits(assetStatus.totalDeposits, decimals)
+    const bestCouponPrice = Number(market.bids[0]?.price ?? 0n) / 1e18
+    return {
+      underlying,
+      epochId,
+      totalAvailable,
+      totalDeposits,
+      bestCouponPrice,
+    }
+  })
 }

@@ -6,3 +6,11 @@ export type Asset = {
   collaterals: Collateral[]
   substitutes: Currency[]
 }
+
+export type AssetStatus = {
+  underlying: Currency
+  epochId: number
+  totalAvailable: string
+  totalDeposits: string
+  bestCouponPrice: number
+}
