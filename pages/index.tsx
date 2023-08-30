@@ -3,6 +3,7 @@ import type { NextPage } from 'next'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import Link from 'next/link'
 
 import Deposit from '../components/deposit'
 import Borrow from '../components/borrow'
@@ -52,6 +53,14 @@ const Home: NextPage<
           >
             Borrow
           </button>
+          <Link href="/faucet">
+            <button
+              className="flex font-bold items-center justify-center text-base sm:text-2xl w-18 sm:w-36 bg-transparent text-gray-400 dark:text-gray-500 disabled:text-gray-950 border-0 dark:disabled:text-white rounded-none p-2 border-b-4 border-b-transparent border-t-4 border-t-transparent disabled:border-b-gray-950 dark:disabled:border-b-white"
+              disabled={router.query.mode === 'faucet'}
+            >
+              Faucet
+            </button>
+          </Link>
         </div>
         {router.query.mode !== 'borrow' ? (
           <Deposit assets={assets} />
