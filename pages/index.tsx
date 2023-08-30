@@ -20,7 +20,7 @@ export const getServerSideProps: GetServerSideProps<{
     props: {
       assets,
       dates: epochs
-        .map((market) => market.endTimestamp)
+        .map((epoch) => epoch.endTimestamp)
         .sort()
         .map((timestamp) =>
           new Date(Number(timestamp) * 1000).toISOString().slice(0, 10),

@@ -30,7 +30,7 @@ export type MarketDto = {
 }
 export async function fetchMarkets(): Promise<Market[]> {
   const { markets } = await getMarkets({
-    epoch: getEpoch(Math.floor(new Date().getTime() / 1000)).toString(),
+    fromEpoch: getEpoch(Math.floor(new Date().getTime() / 1000)).toString(),
   })
   return markets.map((market) =>
     Market.fromDto({

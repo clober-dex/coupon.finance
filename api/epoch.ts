@@ -6,6 +6,7 @@ export async function fetchEpochs(): Promise<Epoch[]> {
   const { epoches } = await getEpochs({
     timestamp: Math.floor(new Date().getTime() / 1000).toString(),
   })
+  console.log('epoches', epoches)
   return epoches.map((epoch) => ({
     id: BigInt(epoch.id),
     startTimestamp: BigInt(epoch.startTimestamp),
