@@ -156,6 +156,7 @@ const Deposit = ({ assets }: { assets: Asset[] }) => {
     currency: Currency
     amount: string
   } | null>(null)
+  const [date, setDate] = useState('')
   return (
     <div className="flex flex-1 flex-col w-full sm:w-fit">
       <h1 className="flex justify-center text-center font-bold text-lg sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-12 mb-8 sm:mb-16">
@@ -228,7 +229,7 @@ const Deposit = ({ assets }: { assets: Asset[] }) => {
             <label htmlFor="epoch" className="hidden sm:flex">
               How long are you going to deposit?
             </label>
-            <DateSelect dates={dates} />
+            <DateSelect dates={dates} value={date} onValueChange={setDate} />
           </div>
         </div>
         <div className="flex flex-col mb-12 gap-4">
