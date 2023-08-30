@@ -1,5 +1,5 @@
-query getMarkets {
-  markets {
+query getMarkets ($timestamp: BigInt!) {
+  markets (where: { endTimestamp_gt: $timestamp }) {
     id
     orderToken
     takerFee

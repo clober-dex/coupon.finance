@@ -26,7 +26,9 @@ export type MarketDto = {
   depths: DepthDto[]
 }
 export async function fetchMarkets(): Promise<Market[]> {
-  const { markets } = await getMarkets()
+  const { markets } = await getMarkets({
+    timestamp: Math.floor(new Date().getTime() / 1000),
+  })
   return markets.map((market) =>
     Market.fromDto({
       address: getAddress(market.id),
