@@ -9,19 +9,30 @@ import Deposit from '../components/deposit'
 import Borrow from '../components/borrow'
 import { Asset } from '../model/asset'
 import { fetchAssets } from '../api/asset'
+import { fetchMarkets } from '../api/market'
 
 export const getServerSideProps: GetServerSideProps<{
   assets: Asset[]
+  dates: string[]
 }> = async () => {
-  const assets = await fetchAssets()
+  const [assets, markets] = await Promise.all([fetchAssets(), fetchMarkets()])
   return {
-    props: { assets },
+    props: {
+      assets,
+      dates: markets
+        .map((market) => market.endTimestamp)
+        .sort()
+        .filter((date, index, self) => self.indexOf(date) === index)
+        .map((timestamp) =>
+          new Date(Number(timestamp) * 1000).toISOString().slice(0, 10),
+        ),
+    },
   }
 }
 
 const Home: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ assets }) => {
+> = ({ assets, dates }) => {
   const router = useRouter()
 
   return (
@@ -63,9 +74,9 @@ const Home: NextPage<
           </Link>
         </div>
         {router.query.mode !== 'borrow' ? (
-          <Deposit assets={assets} />
+          <Deposit assets={assets} dates={dates} />
         ) : (
-          <Borrow assets={assets} />
+          <Borrow assets={assets} dates={dates} />
         )}
       </main>
     </div>
