@@ -38,9 +38,9 @@ export default function DateSelect({
               leaveTo="opacity-0"
             >
               <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-base shadow ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                {dates.map((date, idx) => (
+                {dates.map((date, index) => (
                   <Listbox.Option
-                    key={idx}
+                    key={index}
                     className={({ active }) =>
                       classNames(
                         active ? 'bg-green-500' : '',
