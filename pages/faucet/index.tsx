@@ -1,4 +1,4 @@
-import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
+import { NextPage } from 'next'
 import Head from 'next/head'
 import React, { useCallback } from 'react'
 import {
@@ -7,35 +7,37 @@ import {
 } from 'react-google-recaptcha-v3'
 import { useAccount } from 'wagmi'
 
-import { useTransactionContext } from '../../contexts/transaction-context'
-import { Asset } from '../../model/asset'
-import { fetchAssets } from '../../api/asset'
+import { ClientComponent } from '../../components/client-component'
 
-export const FAUCET_AMOUNTS: { [symbol: string]: number } = {
-  ETH: 0.1,
-  USDC: 100,
-  DAI: 100,
-  USDT: 100,
-  WBTC: 0.1,
-}
+export const FAUCET_AMOUNTS: { symbol: string; amount: number }[] = [
+  {
+    symbol: 'ETH',
+    amount: 0.1,
+  },
+  {
+    symbol: 'USDC',
+    amount: 100,
+  },
+  {
+    symbol: 'DAI',
+    amount: 100,
+  },
+  {
+    symbol: 'USDT',
+    amount: 100,
+  },
+  {
+    symbol: 'WBTC',
+    amount: 0.1,
+  },
+]
 
-const FaucetForm = ({ assets }: { assets: Asset[] }) => {
+const FaucetForm = () => {
   const { executeRecaptcha } = useGoogleReCaptcha()
-  const { setConfirmation } = useTransactionContext()
   const { address } = useAccount()
 
-  const submitEnquiryForm = useCallback(
+  const submit = useCallback(
     async (gReCaptchaToken: any) => {
-      setConfirmation({
-        title: 'Faucet',
-        body: 'You will receive test tokens in a few seconds.',
-        fields: assets.map((asset) => ({
-          currency: asset.underlying,
-          label: asset.underlying.symbol,
-          value: FAUCET_AMOUNTS[asset.underlying.symbol].toString(),
-        })),
-      })
-
       const response = await fetch('/api/faucet', {
         method: 'POST',
         headers: {
@@ -49,11 +51,17 @@ const FaucetForm = ({ assets }: { assets: Asset[] }) => {
 
       if (response.status === 200) {
         const { txHash } = await response.json()
-        window.open(`http://dev-rpc.coupon.finance:4000/tx/${txHash}`, '_blank')
-        setConfirmation(undefined)
+        if (txHash) {
+          window.open(
+            `http://dev-rpc.coupon.finance:4000/tx/${txHash}`,
+            '_blank',
+          )
+        } else {
+          alert('Something went wrong. Please contact the devs.')
+        }
       }
     },
-    [address, assets, setConfirmation],
+    [address],
   )
 
   const handleSubmit = useCallback(
@@ -63,63 +71,54 @@ const FaucetForm = ({ assets }: { assets: Asset[] }) => {
         return
       }
       executeRecaptcha('enquiryFormSubmit').then((gReCaptchaToken) => {
-        submitEnquiryForm(gReCaptchaToken)
+        submit(gReCaptchaToken)
       })
     },
-    [executeRecaptcha, submitEnquiryForm],
+    [executeRecaptcha, submit],
   )
 
   return (
     <form
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '4px',
-      }}
-      className="faucet-form"
+      className="faucet-form flex flex-col gap-4"
       method="POST"
       onSubmit={handleSubmit}
     >
       <div className="flex flex-col gap-4">
-        <div className="font-bold text-sm sm:text-lg">
-          Write your address to get test tokens
+        <div className="font-bold text-base sm:text-lg">
+          {address
+            ? 'Request test tokens'
+            : 'Connect your wallet to get test tokens'}
         </div>
-        <div className="flex flex-col bg-white dark:bg-gray-800 rounded-lg p-3 gap-2">
-          <div className="flex flex-1 justify-between gap-2">
-            <input
-              className="flex-1 text-xl sm:text-2xl placeholder-gray-400 outline-none bg-transparent"
-              value={address}
-              name="address"
-              type="text"
-              placeholder="0x0000000000000000000000000000000000000000"
-              required={true}
-            />
-          </div>
+        <div className="flex flex-col w-full gap-1">
+          {FAUCET_AMOUNTS.map((asset, index) => (
+            <div
+              key={index}
+              className="flex items-center justify-between bg-white dark:bg-gray-800 px-3 py-2 text-sm sm:text-base rounded-lg"
+            >
+              <img
+                src={`/assets/icons/icon-${asset.symbol}.svg`}
+                alt={asset.symbol}
+                className="w-5 h-5"
+              />
+              <div>
+                {asset.amount} {asset.symbol}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
       <button
         type="submit"
-        disabled={address && address.length === 0}
+        disabled={!address}
         className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
       >
-        Faucet
+        Request Tokens
       </button>
     </form>
   )
 }
 
-export const getServerSideProps: GetServerSideProps<{
-  assets: Asset[]
-}> = async () => {
-  const assets = await fetchAssets()
-  return {
-    props: { assets },
-  }
-}
-
-const Faucet: NextPage<
-  InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ assets }) => {
+const Faucet: NextPage = () => {
   return (
     <GoogleReCaptchaProvider
       reCaptchaKey="6Lce3uMnAAAAALuDAg71x3qku80Avq7xl_y8O2OH"
@@ -142,10 +141,10 @@ const Faucet: NextPage<
 
         <main className="flex flex-1 flex-col justify-center items-center">
           <div className="flex flex-1 flex-col w-full">
-            <div className="flex flex-1 sm:items-center justify-center">
-              <div className="flex flex-col sm:shadow bg-gray-50 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 w-full sm:w-[480px] gap-8">
-                <FaucetForm assets={assets} />
-              </div>
+            <div className="flex flex-col flex-1 items-center justify-center p-4 sm:p-0 gap-4">
+              <ClientComponent className="flex flex-col sm:shadow bg-gray-50 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 w-full sm:w-[480px] gap-8">
+                <FaucetForm />
+              </ClientComponent>
             </div>
           </div>
         </main>
