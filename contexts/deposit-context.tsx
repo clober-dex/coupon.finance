@@ -28,7 +28,7 @@ type DepositContext = {
   deposit: (
     asset: Asset,
     amount: bigint,
-    epochs: number,
+    lockEpochs: number,
     expectedProceeds: bigint,
   ) => Promise<void>
 }
@@ -100,7 +100,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
     async (
       asset: Asset,
       amount: bigint,
-      epochs: number,
+      lockEpochs: number,
       expectedProceeds: bigint,
     ) => {
       if (!walletClient) {
@@ -142,7 +142,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           args: [
             asset.substitutes[0].address,
             amount + minimumInterestEarned,
-            epochs,
+            lockEpochs,
             minimumInterestEarned,
             { deadline, v, r, s },
           ],

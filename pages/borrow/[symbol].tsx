@@ -42,7 +42,7 @@ const Borrow: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ asset }) => {
   const { balances, prices } = useCurrencyContext()
-  const [epochs, _setEpochs] = useState(0)
+  const [lockEpochs, _setLockEpochs] = useState(0)
   const [collateralValue, setCollateralValue] = useState('')
   const [loanValue, setLoanValue] = useState('')
   const [collateral, setCollateral] = useState<Currency | undefined>(undefined)
@@ -50,11 +50,11 @@ const Borrow: NextPage<
 
   const router = useRouter()
 
-  const setEpochs = useCallback(
+  const setlockEpochs = useCallback(
     (value: number) => {
-      _setEpochs(value === epochs ? value - 1 : value)
+      _setLockEpochs(value === lockEpochs ? value - 1 : value)
     },
-    [epochs],
+    [lockEpochs],
   )
 
   const collateralAmount = useMemo(
@@ -145,8 +145,8 @@ const Borrow: NextPage<
                     <div className="sm:px-6 sm:mb-2">
                       <Slider
                         length={4}
-                        value={epochs}
-                        onValueChange={setEpochs}
+                        value={lockEpochs}
+                        onValueChange={setlockEpochs}
                       />
                     </div>
                     <div className="flex flex-col sm:flex-row justify-between">
@@ -154,7 +154,7 @@ const Borrow: NextPage<
                         <button
                           key={i}
                           className="flex flex-col items-center gap-2 w-[72px]"
-                          onClick={() => setEpochs(i + 1)}
+                          onClick={() => setlockEpochs(i + 1)}
                         >
                           <div className="text-sm">{date}</div>
                         </button>

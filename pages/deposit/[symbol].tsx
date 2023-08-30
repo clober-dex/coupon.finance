@@ -41,16 +41,16 @@ const Deposit: NextPage<
   const { balances, prices } = useCurrencyContext()
   const { deposit } = useDepositContext()
 
-  const [epochs, _setEpochs] = useState(0)
+  const [lockEpochs, _setLockEpochs] = useState(0)
   const [value, setValue] = useState('')
 
   const router = useRouter()
 
-  const setEpochs = useCallback(
+  const setLockEpochs = useCallback(
     (value: number) => {
-      _setEpochs(value === epochs ? value - 1 : value)
+      _setLockEpochs(value === lockEpochs ? value - 1 : value)
     },
-    [epochs],
+    [lockEpochs],
   )
 
   const amount = useMemo(
@@ -69,18 +69,18 @@ const Deposit: NextPage<
   )
 
   const depositApy = useMemo(() => {
-    if (epochs === 0) {
+    if (lockEpochs === 0) {
       return 0
     }
-    return proceedsByEpochsDeposited[epochs - 1]?.apy ?? 0
-  }, [proceedsByEpochsDeposited, epochs])
+    return proceedsByEpochsDeposited[lockEpochs - 1]?.apy ?? 0
+  }, [proceedsByEpochsDeposited, lockEpochs])
 
   const expectedProceeds = useMemo(() => {
-    if (epochs === 0) {
+    if (lockEpochs === 0) {
       return 0n
     }
-    return proceedsByEpochsDeposited[epochs - 1]?.proceeds ?? 0n
-  }, [proceedsByEpochsDeposited, epochs])
+    return proceedsByEpochsDeposited[lockEpochs - 1]?.proceeds ?? 0n
+  }, [proceedsByEpochsDeposited, lockEpochs])
 
   return (
     <div className="flex flex-1">
@@ -137,8 +137,8 @@ const Deposit: NextPage<
                     <ClientComponent>
                       <Slider
                         length={proceedsByEpochsDeposited.length}
-                        value={epochs}
-                        onValueChange={setEpochs}
+                        value={lockEpochs}
+                        onValueChange={setLockEpochs}
                       />
                     </ClientComponent>
                   </div>
@@ -147,7 +147,7 @@ const Deposit: NextPage<
                       <button
                         key={i}
                         className="flex sm:flex-col items-center gap-1 sm:gap-2 sm:w-[72px]"
-                        onClick={() => setEpochs(i + 1)}
+                        onClick={() => setLockEpochs(i + 1)}
                       >
                         <div className="text-sm w-20 sm:w-fit text-start">
                           {date}
@@ -175,7 +175,7 @@ const Deposit: NextPage<
                     end={Number(expectedProceeds)}
                     suffix={` ${asset.underlying.symbol}`}
                     className={`flex gap-2 ${
-                      epochs === 0 ? 'text-gray-400' : ''
+                      lockEpochs === 0 ? 'text-gray-400' : ''
                     } text-xl`}
                     formattingFn={(value) =>
                       `${formatUnits(
@@ -194,9 +194,11 @@ const Deposit: NextPage<
                 </div>
               </div>
               <button
-                disabled={amount === 0n || epochs === 0}
+                disabled={amount === 0n || lockEpochs === 0}
                 className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
-                onClick={() => deposit(asset, amount, epochs, expectedProceeds)}
+                onClick={() =>
+                  deposit(asset, amount, lockEpochs, expectedProceeds)
+                }
               >
                 Confirm
               </button>
