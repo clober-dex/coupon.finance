@@ -9,26 +9,40 @@ import { useAccount } from 'wagmi'
 
 import { ClientComponent } from '../../components/client-component'
 
-export const FAUCET_AMOUNTS: { symbol: string; amount: number }[] = [
+export const FAUCET_AMOUNTS: {
+  symbol: string
+  name: string
+  amount: number
+}[] = [
+  {
+    symbol: 'WBTC',
+    name: 'Wrapped BTC',
+    amount: 0.1,
+  },
   {
     symbol: 'ETH',
+    name: 'Ethereum',
+    amount: 0.1,
+  },
+  {
+    symbol: 'WETH',
+    name: 'Wrapped Ethereum',
     amount: 0.1,
   },
   {
     symbol: 'USDC',
+    name: 'USD Coin',
     amount: 100,
   },
   {
     symbol: 'DAI',
+    name: 'Dai Stablecoin',
     amount: 100,
   },
   {
     symbol: 'USDT',
+    name: 'Tether USD',
     amount: 100,
-  },
-  {
-    symbol: 'WBTC',
-    amount: 0.1,
   },
 ]
 
@@ -95,11 +109,14 @@ const FaucetForm = () => {
               key={index}
               className="flex items-center justify-between bg-white dark:bg-gray-800 px-3 py-2 text-sm sm:text-base rounded-lg"
             >
-              <img
-                src={`/assets/icons/icon-${asset.symbol}.svg`}
-                alt={asset.symbol}
-                className="w-5 h-5"
-              />
+              <div className="flex items-center gap-2">
+                <img
+                  src={`/assets/icons/icon-${asset.symbol.toLowerCase()}.svg`}
+                  alt={asset.symbol}
+                  className="w-5 h-5"
+                />
+                <div>{asset.name}</div>
+              </div>
               <div>
                 {asset.amount} {asset.symbol}
               </div>
