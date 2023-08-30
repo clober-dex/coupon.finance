@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { parseUnits } from 'viem'
+import { isAddressEqual, parseUnits } from 'viem'
 
 import { useDepositContext } from '../contexts/deposit-context'
 import { Currency, getLogo } from '../model/currency'
@@ -8,6 +8,7 @@ import { AssetStatus } from '../model/asset'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { formatDollarValue, formatUnits } from '../utils/numbers'
 import { Epoch } from '../model/epoch'
+import { calculateApy } from '../utils/apy'
 
 import WithdrawModal from './modal/withdraw-modal'
 import EpochSelect from './epoch-select'
@@ -111,7 +112,7 @@ const Asset = ({
             </div>
           </div>
           <ClientComponent className="text-sm font-bold sm:w-[80px]">
-            {apy.toFixed(2)}
+            {apy.toFixed(2)}%
           </ClientComponent>
         </div>
         <div className="flex flex-row sm:flex-col w-full sm:w-[136px] justify-between px-4 sm:p-0">
@@ -255,23 +256,42 @@ const Deposit = ({
           </div>
           <div className="flex flex-col gap-4 sm:gap-3">
             {assetStatuses
-              .filter(({ epochId }) => epoch.id === epochId)
-              .map((assetStatus, i) => (
-                <Asset
-                  key={i}
-                  currency={assetStatus.underlying}
-                  apy={0}
-                  available={parseUnits(
-                    assetStatus.totalAvailable,
-                    assetStatus.underlying.decimals,
-                  )}
-                  deposited={parseUnits(
-                    assetStatus.totalDeposits,
-                    assetStatus.underlying.decimals,
-                  )}
-                  price={prices[assetStatus.underlying.address] ?? 0}
-                />
-              ))}
+              .filter((assetStatus) => assetStatus.epoch.id === epoch.id)
+              .map((assetStatus, i) => {
+                const proceeds = assetStatuses
+                  .filter(
+                    ({ underlying, epoch }) =>
+                      isAddressEqual(
+                        underlying.address,
+                        assetStatus.underlying.address,
+                      ) && epoch.id <= assetStatus.epoch.id,
+                  )
+                  .reduce(
+                    (acc, { bestCouponPrice }) => acc + bestCouponPrice,
+                    0,
+                  )
+                const currentTimestamp = Math.floor(new Date().getTime() / 1000)
+                const apy = calculateApy(
+                  proceeds,
+                  assetStatus.epoch.endTimestamp - currentTimestamp,
+                )
+                return (
+                  <Asset
+                    key={i}
+                    currency={assetStatus.underlying}
+                    apy={apy}
+                    available={parseUnits(
+                      assetStatus.totalAvailable,
+                      assetStatus.underlying.decimals,
+                    )}
+                    deposited={parseUnits(
+                      assetStatus.totalDeposits,
+                      assetStatus.underlying.decimals,
+                    )}
+                    price={prices[assetStatus.underlying.address] ?? 0}
+                  />
+                )
+              })}
           </div>
         </div>
       </div>

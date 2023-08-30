@@ -1,6 +1,5 @@
 import { Epoch } from '../model/epoch'
 
-export const YEAR_IN_SECONDS = 31536000
 export const getEpoch = (timestamp: number): bigint => {
   const date = new Date(timestamp * 1000)
   const year = date.getUTCFullYear()

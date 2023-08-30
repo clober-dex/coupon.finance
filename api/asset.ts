@@ -51,7 +51,11 @@ export async function fetchAssetStatuses(): Promise<AssetStatus[]> {
 
   return assetStatuses.map((assetStatus) => {
     const underlying = toCurrency(assetStatus.asset.underlying)
-    const epochId = +assetStatus.epoch.id
+    const epoch = {
+      id: +assetStatus.epoch.id,
+      startTimestamp: +assetStatus.market.epoch.startTimestamp,
+      endTimestamp: +assetStatus.market.epoch.endTimestamp,
+    }
     const market = Market.fromDto({
       address: getAddress(assetStatus.market.id),
       orderToken: getAddress(assetStatus.market.orderToken),
@@ -86,7 +90,7 @@ export async function fetchAssetStatuses(): Promise<AssetStatus[]> {
     const bestCouponPrice = Number(market.bids[0]?.price ?? 0n) / 1e18
     return {
       underlying,
-      epochId,
+      epoch,
       totalAvailable,
       totalDeposits,
       bestCouponPrice,
