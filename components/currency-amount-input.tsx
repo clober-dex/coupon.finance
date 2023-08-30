@@ -89,7 +89,7 @@ const CurrencyAmountInput = ({
           <div className="flex text-xs sm:text-sm gap-1 sm:gap-2">
             <div className="text-gray-500">Available</div>
             <ClientComponent>
-              {formatUnits(balance, currency.decimals)}
+              {formatUnits(balance, currency.decimals, price)}
             </ClientComponent>
             <button className="text-green-500" onClick={onMaxClick}>
               MAX
