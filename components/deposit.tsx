@@ -1,12 +1,11 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { formatUnits } from 'viem'
 
 import { useDepositContext } from '../contexts/deposit-context'
 import { Currency, getLogo } from '../model/currency'
 import { Asset } from '../model/asset'
 import { useCurrencyContext } from '../contexts/currency-context'
-import { formatDollarValue } from '../utils/numbers'
+import { formatDollarValue, formatUnits } from '../utils/numbers'
 
 import WithdrawModal from './modal/withdraw-modal'
 import DateSelect from './date-select'
@@ -114,7 +113,8 @@ const Asset = ({
           <div className="sm:hidden text-gray-500 text-xs">Available</div>
           <div className="flex flex-row sm:flex-col items-center sm:items-start gap-1 sm:gap-0">
             <div className="text-xs sm:text-sm">
-              {formatUnits(available, currency.decimals)} {currency.symbol}
+              {formatUnits(available, currency.decimals, price)}{' '}
+              {currency.symbol}
             </div>
             <div className="text-xs text-gray-500">
               <span className="sm:hidden">(</span>

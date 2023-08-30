@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo } from 'react'
-import { formatUnits, parseUnits } from 'viem'
+import { parseUnits } from 'viem'
 
 import { Currency, getLogo } from '../model/currency'
-import { formatDollarValue } from '../utils/numbers'
+import { formatDollarValue, formatUnits } from '../utils/numbers'
 
 import NumberInput from './number-input'
 import DownSvg from './svg/down-svg'
@@ -89,7 +89,7 @@ const CurrencyAmountInput = ({
           <div className="flex text-xs sm:text-sm gap-1 sm:gap-2">
             <div className="text-gray-500">Available</div>
             <ClientComponent>
-              {formatUnits(balance, currency.decimals)}
+              {formatUnits(balance, currency.decimals, price)}
             </ClientComponent>
             <button className="text-green-500" onClick={onMaxClick}>
               MAX
