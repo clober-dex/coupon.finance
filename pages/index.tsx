@@ -20,11 +20,11 @@ export const getServerSideProps: GetServerSideProps<{
       assets,
       dates: markets
         .map((market) => market.endTimestamp)
+        .sort()
+        .filter((date, idx, self) => self.indexOf(date) === idx)
         .map((timestamp) =>
           new Date(Number(timestamp) * 1000).toISOString().slice(0, 10),
-        )
-        .filter((date, idx, self) => self.indexOf(date) === idx)
-        .sort(),
+        ),
     },
   }
 }
