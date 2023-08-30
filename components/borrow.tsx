@@ -14,8 +14,6 @@ import EditCollateralModal from './modal/edit-collateral-modal'
 import EditExpiryModal from './modal/edit-expiry-modal'
 import DateSelect from './date-select'
 
-const dates = ['2023-12-31', '2024-06-30', '2024-12-31', '2025-06-30']
-
 const EditSvg = (props: SVGProps<any>) => (
   <svg
     width="16"
@@ -229,7 +227,7 @@ const Asset = ({
   )
 }
 
-const Borrow = ({ assets }: { assets: Asset[] }) => {
+const Borrow = ({ assets, dates }: { assets: Asset[]; dates: string[] }) => {
   const { prices } = useCurrencyContext()
   const { positions, apy, available, borrowed } = useBorrowContext()
   const [repayPosition, setRepayPosition] = useState<{
@@ -248,7 +246,7 @@ const Borrow = ({ assets }: { assets: Asset[] }) => {
     currency: Currency
     amount: string
   } | null>(null)
-  const [date, setDate] = useState('')
+  const [date, setDate] = useState(dates[0])
   return (
     <div className="flex flex-1 flex-col w-full sm:w-fit">
       <h1 className="flex justify-center text-center font-bold text-lg sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-12 mb-8 sm:mb-16">

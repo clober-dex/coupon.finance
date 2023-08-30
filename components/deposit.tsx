@@ -11,8 +11,6 @@ import { formatDollarValue } from '../utils/numbers'
 import WithdrawModal from './modal/withdraw-modal'
 import DateSelect from './date-select'
 
-const dates = ['2023-12-31', '2024-06-30', '2024-12-31', '2025-06-30']
-
 const Position = ({
   currency,
   apy,
@@ -149,14 +147,14 @@ const Asset = ({
   )
 }
 
-const Deposit = ({ assets }: { assets: Asset[] }) => {
+const Deposit = ({ assets, dates }: { assets: Asset[]; dates: string[] }) => {
   const { prices } = useCurrencyContext()
   const { positions, apy, available, deposited } = useDepositContext()
   const [withdrawPosition, setWithdrawPosition] = useState<{
     currency: Currency
     amount: string
   } | null>(null)
-  const [date, setDate] = useState('')
+  const [date, setDate] = useState(dates[0])
   return (
     <div className="flex flex-1 flex-col w-full sm:w-fit">
       <h1 className="flex justify-center text-center font-bold text-lg sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-12 mb-8 sm:mb-16">
