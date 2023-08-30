@@ -72,11 +72,9 @@ export async function fetchDepositApyByEpochsDeposited(
     .sort((a, b) => Number(a.epoch) - Number(b.epoch))
 
   const currentTimestamp = Math.floor(new Date().getTime() / 1000)
-  const marketAfterCurrentTimestamp = markets.filter(
-    (market) => market.endTimestamp > currentTimestamp,
-  )
-  return marketAfterCurrentTimestamp
-    .map((_, i) => marketAfterCurrentTimestamp.slice(0, i + 1))
+
+  return markets
+    .map((_, i) => markets.slice(0, i + 1))
     .map((markets) => {
       const { apy, proceeds } = calculateDepositApy(
         substitute,
