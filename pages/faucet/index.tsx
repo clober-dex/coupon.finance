@@ -6,6 +6,7 @@ import {
   useGoogleReCaptcha,
 } from 'react-google-recaptcha-v3'
 import { getAddress } from 'viem'
+import { useAccount } from 'wagmi'
 
 import { useTransactionContext } from '../../contexts/transaction-context'
 import { Asset } from '../../model/asset'
@@ -22,7 +23,8 @@ export const FAUCET_AMOUNTS: { [symbol: string]: number } = {
 const FaucetForm = ({ assets }: { assets: Asset[] }) => {
   const { executeRecaptcha } = useGoogleReCaptcha()
   const { setConfirmation } = useTransactionContext()
-  const [address, setAddress] = useState('')
+  const { address } = useAccount()
+
   const submitEnquiryForm = useCallback(
     async (gReCaptchaToken: any) => {
       setConfirmation({
@@ -68,17 +70,6 @@ const FaucetForm = ({ assets }: { assets: Asset[] }) => {
     [executeRecaptcha, submitEnquiryForm],
   )
 
-  const handleChange = useCallback(
-    (event: React.ChangeEvent<HTMLInputElement>) => {
-      const address = event.target.value.match(
-        /^0x[a-fA-F0-9]{40}$|^0x[a-fA-F0-9]{42}$/,
-      )
-      if (address && address[0]) {
-        setAddress(getAddress(address[0]))
-      }
-    },
-    [setAddress],
-  )
   return (
     <form
       style={{
@@ -101,7 +92,6 @@ const FaucetForm = ({ assets }: { assets: Asset[] }) => {
               value={address}
               name="address"
               type="text"
-              onChange={handleChange}
               placeholder="0x0000000000000000000000000000000000000000"
               required={true}
             />
@@ -110,7 +100,7 @@ const FaucetForm = ({ assets }: { assets: Asset[] }) => {
       </div>
       <button
         type="submit"
-        disabled={address.length === 0}
+        disabled={address && address.length === 0}
         className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
       >
         Faucet
