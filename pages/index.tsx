@@ -9,7 +9,6 @@ import Deposit from '../components/deposit'
 import Borrow from '../components/borrow'
 import { Asset } from '../model/asset'
 import { fetchAssets } from '../api/asset'
-import { fetchMarkets } from '../api/market'
 import { fetchEpochs } from '../api/epoch'
 
 export const getServerSideProps: GetServerSideProps<{
