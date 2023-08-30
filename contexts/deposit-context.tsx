@@ -1,6 +1,5 @@
 import React, { useCallback } from 'react'
 import { useAccount, useBalance, usePublicClient, useWalletClient } from 'wagmi'
-import { formatUnits } from 'viem'
 
 import { Currency } from '../model/currency'
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
@@ -8,6 +7,7 @@ import { DepositController__factory } from '../typechain'
 import { Asset } from '../model/asset'
 import { bigIntMax } from '../utils/bigint'
 import { permit } from '../utils/permit'
+import { formatUnits } from '../utils/numbers'
 
 import { isEthereum, useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'

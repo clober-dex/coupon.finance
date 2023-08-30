@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo } from 'react'
-import { formatUnits, parseUnits } from 'viem'
+import { parseUnits } from 'viem'
 
 import { Currency, getLogo } from '../model/currency'
-import { formatDollarValue } from '../utils/numbers'
+import { formatDollarValue, formatUnits } from '../utils/numbers'
 
 import NumberInput from './number-input'
 import DownSvg from './svg/down-svg'

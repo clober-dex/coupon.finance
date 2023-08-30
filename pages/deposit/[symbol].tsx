@@ -3,7 +3,7 @@ import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
 import CountUp from 'react-countup'
 import { useRouter } from 'next/router'
-import { formatUnits, parseUnits } from 'viem'
+import { parseUnits } from 'viem'
 import { useQuery } from 'wagmi'
 
 import Slider from '../../components/slider'
@@ -16,6 +16,7 @@ import { useCurrencyContext } from '../../contexts/currency-context'
 import { ClientComponent } from '../../components/client-component'
 import { fetchDepositApyByEpochsDeposited } from '../../api/market'
 import CurrencyAmountInput from '../../components/currency-amount-input'
+import { formatUnits } from '../../utils/numbers'
 
 export const getServerSideProps: GetServerSideProps<{
   asset: Asset
@@ -158,7 +159,11 @@ const Deposit: NextPage<
                           }
                         >
                           {`+${Number(
-                            formatUnits(proceeds, asset.underlying.decimals),
+                            formatUnits(
+                              proceeds,
+                              asset.underlying.decimals,
+                              prices[asset.underlying.address],
+                            ),
                           ).toFixed(2)}`}
                         </div>
                       </button>
@@ -181,6 +186,7 @@ const Deposit: NextPage<
                       `${formatUnits(
                         BigInt(value),
                         asset.underlying.decimals,
+                        prices[asset.underlying.address],
                       )} ${asset.underlying.symbol}`
                     }
                     preserveValue
