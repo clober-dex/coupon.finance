@@ -15,6 +15,8 @@ import { permit20 } from '../utils/permit20'
 import { fetchBondPositions } from '../api/bond-position'
 import { BondPosition } from '../model/bond-position'
 import { formatUnits } from '../utils/numbers'
+import { permit721 } from '../utils/permit721'
+import { Currency } from '../model/currency'
 
 import { isEthereum, useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -27,11 +29,18 @@ type DepositContext = {
     epochs: number,
     expectedProceeds: bigint,
   ) => Promise<void>
+  withdraw: (
+    asset: Currency,
+    tokenId: bigint,
+    amount: bigint,
+    repurchaseFee: bigint,
+  ) => Promise<void>
 }
 
 const Context = React.createContext<DepositContext>({
   positions: [],
   deposit: () => Promise.resolve(),
+  withdraw: () => Promise.resolve(),
 })
 
 const SLIPPAGE_PERCENTAGE = 0
@@ -127,11 +136,63 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
     ],
   )
 
+  const withdraw = useCallback(
+    async (
+      asset: Currency,
+      tokenId: bigint,
+      amount: bigint,
+      repurchaseFee: bigint,
+    ) => {
+      if (!walletClient) {
+        // TODO: alert wallet connect
+        return
+      }
+
+      const { deadline, r, s, v } = await permit721(
+        walletClient,
+        CONTRACT_ADDRESSES.BondPositionManager,
+        tokenId,
+        walletClient.account.address,
+        CONTRACT_ADDRESSES.DepositController,
+        BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
+      )
+
+      try {
+        setConfirmation({
+          title: 'Making Withdrawal',
+          body: 'Please confirm in your wallet.',
+          fields: [
+            {
+              currency: asset,
+              label: asset.symbol,
+              value: formatUnits(amount, asset.decimals),
+            },
+          ],
+        })
+        const { request } = await publicClient.simulateContract({
+          address: CONTRACT_ADDRESSES.DepositController,
+          abi: DepositController__factory.abi,
+          functionName: 'withdraw',
+          args: [tokenId, amount, repurchaseFee, { deadline, v, r, s }],
+          account: walletClient.account,
+        })
+        await walletClient.writeContract(request)
+      } catch (e) {
+        console.error(e)
+      } finally {
+        invalidateBalances()
+        setConfirmation(undefined)
+      }
+    },
+    [invalidateBalances, publicClient, setConfirmation, walletClient],
+  )
+
   return (
     <Context.Provider
       value={{
         positions,
         deposit,
+        withdraw,
       }}
     >
       {children}

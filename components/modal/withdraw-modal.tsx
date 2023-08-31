@@ -7,6 +7,7 @@ import { BondPosition } from '../../model/bond-position'
 import CurrencyAmountInput from '../currency-amount-input'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { fetchCoupons } from '../../api/market'
+import { useDepositContext } from '../../contexts/deposit-context'
 
 import Modal from './modal'
 
@@ -19,6 +20,7 @@ const WithdrawModal = ({
 }) => {
   const [value, setValue] = useState('')
   const { prices } = useCurrencyContext()
+  const { withdraw } = useDepositContext()
 
   const amount = useMemo(
     () => (position ? parseUnits(value, position.underlying.decimals) : 0n),
@@ -75,6 +77,9 @@ const WithdrawModal = ({
       <button
         disabled={amount === 0n || amount > min(position.amount, available)}
         className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
+        onClick={() =>
+          withdraw(position.underlying, position.tokenId, amount, repurchaseFee)
+        }
       >
         {amount > available
           ? 'Not enough coupons for sale'
