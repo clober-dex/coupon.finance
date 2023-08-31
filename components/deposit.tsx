@@ -237,10 +237,6 @@ const Deposit = ({
                   .toFixed(2)}
               </div>
             </div>
-            <div className="flex justify-between gap-3">
-              <div className="text-gray-500">Average APY</div>
-              <div className="font-bold">5.0%</div>
-            </div>
           </div>
           <div className="flex flex-col sm:grid sm:grid-cols-3 gap-4 sm:gap-6">
             {positions.map((position, i) => (
