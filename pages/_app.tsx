@@ -29,7 +29,7 @@ import { CurrencyProvider } from '../contexts/currency-context'
 import { TransactionProvider } from '../contexts/transaction-context'
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [process.env.NEXT_PUBLIC_BUILD === 'dev' ? couponFinanceChain : arbitrum],
+  [process.env.BUILD === 'dev' ? couponFinanceChain : arbitrum],
   [
     alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || '' }),
     publicProvider(),
