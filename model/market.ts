@@ -259,14 +259,14 @@ export class Market {
           amountIn += this.rawToBase(rawAmount, price, true)
           bids.shift()
         } else {
-          const amountInRaw = this.quoteToRaw(amountOut, true)
+          const amountInRaw = this.quoteToRaw(amountOut, false)
           amountIn += this.rawToBase(amountInRaw, price, true)
           bids[0].rawAmount = rawAmount - amountInRaw
           break
         }
       }
     }
-    // TODO: check maker fee
+    amountIn += this.calculateTakerFeeAmount(amountIn, true)
     return {
       amountIn,
       market: Market.from(this, bids, asks),

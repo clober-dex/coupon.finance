@@ -231,4 +231,42 @@ describe('Market Orders', () => {
     },
     TIME_OUT,
   )
+
+  it(
+    'check expected amount in for market ask',
+    async () => {
+      const amountIn = 10n ** 18n * 1000000000n
+      const expectedAmountOut = 100n
+      const blockNumber = 119621067
+      const { admin, CloberRouter, baseToken } = await setUp({
+        blockNumber,
+      })
+      await baseToken.approve(CloberRouter.address, MAX_UINT256)
+
+      const beforeAmount = await baseToken.balanceOf(admin.address)
+      await CloberRouter.marketAsk({
+        market: MARKER_ADDRESS,
+        deadline: 2n ** 64n - 1n,
+        user: admin.address,
+        limitPriceIndex: 0,
+        rawAmount: expectedAmountOut,
+        expendInput: false,
+        useNative: false,
+        baseAmount: amountIn,
+      })
+      const afterAmount = await baseToken.balanceOf(admin.address)
+      const actualAmountIn = beforeAmount.sub(afterAmount)
+
+      const orderBookState = await fetchOrderBookState({
+        blockNumber,
+      })
+      const { amountIn: expectedAmountIn } = orderBookState.take(
+        orderBookState.baseToken.address,
+        expectedAmountOut,
+      )
+
+      expect(actualAmountIn.toString()).toEqual(expectedAmountIn.toString())
+    },
+    TIME_OUT,
+  )
 })
