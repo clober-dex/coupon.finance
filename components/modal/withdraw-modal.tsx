@@ -27,9 +27,7 @@ const WithdrawModal = ({
     [position, value],
   )
 
-  const {
-    data: { repurchaseFee, maxRepurchaseFee, available },
-  } = useQuery(
+  const { data } = useQuery(
     ['coupon-repurchase-fee', position?.underlying.address, amount],
     async () =>
       position
@@ -40,19 +38,18 @@ const WithdrawModal = ({
             position.expiryEpoch,
           )
         : {
-            repurchaseFee: 0n,
             maxRepurchaseFee: 0n,
+            repurchaseFee: 0n,
             available: 0n,
           },
     {
       keepPreviousData: true,
-      initialData: {
-        repurchaseFee: 0n,
-        maxRepurchaseFee: 0n,
-        available: 0n,
-      },
     },
   )
+
+  const maxRepurchaseFee = useMemo(() => data?.maxRepurchaseFee ?? 0n, [data])
+  const repurchaseFee = useMemo(() => data?.repurchaseFee ?? 0n, [data])
+  const available = useMemo(() => data?.available ?? 0n, [data])
 
   if (!position) {
     return <></>
@@ -101,6 +98,8 @@ const WithdrawModal = ({
           ? 'Not enough coupons for sale'
           : amount > position.amount
           ? 'Not enough deposited'
+          : amount > position.amount - maxRepurchaseFee
+          ? 'Cannot cover repurchase fee'
           : 'Confirm'}
       </button>
     </Modal>
