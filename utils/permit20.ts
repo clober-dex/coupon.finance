@@ -7,7 +7,7 @@ import { IERC20Metadata__factory, IERC20Permit__factory } from '../typechain'
 
 import { zeroBytes32 } from './bytes'
 
-export const permit = async (
+export const permit20 = async (
   walletClient: GetWalletClientResult,
   currency: Currency,
   owner: `0x${string}`,

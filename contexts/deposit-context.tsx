@@ -11,7 +11,7 @@ import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { DepositController__factory } from '../typechain'
 import { Asset } from '../model/asset'
 import { max } from '../utils/bigint'
-import { permit } from '../utils/permit'
+import { permit20 } from '../utils/permit20'
 import { fetchBondPositions } from '../api/bond-position'
 import { BondPosition } from '../model/bond-position'
 import { formatUnits } from '../utils/numbers'
@@ -72,7 +72,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       const wethBalance = isEthereum(asset.underlying)
         ? balances[asset.underlying.address] - (balance?.value || 0n)
         : 0n
-      const { deadline, r, s, v } = await permit(
+      const { deadline, r, s, v } = await permit20(
         walletClient,
         asset.underlying,
         walletClient.account.address,
