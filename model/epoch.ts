@@ -1,5 +1,5 @@
 export type Epoch = {
-  id: bigint
-  startTimestamp: bigint
-  endTimestamp: bigint
+  id: number
+  startTimestamp: number
+  endTimestamp: number
 }

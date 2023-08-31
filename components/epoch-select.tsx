@@ -2,18 +2,21 @@ import React, { Fragment } from 'react'
 import { Listbox, Transition } from '@headlessui/react'
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid'
 
+import { Epoch } from '../model/epoch'
+import { formatDate } from '../utils/epoch'
+
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function DateSelect({
-  dates,
+export default function EpochSelect({
+  epochs,
   value,
   onValueChange,
 }: {
-  dates: string[]
-  value: string
-  onValueChange: (value: string) => void
+  epochs: Epoch[]
+  value: Epoch
+  onValueChange: (value: Epoch) => void
 }) {
   return (
     <Listbox value={value} onChange={onValueChange}>
@@ -21,7 +24,7 @@ export default function DateSelect({
         <>
           <div className="relative w-40">
             <Listbox.Button className="relative w-full cursor-default rounded-md bg-white dark:bg-gray-800 py-1.5 pl-3 pr-10 text-left shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 sm:text-sm sm:leading-6">
-              <span className="block truncate">{value}</span>
+              <span className="block truncate">{formatDate(value)}</span>
               <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
                 <ChevronUpDownIcon
                   className="h-5 w-5 text-gray-400 dark:text-white"
@@ -38,7 +41,7 @@ export default function DateSelect({
               leaveTo="opacity-0"
             >
               <Listbox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md bg-white dark:bg-gray-800 py-1 text-base shadow ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-                {dates.map((date, index) => (
+                {epochs.map((date, index) => (
                   <Listbox.Option
                     key={index}
                     className={({ active }) =>
@@ -57,7 +60,7 @@ export default function DateSelect({
                             'block truncate',
                           )}
                         >
-                          {date}
+                          {formatDate(date)}
                         </span>
 
                         {selected ? (

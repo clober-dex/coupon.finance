@@ -1,7 +1,7 @@
 import { isAddressEqual } from 'viem'
 
 import { MarketDto } from '../api/market'
-import { YEAR_IN_SECONDS } from '../utils/epoch'
+import { calculateApy } from '../utils/apy'
 
 import { Currency } from './currency'
 
@@ -223,6 +223,13 @@ export class Market {
       market: Market.from(this, bids, asks),
     }
   }
+
+  totalBidsInBase(): bigint {
+    return this.bids.reduce(
+      (acc, val) => acc + this.rawToBase(val.rawAmount, val.price, false),
+      0n,
+    )
+  }
 }
 
 export const calculateTotalDeposit = (
@@ -273,11 +280,10 @@ export const calculateDepositApy = (
     .map((market) => market.endTimestamp)
     .reduce((acc, val) => (acc < val ? val : acc), 0n)
   const totalDeposit = calculateTotalDeposit(markets, initialDeposit)
-  const apy =
-    totalDeposit === initialDeposit
-      ? 0
-      : ((Number(totalDeposit) / Number(initialDeposit)) * YEAR_IN_SECONDS) /
-        (Number(endTimestamp) - currentTimestamp)
+  const p =
+    (Number(totalDeposit) - Number(initialDeposit)) / Number(initialDeposit)
+  const d = Number(endTimestamp) - currentTimestamp
+  const apy = calculateApy(p, d)
 
   return {
     apy,

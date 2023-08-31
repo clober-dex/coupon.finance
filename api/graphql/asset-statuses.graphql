@@ -1,0 +1,47 @@
+query getAssetStatuses {
+  assetStatuses {
+    id
+    asset {
+      underlying{
+        id
+        name
+        symbol
+        decimals
+      }
+    }
+    epoch {
+      id
+      startTimestamp
+      endTimestamp
+    }
+    market {
+      id
+      orderToken
+      takerFee
+      quoteUnit
+      epoch {
+        id
+        startTimestamp
+        endTimestamp
+      }
+      quoteToken {
+        id
+        name
+        symbol
+        decimals
+      }
+      baseToken {
+        id
+        name
+        symbol
+        decimals
+      }
+      depths {
+        price
+        rawAmount
+        isBid
+      }
+    }
+    totalDeposited
+  }
+}
