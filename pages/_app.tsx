@@ -12,11 +12,6 @@ import { configureChains, createConfig, useAccount, WagmiConfig } from 'wagmi'
 import { arbitrum } from 'wagmi/chains'
 import { publicProvider } from 'wagmi/providers/public'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
-import {
-  Hydrate,
-  QueryClient,
-  QueryClientProvider,
-} from '@tanstack/react-query'
 import { identify } from '@web3analytic/funnel-sdk'
 
 import Header from '../components/header'
