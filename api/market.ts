@@ -5,6 +5,7 @@ import { calculateDepositApy, Market } from '../model/market'
 import { Currency } from '../model/currency'
 import { Asset } from '../model/asset'
 import { getEpoch } from '../utils/epoch'
+import { min } from '../utils/bigint'
 
 const { getMarkets } = getBuiltGraphSDK()
 
@@ -115,10 +116,7 @@ export async function fetchCoupons(
     (acc, market) => acc + market.take(substitute.address, amount).amountIn,
     0n,
   )
-  const available = markets.reduce((acc, market) => {
-    const coupons = market.totalAsksInBase()
-    return acc > coupons ? coupons : acc
-  }, 2n ** 256n - 1n)
+  const available = min(...markets.map((market) => market.totalAsksInBase()))
 
   return {
     repurchaseFee,
