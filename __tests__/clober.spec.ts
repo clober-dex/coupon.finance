@@ -185,7 +185,7 @@ describe('Market Orders', () => {
       const orderBookState = await fetchOrderBookState({
         blockNumber,
       })
-      const { amountOut: expectedAmountOut } = orderBookState.swap(
+      const { amountOut: expectedAmountOut } = orderBookState.spend(
         orderBookState.baseToken.address,
         amountIn,
       )
@@ -222,7 +222,7 @@ describe('Market Orders', () => {
       const orderBookState = await fetchOrderBookState({
         blockNumber,
       })
-      const { amountOut: expectedAmountOut } = orderBookState.swap(
+      const { amountOut: expectedAmountOut } = orderBookState.spend(
         orderBookState.quoteToken.address,
         amountIn,
       )

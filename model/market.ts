@@ -181,8 +181,7 @@ export class Market {
     )
   }
 
-  // TODO: rename to spend
-  swap(
+  spend(
     tokenIn: `0x${string}`,
     amountIn: bigint,
   ): {
@@ -291,7 +290,7 @@ export const calculateTotalDeposit = (
 
   while (amountOuts.reduce((a, b) => a + b, 0n) > 0n) {
     for (let i = 0; i < markets.length; i++) {
-      ;({ market: markets[i], amountOut: amountOuts[i] } = markets[i].swap(
+      ;({ market: markets[i], amountOut: amountOuts[i] } = markets[i].spend(
         markets[i].baseToken.address,
         initialDeposit,
       ))
