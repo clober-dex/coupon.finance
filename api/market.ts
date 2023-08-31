@@ -101,7 +101,7 @@ export async function fetchDepositApyByEpochsDeposited(
 export async function fetchCoupons(
   substitute: Currency,
   amount: bigint,
-  epoch: bigint,
+  epoch: number,
 ): Promise<{
   repurchaseFee: bigint
   available: bigint

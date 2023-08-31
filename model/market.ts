@@ -19,9 +19,9 @@ export class Market {
   orderToken: string
   takerFee: bigint
   quoteUnit: bigint
-  epoch: bigint
-  startTimestamp: bigint
-  endTimestamp: bigint
+  epoch: number
+  startTimestamp: number
+  endTimestamp: number
   quoteToken: Currency
   baseToken: Currency
   quotePrecisionComplement: bigint
@@ -34,9 +34,9 @@ export class Market {
     orderToken: string,
     takerFee: bigint,
     quoteUnit: bigint,
-    epoch: bigint,
-    startTimestamp: bigint,
-    endTimestamp: bigint,
+    epoch: number,
+    startTimestamp: number,
+    endTimestamp: number,
     quoteToken: Currency,
     baseToken: Currency,
     quotePrecisionComplement: bigint,
@@ -83,9 +83,9 @@ export class Market {
       dto.orderToken,
       BigInt(dto.takerFee),
       BigInt(dto.quoteUnit),
-      BigInt(dto.epoch.id),
-      BigInt(dto.epoch.startTimestamp),
-      BigInt(dto.epoch.endTimestamp),
+      Number(dto.epoch.id),
+      Number(dto.epoch.startTimestamp),
+      Number(dto.epoch.endTimestamp),
       dto.quoteToken,
       dto.baseToken,
       10n ** (18n - BigInt(dto.quoteToken.decimals)),
@@ -339,7 +339,7 @@ export const calculateDepositApy = (
 
   const endTimestamp = markets
     .map((market) => market.endTimestamp)
-    .reduce((acc, val) => (acc < val ? val : acc), 0n)
+    .reduce((acc, val) => (acc < val ? val : acc), 0)
   const totalDeposit = calculateTotalDeposit(markets, initialDeposit)
   const p =
     (Number(totalDeposit) - Number(initialDeposit)) / Number(initialDeposit)
