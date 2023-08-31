@@ -3,6 +3,7 @@ query getBondPositions($userAddress: String!) {
     id
     user
     amount
+    principal
     substitute {
       id
       decimals

@@ -30,7 +30,7 @@ const WithdrawModal = ({
       position
         ? fetchCouponRepurchaseFee(
             position.substitute,
-            position.amount,
+            amount,
             position.expiryEpoch,
           )
         : 0n,

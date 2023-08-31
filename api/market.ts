@@ -107,8 +107,6 @@ export async function fetchCouponRepurchaseFee(
       isAddressEqual(market.quoteToken.address, substitute.address),
     )
     .filter((market) => market.epoch <= epoch)
-    // TODO: filter out markets using currentTimestamp on subgraph
-    .sort((a, b) => Number(a.epoch) - Number(b.epoch))
 
   return markets.reduce(
     (acc, market) => acc + market.take(substitute.address, amount).amountIn,
