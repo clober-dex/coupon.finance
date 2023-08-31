@@ -7,6 +7,7 @@ import { BondPosition } from '../../model/bond-position'
 import CurrencyAmountInput from '../currency-amount-input'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { fetchCoupons } from '../../api/market'
+import { useDepositContext } from '../../contexts/deposit-context'
 
 import Modal from './modal'
 
@@ -19,6 +20,7 @@ const WithdrawModal = ({
 }) => {
   const [value, setValue] = useState('')
   const { prices } = useCurrencyContext()
+  const { withdraw } = useDepositContext()
 
   const amount = useMemo(
     () => (position ? parseUnits(value, position.underlying.decimals) : 0n),
@@ -29,13 +31,23 @@ const WithdrawModal = ({
     ['coupon-repurchase-fee', position?.underlying.address, amount],
     async () =>
       position
-        ? fetchCoupons(position.substitute, amount, position.expiryEpoch)
-        : undefined,
+        ? fetchCoupons(
+            position.substitute,
+            position.amount,
+            amount,
+            position.expiryEpoch,
+          )
+        : {
+            maxRepurchaseFee: 0n,
+            repurchaseFee: 0n,
+            available: 0n,
+          },
     {
       keepPreviousData: true,
     },
   )
 
+  const maxRepurchaseFee = useMemo(() => data?.maxRepurchaseFee ?? 0n, [data])
   const repurchaseFee = useMemo(() => data?.repurchaseFee ?? 0n, [data])
   const available = useMemo(() => data?.available ?? 0n, [data])
 
@@ -58,7 +70,7 @@ const WithdrawModal = ({
           currency={position.underlying}
           value={value}
           onValueChange={setValue}
-          balance={min(position.amount, available)}
+          balance={min(position.amount - maxRepurchaseFee, available)}
           price={prices[position.underlying.address] ?? 0}
         />
       </div>
@@ -73,13 +85,21 @@ const WithdrawModal = ({
         {position.underlying.symbol}
       </div>
       <button
-        disabled={amount === 0n || amount > min(position.amount, available)}
+        disabled={
+          amount === 0n ||
+          amount > min(position.amount - maxRepurchaseFee, available)
+        }
         className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
+        onClick={() =>
+          withdraw(position.underlying, position.tokenId, amount, repurchaseFee)
+        }
       >
         {amount > available
           ? 'Not enough coupons for sale'
           : amount > position.amount
           ? 'Not enough deposited'
+          : amount > position.amount - maxRepurchaseFee
+          ? 'Cannot cover repurchase fee'
           : 'Confirm'}
       </button>
     </Modal>
