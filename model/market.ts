@@ -166,6 +166,14 @@ export class Market {
     )
   }
 
+  private calculateTakeAmountBeforeFees(amountAfterFees: bigint): bigint {
+    return this.roundDiv(
+      amountAfterFees * this.FEE_PRECISION,
+      this.FEE_PRECISION - this.takerFee,
+      true,
+    )
+  }
+
   clone(): Market {
     return Object.create(
       Object.getPrototypeOf(this),
@@ -227,6 +235,7 @@ export class Market {
     market: Market
     amountIn: bigint
   } {
+    amountOut = this.calculateTakeAmountBeforeFees(amountOut)
     const asks = [...this.asks]
     const bids = [...this.bids]
     let amountIn: bigint = 0n
@@ -238,35 +247,32 @@ export class Market {
     ) {
       while (asks.length > 0) {
         const { price, rawAmount } = asks[0]
-        const availableOut = this.rawToBase(rawAmount, price, false)
-        if (amountOut >= availableOut) {
-          amountOut -= availableOut
+        const amountOutRaw = this.baseToRaw(amountOut, price, true)
+        if (amountOutRaw >= rawAmount) {
+          amountOut -= this.rawToBase(rawAmount, price, true)
           amountIn += this.rawToQuote(rawAmount)
           asks.shift()
         } else {
-          const amountInRaw = this.baseToRaw(amountOut, price, true)
-          amountIn += this.rawToQuote(amountInRaw)
-          asks[0].rawAmount = rawAmount - amountInRaw
+          amountIn += this.rawToQuote(amountOutRaw)
+          asks[0].rawAmount = rawAmount - amountOutRaw
           break
         }
       }
     } else {
       while (bids.length > 0) {
         const { price, rawAmount } = bids[0]
-        const availableOut = this.rawToQuote(rawAmount)
-        if (amountOut >= availableOut) {
-          amountOut -= availableOut
+        const amountOutRaw = this.quoteToRaw(amountOut, true)
+        if (amountOutRaw >= rawAmount) {
+          amountOut -= this.rawToQuote(rawAmount)
           amountIn += this.rawToBase(rawAmount, price, true)
           bids.shift()
         } else {
-          const amountInRaw = this.quoteToRaw(amountOut, false)
-          amountIn += this.rawToBase(amountInRaw, price, true)
-          bids[0].rawAmount = rawAmount - amountInRaw
+          amountIn += this.rawToBase(amountOutRaw, price, true)
+          bids[0].rawAmount = rawAmount - amountOutRaw
           break
         }
       }
     }
-    amountIn += this.calculateTakerFeeAmount(amountIn, true)
     return {
       amountIn,
       market: Market.from(this, bids, asks),
