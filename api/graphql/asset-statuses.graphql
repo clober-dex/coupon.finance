@@ -42,6 +42,6 @@ query getAssetStatuses {
         isBid
       }
     }
-    totalDeposits
+    totalDeposited
   }
 }

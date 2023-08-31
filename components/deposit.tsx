@@ -286,7 +286,7 @@ const Deposit = ({
                     apy={apy}
                     available={available}
                     deposited={parseUnits(
-                      assetStatus.totalDeposits,
+                      assetStatus.totalDeposited,
                       assetStatus.underlying.decimals,
                     )}
                     price={prices[assetStatus.underlying.address] ?? 0}
