@@ -27,19 +27,32 @@ const WithdrawModal = ({
     [position, value],
   )
 
-  const { data } = useQuery(
+  const {
+    data: { repurchaseFee, maxRepurchaseFee, available },
+  } = useQuery(
     ['coupon-repurchase-fee', position?.underlying.address, amount],
     async () =>
       position
-        ? fetchCoupons(position.substitute, amount, position.expiryEpoch)
-        : undefined,
+        ? fetchCoupons(
+            position.substitute,
+            position.amount,
+            amount,
+            position.expiryEpoch,
+          )
+        : {
+            repurchaseFee: 0n,
+            maxRepurchaseFee: 0n,
+            available: 0n,
+          },
     {
       keepPreviousData: true,
+      initialData: {
+        repurchaseFee: 0n,
+        maxRepurchaseFee: 0n,
+        available: 0n,
+      },
     },
   )
-
-  const repurchaseFee = useMemo(() => data?.repurchaseFee ?? 0n, [data])
-  const available = useMemo(() => data?.available ?? 0n, [data])
 
   if (!position) {
     return <></>
@@ -60,7 +73,7 @@ const WithdrawModal = ({
           currency={position.underlying}
           value={value}
           onValueChange={setValue}
-          balance={min(position.amount, available)}
+          balance={min(position.amount - maxRepurchaseFee, available)}
           price={prices[position.underlying.address] ?? 0}
         />
       </div>
@@ -75,7 +88,10 @@ const WithdrawModal = ({
         {position.underlying.symbol}
       </div>
       <button
-        disabled={amount === 0n || amount > min(position.amount, available)}
+        disabled={
+          amount === 0n ||
+          amount > min(position.amount - maxRepurchaseFee, available)
+        }
         className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
         onClick={() =>
           withdraw(position.underlying, position.tokenId, amount, repurchaseFee)

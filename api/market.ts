@@ -100,9 +100,11 @@ export async function fetchDepositApyByEpochsDeposited(
 
 export async function fetchCoupons(
   substitute: Currency,
-  amount: bigint,
+  positionAmount: bigint,
+  withdrawAmount: bigint,
   epoch: bigint,
 ): Promise<{
+  maxRepurchaseFee: bigint
   repurchaseFee: bigint
   available: bigint
 }> {
@@ -113,12 +115,19 @@ export async function fetchCoupons(
     .filter((market) => market.epoch <= epoch)
 
   const repurchaseFee = markets.reduce(
-    (acc, market) => acc + market.take(substitute.address, amount).amountIn,
+    (acc, market) =>
+      acc + market.take(substitute.address, withdrawAmount).amountIn,
+    0n,
+  )
+  const maxRepurchaseFee = markets.reduce(
+    (acc, market) =>
+      acc + market.take(substitute.address, positionAmount).amountIn,
     0n,
   )
   const available = min(...markets.map((market) => market.totalAsksInBase()))
 
   return {
+    maxRepurchaseFee,
     repurchaseFee,
     available,
   }
