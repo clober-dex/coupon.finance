@@ -9,7 +9,7 @@ const { getAssets, getAssetStatuses } = getBuiltGraphSDK()
 
 let cache: Asset[] | null = null
 
-const toCurrency = (
+export const toCurrency = (
   token: Pick<Token, 'id' | 'symbol' | 'name' | 'decimals'>,
 ) =>
   token.name === 'Wrapped Ether'

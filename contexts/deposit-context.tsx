@@ -1,27 +1,26 @@
 import React, { useCallback } from 'react'
-import { useAccount, useBalance, usePublicClient, useWalletClient } from 'wagmi'
+import {
+  useAccount,
+  useBalance,
+  usePublicClient,
+  useQuery,
+  useWalletClient,
+} from 'wagmi'
 
-import { Currency } from '../model/currency'
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { DepositController__factory } from '../typechain'
 import { Asset } from '../model/asset'
-import { bigIntMax } from '../utils/bigint'
+import { max } from '../utils/bigint'
 import { permit } from '../utils/permit'
+import { fetchBondPositions } from '../api/bond-position'
+import { BondPosition } from '../model/bond-position'
 import { formatUnits } from '../utils/numbers'
 
 import { isEthereum, useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
 
 type DepositContext = {
-  // TODO: change to bigInt
-  positions: {
-    currency: Currency
-    apy: string
-    interestEarned: string
-    deposited: string
-    expiry: string
-    price: string
-  }[]
+  positions: BondPosition[]
   deposit: (
     asset: Asset,
     amount: bigint,
@@ -38,35 +37,6 @@ const Context = React.createContext<DepositContext>({
 const SLIPPAGE_PERCENTAGE = 0
 
 export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
-  const dummyPositions = [
-    {
-      currency: {
-        address: '0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9' as `0x${string}`,
-        name: 'Ethereum',
-        symbol: 'ETH',
-        decimals: 18,
-      },
-      apy: '5.00%',
-      interestEarned: '3.45',
-      deposited: '69.00',
-      expiry: '12/12/2021',
-      price: '2000.00',
-    },
-    {
-      currency: {
-        address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1' as `0x${string}`,
-        name: 'Arbitrum',
-        symbol: 'ARB',
-        decimals: 18,
-      },
-      apy: '5.00%',
-      interestEarned: '2.1',
-      deposited: '42.00',
-      expiry: '12/12/2021',
-      price: '30000.00',
-    },
-  ]
-
   const { address: userAddress } = useAccount()
   const { data: balance } = useBalance({ address: userAddress })
 
@@ -74,6 +44,15 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
   const { balances, invalidateBalances } = useCurrencyContext()
+
+  const { data: positions } = useQuery(
+    ['bond-positions', userAddress],
+    () => (userAddress ? fetchBondPositions(userAddress) : []),
+    {
+      refetchOnWindowFocus: true,
+      initialData: [],
+    },
+  )
 
   const deposit = useCallback(
     async (
@@ -126,7 +105,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
             { deadline, v, r, s },
           ],
           value: isEthereum(asset.underlying)
-            ? bigIntMax(amount - wethBalance, 0n)
+            ? max(amount - wethBalance, 0n)
             : 0n,
           account: walletClient.account,
         })
@@ -151,7 +130,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   return (
     <Context.Provider
       value={{
-        positions: dummyPositions,
+        positions,
         deposit,
       }}
     >

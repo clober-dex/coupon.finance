@@ -185,7 +185,7 @@ describe('Market Orders', () => {
       const orderBookState = await fetchOrderBookState({
         blockNumber,
       })
-      const { amountOut: expectedAmountOut } = orderBookState.swap(
+      const { amountOut: expectedAmountOut } = orderBookState.spend(
         orderBookState.baseToken.address,
         amountIn,
       )
@@ -222,12 +222,180 @@ describe('Market Orders', () => {
       const orderBookState = await fetchOrderBookState({
         blockNumber,
       })
-      const { amountOut: expectedAmountOut } = orderBookState.swap(
+      const { amountOut: expectedAmountOut } = orderBookState.spend(
         orderBookState.quoteToken.address,
         amountIn,
       )
 
       expect(actualAmountOut.toString()).toEqual(expectedAmountOut.toString())
+    },
+    TIME_OUT,
+  )
+
+  it(
+    'check expected small amount in for market ask',
+    async () => {
+      const amountIn = 10n ** 18n * 1000000000n
+      const expectedAmountOut = 100n
+      const blockNumber = 119621067
+      const { admin, CloberOrderBook, CloberRouter, baseToken } = await setUp({
+        blockNumber,
+      })
+      await baseToken.approve(CloberRouter.address, MAX_UINT256)
+
+      const beforeAmount = await baseToken.balanceOf(admin.address)
+      await CloberRouter.marketAsk({
+        market: MARKER_ADDRESS,
+        deadline: 2n ** 64n - 1n,
+        user: admin.address,
+        limitPriceIndex: 0,
+        rawAmount: expectedAmountOut,
+        expendInput: false,
+        useNative: false,
+        baseAmount: amountIn,
+      })
+      const afterAmount = await baseToken.balanceOf(admin.address)
+      const actualAmountIn = beforeAmount.sub(afterAmount)
+
+      const orderBookState = await fetchOrderBookState({
+        blockNumber,
+      })
+      const { amountIn: expectedAmountIn, market } = orderBookState.take(
+        orderBookState.baseToken.address,
+        expectedAmountOut,
+      )
+
+      expect(actualAmountIn.toString()).toEqual(expectedAmountIn.toString())
+
+      const actualPriceIndex = await CloberOrderBook.bestPriceIndex(true)
+      expect(
+        (await CloberOrderBook.indexToPrice(actualPriceIndex)).toNumber(),
+      ).toEqual(Number(market.bids[0].price))
+
+      const actualDepth = await CloberOrderBook.getDepth(true, actualPriceIndex)
+      expect(actualDepth.toNumber()).toEqual(Number(market.bids[0].rawAmount))
+    },
+    TIME_OUT,
+  )
+
+  it(
+    'check expected large amount in for market ask',
+    async () => {
+      const amountIn = 10n ** 18n * 20000000n
+      const expectedAmountOut = 10n ** 6n
+      const blockNumber = 119621067
+      const { admin, CloberRouter, baseToken } = await setUp({
+        blockNumber,
+      })
+      await baseToken.approve(CloberRouter.address, MAX_UINT256)
+
+      const beforeAmount = await baseToken.balanceOf(admin.address)
+      await CloberRouter.marketAsk({
+        market: MARKER_ADDRESS,
+        deadline: 2n ** 64n - 1n,
+        user: admin.address,
+        limitPriceIndex: 0,
+        rawAmount: expectedAmountOut,
+        expendInput: false,
+        useNative: false,
+        baseAmount: amountIn,
+      })
+      const afterAmount = await baseToken.balanceOf(admin.address)
+      const actualAmountIn = beforeAmount.sub(afterAmount)
+
+      const orderBookState = await fetchOrderBookState({
+        blockNumber,
+      })
+      const { amountIn: expectedAmountIn } = orderBookState.take(
+        orderBookState.baseToken.address,
+        expectedAmountOut,
+      )
+
+      expect(actualAmountIn.toString()).toEqual(expectedAmountIn.toString())
+    },
+    TIME_OUT,
+  )
+
+  it(
+    'check expected small amount in for market bid',
+    async () => {
+      const amountIn = 10n ** 6n * 10n
+      const expectedAmountOut = 10n ** 18n * 10000n
+      const blockNumber = 119621067
+      const { admin, CloberOrderBook, CloberRouter, quoteToken } = await setUp({
+        blockNumber,
+      })
+      await quoteToken.approve(CloberRouter.address, MAX_UINT256)
+
+      const beforeAmount = await quoteToken.balanceOf(admin.address)
+      await CloberRouter.marketBid({
+        market: MARKER_ADDRESS,
+        deadline: 2n ** 64n - 1n,
+        user: admin.address,
+        limitPriceIndex: 65535n,
+        rawAmount: amountIn,
+        expendInput: false,
+        useNative: false,
+        baseAmount: expectedAmountOut,
+      })
+      const afterAmount = await quoteToken.balanceOf(admin.address)
+      const actualAmountIn = beforeAmount.sub(afterAmount)
+
+      const orderBookState = await fetchOrderBookState({
+        blockNumber,
+      })
+      const { amountIn: expectedAmountIn, market } = orderBookState.take(
+        orderBookState.quoteToken.address,
+        expectedAmountOut,
+      )
+
+      expect(actualAmountIn.toString()).toEqual(expectedAmountIn.toString())
+
+      const actualPriceIndex = await CloberOrderBook.bestPriceIndex(true)
+      expect(
+        (await CloberOrderBook.indexToPrice(actualPriceIndex)).toNumber(),
+      ).toEqual(Number(market.bids[0].price))
+
+      const actualDepth = await CloberOrderBook.getDepth(true, actualPriceIndex)
+      expect(actualDepth.toNumber()).toEqual(Number(market.bids[0].rawAmount))
+    },
+    TIME_OUT,
+  )
+
+  it(
+    'check expected large amount in for market bid',
+    async () => {
+      const amountIn = 10n ** 6n * 4000n
+      const expectedAmountOut = 10n ** 18n * 10000000n
+      const blockNumber = 119621067
+      const { admin, CloberRouter, quoteToken } = await setUp({
+        blockNumber,
+      })
+      await quoteToken.approve(CloberRouter.address, MAX_UINT256)
+
+      const beforeAmount = await quoteToken.balanceOf(admin.address)
+      await CloberRouter.marketBid({
+        market: MARKER_ADDRESS,
+        deadline: 2n ** 64n - 1n,
+        user: admin.address,
+        limitPriceIndex: 65535n,
+        rawAmount: amountIn,
+        expendInput: false,
+        useNative: false,
+        baseAmount: expectedAmountOut,
+      })
+      const afterAmount = await quoteToken.balanceOf(admin.address)
+      const actualAmountIn = beforeAmount.sub(afterAmount)
+
+      const orderBookState = await fetchOrderBookState({
+        blockNumber,
+      })
+      const { amountIn: expectedAmountIn } = orderBookState.take(
+        orderBookState.quoteToken.address,
+        expectedAmountOut,
+      )
+
+      expect(actualAmountIn.toString()).toEqual(expectedAmountIn.toString())
     },
     TIME_OUT,
   )

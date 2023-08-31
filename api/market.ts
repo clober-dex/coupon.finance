@@ -5,6 +5,7 @@ import { calculateDepositApy, Market } from '../model/market'
 import { Currency } from '../model/currency'
 import { Asset } from '../model/asset'
 import { getEpoch } from '../utils/epoch'
+import { min } from '../utils/bigint'
 
 const { getMarkets } = getBuiltGraphSDK()
 
@@ -77,7 +78,6 @@ export async function fetchDepositApyByEpochsDeposited(
     .sort((a, b) => Number(a.epoch) - Number(b.epoch))
 
   const currentTimestamp = Math.floor(new Date().getTime() / 1000)
-
   return markets
     .map((_, i) => markets.slice(0, i + 1))
     .map((markets) => {
@@ -96,4 +96,30 @@ export async function fetchDepositApyByEpochsDeposited(
         apy,
       }
     })
+}
+
+export async function fetchCoupons(
+  substitute: Currency,
+  amount: bigint,
+  epoch: bigint,
+): Promise<{
+  repurchaseFee: bigint
+  available: bigint
+}> {
+  const markets = (await fetchMarkets())
+    .filter((market) =>
+      isAddressEqual(market.quoteToken.address, substitute.address),
+    )
+    .filter((market) => market.epoch <= epoch)
+
+  const repurchaseFee = markets.reduce(
+    (acc, market) => acc + market.take(substitute.address, amount).amountIn,
+    0n,
+  )
+  const available = min(...markets.map((market) => market.totalAsksInBase()))
+
+  return {
+    repurchaseFee,
+    available,
+  }
 }

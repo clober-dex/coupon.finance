@@ -6,6 +6,7 @@ import { useDepositContext } from '../contexts/deposit-context'
 import { Currency, getLogo } from '../model/currency'
 import { AssetStatus } from '../model/asset'
 import { useCurrencyContext } from '../contexts/currency-context'
+import { BondPosition } from '../model/bond-position'
 import { formatDollarValue, formatUnits } from '../utils/numbers'
 import { Epoch } from '../model/epoch'
 import { calculateApy } from '../utils/apy'
@@ -15,21 +16,13 @@ import EpochSelect from './epoch-select'
 import { ClientComponent } from './client-component'
 
 const Position = ({
-  currency,
-  apy,
-  interestEarned,
-  deposited,
-  expiry,
+  position,
   price,
   onWithdraw,
   ...props
 }: {
-  currency: Currency
-  apy: string
-  interestEarned: string
-  deposited: string
-  expiry: string
-  price: string
+  position: BondPosition
+  price: number
   onWithdraw: () => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
   return (
@@ -37,31 +30,56 @@ const Position = ({
       <div className="flex justify-between rounded-t-xl p-4 bg-white dark:bg-gray-800">
         <div className="flex items-center gap-3">
           <img
-            src={getLogo(currency)}
-            alt={currency.name}
+            src={getLogo(position.underlying)}
+            alt={position.underlying.name}
             className="w-8 h-8"
           />
           <div className="flex flex-col">
-            <div className="font-bold">{currency.symbol}</div>
-            <div className="text-gray-500 text-sm">{currency.name}</div>
+            <div className="font-bold">{position.underlying.symbol}</div>
+            <div className="text-gray-500 text-sm">
+              {position.underlying.name}
+            </div>
           </div>
         </div>
         <div className="flex flex-col items-end">
-          <div className="font-bold">{apy}</div>
-          <div className="text-xs sm:text-sm">{expiry}</div>
+          <div className="font-bold">5.00%</div>
+          <div className="text-xs sm:text-sm">
+            {new Date(Number(position.expiryTimestamp) * 1000)
+              .toISOString()
+              .slice(2, 10)
+              .replace(/-/g, '/')}
+          </div>
         </div>
       </div>
       <div className="flex flex-col rounded-b-xl p-4 gap-4">
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <div className="text-gray-500 text-xs">Interest</div>
-            <div className="text-xs sm:text-sm">${interestEarned}</div>
+            <div className="text-xs sm:text-sm">
+              {formatDollarValue(
+                position.interest,
+                position.underlying.decimals,
+                price,
+              )}
+            </div>
           </div>
           <div className="flex items-center justify-between text-xs">
             <div className="text-gray-500">Deposited</div>
             <div className="flex gap-1 text-xs sm:text-sm">
-              {deposited}
-              <span className="text-gray-500">(${+deposited * +price})</span>
+              {formatUnits(
+                position.amount,
+                position.underlying.decimals,
+                price,
+              )}
+              <span className="text-gray-500">
+                (
+                {formatDollarValue(
+                  position.amount,
+                  position.underlying.decimals,
+                  price,
+                )}
+                )
+              </span>
             </div>
           </div>
         </div>
@@ -163,10 +181,9 @@ const Deposit = ({
 }) => {
   const { prices } = useCurrencyContext()
   const { positions } = useDepositContext()
-  const [withdrawPosition, setWithdrawPosition] = useState<{
-    currency: Currency
-    amount: string
-  } | null>(null)
+  const [withdrawPosition, setWithdrawPosition] = useState<BondPosition | null>(
+    null,
+  )
   const [epoch, setEpoch] = useState(epochs[0])
   return (
     <div className="flex flex-1 flex-col w-full sm:w-fit">
@@ -175,7 +192,7 @@ const Deposit = ({
         DeFi
       </h1>
       {positions.length > 0 ? (
-        <div className="flex flex-col gap-6 mb-12 sm:mb-20 px-4 sm:p-0">
+        <ClientComponent className="flex flex-col gap-6 mb-12 sm:mb-20 px-4 sm:p-0">
           <div className="flex gap-2 sm:gap-3 items-center">
             <h2 className="font-bold text-base sm:text-2xl">My Positions</h2>
             <div className="font-bold text-sm bg-gray-200 dark:bg-gray-700 rounded-full px-2.5 sm:px-3 py-0.5 sm:py-1">
@@ -187,22 +204,30 @@ const Deposit = ({
               <div className="text-gray-500">Total Deposit</div>
               <div className="font-bold">
                 $
-                {positions.reduce(
-                  (acc, position) =>
-                    +position.price * +position.deposited + acc,
-                  0,
-                )}
+                {positions
+                  .reduce(
+                    (acc, { underlying, amount }) =>
+                      +formatUnits(amount, underlying.decimals) *
+                        (prices[underlying.address] ?? 0) +
+                      acc,
+                    0,
+                  )
+                  .toFixed(2)}
               </div>
             </div>
             <div className="flex justify-between gap-3">
               <div className="text-gray-500">Total Earned</div>
               <div className="font-bold">
                 $
-                {positions.reduce(
-                  (acc, position) =>
-                    +position.price * +position.interestEarned + acc,
-                  0,
-                )}
+                {positions
+                  .reduce(
+                    (acc, { underlying, interest }) =>
+                      +formatUnits(interest, underlying.decimals) *
+                        (prices[underlying.address] ?? 0) +
+                      acc,
+                    0,
+                  )
+                  .toFixed(2)}
               </div>
             </div>
             <div className="flex justify-between gap-3">
@@ -214,22 +239,13 @@ const Deposit = ({
             {positions.map((position, i) => (
               <Position
                 key={i}
-                currency={position.currency}
-                apy={position.apy}
-                interestEarned={position.interestEarned}
-                deposited={position.deposited}
-                expiry={position.expiry}
-                price={position.price}
-                onWithdraw={() =>
-                  setWithdrawPosition({
-                    currency: position.currency,
-                    amount: position.deposited,
-                  })
-                }
+                position={position}
+                price={prices[position.underlying.address] ?? 0}
+                onWithdraw={() => setWithdrawPosition(position)}
               />
             ))}
           </div>
-        </div>
+        </ClientComponent>
       ) : (
         <></>
       )}

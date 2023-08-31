@@ -166,6 +166,14 @@ export class Market {
     )
   }
 
+  private calculateTakeAmountBeforeFees(amountAfterFees: bigint): bigint {
+    return this.roundDiv(
+      amountAfterFees * this.FEE_PRECISION,
+      this.FEE_PRECISION - this.takerFee,
+      true,
+    )
+  }
+
   clone(): Market {
     return Object.create(
       Object.getPrototypeOf(this),
@@ -173,8 +181,8 @@ export class Market {
     )
   }
 
-  swap(
-    tokenIn: string,
+  spend(
+    tokenIn: `0x${string}`,
     amountIn: bigint,
   ): {
     market: Market
@@ -183,12 +191,7 @@ export class Market {
     const asks = [...this.asks]
     const bids = [...this.bids]
     let amountOut: bigint = 0n
-    if (
-      isAddressEqual(
-        tokenIn as `0x${string}`,
-        this.quoteToken.address as `0x${string}`,
-      )
-    ) {
+    if (isAddressEqual(tokenIn, this.quoteToken.address as `0x${string}`)) {
       while (asks.length > 0) {
         const { price, rawAmount } = asks[0]
         const amountInRaw = this.quoteToRaw(amountIn, false)
@@ -224,8 +227,66 @@ export class Market {
     }
   }
 
+  take(
+    tokenIn: string,
+    amountOut: bigint,
+  ): {
+    market: Market
+    amountIn: bigint
+  } {
+    amountOut = this.calculateTakeAmountBeforeFees(amountOut)
+    const asks = [...this.asks]
+    const bids = [...this.bids]
+    let amountIn: bigint = 0n
+    if (
+      isAddressEqual(
+        tokenIn as `0x${string}`,
+        this.quoteToken.address as `0x${string}`,
+      )
+    ) {
+      while (asks.length > 0) {
+        const { price, rawAmount } = asks[0]
+        const amountOutRaw = this.baseToRaw(amountOut, price, true)
+        if (amountOutRaw >= rawAmount) {
+          amountOut -= this.rawToBase(rawAmount, price, true)
+          amountIn += this.rawToQuote(rawAmount)
+          asks.shift()
+        } else {
+          amountIn += this.rawToQuote(amountOutRaw)
+          asks[0].rawAmount = rawAmount - amountOutRaw
+          break
+        }
+      }
+    } else {
+      while (bids.length > 0) {
+        const { price, rawAmount } = bids[0]
+        const amountOutRaw = this.quoteToRaw(amountOut, true)
+        if (amountOutRaw >= rawAmount) {
+          amountOut -= this.rawToQuote(rawAmount)
+          amountIn += this.rawToBase(rawAmount, price, true)
+          bids.shift()
+        } else {
+          amountIn += this.rawToBase(amountOutRaw, price, true)
+          bids[0].rawAmount = rawAmount - amountOutRaw
+          break
+        }
+      }
+    }
+    return {
+      amountIn,
+      market: Market.from(this, bids, asks),
+    }
+  }
+
   totalBidsInBase(): bigint {
     return this.bids.reduce(
+      (acc, val) => acc + this.rawToBase(val.rawAmount, val.price, false),
+      0n,
+    )
+  }
+
+  totalAsksInBase(): bigint {
+    return this.asks.reduce(
       (acc, val) => acc + this.rawToBase(val.rawAmount, val.price, false),
       0n,
     )
@@ -243,7 +304,7 @@ export const calculateTotalDeposit = (
 
   while (amountOuts.reduce((a, b) => a + b, 0n) > 0n) {
     for (let i = 0; i < markets.length; i++) {
-      ;({ market: markets[i], amountOut: amountOuts[i] } = markets[i].swap(
+      ;({ market: markets[i], amountOut: amountOuts[i] } = markets[i].spend(
         markets[i].baseToken.address,
         initialDeposit,
       ))
