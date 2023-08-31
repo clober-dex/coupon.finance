@@ -10,7 +10,7 @@ import {
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { DepositController__factory } from '../typechain'
 import { Asset } from '../model/asset'
-import { bigIntMax } from '../utils/bigint'
+import { max } from '../utils/bigint'
 import { permit } from '../utils/permit'
 import { fetchBondPositions } from '../api/bond-position'
 import { BondPosition } from '../model/bond-position'
@@ -105,7 +105,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
             { deadline, v, r, s },
           ],
           value: isEthereum(asset.underlying)
-            ? bigIntMax(amount - wethBalance, 0n)
+            ? max(amount - wethBalance, 0n)
             : 0n,
           account: walletClient.account,
         })

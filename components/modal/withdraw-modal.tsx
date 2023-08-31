@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from 'react'
 import { formatUnits, parseUnits } from 'viem'
 import { useQuery } from 'wagmi'
+import { min } from 'hardhat/internal/util/bigint'
 
 import { BondPosition } from '../../model/bond-position'
 import CurrencyAmountInput from '../currency-amount-input'
 import { useCurrencyContext } from '../../contexts/currency-context'
-import { fetchCouponRepurchaseFee } from '../../api/market'
+import { fetchCoupons } from '../../api/market'
 
 import Modal from './modal'
 
@@ -24,20 +25,19 @@ const WithdrawModal = ({
     [position, value],
   )
 
-  const { data: couponRepurchaseFee } = useQuery(
+  const { data } = useQuery(
     ['coupon-repurchase-fee', position?.underlying.address, amount],
     async () =>
       position
-        ? fetchCouponRepurchaseFee(
-            position.substitute,
-            amount,
-            position.expiryEpoch,
-          )
-        : 0n,
+        ? fetchCoupons(position.substitute, amount, position.expiryEpoch)
+        : undefined,
     {
-      initialData: 0n,
+      keepPreviousData: true,
     },
   )
+
+  const repurchaseFee = useMemo(() => data?.repurchaseFee ?? 0n, [data])
+  const available = useMemo(() => data?.available ?? 0n, [data])
 
   if (!position) {
     return <></>
@@ -52,7 +52,7 @@ const WithdrawModal = ({
           currency={position.underlying}
           value={value}
           onValueChange={setValue}
-          balance={position.amount}
+          balance={min(position.amount, available)}
           price={prices[position.underlying.address] ?? 0}
         />
       </div>
@@ -63,14 +63,18 @@ const WithdrawModal = ({
       </div>
       <div className="flex text-xs sm:text-sm gap-3 mb-6 sm:mb-8 justify-between sm:justify-start">
         <span className="text-gray-500">Coupon repurchase fee</span>
-        {formatUnits(couponRepurchaseFee, position.underlying.decimals)}{' '}
+        {formatUnits(repurchaseFee, position.underlying.decimals)}{' '}
         {position.underlying.symbol}
       </div>
       <button
-        disabled={amount === 0n}
+        disabled={amount === 0n || amount > min(position.amount, available)}
         className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
       >
-        Confirm
+        {amount > available
+          ? 'Not enough coupons for sale'
+          : amount > position.amount
+          ? 'Not enough deposited'
+          : 'Confirm'}
       </button>
     </Modal>
   )

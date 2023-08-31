@@ -284,6 +284,13 @@ export class Market {
       0n,
     )
   }
+
+  totalAsksInBase(): bigint {
+    return this.asks.reduce(
+      (acc, val) => acc + this.rawToBase(val.rawAmount, val.price, false),
+      0n,
+    )
+  }
 }
 
 export const calculateTotalDeposit = (

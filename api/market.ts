@@ -97,19 +97,31 @@ export async function fetchDepositApyByEpochsDeposited(
     })
 }
 
-export async function fetchCouponRepurchaseFee(
+export async function fetchCoupons(
   substitute: Currency,
   amount: bigint,
   epoch: bigint,
-): Promise<bigint> {
+): Promise<{
+  repurchaseFee: bigint
+  available: bigint
+}> {
   const markets = (await fetchMarkets())
     .filter((market) =>
       isAddressEqual(market.quoteToken.address, substitute.address),
     )
     .filter((market) => market.epoch <= epoch)
 
-  return markets.reduce(
+  const repurchaseFee = markets.reduce(
     (acc, market) => acc + market.take(substitute.address, amount).amountIn,
     0n,
   )
+  const available = markets.reduce((acc, market) => {
+    const coupons = market.totalAsksInBase()
+    return acc > coupons ? coupons : acc
+  }, 2n ** 256n - 1n)
+
+  return {
+    repurchaseFee,
+    available,
+  }
 }
