@@ -28,9 +28,8 @@ const CurrencyAmountInput = ({
 
   const onBlur = useCallback(() => {
     const amount = parseUnits(value, decimals)
-    const min = balance > amount ? amount : balance
-    onValueChange(min ? formatUnits(min, decimals) : '')
-  }, [balance, decimals, onValueChange, value])
+    onValueChange(amount ? formatUnits(amount, decimals) : '')
+  }, [decimals, onValueChange, value])
 
   const onMaxClick = useCallback(() => {
     onValueChange(balance ? formatUnits(balance, currency?.decimals ?? 18) : '')

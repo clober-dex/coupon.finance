@@ -69,6 +69,10 @@ const Deposit: NextPage<
     },
   )
 
+  const balance = useMemo(() => {
+    return balances[asset.underlying.address] ?? 0n
+  }, [asset.underlying.address, balances])
+
   const depositApy = useMemo(() => {
     if (epochs === 0) {
       return 0
@@ -111,7 +115,7 @@ const Deposit: NextPage<
             </div>
           </button>
           <div className="flex flex-1 sm:items-center justify-center">
-            <div className="flex flex-col sm:shadow bg-gray-50 dark:bg-gray-950 sm:rounded-3xl p-4 sm:p-6 w-full sm:w-[480px] gap-8">
+            <div className="flex flex-col sm:shadow bg-gray-50 dark:bg-gray-950 sm:dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 w-full sm:w-[480px] gap-8">
               <div className="flex flex-col gap-4">
                 <div className="font-bold text-sm sm:text-lg">
                   How much would you like to deposit?
@@ -120,7 +124,7 @@ const Deposit: NextPage<
                   currency={asset.underlying}
                   value={value}
                   onValueChange={setValue}
-                  balance={balances[asset.underlying.address] ?? 0n}
+                  balance={balance}
                   price={prices[asset.underlying.address] ?? 0}
                 />
               </div>
@@ -200,11 +204,13 @@ const Deposit: NextPage<
                 </div>
               </div>
               <button
-                disabled={amount === 0n || epochs === 0}
+                disabled={amount === 0n || epochs === 0 || amount > balance}
                 className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
                 onClick={() => deposit(asset, amount, epochs, expectedProceeds)}
               >
-                Confirm
+                {amount > balance
+                  ? `Insufficient ${asset.underlying.symbol} balance`
+                  : 'Confirm'}
               </button>
             </div>
           </div>
