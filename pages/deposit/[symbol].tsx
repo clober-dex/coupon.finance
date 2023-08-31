@@ -2,9 +2,9 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
 import CountUp from 'react-countup'
-import { useRouter } from 'next/router'
 import { parseUnits } from 'viem'
 import { useQuery } from 'wagmi'
+import Link from 'next/link'
 
 import Slider from '../../components/slider'
 import BackSvg from '../../components/svg/back-svg'
@@ -44,8 +44,6 @@ const Deposit: NextPage<
 
   const [epochs, _setEpochs] = useState(0)
   const [value, setValue] = useState('')
-
-  const router = useRouter()
 
   const setEpochs = useCallback(
     (value: number) => {
@@ -99,9 +97,9 @@ const Deposit: NextPage<
       </Head>
       <main className="flex flex-1 flex-col justify-center items-center">
         <div className="flex flex-1 flex-col w-full">
-          <button
+          <Link
             className="flex items-center font-bold text-base sm:text-2xl gap-2 sm:gap-3 mt-24 mb-2 sm:mb-2 ml-4 sm:ml-6"
-            onClick={() => router.back()}
+            href="/"
           >
             <BackSvg className="w-4 h-4 sm:w-8 sm:h-8" />
             Deposit
@@ -113,7 +111,7 @@ const Deposit: NextPage<
               />
               <div>{asset.underlying.symbol}</div>
             </div>
-          </button>
+          </Link>
           <div className="flex flex-1 sm:items-center justify-center">
             <div className="flex flex-col sm:shadow bg-gray-50 dark:bg-gray-950 sm:dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 w-full sm:w-[480px] gap-8">
               <div className="flex flex-col gap-4">
