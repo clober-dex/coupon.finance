@@ -43,7 +43,13 @@ const WithdrawModal = ({
     return <></>
   }
   return (
-    <Modal show onClose={onClose}>
+    <Modal
+      show
+      onClose={() => {
+        setValue('')
+        onClose()
+      }}
+    >
       <h1 className="font-bold text-sm sm:text-xl mb-4 sm:mb-6">
         How much would you like to withdraw?
       </h1>
