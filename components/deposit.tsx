@@ -1,15 +1,18 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
+import { isAddressEqual, parseUnits } from 'viem'
 
 import { useDepositContext } from '../contexts/deposit-context'
 import { Currency, getLogo } from '../model/currency'
-import { Asset } from '../model/asset'
+import { AssetStatus } from '../model/asset'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { BondPosition } from '../model/bond-position'
 import { formatDollarValue, formatUnits } from '../utils/numbers'
+import { Epoch } from '../model/epoch'
+import { calculateApy } from '../utils/apy'
 
 import WithdrawModal from './modal/withdraw-modal'
-import DateSelect from './date-select'
+import EpochSelect from './epoch-select'
 import { ClientComponent } from './client-component'
 
 const Position = ({
@@ -126,11 +129,13 @@ const Asset = ({
               <div className="text-gray-500 text-xs">{currency.name}</div>
             </div>
           </div>
-          <div className="text-sm font-bold sm:w-[80px]">{apy.toFixed(2)}</div>
+          <ClientComponent className="text-sm font-bold sm:w-[80px]">
+            {apy.toFixed(2)}%
+          </ClientComponent>
         </div>
         <div className="flex flex-row sm:flex-col w-full sm:w-[136px] justify-between px-4 sm:p-0">
           <div className="sm:hidden text-gray-500 text-xs">Available</div>
-          <div className="flex flex-row sm:flex-col items-center sm:items-start gap-1 sm:gap-0">
+          <ClientComponent className="flex flex-row sm:flex-col items-center sm:items-start gap-1 sm:gap-0">
             <div className="text-xs sm:text-sm">
               {formatUnits(available, currency.decimals, price)}{' '}
               {currency.symbol}
@@ -140,20 +145,21 @@ const Asset = ({
               {formatDollarValue(available, currency.decimals, price)}
               <span className="sm:hidden">)</span>
             </div>
-          </div>
+          </ClientComponent>
         </div>
         <div className="flex flex-row sm:flex-col w-full sm:w-[120px] justify-between px-4 sm:p-0">
           <div className="sm:hidden text-gray-500 text-xs">Deposited</div>
-          <div className="flex flex-row sm:flex-col sm:w-[120px] gap-1 sm:gap-0">
+          <ClientComponent className="flex flex-row sm:flex-col sm:w-[120px] gap-1 sm:gap-0">
             <div className="text-xs sm:text-sm">
-              {formatUnits(deposited, currency.decimals)} {currency.symbol}
+              {formatUnits(deposited, currency.decimals, price)}{' '}
+              {currency.symbol}
             </div>
             <div className="text-xs text-gray-500">
               <span className="sm:hidden">(</span>
               {formatDollarValue(deposited, currency.decimals, price)}
               <span className="sm:hidden">)</span>
             </div>
-          </div>
+          </ClientComponent>
         </div>
       </div>
       <Link
@@ -166,13 +172,19 @@ const Asset = ({
   )
 }
 
-const Deposit = ({ assets, dates }: { assets: Asset[]; dates: string[] }) => {
+const Deposit = ({
+  assetStatuses,
+  epochs,
+}: {
+  assetStatuses: AssetStatus[]
+  epochs: Epoch[]
+}) => {
   const { prices } = useCurrencyContext()
-  const { positions, apy, available, deposited } = useDepositContext()
+  const { positions } = useDepositContext()
   const [withdrawPosition, setWithdrawPosition] = useState<BondPosition | null>(
     null,
   )
-  const [date, setDate] = useState(dates[0])
+  const [epoch, setEpoch] = useState(epochs[0])
   return (
     <div className="flex flex-1 flex-col w-full sm:w-fit">
       <h1 className="flex justify-center text-center font-bold text-lg sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-12 mb-8 sm:mb-16">
@@ -244,7 +256,11 @@ const Deposit = ({ assets, dates }: { assets: Asset[]; dates: string[] }) => {
             <label htmlFor="epoch" className="hidden sm:flex">
               How long are you going to deposit?
             </label>
-            <DateSelect dates={dates} value={date} onValueChange={setDate} />
+            <EpochSelect
+              epochs={epochs}
+              value={epoch}
+              onValueChange={setEpoch}
+            />
           </div>
         </div>
         <div className="flex flex-col mb-12 gap-4">
@@ -255,16 +271,44 @@ const Deposit = ({ assets, dates }: { assets: Asset[]; dates: string[] }) => {
             <div className="w-[152px]">Total Deposited</div>
           </div>
           <div className="flex flex-col gap-4 sm:gap-3">
-            {assets.map((asset, i) => (
-              <Asset
-                key={i}
-                currency={asset.underlying}
-                apy={apy[asset.underlying.address] ?? 0}
-                available={available[asset.underlying.address] ?? 0n}
-                deposited={deposited[asset.underlying.address] ?? 0n}
-                price={prices[asset.underlying.address] ?? 0}
-              />
-            ))}
+            {assetStatuses
+              .filter((assetStatus) => assetStatus.epoch.id === epoch.id)
+              .map((assetStatus, i) => {
+                const validAssetStatuses = assetStatuses.filter(
+                  ({ underlying, epoch }) =>
+                    isAddressEqual(
+                      underlying.address,
+                      assetStatus.underlying.address,
+                    ) && epoch.id <= assetStatus.epoch.id,
+                )
+                const proceeds = validAssetStatuses.reduce(
+                  (acc, { bestCouponPrice }) => acc + bestCouponPrice,
+                  0,
+                )
+                const currentTimestamp = Math.floor(new Date().getTime() / 1000)
+                const apy = calculateApy(
+                  proceeds,
+                  assetStatus.epoch.endTimestamp - currentTimestamp,
+                )
+                const available = validAssetStatuses
+                  .map(({ totalAvailable }) =>
+                    parseUnits(totalAvailable, assetStatus.underlying.decimals),
+                  )
+                  .reduce((acc, val) => (acc > val ? acc : val), 0n)
+                return (
+                  <Asset
+                    key={i}
+                    currency={assetStatus.underlying}
+                    apy={apy}
+                    available={available}
+                    deposited={parseUnits(
+                      assetStatus.totalDeposited,
+                      assetStatus.underlying.decimals,
+                    )}
+                    price={prices[assetStatus.underlying.address] ?? 0}
+                  />
+                )
+              })}
           </div>
         </div>
       </div>
