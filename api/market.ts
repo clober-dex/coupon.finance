@@ -102,7 +102,7 @@ export async function fetchCoupons(
   substitute: Currency,
   positionAmount: bigint,
   withdrawAmount: bigint,
-  epoch: bigint,
+  epoch: number,
 ): Promise<{
   maxRepurchaseFee: bigint
   repurchaseFee: bigint

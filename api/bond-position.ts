@@ -17,7 +17,7 @@ export async function fetchBondPositions(
     underlying: toCurrency(bondPosition.underlying),
     interest: BigInt(bondPosition.amount) - BigInt(bondPosition.principal),
     amount: BigInt(bondPosition.amount),
-    expiryEpoch: BigInt(bondPosition.toEpoch.id),
-    expiryTimestamp: BigInt(bondPosition.toEpoch.endTimestamp),
+    expiryEpoch: Number(bondPosition.toEpoch.id),
+    expiryTimestamp: Number(bondPosition.toEpoch.endTimestamp),
   }))
 }

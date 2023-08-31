@@ -6,6 +6,6 @@ export type BondPosition = {
   underlying: Currency
   interest: bigint
   amount: bigint
-  expiryEpoch: bigint
-  expiryTimestamp: bigint
+  expiryEpoch: number
+  expiryTimestamp: number
 }

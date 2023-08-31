@@ -25,6 +25,7 @@ const Position = ({
   price: number
   onWithdraw: () => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
+  const currentTimestamp = Math.floor(new Date().getTime() / 1000)
   return (
     <div className="rounded-xl shadow bg-gray-50 dark:bg-gray-900" {...props}>
       <div className="flex justify-between rounded-t-xl p-4 bg-white dark:bg-gray-800">
@@ -42,7 +43,13 @@ const Position = ({
           </div>
         </div>
         <div className="flex flex-col items-end">
-          <div className="font-bold">5.00%</div>
+          <div className="font-bold">
+            {calculateApy(
+              Number(position.interest) / Number(position.amount),
+              position.expiryTimestamp - currentTimestamp,
+            ).toFixed(2)}
+            %
+          </div>
           <div className="text-xs sm:text-sm">
             {new Date(Number(position.expiryTimestamp) * 1000)
               .toISOString()
@@ -229,10 +236,6 @@ const Deposit = ({
                   )
                   .toFixed(2)}
               </div>
-            </div>
-            <div className="flex justify-between gap-3">
-              <div className="text-gray-500">Average APY</div>
-              <div className="font-bold">5.0%</div>
             </div>
           </div>
           <div className="flex flex-col sm:grid sm:grid-cols-3 gap-4 sm:gap-6">
