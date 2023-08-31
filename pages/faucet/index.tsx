@@ -15,34 +15,29 @@ export const FAUCET_AMOUNTS: {
   amount: number
 }[] = [
   {
+    symbol: 'ETH',
+    name: 'Ethereum (once per address)',
+    amount: 0.01,
+  },
+  {
     symbol: 'WBTC',
     name: 'Wrapped BTC',
-    amount: 0.1,
-  },
-  {
-    symbol: 'ETH',
-    name: 'Ethereum',
-    amount: 0.1,
-  },
-  {
-    symbol: 'WETH',
-    name: 'Wrapped Ethereum',
-    amount: 0.1,
+    amount: 1,
   },
   {
     symbol: 'USDC',
     name: 'USD Coin',
-    amount: 100,
+    amount: 10000,
   },
   {
     symbol: 'DAI',
     name: 'Dai Stablecoin',
-    amount: 100,
+    amount: 10000,
   },
   {
     symbol: 'USDT',
     name: 'Tether USD',
-    amount: 100,
+    amount: 10000,
   },
 ]
 
