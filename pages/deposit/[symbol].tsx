@@ -2,6 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
 import CountUp from 'react-countup'
+import { useRouter } from 'next/router'
 import { parseUnits } from 'viem'
 import { useQuery } from 'wagmi'
 import Link from 'next/link'
@@ -44,6 +45,8 @@ const Deposit: NextPage<
 
   const [epochs, _setEpochs] = useState(0)
   const [value, setValue] = useState('')
+
+  const router = useRouter()
 
   const setEpochs = useCallback(
     (value: number) => {
@@ -99,6 +102,7 @@ const Deposit: NextPage<
         <div className="flex flex-1 flex-col w-full">
           <Link
             className="flex items-center font-bold text-base sm:text-2xl gap-2 sm:gap-3 mt-24 mb-2 sm:mb-2 ml-4 sm:ml-6"
+            replace={true}
             href="/"
           >
             <BackSvg className="w-4 h-4 sm:w-8 sm:h-8" />
@@ -204,7 +208,17 @@ const Deposit: NextPage<
               <button
                 disabled={amount === 0n || epochs === 0 || amount > balance}
                 className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
-                onClick={() => deposit(asset, amount, epochs, expectedProceeds)}
+                onClick={async () => {
+                  const hash = await deposit(
+                    asset,
+                    amount,
+                    epochs,
+                    expectedProceeds,
+                  )
+                  if (hash) {
+                    await router.replace('/')
+                  }
+                }}
               >
                 {amount > balance
                   ? `Insufficient ${asset.underlying.symbol} balance`

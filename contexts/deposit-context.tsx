@@ -4,8 +4,10 @@ import {
   useBalance,
   usePublicClient,
   useQuery,
+  useQueryClient,
   useWalletClient,
 } from 'wagmi'
+import { Hash } from 'viem'
 
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { DepositController__factory } from '../typechain'
@@ -26,24 +28,26 @@ type DepositContext = {
     amount: bigint,
     epochs: number,
     expectedProceeds: bigint,
-  ) => Promise<void>
+  ) => Promise<Hash | undefined>
 }
 
 const Context = React.createContext<DepositContext>({
   positions: [],
-  deposit: () => Promise.resolve(),
+  deposit: () => Promise.resolve(undefined),
 })
 
 const SLIPPAGE_PERCENTAGE = 0
 
 export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
+  const queryClient = useQueryClient()
+
   const { address: userAddress } = useAccount()
   const { data: balance } = useBalance({ address: userAddress })
 
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
-  const { balances, invalidateBalances } = useCurrencyContext()
+  const { balances } = useCurrencyContext()
 
   const { data: positions } = useQuery(
     ['bond-positions', userAddress],
@@ -60,7 +64,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       amount: bigint,
       epochs: number,
       expectedProceeds: bigint,
-    ) => {
+    ): Promise<Hash | undefined> => {
       if (!walletClient) {
         // TODO: alert wallet connect
         return
@@ -81,6 +85,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
       )
 
+      let hash: Hash | undefined
       try {
         setConfirmation({
           title: 'Making Deposit',
@@ -109,19 +114,21 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
             : 0n,
           account: walletClient.account,
         })
-        await walletClient.writeContract(request)
+        hash = await walletClient.writeContract(request)
+        await queryClient.invalidateQueries(['bond-positions'])
       } catch (e) {
         console.error(e)
       } finally {
-        invalidateBalances()
+        await queryClient.invalidateQueries(['balances'])
         setConfirmation(undefined)
       }
+      return hash
     },
     [
       balance?.value,
       balances,
-      invalidateBalances,
       publicClient,
+      queryClient,
       setConfirmation,
       walletClient,
     ],
