@@ -1,6 +1,6 @@
 type Build = 'dev' | 'prod'
 
-const BUILD: Build = process.env.BUILD as Build
+const BUILD: Build = process.env.NEXT_PUBLIC_BUILD as Build
 
 export const CONTRACT_ADDRESSES: {
   BorrowController: `0x${string}`
