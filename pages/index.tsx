@@ -49,7 +49,7 @@ const Home: NextPage<
             Deposit
           </button>
           {/*TODO: remove this condition*/}
-          {(process.env.BUILD !== 'prod' && (
+          {process.env.BUILD !== 'prod' ? (
             <button
               className="flex font-bold items-center justify-center text-base sm:text-2xl w-18 sm:w-36 bg-transparent text-gray-400 dark:text-gray-500 disabled:text-gray-950 border-0 dark:disabled:text-white rounded-none p-2 border-b-4 border-b-transparent border-t-4 border-t-transparent disabled:border-b-gray-950 dark:disabled:border-b-white"
               disabled={router.query.mode === 'borrow'}
@@ -59,7 +59,9 @@ const Home: NextPage<
             >
               Borrow
             </button>
-          )) || <></>}
+          ) : (
+            <></>
+          )}
           <Link href="/faucet">
             <button
               className="flex font-bold items-center justify-center text-base sm:text-2xl w-18 sm:w-36 bg-transparent text-gray-400 dark:text-gray-500 disabled:text-gray-950 border-0 dark:disabled:text-white rounded-none p-2 border-b-4 border-b-transparent border-t-4 border-t-transparent disabled:border-b-gray-950 dark:disabled:border-b-white"
