@@ -188,11 +188,10 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       } catch (e) {
         console.error(e)
       } finally {
-        invalidateBalances()
         setConfirmation(undefined)
       }
     },
-    [invalidateBalances, publicClient, setConfirmation, walletClient],
+    [publicClient, setConfirmation, walletClient],
   )
 
   return (
