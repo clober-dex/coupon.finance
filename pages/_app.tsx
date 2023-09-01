@@ -13,6 +13,7 @@ import { arbitrumGoerli } from 'wagmi/chains'
 import { publicProvider } from 'wagmi/providers/public'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { identify } from '@web3analytic/funnel-sdk'
+import Head from 'next/head'
 
 import Header from '../components/header'
 import { ThemeProvider, useThemeContext } from '../contexts/theme-context'
@@ -83,25 +84,34 @@ const Web3AnalyticWrapper = ({ children }: React.PropsWithChildren) => {
 function MyApp({ Component, pageProps }: AppProps) {
   const [open, setOpen] = useState(false)
   return (
-    <ThemeProvider>
-      <WalletProvider>
-        <Web3AnalyticWrapper>
-          <TransactionProvider>
-            <CurrencyProvider>
-              <DepositProvider>
-                <BorrowProvider>
-                  <div className="flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white">
-                    <Panel open={open} setOpen={setOpen} />
-                    <Header onMenuClick={() => setOpen(true)} />
-                    <Component {...pageProps} />
-                  </div>
-                </BorrowProvider>
-              </DepositProvider>
-            </CurrencyProvider>
-          </TransactionProvider>
-        </Web3AnalyticWrapper>
-      </WalletProvider>
-    </ThemeProvider>
+    <>
+      <Head>
+        <meta
+          content="Cash in the coupons on your assets. The only liquidity protocol that enables a 100% utilization rate."
+          name="description"
+        />
+        <link href="/favicon.svg" rel="icon" />
+      </Head>
+      <ThemeProvider>
+        <WalletProvider>
+          <Web3AnalyticWrapper>
+            <TransactionProvider>
+              <CurrencyProvider>
+                <DepositProvider>
+                  <BorrowProvider>
+                    <div className="flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white">
+                      <Panel open={open} setOpen={setOpen} />
+                      <Header onMenuClick={() => setOpen(true)} />
+                      <Component {...pageProps} />
+                    </div>
+                  </BorrowProvider>
+                </DepositProvider>
+              </CurrencyProvider>
+            </TransactionProvider>
+          </Web3AnalyticWrapper>
+        </WalletProvider>
+      </ThemeProvider>
+    </>
   )
 }
 

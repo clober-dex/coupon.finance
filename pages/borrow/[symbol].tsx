@@ -73,11 +73,6 @@ const Borrow: NextPage<
     <div className="flex flex-1">
       <Head>
         <title>Borrow {asset.underlying.symbol}</title>
-        <meta
-          content="Cash in the coupons on your assets. The only liquidity protocol that enables a 100% utilization rate."
-          name="description"
-        />
-        <link href="/favicon.svg" rel="icon" />
       </Head>
       <main className="flex flex-1 flex-col justify-center items-center">
         <div className="flex flex-1 flex-col w-full">
