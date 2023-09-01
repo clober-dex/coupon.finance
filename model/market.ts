@@ -188,8 +188,8 @@ export class Market {
     market: Market
     amountOut: bigint
   } {
-    const asks = [...this.asks]
-    const bids = [...this.bids]
+    const asks = [...this.asks.map((depth) => ({ ...depth }))]
+    const bids = [...this.bids.map((depth) => ({ ...depth }))]
     let amountOut: bigint = 0n
     if (isAddressEqual(tokenIn, this.quoteToken.address as `0x${string}`)) {
       while (asks.length > 0) {
@@ -235,8 +235,8 @@ export class Market {
     amountIn: bigint
   } {
     amountOut = this.calculateTakeAmountBeforeFees(amountOut)
-    const asks = [...this.asks]
-    const bids = [...this.bids]
+    const asks = [...this.asks.map((depth) => ({ ...depth }))]
+    const bids = [...this.bids.map((depth) => ({ ...depth }))]
     let amountIn: bigint = 0n
     if (
       isAddressEqual(
