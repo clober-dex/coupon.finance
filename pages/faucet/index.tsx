@@ -5,7 +5,9 @@ import {
   GoogleReCaptchaProvider,
   useGoogleReCaptcha,
 } from 'react-google-recaptcha-v3'
-import { useAccount } from 'wagmi'
+import { useAccount, useQuery, useQueryClient } from 'wagmi'
+import { createPublicClient, http } from 'viem'
+import { arbitrumGoerli } from 'wagmi/chains'
 
 import { ClientComponent } from '../../components/client-component'
 
@@ -42,8 +44,46 @@ export const FAUCET_AMOUNTS: {
 ]
 
 const FaucetForm = () => {
+  const queryClient = useQueryClient()
   const { executeRecaptcha } = useGoogleReCaptcha()
   const { address } = useAccount()
+  const publicClient = createPublicClient({
+    chain: arbitrumGoerli,
+    transport: http(),
+  })
+
+  const { data: received } = useQuery(['received', address], async () => {
+    if (!address) {
+      return false
+    }
+    const data = await publicClient.readContract({
+      address: '0x7Eb217546baa755E3e8561B0460c88e250D97Ad7',
+      abi: [
+        {
+          inputs: [
+            {
+              internalType: 'address',
+              name: '',
+              type: 'address',
+            },
+          ],
+          name: 'isFaucet',
+          outputs: [
+            {
+              internalType: 'bool',
+              name: '',
+              type: 'bool',
+            },
+          ],
+          stateMutability: 'view',
+          type: 'function',
+        },
+      ],
+      functionName: 'isFaucet',
+      args: [address],
+    })
+    return data
+  })
 
   const submit = useCallback(
     async (gReCaptchaToken: any) => {
@@ -73,16 +113,16 @@ const FaucetForm = () => {
   )
 
   const handleSubmit = useCallback(
-    (e: any) => {
+    async (e: any) => {
       e.preventDefault()
       if (!executeRecaptcha) {
         return
       }
-      executeRecaptcha('enquiryFormSubmit').then((gReCaptchaToken) => {
-        submit(gReCaptchaToken)
-      })
+      const gReCaptchaToken = await executeRecaptcha('enquiryFormSubmit')
+      await submit(gReCaptchaToken)
+      await queryClient.invalidateQueries(['received'])
     },
-    [executeRecaptcha, submit],
+    [executeRecaptcha, queryClient, submit],
   )
 
   return (
@@ -120,10 +160,10 @@ const FaucetForm = () => {
       </div>
       <button
         type="submit"
-        disabled={!address}
+        disabled={!address || (received ?? true)}
         className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
       >
-        Request Tokens
+        {received ? 'Already received' : 'Request Tokens'}
       </button>
     </form>
   )
