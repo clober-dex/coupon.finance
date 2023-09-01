@@ -4,8 +4,10 @@ import {
   useBalance,
   usePublicClient,
   useQuery,
+  useQueryClient,
   useWalletClient,
 } from 'wagmi'
+import { Hash } from 'viem'
 
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { DepositController__factory } from '../typechain'
@@ -28,7 +30,7 @@ type DepositContext = {
     amount: bigint,
     epochs: number,
     expectedProceeds: bigint,
-  ) => Promise<void>
+  ) => Promise<Hash | undefined>
   withdraw: (
     asset: Currency,
     tokenId: bigint,
@@ -39,26 +41,29 @@ type DepositContext = {
 
 const Context = React.createContext<DepositContext>({
   positions: [],
-  deposit: () => Promise.resolve(),
+  deposit: () => Promise.resolve(undefined),
   withdraw: () => Promise.resolve(),
 })
 
 const SLIPPAGE_PERCENTAGE = 0
 
 export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
+  const queryClient = useQueryClient()
+
   const { address: userAddress } = useAccount()
   const { data: balance } = useBalance({ address: userAddress })
 
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
-  const { balances, invalidateBalances } = useCurrencyContext()
+  const { balances } = useCurrencyContext()
 
   const { data: positions } = useQuery(
     ['bond-positions', userAddress],
     () => (userAddress ? fetchBondPositions(userAddress) : []),
     {
       refetchOnWindowFocus: true,
+      refetchInterval: 2 * 1000,
       initialData: [],
     },
   )
@@ -69,7 +74,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       amount: bigint,
       epochs: number,
       expectedProceeds: bigint,
-    ) => {
+    ): Promise<Hash | undefined> => {
       if (!walletClient) {
         // TODO: alert wallet connect
         return
@@ -90,6 +95,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
       )
 
+      let hash: Hash | undefined
       try {
         setConfirmation({
           title: 'Making Deposit',
@@ -118,19 +124,21 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
             : 0n,
           account: walletClient.account,
         })
-        await walletClient.writeContract(request)
+        hash = await walletClient.writeContract(request)
+        await queryClient.invalidateQueries(['bond-positions'])
       } catch (e) {
         console.error(e)
       } finally {
-        invalidateBalances()
+        await queryClient.invalidateQueries(['balances'])
         setConfirmation(undefined)
       }
+      return hash
     },
     [
       balance?.value,
       balances,
-      invalidateBalances,
       publicClient,
+      queryClient,
       setConfirmation,
       walletClient,
     ],
@@ -180,11 +188,10 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       } catch (e) {
         console.error(e)
       } finally {
-        invalidateBalances()
         setConfirmation(undefined)
       }
     },
-    [invalidateBalances, publicClient, setConfirmation, walletClient],
+    [publicClient, setConfirmation, walletClient],
   )
 
   return (

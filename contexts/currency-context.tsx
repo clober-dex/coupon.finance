@@ -1,5 +1,5 @@
-import React, { useCallback } from 'react'
-import { useAccount, useBalance, useQuery, useQueryClient } from 'wagmi'
+import React from 'react'
+import { useAccount, useBalance, useQuery } from 'wagmi'
 import { readContracts } from '@wagmi/core'
 
 import { IERC20__factory } from '../typechain'
@@ -9,13 +9,11 @@ import { Currency } from '../model/currency'
 type CurrencyContext = {
   balances: { [key in `0x${string}`]: bigint }
   prices: { [key in `0x${string}`]: number }
-  invalidateBalances: () => void
 }
 
 const Context = React.createContext<CurrencyContext>({
   balances: {},
   prices: {},
-  invalidateBalances: () => {},
 })
 
 export const isEthereum = (currency: Currency) =>
@@ -24,8 +22,6 @@ export const isEthereum = (currency: Currency) =>
   currency.decimals === 18
 
 export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
-  const queryClient = useQueryClient()
-
   const { address: userAddress } = useAccount()
   const { data: balance } = useBalance({ address: userAddress })
   const { data: currencies } = useQuery(
@@ -79,16 +75,11 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
     },
   )
 
-  const invalidateBalances = useCallback(async () => {
-    await queryClient.invalidateQueries(['balances', userAddress])
-  }, [queryClient, userAddress])
-
   return (
     <Context.Provider
       value={{
         prices: prices ?? {},
         balances: balances ?? {},
-        invalidateBalances,
       }}
     >
       {children}
