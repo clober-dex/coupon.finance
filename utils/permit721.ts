@@ -1,5 +1,5 @@
 import { GetWalletClientResult, readContracts } from '@wagmi/core'
-import { hexToSignature } from 'viem'
+import { hexToSignature, isAddressEqual, zeroAddress } from 'viem'
 
 import { fetchApproval } from '../api/approval'
 import { EIP712__factory, IERC721Permit__factory } from '../typechain'
@@ -20,7 +20,7 @@ export const permit721 = async (
   deadline: bigint
 }> => {
   const approval = await fetchApproval(nftContractAddress, tokenId)
-  if (!walletClient || !approval) {
+  if (!walletClient || isAddressEqual(approval || zeroAddress, spender)) {
     return {
       r: zeroBytes32 as `0x${string}`,
       s: zeroBytes32 as `0x${string}`,
