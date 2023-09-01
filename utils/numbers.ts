@@ -1,12 +1,22 @@
 import { formatUnits as _formatUnits } from 'viem'
 import BigNumber from 'bignumber.js'
 
+export const dollarValue = (
+  value: bigint,
+  decimals: number,
+  price: number,
+): BigNumber => {
+  return BigNumber(value.toString())
+    .times(price)
+    .div(10 ** decimals)
+}
+
 export const formatDollarValue = (
   value: bigint,
   decimals: number,
   price: number,
 ): string => {
-  return `$${((Number(value) * price) / 10 ** decimals).toFixed(2)}`
+  return `$${dollarValue(value, decimals, price).toFixed(2)}`
 }
 
 export const formatUnits = (
