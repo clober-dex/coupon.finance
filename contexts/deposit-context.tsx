@@ -181,7 +181,12 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           address: CONTRACT_ADDRESSES.DepositController,
           abi: DepositController__factory.abi,
           functionName: 'withdraw',
-          args: [tokenId, amount, repurchaseFee, { deadline, v, r, s }],
+          args: [
+            tokenId,
+            amount + repurchaseFee,
+            repurchaseFee,
+            { deadline, v, r, s },
+          ],
           account: walletClient.account,
         })
         await walletClient.writeContract(request)

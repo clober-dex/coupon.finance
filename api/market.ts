@@ -114,23 +114,23 @@ export async function fetchCoupons(
     )
     .filter((market) => market.epoch <= epoch)
 
-  let maxRepurchaseFee = 0n
-  const prevMaxRepurchaseFees = new Set<bigint>()
-  while (!prevMaxRepurchaseFees.has(maxRepurchaseFee)) {
-    prevMaxRepurchaseFees.add(maxRepurchaseFee)
-    maxRepurchaseFee = markets.reduce(
+  const maxRepurchaseFee = markets.reduce(
+    (acc, market) =>
+      acc + market.take(substitute.address, positionAmount).amountIn,
+    0n,
+  )
+  let repurchaseFee = 0n
+  const prevRepurchaseFees = new Set<bigint>()
+  while (!prevRepurchaseFees.has(repurchaseFee)) {
+    prevRepurchaseFees.add(repurchaseFee)
+    repurchaseFee = markets.reduce(
       (acc, market) =>
         acc +
-        market.take(substitute.address, positionAmount - maxRepurchaseFee)
+        market.take(substitute.address, withdrawAmount + repurchaseFee)
           .amountIn,
       0n,
     )
   }
-  const repurchaseFee = markets.reduce(
-    (acc, market) =>
-      acc + market.take(substitute.address, withdrawAmount).amountIn,
-    0n,
-  )
 
   const available = min(...markets.map((market) => market.totalAsksInBase()))
 
