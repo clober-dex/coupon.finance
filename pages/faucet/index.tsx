@@ -58,13 +58,12 @@ const FaucetForm = () => {
         }),
       })
 
+      alert('Waiting for transaction to be submitted...')
+
       if (response.status === 200) {
         const { txHash } = await response.json()
         if (txHash) {
-          window.open(
-            `http://dev-rpc.coupon.finance:4000/tx/${txHash}`,
-            '_blank',
-          )
+          window.open(`https://goerli.arbiscan.io/tx/${txHash}`, '_blank')
         } else {
           alert('Something went wrong. Please contact the devs.')
         }
