@@ -7,7 +7,7 @@ import { Currency, getLogo } from '../model/currency'
 import { AssetStatus } from '../model/asset'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { BondPosition } from '../model/bond-position'
-import { formatDollarValue, formatUnits } from '../utils/numbers'
+import { dollarValue, formatDollarValue, formatUnits } from '../utils/numbers'
 import { Epoch } from '../model/epoch'
 import { calculateApy } from '../utils/apy'
 
@@ -239,14 +239,22 @@ const Deposit = ({
             </div>
           </div>
           <div className="flex flex-col sm:grid sm:grid-cols-3 gap-4 sm:gap-6">
-            {positions.map((position, i) => (
-              <Position
-                key={i}
-                position={position}
-                price={prices[position.underlying.address] ?? 0}
-                onWithdraw={() => setWithdrawPosition(position)}
-              />
-            ))}
+            {positions
+              .filter((position) =>
+                dollarValue(
+                  position.amount,
+                  position.underlying.decimals,
+                  prices[position.underlying.address] ?? 0,
+                ).isGreaterThanOrEqualTo(0.01),
+              )
+              .map((position, i) => (
+                <Position
+                  key={i}
+                  position={position}
+                  price={prices[position.underlying.address] ?? 0}
+                  onWithdraw={() => setWithdrawPosition(position)}
+                />
+              ))}
           </div>
         </ClientComponent>
       ) : (
