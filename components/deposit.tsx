@@ -284,6 +284,7 @@ const Deposit = ({
           <div className="flex flex-col gap-4 sm:gap-3">
             {assetStatuses
               .filter((assetStatus) => assetStatus.epoch.id === epoch.id)
+              .filter((assetStatus) => assetStatus.totalAvailable !== '0')
               .map((assetStatus, i) => {
                 const validAssetStatuses = assetStatuses.filter(
                   ({ underlying, epoch }) =>
