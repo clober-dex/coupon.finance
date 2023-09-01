@@ -3,15 +3,16 @@ import Link from 'next/link'
 
 import { useBorrowContext } from '../contexts/borrow-context'
 import { Currency, getLogo } from '../model/currency'
-import { Asset } from '../model/asset'
+import { AssetStatus } from '../model/asset'
 import { useCurrencyContext } from '../contexts/currency-context'
-import { BigDecimal, ZERO } from '../utils/big-decimal'
+import { formatDollarValue, formatUnits } from '../utils/numbers'
+import { Epoch } from '../model/epoch'
 
 import RepayModal from './modal/repay-modal'
 import BorrowMoreModal from './modal/borrow-more-modal'
 import EditCollateralModal from './modal/edit-collateral-modal'
 import EditExpiryModal from './modal/edit-expiry-modal'
-import DateSelect from './date-select'
+import EpochSelect from './epoch-select'
 
 const EditSvg = (props: SVGProps<any>) => (
   <svg
@@ -162,10 +163,10 @@ const Asset = ({
   ...props
 }: {
   currency: Currency
-  apy: BigDecimal
-  available: BigDecimal
-  borrowed: BigDecimal
-  price: BigDecimal
+  apy: number
+  available: bigint
+  borrowed: bigint
+  price: number
 } & React.HTMLAttributes<HTMLDivElement>) => {
   return (
     <div
@@ -187,17 +188,18 @@ const Asset = ({
               <div className="text-gray-500 text-xs">{currency.name}</div>
             </div>
           </div>
-          <div className="text-sm font-bold sm:w-[80px]">{apy.toFormat(2)}</div>
+          <div className="text-sm font-bold sm:w-[80px]">{apy.toFixed(2)}</div>
         </div>
         <div className="flex flex-row sm:flex-col w-full sm:w-[120px] justify-between px-4 sm:p-0">
           <div className="sm:hidden text-gray-500 text-xs">Available</div>
           <div className="flex flex-row sm:flex-col items-center sm:items-start gap-1 sm:gap-0">
             <div className="text-xs sm:text-sm">
-              {available.toFormat(2)} {currency.symbol}
+              {formatUnits(available, currency.decimals, price)}{' '}
+              {currency.symbol}
             </div>
             <div className="text-xs text-gray-500">
-              <span className="sm:hidden">(</span>$
-              {available.times(price).toFormat(2)}
+              <span className="sm:hidden">(</span>
+              {formatDollarValue(available, currency.decimals, price)}
               <span className="sm:hidden">)</span>
             </div>
           </div>
@@ -206,11 +208,12 @@ const Asset = ({
           <div className="sm:hidden text-gray-500 text-xs">Total Borrowed</div>
           <div className="flex flex-row sm:flex-col sm:w-[120px] gap-1 sm:gap-0">
             <div className="text-xs sm:text-sm">
-              {borrowed.toFormat(2)} {currency.symbol}
+              {formatUnits(borrowed, currency.decimals, price)}{' '}
+              {currency.symbol}
             </div>
             <div className="text-xs text-gray-500">
-              <span className="sm:hidden">(</span>$
-              {borrowed.times(price).toFormat(2)}
+              <span className="sm:hidden">(</span>
+              {formatDollarValue(borrowed, currency.decimals, price)}
               <span className="sm:hidden">)</span>
             </div>
           </div>
@@ -226,7 +229,13 @@ const Asset = ({
   )
 }
 
-const Borrow = ({ assets }: { assets: Asset[] }) => {
+const Borrow = ({
+  assetStatuses,
+  epochs,
+}: {
+  assetStatuses: AssetStatus[]
+  epochs: Epoch[]
+}) => {
   const { prices } = useCurrencyContext()
   const { positions, apy, available, borrowed } = useBorrowContext()
   const [repayPosition, setRepayPosition] = useState<{
@@ -245,7 +254,7 @@ const Borrow = ({ assets }: { assets: Asset[] }) => {
     currency: Currency
     amount: string
   } | null>(null)
-
+  const [epoch, setEpoch] = useState(epochs[0])
   return (
     <div className="flex flex-1 flex-col w-full sm:w-fit">
       <h1 className="flex justify-center text-center font-bold text-lg sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-12 mb-8 sm:mb-16">
@@ -338,7 +347,11 @@ const Borrow = ({ assets }: { assets: Asset[] }) => {
             <label htmlFor="epoch" className="hidden sm:flex">
               How long are you going to borrow?
             </label>
-            <DateSelect />
+            <EpochSelect
+              epochs={epochs}
+              value={epoch}
+              onValueChange={setEpoch}
+            />
           </div>
         </div>
         <div className="flex flex-col mb-12 gap-4">
@@ -349,16 +362,18 @@ const Borrow = ({ assets }: { assets: Asset[] }) => {
             <div className="w-[120px]">Total Borrowed</div>
           </div>
           <div className="flex flex-col gap-4 sm:gap-3">
-            {assets.map((asset, i) => (
-              <Asset
-                key={i}
-                currency={asset.underlying}
-                apy={apy[asset.underlying.address] ?? ZERO}
-                available={available[asset.underlying.address] ?? ZERO}
-                borrowed={borrowed[asset.underlying.address] ?? ZERO}
-                price={prices[asset.underlying.address] ?? ZERO}
-              />
-            ))}
+            {assetStatuses
+              .filter((assetStatus) => assetStatus.epoch.id === epoch.id)
+              .map((assetStatus, i) => (
+                <Asset
+                  key={i}
+                  currency={assetStatus.underlying}
+                  apy={apy[assetStatus.underlying.address] ?? 0}
+                  available={available[assetStatus.underlying.address] ?? 0n}
+                  borrowed={borrowed[assetStatus.underlying.address] ?? 0n}
+                  price={prices[assetStatus.underlying.address] ?? 0}
+                />
+              ))}
           </div>
         </div>
       </div>

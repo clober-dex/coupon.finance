@@ -2,7 +2,7 @@ import React from 'react'
 
 import { Currency, getLogo } from '../model/currency'
 import { useCurrencyContext } from '../contexts/currency-context'
-import { ZERO } from '../utils/big-decimal'
+import { formatDollarValue, formatUnits } from '../utils/numbers'
 
 import LeftSvg from './svg/left-svg'
 import SearchSvg from './svg/search-svg'
@@ -19,7 +19,7 @@ const CurrencySelect = ({
   const { prices, balances } = useCurrencyContext()
   return (
     <div className="flex flex-col flex-1 p-4 mt-2 sm:mt-0 items-center sm:justify-center">
-      <div className="flex flex-col shadow bg-gray-50 dark:bg-gray-900 rounded-xl sm:rounded-3xl w-full sm:w-[480px]">
+      <div className="flex flex-col shadow-md bg-gray-50 dark:bg-gray-900 rounded-xl sm:rounded-3xl w-full sm:w-[480px]">
         <div className="flex flex-col p-4 rounded-t-xl sm:rounded-t-3xl gap-4">
           <div className="flex text-sm sm:text-xl font-bold items-center justify-between">
             <button onClick={onBack}>
@@ -61,12 +61,30 @@ const CurrencySelect = ({
                   <div className="text-xs text-gray-500">{currency.name}</div>
                 </div>
               </div>
-              <div className="text-sm text-end">
-                $
-                {(prices[currency.address] ?? ZERO)
-                  .times(balances[currency.address] ?? ZERO)
-                  .toFormat(2)}
-              </div>
+              {formatUnits(
+                balances[currency.address] ?? 0n,
+                currency.decimals,
+                prices[currency.address],
+              ) ? (
+                <div className="text-sm text-end">0</div>
+              ) : (
+                <div className="text-sm text-end">
+                  <div>
+                    {formatUnits(
+                      balances[currency.address] ?? 0n,
+                      currency.decimals,
+                      prices[currency.address],
+                    )}
+                  </div>
+                  <div className="text-gray-500 text-xs">
+                    {formatDollarValue(
+                      balances[currency.address] ?? 0n,
+                      currency.decimals,
+                      prices[currency.address] ?? 0,
+                    )}
+                  </div>
+                </div>
+              )}
             </button>
           ))}
         </div>

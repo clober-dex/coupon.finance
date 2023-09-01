@@ -1,63 +1,92 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
+import { isAddressEqual, parseUnits } from 'viem'
 
 import { useDepositContext } from '../contexts/deposit-context'
 import { Currency, getLogo } from '../model/currency'
-import { Asset } from '../model/asset'
+import { AssetStatus } from '../model/asset'
 import { useCurrencyContext } from '../contexts/currency-context'
-import { BigDecimal, ZERO } from '../utils/big-decimal'
+import { BondPosition } from '../model/bond-position'
+import { dollarValue, formatDollarValue, formatUnits } from '../utils/numbers'
+import { Epoch } from '../model/epoch'
+import { calculateApy } from '../utils/apy'
 
 import WithdrawModal from './modal/withdraw-modal'
-import DateSelect from './date-select'
+import EpochSelect from './epoch-select'
+import { ClientComponent } from './client-component'
 
 const Position = ({
-  currency,
-  apy,
-  interestEarned,
-  deposited,
-  expiry,
+  position,
   price,
   onWithdraw,
   ...props
 }: {
-  currency: Currency
-  apy: string
-  interestEarned: string
-  deposited: string
-  expiry: string
-  price: string
+  position: BondPosition
+  price: number
   onWithdraw: () => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
+  const currentTimestamp = Math.floor(new Date().getTime() / 1000)
   return (
     <div className="rounded-xl shadow bg-gray-50 dark:bg-gray-900" {...props}>
       <div className="flex justify-between rounded-t-xl p-4 bg-white dark:bg-gray-800">
         <div className="flex items-center gap-3">
           <img
-            src={getLogo(currency)}
-            alt={currency.name}
+            src={getLogo(position.underlying)}
+            alt={position.underlying.name}
             className="w-8 h-8"
           />
           <div className="flex flex-col">
-            <div className="font-bold">{currency.symbol}</div>
-            <div className="text-gray-500 text-sm">{currency.name}</div>
+            <div className="font-bold">{position.underlying.symbol}</div>
+            <div className="text-gray-500 text-sm">
+              {position.underlying.name}
+            </div>
           </div>
         </div>
         <div className="flex flex-col items-end">
-          <div className="font-bold">{apy}</div>
-          <div className="text-xs sm:text-sm">{expiry}</div>
+          <div className="font-bold">
+            {calculateApy(
+              Number(position.interest) / Number(position.amount),
+              position.expiryTimestamp - currentTimestamp,
+            ).toFixed(2)}
+            %
+          </div>
+          <div className="text-xs sm:text-sm">
+            {new Date(Number(position.expiryTimestamp) * 1000)
+              .toISOString()
+              .slice(2, 10)
+              .replace(/-/g, '/')}
+          </div>
         </div>
       </div>
       <div className="flex flex-col rounded-b-xl p-4 gap-4">
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <div className="text-gray-500 text-xs">Interest</div>
-            <div className="text-xs sm:text-sm">${interestEarned}</div>
+            <div className="text-xs sm:text-sm">
+              {formatDollarValue(
+                position.interest,
+                position.underlying.decimals,
+                price,
+              )}
+            </div>
           </div>
           <div className="flex items-center justify-between text-xs">
             <div className="text-gray-500">Deposited</div>
             <div className="flex gap-1 text-xs sm:text-sm">
-              {deposited}
-              <span className="text-gray-500">(${+deposited * +price})</span>
+              {formatUnits(
+                position.amount,
+                position.underlying.decimals,
+                price,
+              )}
+              <span className="text-gray-500">
+                (
+                {formatDollarValue(
+                  position.amount,
+                  position.underlying.decimals,
+                  price,
+                )}
+                )
+              </span>
             </div>
           </div>
         </div>
@@ -82,10 +111,10 @@ const Asset = ({
   ...props
 }: {
   currency: Currency
-  apy: BigDecimal
-  available: BigDecimal
-  deposited: BigDecimal
-  price: BigDecimal
+  apy: number
+  available: bigint
+  deposited: bigint
+  price: number
 } & React.HTMLAttributes<HTMLDivElement>) => {
   return (
     <div
@@ -107,33 +136,37 @@ const Asset = ({
               <div className="text-gray-500 text-xs">{currency.name}</div>
             </div>
           </div>
-          <div className="text-sm font-bold sm:w-[80px]">{apy.toFormat(2)}</div>
+          <ClientComponent className="text-sm font-bold sm:w-[80px]">
+            {apy.toFixed(2)}%
+          </ClientComponent>
         </div>
         <div className="flex flex-row sm:flex-col w-full sm:w-[136px] justify-between px-4 sm:p-0">
           <div className="sm:hidden text-gray-500 text-xs">Available</div>
-          <div className="flex flex-row sm:flex-col items-center sm:items-start gap-1 sm:gap-0">
+          <ClientComponent className="flex flex-row sm:flex-col items-center sm:items-start gap-1 sm:gap-0">
             <div className="text-xs sm:text-sm">
-              {available.toFormat(2)} {currency.symbol}
+              {formatUnits(available, currency.decimals, price)}{' '}
+              {currency.symbol}
             </div>
             <div className="text-xs text-gray-500">
-              <span className="sm:hidden">(</span>$
-              {available.times(price).toFormat(2)}
+              <span className="sm:hidden">(</span>
+              {formatDollarValue(available, currency.decimals, price)}
               <span className="sm:hidden">)</span>
             </div>
-          </div>
+          </ClientComponent>
         </div>
         <div className="flex flex-row sm:flex-col w-full sm:w-[120px] justify-between px-4 sm:p-0">
           <div className="sm:hidden text-gray-500 text-xs">Deposited</div>
-          <div className="flex flex-row sm:flex-col sm:w-[120px] gap-1 sm:gap-0">
+          <ClientComponent className="flex flex-row sm:flex-col sm:w-[120px] gap-1 sm:gap-0">
             <div className="text-xs sm:text-sm">
-              {deposited.toFormat(2)} {currency.symbol}
+              {formatUnits(deposited, currency.decimals, price)}{' '}
+              {currency.symbol}
             </div>
             <div className="text-xs text-gray-500">
-              <span className="sm:hidden">(</span>$
-              {deposited.times(price).toFormat(2)}
+              <span className="sm:hidden">(</span>
+              {formatDollarValue(deposited, currency.decimals, price)}
               <span className="sm:hidden">)</span>
             </div>
-          </div>
+          </ClientComponent>
         </div>
       </div>
       <Link
@@ -146,13 +179,19 @@ const Asset = ({
   )
 }
 
-const Deposit = ({ assets }: { assets: Asset[] }) => {
+const Deposit = ({
+  assetStatuses,
+  epochs,
+}: {
+  assetStatuses: AssetStatus[]
+  epochs: Epoch[]
+}) => {
   const { prices } = useCurrencyContext()
-  const { positions, apy, available, deposited } = useDepositContext()
-  const [withdrawPosition, setWithdrawPosition] = useState<{
-    currency: Currency
-    amount: string
-  } | null>(null)
+  const { positions } = useDepositContext()
+  const [withdrawPosition, setWithdrawPosition] = useState<BondPosition | null>(
+    null,
+  )
+  const [epoch, setEpoch] = useState(epochs[0])
   return (
     <div className="flex flex-1 flex-col w-full sm:w-fit">
       <h1 className="flex justify-center text-center font-bold text-lg sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-12 mb-8 sm:mb-16">
@@ -160,7 +199,7 @@ const Deposit = ({ assets }: { assets: Asset[] }) => {
         DeFi
       </h1>
       {positions.length > 0 ? (
-        <div className="flex flex-col gap-6 mb-12 sm:mb-20 px-4 sm:p-0">
+        <ClientComponent className="flex flex-col gap-6 mb-12 sm:mb-20 px-4 sm:p-0">
           <div className="flex gap-2 sm:gap-3 items-center">
             <h2 className="font-bold text-base sm:text-2xl">My Positions</h2>
             <div className="font-bold text-sm bg-gray-200 dark:bg-gray-700 rounded-full px-2.5 sm:px-3 py-0.5 sm:py-1">
@@ -172,49 +211,52 @@ const Deposit = ({ assets }: { assets: Asset[] }) => {
               <div className="text-gray-500">Total Deposit</div>
               <div className="font-bold">
                 $
-                {positions.reduce(
-                  (acc, position) =>
-                    +position.price * +position.deposited + acc,
-                  0,
-                )}
+                {positions
+                  .reduce(
+                    (acc, { underlying, amount }) =>
+                      +formatUnits(amount, underlying.decimals) *
+                        (prices[underlying.address] ?? 0) +
+                      acc,
+                    0,
+                  )
+                  .toFixed(2)}
               </div>
             </div>
             <div className="flex justify-between gap-3">
               <div className="text-gray-500">Total Earned</div>
               <div className="font-bold">
                 $
-                {positions.reduce(
-                  (acc, position) =>
-                    +position.price * +position.interestEarned + acc,
-                  0,
-                )}
+                {positions
+                  .reduce(
+                    (acc, { underlying, interest }) =>
+                      +formatUnits(interest, underlying.decimals) *
+                        (prices[underlying.address] ?? 0) +
+                      acc,
+                    0,
+                  )
+                  .toFixed(2)}
               </div>
-            </div>
-            <div className="flex justify-between gap-3">
-              <div className="text-gray-500">Average APY</div>
-              <div className="font-bold">5.0%</div>
             </div>
           </div>
           <div className="flex flex-col sm:grid sm:grid-cols-3 gap-4 sm:gap-6">
-            {positions.map((position, i) => (
-              <Position
-                key={i}
-                currency={position.currency}
-                apy={position.apy}
-                interestEarned={position.interestEarned}
-                deposited={position.deposited}
-                expiry={position.expiry}
-                price={position.price}
-                onWithdraw={() =>
-                  setWithdrawPosition({
-                    currency: position.currency,
-                    amount: position.deposited,
-                  })
-                }
-              />
-            ))}
+            {positions
+              .filter((position) =>
+                dollarValue(
+                  position.amount,
+                  position.underlying.decimals,
+                  prices[position.underlying.address] ?? 0,
+                ).isGreaterThanOrEqualTo(0.01),
+              )
+              .map((position, i) => (
+                <Position
+                  key={i}
+                  position={position}
+                  price={prices[position.underlying.address] ?? 0}
+                  onWithdraw={() => setWithdrawPosition(position)}
+                />
+              ))}
           </div>
-        </div>
+        </ClientComponent>
       ) : (
         <></>
       )}
@@ -225,7 +267,11 @@ const Deposit = ({ assets }: { assets: Asset[] }) => {
             <label htmlFor="epoch" className="hidden sm:flex">
               How long are you going to deposit?
             </label>
-            <DateSelect />
+            <EpochSelect
+              epochs={epochs}
+              value={epoch}
+              onValueChange={setEpoch}
+            />
           </div>
         </div>
         <div className="flex flex-col mb-12 gap-4">
@@ -236,16 +282,44 @@ const Deposit = ({ assets }: { assets: Asset[] }) => {
             <div className="w-[152px]">Total Deposited</div>
           </div>
           <div className="flex flex-col gap-4 sm:gap-3">
-            {assets.map((asset, i) => (
-              <Asset
-                key={i}
-                currency={asset.underlying}
-                apy={apy[asset.underlying.address] ?? ZERO}
-                available={available[asset.underlying.address] ?? ZERO}
-                deposited={deposited[asset.underlying.address] ?? ZERO}
-                price={prices[asset.underlying.address] ?? ZERO}
-              />
-            ))}
+            {assetStatuses
+              .filter((assetStatus) => assetStatus.epoch.id === epoch.id)
+              .map((assetStatus, i) => {
+                const validAssetStatuses = assetStatuses.filter(
+                  ({ underlying, epoch }) =>
+                    isAddressEqual(
+                      underlying.address,
+                      assetStatus.underlying.address,
+                    ) && epoch.id <= assetStatus.epoch.id,
+                )
+                const proceeds = validAssetStatuses.reduce(
+                  (acc, { bestCouponPrice }) => acc + bestCouponPrice,
+                  0,
+                )
+                const currentTimestamp = Math.floor(new Date().getTime() / 1000)
+                const apy = calculateApy(
+                  proceeds,
+                  assetStatus.epoch.endTimestamp - currentTimestamp,
+                )
+                const available = validAssetStatuses
+                  .map(({ totalAvailable }) =>
+                    parseUnits(totalAvailable, assetStatus.underlying.decimals),
+                  )
+                  .reduce((acc, val) => (acc > val ? acc : val), 0n)
+                return (
+                  <Asset
+                    key={i}
+                    currency={assetStatus.underlying}
+                    apy={apy}
+                    available={available}
+                    deposited={parseUnits(
+                      assetStatus.totalDeposited,
+                      assetStatus.underlying.decimals,
+                    )}
+                    price={prices[assetStatus.underlying.address] ?? 0}
+                  />
+                )
+              })}
           </div>
         </div>
       </div>

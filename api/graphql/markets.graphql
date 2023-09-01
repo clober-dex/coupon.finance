@@ -1,12 +1,14 @@
-query getMarkets {
-  markets {
+query getMarkets ($fromEpoch: String!) {
+  markets (where: {epoch_gte: $fromEpoch}) {
     id
     orderToken
     takerFee
     quoteUnit
-    epoch
-    startTimestamp
-    endTimestamp
+    epoch {
+      id
+      startTimestamp
+      endTimestamp
+    }
     quoteToken {
       id
       name
