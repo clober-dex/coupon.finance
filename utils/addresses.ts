@@ -11,12 +11,12 @@ export const CONTRACT_ADDRESSES: {
 } = {
   prod: {
     BondPositionManager:
-      '0x0000000000000000000000000000000000000000' as `0x${string}`,
+      '0x06ad1569cc3f430D16f906D21Cd2D1DA6eCA8e48' as `0x${string}`,
     BorrowController:
-      '0x0000000000000000000000000000000000000000' as `0x${string}`,
-    CouponOracle: '0x0000000000000000000000000000000000000000' as `0x${string}`,
+      '0xf989cF31a0C30c766C7f81Eb71b1Df518e7E9EBA' as `0x${string}`,
+    CouponOracle: '0xE0dBCB42CCAc63C949cE3EF879A647DDb662916d' as `0x${string}`,
     DepositController:
-      '0x0000000000000000000000000000000000000000' as `0x${string}`,
+      '0x724D0757261c4d0461A0fd71929e080447162148' as `0x${string}`,
     OdosRepayAdapter:
       '0x0000000000000000000000000000000000000000' as `0x${string}`,
   },
