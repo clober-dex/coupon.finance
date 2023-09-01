@@ -14,6 +14,7 @@ import { publicProvider } from 'wagmi/providers/public'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { identify } from '@web3analytic/funnel-sdk'
 import Head from 'next/head'
+import Link from 'next/link'
 
 import Header from '../components/header'
 import { ThemeProvider, useThemeContext } from '../contexts/theme-context'
@@ -103,6 +104,17 @@ function MyApp({ Component, pageProps }: AppProps) {
                       <Panel open={open} setOpen={setOpen} />
                       <Header onMenuClick={() => setOpen(true)} />
                       <Component {...pageProps} />
+                      <Link
+                        target="_blank"
+                        href="https://github.com/clober-dex/coupon.finance"
+                        className="fixed right-4 bottom-4 bg-gray-200 dark:bg-gray-800 rounded-full text-xs px-4 py-1"
+                      >
+                        #
+                        {process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(
+                          0,
+                          7,
+                        )}
+                      </Link>
                     </div>
                   </BorrowProvider>
                 </DepositProvider>
