@@ -30,7 +30,12 @@ export async function fetchAssets(): Promise<Asset[]> {
   if (cache) {
     return cache
   }
-  const { assets } = await getAssets()
+  const { assets } = await getAssets(
+    {},
+    {
+      url: process.env.SUBGRAPH_URL,
+    },
+  )
 
   const result = assets.map((asset) => ({
     underlying: toCurrency(asset.underlying),
@@ -47,7 +52,12 @@ export async function fetchAssets(): Promise<Asset[]> {
 }
 
 export async function fetchAssetStatuses(): Promise<AssetStatus[]> {
-  const { assetStatuses } = await getAssetStatuses()
+  const { assetStatuses } = await getAssetStatuses(
+    {},
+    {
+      url: process.env.SUBGRAPH_URL,
+    },
+  )
 
   return assetStatuses.map((assetStatus) => {
     const underlying = toCurrency(assetStatus.asset.underlying)
