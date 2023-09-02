@@ -66,7 +66,6 @@ const Deposit: NextPage<
     {
       refetchOnWindowFocus: true,
       keepPreviousData: true,
-      initialData: [],
     },
   )
 
@@ -75,14 +74,14 @@ const Deposit: NextPage<
   }, [asset.underlying.address, balances])
 
   const depositApy = useMemo(() => {
-    if (epochs === 0) {
+    if (epochs === 0 || !proceedsByEpochsDeposited) {
       return 0
     }
     return proceedsByEpochsDeposited[epochs - 1]?.apy ?? 0
   }, [proceedsByEpochsDeposited, epochs])
 
   const expectedProceeds = useMemo(() => {
-    if (epochs === 0) {
+    if (epochs === 0 || !proceedsByEpochsDeposited) {
       return 0n
     }
     return proceedsByEpochsDeposited[epochs - 1]?.proceeds ?? 0n
@@ -135,40 +134,52 @@ const Deposit: NextPage<
                   </div>
                 </div>
                 <div className="flex flex-row-reverse justify-between sm:flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4 sm:h-[116px]">
+                  {proceedsByEpochsDeposited === undefined ? (
+                    <ClientComponent className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                      <div
+                        className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-green-500 border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]"
+                        role="status"
+                      />
+                    </ClientComponent>
+                  ) : (
+                    <></>
+                  )}
                   <div className="sm:px-6 sm:mb-2">
                     <ClientComponent>
                       <Slider
-                        length={proceedsByEpochsDeposited.length}
+                        length={proceedsByEpochsDeposited?.length ?? 0}
                         value={epochs}
                         onValueChange={setEpochs}
                       />
                     </ClientComponent>
                   </div>
                   <ClientComponent className="flex flex-col sm:flex-row justify-between">
-                    {proceedsByEpochsDeposited.map(({ date, proceeds }, i) => (
-                      <button
-                        key={i}
-                        className="flex sm:flex-col items-center gap-1 sm:gap-2 sm:w-[72px]"
-                        onClick={() => setEpochs(i + 1)}
-                      >
-                        <div className="text-sm w-20 sm:w-fit text-start">
-                          {date}
-                        </div>
-                        <div
-                          className={
-                            'px-2 py-1 rounded-full text-xs bg-green-500 text-green-500 bg-opacity-10'
-                          }
+                    {(proceedsByEpochsDeposited ?? []).map(
+                      ({ date, proceeds }, i) => (
+                        <button
+                          key={i}
+                          className="flex sm:flex-col items-center gap-1 sm:gap-2 sm:w-[72px]"
+                          onClick={() => setEpochs(i + 1)}
                         >
-                          {`+${Number(
-                            formatUnits(
-                              proceeds,
-                              asset.underlying.decimals,
-                              prices[asset.underlying.address],
-                            ),
-                          ).toFixed(2)}`}
-                        </div>
-                      </button>
-                    ))}
+                          <div className="text-sm w-20 sm:w-fit text-start">
+                            {date}
+                          </div>
+                          <div
+                            className={
+                              'px-2 py-1 rounded-full text-xs bg-green-500 text-green-500 bg-opacity-10'
+                            }
+                          >
+                            {`+${Number(
+                              formatUnits(
+                                proceeds,
+                                asset.underlying.decimals,
+                                prices[asset.underlying.address],
+                              ),
+                            ).toFixed(2)}`}
+                          </div>
+                        </button>
+                      ),
+                    )}
                   </ClientComponent>
                 </div>
               </div>

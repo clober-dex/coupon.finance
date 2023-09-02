@@ -19,6 +19,7 @@ import { BondPosition } from '../model/bond-position'
 import { formatUnits } from '../utils/numbers'
 import { permit721 } from '../utils/permit721'
 import { Currency } from '../model/currency'
+import { zeroBytes32 } from '../utils/bytes'
 
 import { isEthereum, useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -86,17 +87,17 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       const wethBalance = isEthereum(asset.underlying)
         ? balances[asset.underlying.address] - (balance?.value || 0n)
         : 0n
-      const { deadline, r, s, v } = await permit20(
-        walletClient,
-        asset.underlying,
-        walletClient.account.address,
-        CONTRACT_ADDRESSES.DepositController,
-        amount + minimumInterestEarned, // TODO: change after contract change
-        BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
-      )
 
       let hash: Hash | undefined
       try {
+        const { deadline, r, s, v } = await permit20(
+          walletClient,
+          asset.underlying,
+          walletClient.account.address,
+          CONTRACT_ADDRESSES.DepositController,
+          amount + minimumInterestEarned, // TODO: change after contract change
+          BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
+        )
         setConfirmation({
           title: 'Making Deposit',
           body: 'Please confirm in your wallet.',
@@ -156,16 +157,15 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const { deadline, r, s, v } = await permit721(
-        walletClient,
-        CONTRACT_ADDRESSES.BondPositionManager,
-        tokenId,
-        walletClient.account.address,
-        CONTRACT_ADDRESSES.DepositController,
-        BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
-      )
-
       try {
+        const { deadline, r, s, v } = await permit721(
+          walletClient,
+          CONTRACT_ADDRESSES.BondPositionManager,
+          tokenId,
+          walletClient.account.address,
+          CONTRACT_ADDRESSES.DepositController,
+          BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
+        )
         setConfirmation({
           title: 'Making Withdrawal',
           body: 'Please confirm in your wallet.',

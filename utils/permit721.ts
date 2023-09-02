@@ -46,18 +46,22 @@ export const permit721 = async (
     ],
   })
 
+  if (nonce === undefined || !eip712Domain) {
+    throw new Error('Could not fetch eip712Domain')
+  }
+
   const signature = await walletClient.signTypedData({
     account: owner,
     domain: {
-      name: eip712Domain?.[1] || 'ERC721 Permit',
-      version: (eip712Domain?.[2] || '1').toString(),
+      name: eip712Domain[1],
+      version: eip712Domain[2].toString(),
       chainId: BigInt(walletClient.chain.id),
-      verifyingContract: eip712Domain?.[4] || nftContractAddress,
+      verifyingContract: nftContractAddress,
     },
     message: {
       spender,
       tokenId,
-      nonce: nonce || 0n,
+      nonce,
       deadline,
     },
     primaryType: 'Permit',
