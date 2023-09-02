@@ -67,7 +67,7 @@ export const permit20 = async (
       ],
     })
 
-  if (nonce === undefined || !name || !version) {
+  if (nonce === undefined || !name) {
     throw new Error('Could not fetch eip20Domain')
   }
 
@@ -75,7 +75,7 @@ export const permit20 = async (
     account: owner,
     domain: {
       name: name,
-      version: version.toString(),
+      version: (version || '1').toString(),
       chainId: BigInt(walletClient.chain.id),
       verifyingContract: currency.address,
     },
