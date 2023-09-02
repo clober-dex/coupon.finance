@@ -87,7 +87,8 @@ const WithdrawModal = ({
       <button
         disabled={
           amount === 0n ||
-          amount > min(position.amount - maxRepurchaseFee, available)
+          amount >
+            min(position.amount - maxRepurchaseFee, available - repurchaseFee)
         }
         className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
         onClick={async () => {
@@ -101,11 +102,11 @@ const WithdrawModal = ({
           onClose()
         }}
       >
-        {amount > available
+        {amount + repurchaseFee > available
           ? 'Not enough coupons for sale'
           : amount > position.amount
           ? 'Not enough deposited'
-          : amount > position.amount - maxRepurchaseFee
+          : amount + maxRepurchaseFee > position.amount
           ? 'Cannot cover repurchase fee'
           : 'Confirm'}
       </button>
