@@ -105,7 +105,7 @@ const WithdrawModal = ({
           ? 'Not enough coupons for sale'
           : amount > position.amount
           ? 'Not enough deposited'
-          : amount > position.amount - maxRepurchaseFee
+          : amount + maxRepurchaseFee > position.amount
           ? 'Cannot cover repurchase fee'
           : 'Confirm'}
       </button>
