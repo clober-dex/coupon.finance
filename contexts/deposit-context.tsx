@@ -195,6 +195,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         ))
       } catch (e) {
         console.error(e)
+        return
       }
 
       try {
