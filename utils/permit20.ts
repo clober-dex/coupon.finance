@@ -67,10 +67,14 @@ export const permit20 = async (
       ],
     })
 
+  if (nonce === undefined || !name) {
+    throw new Error('Could not fetch eip20Domain')
+  }
+
   const signature = await walletClient.signTypedData({
     account: owner,
     domain: {
-      name: name || 'ERC20 Permit',
+      name: name,
       version: (version || '1').toString(),
       chainId: BigInt(walletClient.chain.id),
       verifyingContract: currency.address,
@@ -79,7 +83,7 @@ export const permit20 = async (
       owner,
       spender,
       value,
-      nonce: nonce || 0n,
+      nonce,
       deadline,
     },
     primaryType: 'Permit',
