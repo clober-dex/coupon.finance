@@ -1,4 +1,5 @@
 import { getAddress, isAddressEqual } from 'viem'
+import { max } from 'hardhat/internal/util/bigint'
 
 import { getBuiltGraphSDK } from '../.graphclient'
 import { calculateDepositApy, Market } from '../model/market'
@@ -140,13 +141,15 @@ export async function fetchCoupons(
   const availableCoupons = min(
     ...markets.map((market) => market.totalAsksInBaseAfterFees()),
   )
-  const available =
+  const available = max(
     availableCoupons -
-    markets.reduce(
-      (acc, market) =>
-        acc + market.take(substitute.address, availableCoupons).amountIn,
-      0n,
-    )
+      markets.reduce(
+        (acc, market) =>
+          acc + market.take(substitute.address, availableCoupons).amountIn,
+        0n,
+      ),
+    0n,
+  )
   return {
     maxRepurchaseFee,
     repurchaseFee,
