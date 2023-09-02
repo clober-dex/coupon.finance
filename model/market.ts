@@ -113,7 +113,7 @@ export class Market {
     )
   }
 
-  private roundDiv(x: bigint, y: bigint, roundUp: boolean): bigint {
+  private divide(x: bigint, y: bigint, roundUp: boolean): bigint {
     if (roundUp) {
       if (x === 0n) {
         return 0n
@@ -126,7 +126,7 @@ export class Market {
   }
 
   private quoteToRaw(amount: bigint, roundUp: boolean): bigint {
-    return this.roundDiv(amount, this.quoteUnit, roundUp)
+    return this.divide(amount, this.quoteUnit, roundUp)
   }
 
   private rawToQuote(rawAmount: bigint): bigint {
@@ -134,7 +134,7 @@ export class Market {
   }
 
   private baseToRaw(amount: bigint, price: bigint, roundUp: boolean): bigint {
-    return this.roundDiv(
+    return this.divide(
       amount * price * this.basePrecisionComplement,
       this.PRICE_PRECISION * this.quotePrecisionComplement * this.quoteUnit,
       roundUp,
@@ -146,7 +146,7 @@ export class Market {
     price: bigint,
     roundUp: boolean,
   ): bigint {
-    return this.roundDiv(
+    return this.divide(
       this.rawToQuote(rawAmount) *
         this.PRICE_PRECISION *
         this.quotePrecisionComplement,
@@ -159,15 +159,11 @@ export class Market {
     takeAmount: bigint,
     roundUp: boolean,
   ): bigint {
-    return this.roundDiv(
-      takeAmount * this.takerFee,
-      this.FEE_PRECISION,
-      roundUp,
-    )
+    return this.divide(takeAmount * this.takerFee, this.FEE_PRECISION, roundUp)
   }
 
   private calculateTakeAmountBeforeFees(amountAfterFees: bigint): bigint {
-    return this.roundDiv(
+    return this.divide(
       amountAfterFees * this.FEE_PRECISION,
       this.FEE_PRECISION - this.takerFee,
       true,
