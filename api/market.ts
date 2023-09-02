@@ -137,10 +137,16 @@ export async function fetchCoupons(
     )
   }
 
-  const available = min(
+  const availableCoupons = min(
     ...markets.map((market) => market.totalAsksInBaseAfterFees()),
   )
-
+  const available =
+    availableCoupons -
+    markets.reduce(
+      (acc, market) =>
+        acc + market.take(substitute.address, availableCoupons).amountIn,
+      0n,
+    )
   return {
     maxRepurchaseFee,
     repurchaseFee,
