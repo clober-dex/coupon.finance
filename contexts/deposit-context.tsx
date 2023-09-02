@@ -87,33 +87,17 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       const wethBalance = isEthereum(asset.underlying)
         ? balances[asset.underlying.address] - (balance?.value || 0n)
         : 0n
-      let { deadline, r, s, v } = {
-        deadline: 0n,
-        r: zeroBytes32,
-        s: zeroBytes32,
-        v: 0,
-      } as {
-        deadline: bigint
-        r: `0x${string}`
-        s: `0x${string}`
-        v: number
-      }
+
+      let hash: Hash | undefined
       try {
-        ;({ deadline, r, s, v } = await permit20(
+        const { deadline, r, s, v } = await permit20(
           walletClient,
           asset.underlying,
           walletClient.account.address,
           CONTRACT_ADDRESSES.DepositController,
           amount + minimumInterestEarned, // TODO: change after contract change
           BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
-        ))
-      } catch (e) {
-        console.log(e)
-        return
-      }
-
-      let hash: Hash | undefined
-      try {
+        )
         setConfirmation({
           title: 'Making Deposit',
           body: 'Please confirm in your wallet.',
@@ -173,32 +157,15 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      let { deadline, r, s, v } = {
-        deadline: 0n,
-        r: zeroBytes32,
-        s: zeroBytes32,
-        v: 0,
-      } as {
-        deadline: bigint
-        r: `0x${string}`
-        s: `0x${string}`
-        v: number
-      }
       try {
-        ;({ deadline, r, s, v } = await permit721(
+        const { deadline, r, s, v } = await permit721(
           walletClient,
           CONTRACT_ADDRESSES.BondPositionManager,
           tokenId,
           walletClient.account.address,
           CONTRACT_ADDRESSES.DepositController,
           BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
-        ))
-      } catch (e) {
-        console.error(e)
-        return
-      }
-
-      try {
+        )
         setConfirmation({
           title: 'Making Withdrawal',
           body: 'Please confirm in your wallet.',
