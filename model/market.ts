@@ -274,17 +274,27 @@ export class Market {
     }
   }
 
-  totalBidsInBase(): bigint {
-    return this.bids.reduce(
+  totalBidsInBaseAfterFees(): bigint {
+    const totalBidsInBase = this.bids.reduce(
       (acc, val) => acc + this.rawToBase(val.rawAmount, val.price, false),
       0n,
     )
+    return this.divide(
+      totalBidsInBase * (this.FEE_PRECISION - this.takerFee),
+      this.FEE_PRECISION,
+      false,
+    )
   }
 
-  totalAsksInBase(): bigint {
-    return this.asks.reduce(
+  totalAsksInBaseAfterFees(): bigint {
+    const totalAsksInBase = this.asks.reduce(
       (acc, val) => acc + this.rawToBase(val.rawAmount, val.price, false),
       0n,
+    )
+    return this.divide(
+      totalAsksInBase * (this.FEE_PRECISION - this.takerFee),
+      this.FEE_PRECISION,
+      false,
     )
   }
 }

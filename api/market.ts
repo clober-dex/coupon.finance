@@ -137,7 +137,9 @@ export async function fetchCoupons(
     )
   }
 
-  const available = min(...markets.map((market) => market.totalAsksInBase()))
+  const available = min(
+    ...markets.map((market) => market.totalAsksInBaseAfterFees()),
+  )
 
   return {
     maxRepurchaseFee,
