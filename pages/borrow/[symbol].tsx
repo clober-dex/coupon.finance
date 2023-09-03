@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { parseUnits } from 'viem'
+import { isAddressEqual, parseUnits } from 'viem'
 
 import Slider from '../../components/slider'
 import BackSvg from '../../components/svg/back-svg'
@@ -19,6 +19,9 @@ const dummy = [
   { date: '25-06-30', profit: '102.37' },
   { date: '25-12-31', profit: '102.37' },
 ]
+
+const LIQUIDATION_TARGET_LTV_PRECISION = 10n ** 6n
+const PRICE_PRECISION = 10n ** 8n
 
 export const getServerSideProps: GetServerSideProps<{
   asset: Asset
@@ -67,7 +70,37 @@ const Borrow: NextPage<
     [loanValue, asset.underlying.decimals],
   )
 
-  console.log(collateralAmount, loanAmount)
+  const liquidationTargetLtv = useMemo(
+    () =>
+      collateral
+        ? BigInt(
+            asset.collaterals.find(({ underlying }) =>
+              isAddressEqual(underlying.address, collateral.address),
+            )?.liquidationTargetLtv || 0n,
+          )
+        : 0n,
+    [asset.collaterals, collateral],
+  )
+
+  const availableLoanAmount = useMemo(() => {
+    const collateralPrice =
+      collateral && prices[collateral.address]
+        ? BigInt(prices[collateral.address] * Number(PRICE_PRECISION))
+        : 0n
+    const loanPrice =
+      asset && prices[asset.underlying.address]
+        ? BigInt(prices[asset.underlying.address] * Number(PRICE_PRECISION))
+        : 0n
+    return collateral
+      ? (collateralAmount *
+          liquidationTargetLtv *
+          collateralPrice *
+          10n ** (18n - BigInt(collateral.decimals))) /
+          LIQUIDATION_TARGET_LTV_PRECISION /
+          loanPrice /
+          10n ** (18n - BigInt(asset.underlying.decimals))
+      : 0n
+  }, [asset, collateral, collateralAmount, liquidationTargetLtv, prices])
 
   return (
     <div className="flex flex-1">
@@ -129,7 +162,7 @@ const Borrow: NextPage<
                     value={loanValue}
                     onValueChange={setLoanValue}
                     price={prices[asset.underlying.address] ?? 0}
-                    balance={218390000n}
+                    balance={availableLoanAmount}
                   />
                 </div>
                 <div className="flex flex-col gap-4">
@@ -170,7 +203,11 @@ const Borrow: NextPage<
                     </div>
                     <div className="flex w-full sm:w-fit text-sm gap-2 justify-between">
                       <span className="text-gray-500">LTV</span>
-                      <div className="text-yellow-500">15.24%</div>
+                      <div className="text-yellow-500">
+                        {Number(liquidationTargetLtv * 100n) /
+                          Number(LIQUIDATION_TARGET_LTV_PRECISION)}
+                        %
+                      </div>
                     </div>
                   </div>
                 </div>
