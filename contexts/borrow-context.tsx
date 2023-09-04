@@ -158,7 +158,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
         )
         setConfirmation({
-          title: 'Making Borrow',
+          title: `Borrowing ${loanAsset.underlying.symbol}`,
           body: 'Please confirm in your wallet.',
           fields: [
             {
