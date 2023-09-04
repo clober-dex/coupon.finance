@@ -405,16 +405,16 @@ export const calculateBorrowApr = (
   }
 }
 
-export async function calculateCouponsToWithdraw(
+export function calculateCouponsToWithdraw(
   substitute: Currency,
   markets: Market[],
   positionAmount: bigint,
   withdrawAmount: bigint,
-): Promise<{
+): {
   maxRepurchaseFee: bigint
   repurchaseFee: bigint
   available: bigint
-}> {
+} {
   if (
     markets.some(
       (market) =>
