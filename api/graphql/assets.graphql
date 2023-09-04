@@ -19,6 +19,12 @@ query getAssets {
         name
         decimals
       }
+      substitute {
+        id
+        symbol
+        name
+        decimals
+      }
       liquidationThreshold
       liquidationTargetLtv
     }
