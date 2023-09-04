@@ -17,6 +17,7 @@ import CurrencyAmountInput from '../../components/currency-amount-input'
 import { fetchBorrowAprByEpochsBorrowed } from '../../api/market'
 import { dollarValue, formatUnits } from '../../utils/numbers'
 import { ClientComponent } from '../../components/client-component'
+import { useBorrowContext } from '../../contexts/borrow-context'
 
 const PRICE_PRECISION = 10n ** 8n
 const LIQUIDATION_TARGET_LTV_PRECISION = 10n ** 6n
@@ -43,6 +44,8 @@ const Borrow: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ asset }) => {
   const { balances, prices } = useCurrencyContext()
+  const { borrow } = useBorrowContext()
+
   const [epochs, _setEpochs] = useState(0)
   const [collateralValue, setCollateralValue] = useState('')
   const [loanValue, setLoanValue] = useState('')
@@ -294,6 +297,22 @@ const Borrow: NextPage<
                     loanAmount > available
                   }
                   className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
+                  onClick={async () => {
+                    if (!collateral) {
+                      return
+                    }
+                    const hash = await borrow(
+                      collateral,
+                      collateralAmount,
+                      asset,
+                      loanAmount,
+                      epochs,
+                      expectedInterests,
+                    )
+                    if (hash) {
+                      await router.replace('/')
+                    }
+                  }}
                 >
                   {collateralAmount > collateralBalance
                     ? `Insufficient ${collateral?.symbol} balance`
