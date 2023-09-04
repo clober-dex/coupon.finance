@@ -88,7 +88,7 @@ const Borrow: NextPage<
   )
 
   const maxLoanAmountExcludingCouponFee = useMemo(() => {
-    if (epochs === 0) {
+    if (epochs === 0 || !collateral || !asset) {
       return 0n
     }
     const [collateralPrice, collateralComplement] = [
