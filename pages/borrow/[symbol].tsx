@@ -101,7 +101,7 @@ const Borrow: NextPage<
         : 0n,
       10n ** (18n - BigInt(asset.underlying.decimals)),
     ]
-    return collateral
+    return collateral && loanPrice && collateralPrice
       ? (collateralAmount *
           maxLiquidationTargetLtv *
           collateralPrice *
