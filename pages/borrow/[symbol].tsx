@@ -18,6 +18,7 @@ import { dollarValue, formatUnits } from '../../utils/numbers'
 import { ClientComponent } from '../../components/client-component'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import { min } from '../../utils/bigint'
+import { Collateral } from '../../model/collateral'
 
 const PRICE_PRECISION = 10n ** 8n
 const LIQUIDATION_TARGET_LTV_PRECISION = 10n ** 6n
@@ -49,7 +50,9 @@ const Borrow: NextPage<
   const [epochs, _setEpochs] = useState(0)
   const [collateralValue, setCollateralValue] = useState('')
   const [loanValue, setLoanValue] = useState('')
-  const [collateral, setCollateral] = useState<Currency | undefined>(undefined)
+  const [collateral, setCollateral] = useState<Collateral | undefined>(
+    undefined,
+  )
   const [showCollateralSelect, setShowCollateralSelect] = useState(false)
 
   const router = useRouter()
@@ -62,11 +65,11 @@ const Borrow: NextPage<
   )
 
   const collateralAmount = useMemo(
-    () => parseUnits(collateralValue, collateral?.decimals ?? 18),
-    [collateralValue, collateral?.decimals],
+    () => parseUnits(collateralValue, collateral?.underlying.decimals ?? 18),
+    [collateralValue, collateral?.underlying.decimals],
   )
   const collateralBalance = useMemo(
-    () => (collateral ? balances[collateral.address] : 0n),
+    () => (collateral ? balances[collateral.underlying.address] : 0n),
     [balances, collateral],
   )
 
@@ -80,7 +83,7 @@ const Borrow: NextPage<
       collateral
         ? BigInt(
             asset.collaterals.find(({ underlying }) =>
-              isAddressEqual(underlying.address, collateral.address),
+              isAddressEqual(underlying.address, collateral.underlying.address),
             )?.liquidationTargetLtv || 0n,
           )
         : 0n,
@@ -92,10 +95,12 @@ const Borrow: NextPage<
       return 0n
     }
     const [collateralPrice, collateralComplement] = [
-      collateral && prices[collateral.address]
-        ? BigInt(prices[collateral.address] * Number(PRICE_PRECISION))
+      collateral && prices[collateral.underlying.address]
+        ? BigInt(
+            prices[collateral.underlying.address] * Number(PRICE_PRECISION),
+          )
         : 0n,
-      10n ** (18n - BigInt(collateral?.decimals ?? 18n)),
+      10n ** (18n - BigInt(collateral?.underlying.decimals ?? 18n)),
     ]
     const [loanPrice, loanComplement] = [
       asset && prices[asset.underlying.address]
@@ -185,8 +190,8 @@ const Borrow: NextPage<
     const collateralDollarValue = collateral
       ? dollarValue(
           collateralAmount,
-          collateral.decimals,
-          prices[collateral.address],
+          collateral.underlying.decimals,
+          prices[collateral.underlying.address],
         )
       : 0
     const loanDollarValue = dollarValue(
@@ -235,7 +240,11 @@ const Borrow: NextPage<
               )}
               onBack={() => setShowCollateralSelect(false)}
               onCurrencySelect={(currency) => {
-                setCollateral(currency)
+                setCollateral(
+                  asset.collaterals.find(({ underlying }) => {
+                    return isAddressEqual(underlying.address, currency.address)
+                  }),
+                )
                 setShowCollateralSelect(false)
               }}
             />
@@ -247,13 +256,19 @@ const Borrow: NextPage<
                     How much collateral would you like to add?
                   </div>
                   <CurrencyAmountInput
-                    currency={collateral}
+                    currency={collateral?.underlying}
                     value={collateralValue}
                     onValueChange={setCollateralValue}
                     balance={
-                      collateral ? balances[collateral?.address] ?? 0n : 0n
+                      collateral
+                        ? balances[collateral?.underlying.address] ?? 0n
+                        : 0n
                     }
-                    price={collateral ? prices[collateral?.address] ?? 0 : 0}
+                    price={
+                      collateral
+                        ? prices[collateral?.underlying.address] ?? 0
+                        : 0
+                    }
                     onCurrencyClick={() => setShowCollateralSelect(true)}
                   />
                 </div>
@@ -351,7 +366,7 @@ const Borrow: NextPage<
                     : loanAmount === 0n
                     ? 'Enter loan amount'
                     : collateralAmount > collateralBalance
-                    ? `Insufficient ${collateral?.symbol} balance`
+                    ? `Insufficient ${collateral?.underlying.symbol} balance`
                     : loanAmount > available
                     ? 'Not enough coupons for sale'
                     : loanAmount + maxInterest > maxLoanAmountExcludingCouponFee
