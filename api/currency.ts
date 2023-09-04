@@ -3,6 +3,7 @@ import { readContracts } from '@wagmi/core'
 import { Currency } from '../model/currency'
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { CouponOracle__factory } from '../typechain'
+import { BigDecimal } from '../utils/numbers'
 
 import { fetchAssets } from './asset'
 
@@ -28,10 +29,9 @@ export async function fetchCurrencies() {
 }
 
 export async function fetchPrices(currencyAddresses: `0x${string}`[]): Promise<{
-  prices: { [key in `0x${string}`]: number }
-  rawPrices: { [key in `0x${string}`]: bigint }
+  [key in `0x${string}`]: BigDecimal
 }> {
-  const [{ result }, { result: decimals }] = await readContracts({
+  const [{ result: prices }, { result: decimals }] = await readContracts({
     contracts: [
       {
         address: CONTRACT_ADDRESSES.CouponOracle,
@@ -47,33 +47,15 @@ export async function fetchPrices(currencyAddresses: `0x${string}`[]): Promise<{
     ],
   })
 
-  if (!result || !decimals) {
+  if (!prices || !decimals) {
+    return {}
+  }
+
+  return prices.reduce((acc, value, i) => {
+    const currencyAddress = currencyAddresses[i]
     return {
-      prices: {},
-      rawPrices: {},
+      ...acc,
+      [currencyAddress]: { value, decimals },
     }
-  }
-
-  const rawPrices: { [key in `0x${string}`]: bigint } = result.reduce(
-    (acc, val, i) => {
-      const currencyAddress = currencyAddresses[i]
-      return {
-        ...acc,
-        [currencyAddress]: val,
-      }
-    },
-    {},
-  )
-
-  const prices = Object.fromEntries(
-    Object.entries(rawPrices).map(([key, val]) => [
-      key,
-      Number(val) / 10 ** decimals,
-    ]),
-  )
-
-  return {
-    prices,
-    rawPrices,
-  }
+  }, {})
 }

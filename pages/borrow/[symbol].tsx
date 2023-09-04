@@ -14,7 +14,7 @@ import CurrencySelect from '../../components/currency-select'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import CurrencyAmountInput from '../../components/currency-amount-input'
 import { fetchBorrowAprByEpochsBorrowed } from '../../api/market'
-import { dollarValue, formatUnits } from '../../utils/numbers'
+import { dollarValue, formatUnits, PRICE_ZERO } from '../../utils/numbers'
 import { ClientComponent } from '../../components/client-component'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import { min } from '../../utils/bigint'
@@ -42,7 +42,7 @@ export const getServerSideProps: GetServerSideProps<{
 const Borrow: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ asset }) => {
-  const { balances, prices, rawPrices } = useCurrencyContext()
+  const { balances, prices } = useCurrencyContext()
   const { borrow } = useBorrowContext()
 
   const [epochs, _setEpochs] = useState(0)
@@ -90,9 +90,9 @@ const Borrow: NextPage<
     if (epochs === 0 || !collateral || !asset) {
       return 0n
     }
-    const collateralPrice = rawPrices[collateral.address] ?? 0n
+    const collateralPrice = prices[collateral.address]?.value ?? 0n
     const collateralComplement = 10n ** BigInt(18 - collateral.decimals)
-    const loanPrice = rawPrices[asset.underlying.address] ?? 0n
+    const loanPrice = prices[asset.underlying.address]?.value ?? 0n
     const loanComplement = 10n ** BigInt(18 - asset.underlying.decimals)
 
     return loanPrice && collateralPrice
@@ -108,7 +108,7 @@ const Borrow: NextPage<
     collateralAmount,
     epochs,
     maxLiquidationTargetLtv,
-    rawPrices,
+    prices,
   ])
 
   const { data: interestsByEpochsBorrowed } = useQuery(
@@ -243,7 +243,11 @@ const Borrow: NextPage<
                     balance={
                       collateral ? balances[collateral?.address] ?? 0n : 0n
                     }
-                    price={collateral ? prices[collateral?.address] ?? 0 : 0}
+                    price={
+                      collateral
+                        ? prices[collateral?.address] ?? PRICE_ZERO
+                        : PRICE_ZERO
+                    }
                     onCurrencyClick={() => setShowCollateralSelect(true)}
                   />
                 </div>
