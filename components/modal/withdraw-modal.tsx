@@ -6,8 +6,9 @@ import { min } from 'hardhat/internal/util/bigint'
 import { BondPosition } from '../../model/bond-position'
 import CurrencyAmountInput from '../currency-amount-input'
 import { useCurrencyContext } from '../../contexts/currency-context'
-import { fetchCouponsToWithdraw, fetchMarkets } from '../../api/market'
+import { fetchMarkets } from '../../api/market'
 import { useDepositContext } from '../../contexts/deposit-context'
+import { calculateCouponsToWithdraw } from '../../model/market'
 
 import Modal from './modal'
 
@@ -45,7 +46,7 @@ const WithdrawModal = ({
           ),
         )
         .filter((market) => market.epoch <= position.expiryEpoch)
-      return fetchCouponsToWithdraw(
+      return calculateCouponsToWithdraw(
         position.substitute,
         markets,
         position.amount,

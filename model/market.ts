@@ -427,3 +427,62 @@ export const calculateBorrowApr = (
     available,
   }
 }
+
+export async function calculateCouponsToWithdraw(
+  substitute: Currency,
+  markets: Market[],
+  positionAmount: bigint,
+  withdrawAmount: bigint,
+): Promise<{
+  maxRepurchaseFee: bigint
+  repurchaseFee: bigint
+  available: bigint
+}> {
+  if (
+    markets.some(
+      (market) =>
+        !isAddressEqual(
+          market.quoteToken.address,
+          substitute.address as `0x${string}`,
+        ),
+    )
+  ) {
+    new Error('Substitute token is not supported')
+  }
+
+  const maxRepurchaseFee = markets.reduce(
+    (acc, market) =>
+      acc + market.take(substitute.address, positionAmount).amountIn,
+    0n,
+  )
+  let repurchaseFee = 0n
+  const prevRepurchaseFees = new Set<bigint>()
+  while (!prevRepurchaseFees.has(repurchaseFee)) {
+    prevRepurchaseFees.add(repurchaseFee)
+    repurchaseFee = markets.reduce(
+      (acc, market) =>
+        acc +
+        market.take(substitute.address, withdrawAmount + repurchaseFee)
+          .amountIn,
+      0n,
+    )
+  }
+
+  const availableCoupons = min(
+    ...markets.map((market) => market.totalAsksInBaseAfterFees()),
+  )
+  const available = max(
+    availableCoupons -
+      markets.reduce(
+        (acc, market) =>
+          acc + market.take(substitute.address, availableCoupons).amountIn,
+        0n,
+      ),
+    0n,
+  )
+  return {
+    maxRepurchaseFee,
+    repurchaseFee,
+    available,
+  }
+}
