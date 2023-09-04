@@ -16,4 +16,5 @@ export type AssetStatus = {
   totalBorrowAvailable: string
   totalBorrowed: string
   bestCouponBidPrice: number
+  bestCouponAskPrice: number
 }
