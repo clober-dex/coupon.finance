@@ -195,7 +195,7 @@ const Borrow: NextPage<
         )
       : 0
     const loanDollarValue = dollarValue(
-      loanAmount,
+      loanAmount + expectedInterest,
       asset.underlying.decimals,
       prices[asset.underlying.address] ?? 0,
     )
@@ -206,6 +206,7 @@ const Borrow: NextPage<
     collateral,
     collateralAmount,
     epochs,
+    expectedInterest,
     interestsByEpochsBorrowed,
     loanAmount,
     prices,
