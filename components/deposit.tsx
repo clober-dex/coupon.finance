@@ -305,7 +305,7 @@ const Deposit = ({
                     ) && epoch.id <= assetStatus.epoch.id,
                 )
                 const proceeds = validAssetStatuses.reduce(
-                  (acc, { bestCouponPrice }) => acc + bestCouponPrice,
+                  (acc, { bestCouponBidPrice }) => acc + bestCouponBidPrice,
                   0,
                 )
                 const currentTimestamp = Math.floor(new Date().getTime() / 1000)
