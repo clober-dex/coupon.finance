@@ -6,7 +6,7 @@ import { min } from 'hardhat/internal/util/bigint'
 import { BondPosition } from '../../model/bond-position'
 import CurrencyAmountInput from '../currency-amount-input'
 import { useCurrencyContext } from '../../contexts/currency-context'
-import { fetchCoupons } from '../../api/market'
+import { fetchCouponsToWithdraw } from '../../api/market'
 import { useDepositContext } from '../../contexts/deposit-context'
 
 import Modal from './modal'
@@ -28,10 +28,10 @@ const WithdrawModal = ({
   )
 
   const { data } = useQuery(
-    ['coupon-repurchase-fee', position?.underlying.address, amount],
+    ['coupon-repurchase-fee-to-withdraw', position?.underlying.address, amount],
     async () =>
       position
-        ? fetchCoupons(
+        ? fetchCouponsToWithdraw(
             position.substitute,
             position.amount,
             amount,

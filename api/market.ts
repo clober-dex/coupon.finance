@@ -104,7 +104,7 @@ export async function fetchDepositApyByEpochsDeposited(
     })
 }
 
-export async function fetchCoupons(
+export async function fetchCouponsToWithdraw(
   substitute: Currency,
   positionAmount: bigint,
   withdrawAmount: bigint,
