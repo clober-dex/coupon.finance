@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from 'react'
 import { parseUnits } from 'viem'
 
 import { Currency, getLogo } from '../model/currency'
-import { formatDollarValue, formatUnits } from '../utils/numbers'
+import { BigDecimal, formatDollarValue, formatUnits } from '../utils/numbers'
 
 import NumberInput from './number-input'
 import DownSvg from './svg/down-svg'
@@ -21,7 +21,7 @@ const CurrencyAmountInput = ({
   value: string
   onValueChange: (value: string) => void
   balance: bigint
-  price: number
+  price: BigDecimal
   onCurrencyClick?: () => void
 } & React.HTMLAttributes<HTMLInputElement>) => {
   const decimals = useMemo(() => currency?.decimals ?? 18, [currency])

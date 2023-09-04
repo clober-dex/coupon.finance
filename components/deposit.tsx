@@ -1,13 +1,19 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { isAddressEqual, parseUnits } from 'viem'
+import BigNumber from 'bignumber.js'
 
 import { useDepositContext } from '../contexts/deposit-context'
 import { Currency, getLogo } from '../model/currency'
 import { AssetStatus } from '../model/asset'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { BondPosition } from '../model/bond-position'
-import { dollarValue, formatDollarValue, formatUnits } from '../utils/numbers'
+import {
+  BigDecimal,
+  dollarValue,
+  formatDollarValue,
+  formatUnits,
+} from '../utils/numbers'
 import { Epoch } from '../model/epoch'
 import { calculateApy } from '../utils/apy'
 
@@ -22,7 +28,7 @@ const Position = ({
   ...props
 }: {
   position: BondPosition
-  price: number
+  price: BigDecimal
   onWithdraw: () => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
   const currentTimestamp = Math.floor(new Date().getTime() / 1000)
@@ -114,7 +120,7 @@ const Asset = ({
   apy: number
   available: bigint
   deposited: bigint
-  price: number
+  price: BigDecimal
 } & React.HTMLAttributes<HTMLDivElement>) => {
   return (
     <div
@@ -214,10 +220,12 @@ const Deposit = ({
                 {positions
                   .reduce(
                     (acc, { underlying, amount }) =>
-                      +formatUnits(amount, underlying.decimals) *
-                        (prices[underlying.address] ?? 0) +
-                      acc,
-                    0,
+                      dollarValue(
+                        amount,
+                        underlying.decimals,
+                        prices[underlying.address],
+                      ).plus(acc),
+                    new BigNumber(0),
                   )
                   .toFixed(2)}
               </div>
@@ -229,10 +237,12 @@ const Deposit = ({
                 {positions
                   .reduce(
                     (acc, { underlying, interest }) =>
-                      +formatUnits(interest, underlying.decimals) *
-                        (prices[underlying.address] ?? 0) +
-                      acc,
-                    0,
+                      dollarValue(
+                        interest,
+                        underlying.decimals,
+                        prices[underlying.address],
+                      ).plus(acc),
+                    new BigNumber(0),
                   )
                   .toFixed(2)}
               </div>

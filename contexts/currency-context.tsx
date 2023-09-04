@@ -5,10 +5,11 @@ import { readContracts } from '@wagmi/core'
 import { IERC20__factory } from '../typechain'
 import { fetchCurrencies, fetchPrices } from '../api/currency'
 import { Currency } from '../model/currency'
+import { BigDecimal } from '../utils/numbers'
 
 type CurrencyContext = {
   balances: { [key in `0x${string}`]: bigint }
-  prices: { [key in `0x${string}`]: number }
+  prices: { [key in `0x${string}`]: BigDecimal }
 }
 
 const Context = React.createContext<CurrencyContext>({

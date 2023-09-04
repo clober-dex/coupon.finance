@@ -3,7 +3,7 @@ import { isAddressEqual } from 'viem'
 import { MarketDto } from '../api/market'
 import { calculateApy } from '../utils/apy'
 import { calculateApr } from '../utils/apr'
-import { min } from '../utils/bigint'
+import { max, min } from '../utils/bigint'
 
 import { Currency } from './currency'
 
@@ -345,9 +345,7 @@ export const calculateDepositApy = (
     new Error('Substitute token is not supported')
   }
 
-  const endTimestamp = markets
-    .map((market) => market.endTimestamp)
-    .reduce((acc, val) => (acc < val ? val : acc), 0)
+  const endTimestamp = Math.max(...markets.map((market) => market.endTimestamp))
   const totalDeposit = calculateTotalDeposit(markets, initialDeposit)
   const p =
     (Number(totalDeposit) - Number(initialDeposit)) / Number(initialDeposit)
@@ -388,7 +386,7 @@ export const calculateBorrowApr = (
   const availableCoupons = min(
     ...markets.map((market) => market.totalAsksInBaseAfterFees()),
   )
-  const interestAvailableCoupons = min(
+  const available = max(
     availableCoupons -
       markets.reduce(
         (acc, market) =>
@@ -415,9 +413,7 @@ export const calculateBorrowApr = (
     )
   }
 
-  const endTimestamp = markets
-    .map((market) => market.endTimestamp)
-    .reduce((acc, val) => (acc < val ? val : acc), 0)
+  const endTimestamp = Math.max(...markets.map((market) => market.endTimestamp))
   const totalBorrow = initialBorrow - interest
   const p = Number(interest) / Number(totalBorrow)
   const d = Number(endTimestamp) - currentTimestamp
@@ -428,6 +424,6 @@ export const calculateBorrowApr = (
     interest,
     maxInterest,
     totalBorrow,
-    available: availableCoupons - interestAvailableCoupons,
+    available,
   }
 }

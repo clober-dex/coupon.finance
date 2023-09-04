@@ -7,19 +7,19 @@ import { useQuery } from 'wagmi'
 
 import Slider from '../../components/slider'
 import BackSvg from '../../components/svg/back-svg'
-import { Currency, getLogo } from '../../model/currency'
+import { getLogo } from '../../model/currency'
 import { Asset } from '../../model/asset'
 import { fetchAssets } from '../../api/asset'
 import CurrencySelect from '../../components/currency-select'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import CurrencyAmountInput from '../../components/currency-amount-input'
 import { fetchBorrowAprByEpochsBorrowed } from '../../api/market'
-import { dollarValue, formatUnits } from '../../utils/numbers'
+import { dollarValue, formatUnits, PRICE_ZERO } from '../../utils/numbers'
 import { ClientComponent } from '../../components/client-component'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import { min } from '../../utils/bigint'
+import { Collateral } from '../../model/collateral'
 
-const PRICE_PRECISION = 10n ** 8n
 const LIQUIDATION_TARGET_LTV_PRECISION = 10n ** 6n
 
 export const getServerSideProps: GetServerSideProps<{
@@ -49,7 +49,9 @@ const Borrow: NextPage<
   const [epochs, _setEpochs] = useState(0)
   const [collateralValue, setCollateralValue] = useState('')
   const [loanValue, setLoanValue] = useState('')
-  const [collateral, setCollateral] = useState<Currency | undefined>(undefined)
+  const [collateral, setCollateral] = useState<Collateral | undefined>(
+    undefined,
+  )
   const [showCollateralSelect, setShowCollateralSelect] = useState(false)
 
   const router = useRouter()
@@ -62,11 +64,11 @@ const Borrow: NextPage<
   )
 
   const collateralAmount = useMemo(
-    () => parseUnits(collateralValue, collateral?.decimals ?? 18),
-    [collateralValue, collateral?.decimals],
+    () => parseUnits(collateralValue, collateral?.underlying.decimals ?? 18),
+    [collateralValue, collateral?.underlying.decimals],
   )
   const collateralBalance = useMemo(
-    () => (collateral ? balances[collateral.address] : 0n),
+    () => (collateral ? balances[collateral.underlying.address] ?? 0n : 0n),
     [balances, collateral],
   )
 
@@ -75,49 +77,34 @@ const Borrow: NextPage<
     [loanValue, asset.underlying.decimals],
   )
 
-  const maxLiquidationTargetLtv = useMemo(
-    () =>
-      collateral
-        ? BigInt(
-            asset.collaterals.find(({ underlying }) =>
-              isAddressEqual(underlying.address, collateral.address),
-            )?.liquidationTargetLtv || 0n,
-          )
-        : 0n,
-    [asset.collaterals, collateral],
+  const liquidationTargetLtv = useMemo(
+    () => collateral?.liquidationTargetLtv ?? 0n,
+    [collateral],
   )
 
   const maxLoanAmountExcludingCouponFee = useMemo(() => {
-    if (epochs === 0) {
+    if (epochs === 0 || !collateral || !asset) {
       return 0n
     }
-    const [collateralPrice, collateralComplement] = [
-      collateral && prices[collateral.address]
-        ? BigInt(prices[collateral.address] * Number(PRICE_PRECISION))
-        : 0n,
-      10n ** (18n - BigInt(collateral?.decimals ?? 18n)),
-    ]
-    const [loanPrice, loanComplement] = [
-      asset && prices[asset.underlying.address]
-        ? BigInt(prices[asset.underlying.address] * Number(PRICE_PRECISION))
-        : 0n,
-      10n ** (18n - BigInt(asset.underlying.decimals)),
-    ]
-    return collateral && loanPrice && collateralPrice
+    const collateralPrice = prices[collateral.underlying.address]?.value ?? 0n
+    const collateralComplement =
+      10n ** BigInt(18 - collateral.underlying.decimals)
+    const loanPrice = prices[asset.underlying.address]?.value ?? 0n
+    const loanComplement = 10n ** BigInt(18 - asset.underlying.decimals)
+
+    return loanPrice && collateralPrice
       ? (collateralAmount *
-          maxLiquidationTargetLtv *
+          liquidationTargetLtv *
           collateralPrice *
           collateralComplement) /
-          LIQUIDATION_TARGET_LTV_PRECISION /
-          loanPrice /
-          loanComplement
+          (LIQUIDATION_TARGET_LTV_PRECISION * loanPrice * loanComplement)
       : 0n
   }, [
     asset,
     collateral,
     collateralAmount,
     epochs,
-    maxLiquidationTargetLtv,
+    liquidationTargetLtv,
     prices,
   ])
 
@@ -149,7 +136,7 @@ const Borrow: NextPage<
     return interestsByEpochsBorrowed[epochs - 1]?.apr ?? 0
   }, [epochs, interestsByEpochsBorrowed])
 
-  const expectedInterests = useMemo(() => {
+  const expectedInterest = useMemo(() => {
     if (epochs === 0 || !interestsByEpochsBorrowed) {
       return 0n
     }
@@ -185,14 +172,14 @@ const Borrow: NextPage<
     const collateralDollarValue = collateral
       ? dollarValue(
           collateralAmount,
-          collateral.decimals,
-          prices[collateral.address],
+          collateral.underlying.decimals,
+          prices[collateral.underlying.address] ?? PRICE_ZERO,
         )
       : 0
     const loanDollarValue = dollarValue(
-      loanAmount,
+      loanAmount + expectedInterest,
       asset.underlying.decimals,
-      prices[asset.underlying.address] ?? 0,
+      prices[asset.underlying.address] ?? PRICE_ZERO,
     )
     return loanDollarValue.times(100).div(collateralDollarValue).toNumber()
   }, [
@@ -201,6 +188,7 @@ const Borrow: NextPage<
     collateral,
     collateralAmount,
     epochs,
+    expectedInterest,
     interestsByEpochsBorrowed,
     loanAmount,
     prices,
@@ -235,7 +223,11 @@ const Borrow: NextPage<
               )}
               onBack={() => setShowCollateralSelect(false)}
               onCurrencySelect={(currency) => {
-                setCollateral(currency)
+                setCollateral(
+                  asset.collaterals.find(({ underlying }) => {
+                    return isAddressEqual(underlying.address, currency.address)
+                  }),
+                )
                 setShowCollateralSelect(false)
               }}
             />
@@ -247,13 +239,19 @@ const Borrow: NextPage<
                     How much collateral would you like to add?
                   </div>
                   <CurrencyAmountInput
-                    currency={collateral}
+                    currency={collateral?.underlying}
                     value={collateralValue}
                     onValueChange={setCollateralValue}
                     balance={
-                      collateral ? balances[collateral?.address] ?? 0n : 0n
+                      collateral
+                        ? balances[collateral?.underlying.address] ?? 0n
+                        : 0n
                     }
-                    price={collateral ? prices[collateral?.address] ?? 0 : 0}
+                    price={
+                      collateral
+                        ? prices[collateral?.underlying.address] ?? PRICE_ZERO
+                        : PRICE_ZERO
+                    }
                     onCurrencyClick={() => setShowCollateralSelect(true)}
                   />
                 </div>
@@ -265,7 +263,7 @@ const Borrow: NextPage<
                     currency={asset.underlying}
                     value={loanValue}
                     onValueChange={setLoanValue}
-                    price={prices[asset.underlying.address] ?? 0}
+                    price={prices[asset.underlying.address] ?? PRICE_ZERO}
                     balance={maxLoanAmount}
                   />
                 </div>
@@ -303,9 +301,9 @@ const Borrow: NextPage<
                         <div className="text-gray-400">
                           (
                           {formatUnits(
-                            expectedInterests,
+                            expectedInterest,
                             asset.underlying.decimals,
-                            prices[asset.underlying.address] ?? 0,
+                            prices[asset.underlying.address] ?? PRICE_ZERO,
                           )}{' '}
                           {asset.underlying.symbol} in interest)
                         </div>
@@ -337,7 +335,7 @@ const Borrow: NextPage<
                       asset,
                       loanAmount,
                       epochs,
-                      expectedInterests,
+                      expectedInterest,
                     )
                     if (hash) {
                       await router.replace('/')
@@ -351,11 +349,11 @@ const Borrow: NextPage<
                     : loanAmount === 0n
                     ? 'Enter loan amount'
                     : collateralAmount > collateralBalance
-                    ? 'Not enough collateral'
+                    ? `Insufficient ${collateral?.underlying.symbol} balance`
                     : loanAmount > available
                     ? 'Not enough coupons for sale'
                     : loanAmount + maxInterest > maxLoanAmountExcludingCouponFee
-                    ? 'Loan LTV too high'
+                    ? 'Not enough collateral'
                     : 'Borrow'}
                 </button>
               </div>

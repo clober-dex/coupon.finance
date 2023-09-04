@@ -17,8 +17,6 @@ import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { formatUnits } from '../utils/numbers'
 import { BorrowController__factory } from '../typechain'
 import { max } from '../utils/bigint'
-import { fetchLoanPositions } from '../api/loan-position'
-import { LoanPosition } from '../model/loan-position'
 
 import { isEthereum, useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -26,12 +24,12 @@ import { useTransactionContext } from './transaction-context'
 type BorrowContext = {
   positions: LoanPosition[]
   borrow: (
-    collateral: Currency,
+    collateral: Collateral,
     collateralAmount: bigint,
     loanAsset: Asset,
     loanAmount: bigint,
     epochs: number,
-    expectedInterests: bigint,
+    expectedInterest: bigint,
   ) => Promise<Hash | undefined>
 }
 
@@ -65,12 +63,12 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
   const borrow = useCallback(
     async (
-      collateral: Currency,
+      collateral: Collateral,
       collateralAmount: bigint,
-      loan: Asset,
+      loanAsset: Asset,
       loanAmount: bigint,
       epochs: number,
-      expectedInterests: bigint,
+      expectedInterest: bigint,
     ): Promise<Hash | undefined> => {
       if (!walletClient) {
         // TODO: alert wallet connect
@@ -78,39 +76,42 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
 
       const maximumInterestPaid = BigInt(
-        Math.floor(Number(expectedInterests) * (1 + SLIPPAGE_PERCENTAGE)),
+        Math.floor(Number(expectedInterest) * (1 + SLIPPAGE_PERCENTAGE)),
       )
-      const wethBalance = isEthereum(collateral)
-        ? balances[collateral.address] - (balance?.value || 0n)
+      const wethBalance = isEthereum(collateral.underlying)
+        ? balances[collateral.underlying.address] - (balance?.value || 0n)
         : 0n
       const collateralSubstituteAddress =
-        loan.collaterals.find(({ underlying }) =>
-          isAddressEqual(underlying.address, collateral.address),
+        loanAsset.collaterals.find(({ underlying }) =>
+          isAddressEqual(underlying.address, collateral.underlying.address),
         )?.substitute.address || AddressZero
 
       let hash: Hash | undefined
       try {
         const { deadline, r, s, v } = await permit20(
           walletClient,
-          collateral,
+          collateral.underlying,
           walletClient.account.address,
           CONTRACT_ADDRESSES.BorrowController,
           collateralAmount,
           BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
         )
         setConfirmation({
-          title: 'Making Borrow',
+          title: `Borrowing ${loanAsset.underlying.symbol}`,
           body: 'Please confirm in your wallet.',
           fields: [
             {
-              currency: collateral,
-              label: collateral.symbol,
-              value: formatUnits(collateralAmount, collateral.decimals),
+              currency: collateral.underlying,
+              label: collateral.underlying.symbol,
+              value: formatUnits(
+                collateralAmount,
+                collateral.underlying.decimals,
+              ),
             },
             {
-              currency: loan.underlying,
-              label: loan.underlying.symbol,
-              value: formatUnits(loanAmount, loan.underlying.decimals),
+              currency: loanAsset.underlying,
+              label: loanAsset.underlying.symbol,
+              value: formatUnits(loanAmount, loanAsset.underlying.decimals),
             },
           ],
         })
@@ -120,20 +121,20 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           functionName: 'borrow',
           args: [
             collateralSubstituteAddress,
-            loan.substitutes[0].address,
+            loanAsset.substitutes[0].address,
             collateralAmount,
             loanAmount + maximumInterestPaid,
             maximumInterestPaid,
             epochs,
             { deadline, v, r, s },
           ],
-          value: isEthereum(collateral)
+          value: isEthereum(collateral.underlying)
             ? max(collateralAmount - wethBalance, 0n)
             : 0n,
           account: walletClient.account,
         })
         hash = await walletClient.writeContract(request)
-        await queryClient.invalidateQueries(['bond-positions'])
+        await queryClient.invalidateQueries(['loan-positions'])
       } catch (e) {
         console.error(e)
       } finally {
