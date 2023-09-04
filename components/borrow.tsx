@@ -338,10 +338,8 @@ const Borrow = ({
               <Position
                 key={i}
                 position={position}
-                price={prices[position.underlying.address] ?? 0}
-                collateralPrice={
-                  prices[position.collateral.underlying.address] ?? 0
-                }
+                price={prices[position.underlying.address]}
+                collateralPrice={prices[position.collateral.underlying.address]}
                 onRepay={() => console.log('repay')}
                 onBorrowMore={() => console.log('borrow more')}
                 onEditCollateral={() => console.log('edit collateral')}
@@ -384,7 +382,7 @@ const Borrow = ({
                   apy={apy[assetStatus.underlying.address] ?? 0}
                   available={available[assetStatus.underlying.address] ?? 0n}
                   borrowed={borrowed[assetStatus.underlying.address] ?? 0n}
-                  price={prices[assetStatus.underlying.address] ?? 0}
+                  price={prices[assetStatus.underlying.address]}
                 />
               ))}
           </div>
