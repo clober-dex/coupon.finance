@@ -9,11 +9,13 @@ import { Currency } from '../model/currency'
 type CurrencyContext = {
   balances: { [key in `0x${string}`]: bigint }
   prices: { [key in `0x${string}`]: number }
+  rawPrices: { [key in `0x${string}`]: bigint }
 }
 
 const Context = React.createContext<CurrencyContext>({
   balances: {},
   prices: {},
+  rawPrices: {},
 })
 
 export const isEthereum = (currency: Currency) =>
@@ -34,7 +36,9 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
     },
   )
 
-  const { data: prices } = useQuery(
+  const {
+    data: { prices, rawPrices },
+  } = useQuery(
     ['prices', currencies],
     async () => {
       const currencyAddresses = currencies.map((currency) => currency.address)
@@ -43,6 +47,10 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
     {
       refetchInterval: 5 * 1000,
       refetchIntervalInBackground: true,
+      initialData: {
+        prices: {},
+        rawPrices: {},
+      },
     },
   )
 
@@ -78,7 +86,8 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   return (
     <Context.Provider
       value={{
-        prices: prices ?? {},
+        prices,
+        rawPrices,
         balances: balances ?? {},
       }}
     >

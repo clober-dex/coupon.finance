@@ -27,10 +27,11 @@ export async function fetchCurrencies() {
   )
 }
 
-export async function fetchPrices(
-  currencyAddresses: `0x${string}`[],
-): Promise<{ [key in `0x${string}`]: number }> {
-  const [{ result: prices }, { result: decimals }] = await readContracts({
+export async function fetchPrices(currencyAddresses: `0x${string}`[]): Promise<{
+  prices: { [key in `0x${string}`]: number }
+  rawPrices: { [key in `0x${string}`]: bigint }
+}> {
+  const [{ result }, { result: decimals }] = await readContracts({
     contracts: [
       {
         address: CONTRACT_ADDRESSES.CouponOracle,
@@ -45,13 +46,34 @@ export async function fetchPrices(
       },
     ],
   })
-  return prices && decimals
-    ? prices.reduce((acc, val, i) => {
-        const currencyAddress = currencyAddresses[i]
-        return {
-          ...acc,
-          [currencyAddress]: Number(val) / 10 ** decimals,
-        }
-      }, {})
-    : {}
+
+  if (!result || !decimals) {
+    return {
+      prices: {},
+      rawPrices: {},
+    }
+  }
+
+  const rawPrices: { [key in `0x${string}`]: bigint } = result.reduce(
+    (acc, val, i) => {
+      const currencyAddress = currencyAddresses[i]
+      return {
+        ...acc,
+        [currencyAddress]: val,
+      }
+    },
+    {},
+  )
+
+  const prices = Object.fromEntries(
+    Object.entries(rawPrices).map(([key, val]) => [
+      key,
+      Number(val) / 10 ** decimals,
+    ]),
+  )
+
+  return {
+    prices,
+    rawPrices,
+  }
 }

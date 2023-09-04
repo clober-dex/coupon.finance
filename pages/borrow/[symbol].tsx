@@ -19,7 +19,6 @@ import { ClientComponent } from '../../components/client-component'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import { min } from '../../utils/bigint'
 
-const PRICE_PRECISION = 10n ** 8n
 const LIQUIDATION_TARGET_LTV_PRECISION = 10n ** 6n
 
 export const getServerSideProps: GetServerSideProps<{
@@ -43,7 +42,7 @@ export const getServerSideProps: GetServerSideProps<{
 const Borrow: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ asset }) => {
-  const { balances, prices } = useCurrencyContext()
+  const { balances, prices, rawPrices } = useCurrencyContext()
   const { borrow } = useBorrowContext()
 
   const [epochs, _setEpochs] = useState(0)
@@ -91,26 +90,17 @@ const Borrow: NextPage<
     if (epochs === 0 || !collateral || !asset) {
       return 0n
     }
-    const [collateralPrice, collateralComplement] = [
-      collateral && prices[collateral.address]
-        ? BigInt(prices[collateral.address] * Number(PRICE_PRECISION))
-        : 0n,
-      10n ** (18n - BigInt(collateral?.decimals ?? 18n)),
-    ]
-    const [loanPrice, loanComplement] = [
-      asset && prices[asset.underlying.address]
-        ? BigInt(prices[asset.underlying.address] * Number(PRICE_PRECISION))
-        : 0n,
-      10n ** (18n - BigInt(asset.underlying.decimals)),
-    ]
-    return collateral && loanPrice && collateralPrice
+    const collateralPrice = rawPrices[collateral.address] ?? 0n
+    const collateralComplement = 10n ** BigInt(18 - collateral.decimals)
+    const loanPrice = rawPrices[asset.underlying.address] ?? 0n
+    const loanComplement = 10n ** BigInt(18 - asset.underlying.decimals)
+
+    return loanPrice && collateralPrice
       ? (collateralAmount *
           maxLiquidationTargetLtv *
           collateralPrice *
           collateralComplement) /
-          LIQUIDATION_TARGET_LTV_PRECISION /
-          loanPrice /
-          loanComplement
+          (LIQUIDATION_TARGET_LTV_PRECISION * loanPrice * loanComplement)
       : 0n
   }, [
     asset,
@@ -118,7 +108,7 @@ const Borrow: NextPage<
     collateralAmount,
     epochs,
     maxLiquidationTargetLtv,
-    prices,
+    rawPrices,
   ])
 
   const { data: interestsByEpochsBorrowed } = useQuery(
