@@ -156,17 +156,14 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
     ],
   )
 
-  // TODO: get apy from order book
   const apy: {
     [key in `0x${string}`]: number
   } = {}
 
-  // TODO: get available
   const available: {
     [key in `0x${string}`]: bigint
   } = {}
 
-  // TODO: get borrowed
   const borrowed: {
     [key in `0x${string}`]: bigint
   } = {}
