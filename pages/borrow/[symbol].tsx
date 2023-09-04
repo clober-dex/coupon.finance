@@ -351,11 +351,11 @@ const Borrow: NextPage<
                     : loanAmount === 0n
                     ? 'Enter loan amount'
                     : collateralAmount > collateralBalance
-                    ? 'Not enough collateral'
+                    ? `Insufficient ${collateral?.symbol} balance`
                     : loanAmount > available
                     ? 'Not enough coupons for sale'
                     : loanAmount + maxInterest > maxLoanAmountExcludingCouponFee
-                    ? 'Loan LTV too high'
+                    ? 'Not enough collateral'
                     : 'Borrow'}
                 </button>
               </div>
