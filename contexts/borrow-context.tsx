@@ -8,15 +8,16 @@ import {
   useQueryClient,
   useWalletClient,
 } from 'wagmi'
-import { AddressZero } from '@ethersproject/constants'
 
-import { Currency } from '../model/currency'
 import { Asset } from '../model/asset'
 import { permit20 } from '../utils/permit20'
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { formatUnits } from '../utils/numbers'
 import { BorrowController__factory } from '../typechain'
 import { max } from '../utils/bigint'
+import { fetchLoanPositions } from '../api/loan-position'
+import { Collateral } from '../model/collateral'
+import { LoanPosition } from '../model/loan-position'
 
 import { isEthereum, useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -81,10 +82,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       const wethBalance = isEthereum(collateral.underlying)
         ? balances[collateral.underlying.address] - (balance?.value || 0n)
         : 0n
-      const collateralSubstituteAddress =
-        loanAsset.collaterals.find(({ underlying }) =>
-          isAddressEqual(underlying.address, collateral.underlying.address),
-        )?.substitute.address || AddressZero
 
       let hash: Hash | undefined
       try {
@@ -120,7 +117,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           abi: BorrowController__factory.abi,
           functionName: 'borrow',
           args: [
-            collateralSubstituteAddress,
+            collateral.substitute.address,
             loanAsset.substitutes[0].address,
             collateralAmount,
             loanAmount + maximumInterestPaid,
