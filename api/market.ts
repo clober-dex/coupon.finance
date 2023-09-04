@@ -2,7 +2,11 @@ import { getAddress, isAddressEqual } from 'viem'
 import { max } from 'hardhat/internal/util/bigint'
 
 import { getBuiltGraphSDK } from '../.graphclient'
-import { calculateDepositApy, Market } from '../model/market'
+import {
+  calculateBorrowApr,
+  calculateDepositApy,
+  Market,
+} from '../model/market'
 import { Currency } from '../model/currency'
 import { Asset } from '../model/asset'
 import { getEpoch } from '../utils/epoch'
@@ -155,4 +159,40 @@ export async function fetchCouponsToWithdraw(
     repurchaseFee,
     available,
   }
+}
+
+export async function fetchBorrowAprByEpochsBorrowed(
+  asset: Asset,
+  amount: bigint,
+  maxAmountExcludingFee: bigint,
+) {
+  const substitute = asset.substitutes[0]
+  const markets = (await fetchMarkets())
+    .filter((market) =>
+      isAddressEqual(market.quoteToken.address, substitute.address),
+    )
+    .sort((a, b) => Number(a.epoch) - Number(b.epoch))
+
+  const currentTimestamp = Math.floor(new Date().getTime() / 1000)
+  return markets
+    .map((_, i) => markets.slice(0, i + 1))
+    .map((markets) => {
+      const { apr, interest, totalBorrow, available } = calculateBorrowApr(
+        substitute,
+        markets,
+        amount,
+        maxAmountExcludingFee,
+        currentTimestamp,
+      )
+      return {
+        date: new Date(Number(markets.at(-1)?.endTimestamp ?? 0n) * 1000)
+          .toISOString()
+          .slice(2, 10)
+          .replace(/-/g, '/'), // TODO: format properly
+        interest,
+        apr,
+        totalBorrow,
+        available,
+      }
+    })
 }
