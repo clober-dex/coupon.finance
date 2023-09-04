@@ -45,7 +45,7 @@ const Context = React.createContext<BorrowContext>({
   borrow: () => Promise.resolve(undefined),
 })
 
-const SLIPPAGE_PERCENTAGE = 0.0005 // 0.05%
+const SLIPPAGE_PERCENTAGE = 0
 
 export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient()
