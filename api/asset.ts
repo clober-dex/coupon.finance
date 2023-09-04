@@ -101,12 +101,14 @@ export async function fetchAssetStatuses(): Promise<AssetStatus[]> {
       decimals,
     )
     const totalDeposited = formatUnits(assetStatus.totalDeposited, decimals)
+    const totalBorrowed = formatUnits(assetStatus.totalBorrowed, decimals)
     const bestCouponPrice = Number(market.bids[0]?.price ?? 0n) / 1e18
     return {
       underlying,
       epoch,
       totalAvailable,
       totalDeposited,
+      totalBorrowed,
       bestCouponPrice,
     }
   })
