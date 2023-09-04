@@ -71,10 +71,6 @@ const Borrow: NextPage<
     () => parseUnits(loanValue, asset.underlying.decimals),
     [loanValue, asset.underlying.decimals],
   )
-  const loanBalance = useMemo(
-    () => (asset ? balances[asset.underlying.address] : 0n),
-    [asset, balances],
-  )
 
   const maxLiquidationTargetLtv = useMemo(
     () =>
@@ -301,10 +297,8 @@ const Borrow: NextPage<
                 >
                   {collateralAmount > collateralBalance
                     ? `Insufficient ${collateral?.symbol} balance`
-                    : loanAmount > loanBalance
-                    ? `Insufficient ${asset.underlying.symbol} balance`
                     : loanAmount > available
-                    ? 'Not enough coupons for sale'
+                    ? 'Insufficient available to borrow'
                     : 'Confirm'}
                 </button>
               </div>
