@@ -4,15 +4,18 @@ import Link from 'next/link'
 import { useBorrowContext } from '../contexts/borrow-context'
 import { Currency, getLogo } from '../model/currency'
 import { AssetStatus } from '../model/asset'
-import { useCurrencyContext } from '../contexts/currency-context'
 import { formatDollarValue, formatUnits } from '../utils/numbers'
 import { Epoch } from '../model/epoch'
+import { useCurrencyContext } from '../contexts/currency-context'
+import { LoanPosition } from '../model/loan-position'
+import { calculateApr } from '../utils/apr'
 
 import RepayModal from './modal/repay-modal'
 import BorrowMoreModal from './modal/borrow-more-modal'
 import EditCollateralModal from './modal/edit-collateral-modal'
 import EditExpiryModal from './modal/edit-expiry-modal'
 import EpochSelect from './epoch-select'
+import { ClientComponent } from './client-component'
 
 const EditSvg = (props: SVGProps<any>) => (
   <svg
@@ -48,56 +51,55 @@ const EditSvg = (props: SVGProps<any>) => (
 )
 
 const Position = ({
-  currency,
-  apy,
-  borrowed,
-  collateral,
-  collateralSymbol,
-  expiry,
+  position,
   price,
   collateralPrice,
-  ltv,
-  liquidationThreshold,
   onRepay,
   onBorrowMore,
   onEditCollateral,
   onEditExpiry,
   ...props
 }: {
-  currency: Currency
-  apy: string
-  borrowed: string
-  collateral: string
-  collateralSymbol: string
-  expiry: string
-  price: string
-  collateralPrice: string
-  ltv: string
-  liquidationThreshold: string
+  position: LoanPosition
+  price: number
+  collateralPrice: number
   onRepay: () => void
   onBorrowMore: () => void
   onEditCollateral: () => void
   onEditExpiry: () => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
-  collateralPrice // TODO remove
+  const currentTimestamp = Math.floor(new Date().getTime() / 1000)
   return (
     <div className="rounded-xl shadow bg-gray-50 dark:bg-gray-900" {...props}>
       <div className="flex justify-between rounded-t-xl p-4 bg-white dark:bg-gray-800">
         <div className="flex items-center gap-3">
           <img
-            src={getLogo(currency)}
-            alt={currency.name}
+            src={getLogo(position.underlying)}
+            alt={position.underlying.name}
             className="w-8 h-8"
           />
           <div className="flex flex-col">
-            <div className="font-bold">{currency.symbol}</div>
-            <div className="text-gray-500 text-sm">{currency.name}</div>
+            <div className="font-bold">{position.underlying.symbol}</div>
+            <div className="text-gray-500 text-sm">
+              {position.underlying.name}
+            </div>
           </div>
         </div>
         <div className="flex flex-col items-end">
-          <div className="font-bold">{apy}</div>
+          <div className="font-bold">
+            {calculateApr(
+              Number(position.interest) / Number(position.amount),
+              position.expiryTimestamp - currentTimestamp,
+            ).toFixed(2)}
+            %
+          </div>
           <div className="flex items-center gap-1">
-            <div className="text-xs sm:text-sm">{expiry}</div>
+            <div className="text-xs sm:text-sm">
+              {new Date(Number(position.expiryTimestamp) * 1000)
+                .toISOString()
+                .slice(2, 10)
+                .replace(/-/g, '/')}
+            </div>
             <button>
               <EditSvg onClick={onEditExpiry} />
             </button>
@@ -109,15 +111,32 @@ const Position = ({
           <div className="flex items-center justify-between text-xs">
             <div className="text-gray-500">Borrow Amount</div>
             <div className="flex gap-1 text-xs sm:text-sm">
-              {borrowed}
-              <span className="text-gray-500">(${+borrowed * +price})</span>
+              {formatUnits(
+                position.amount,
+                position.underlying.decimals,
+                price,
+              )}
+              <span className="text-gray-500">
+                (
+                {formatDollarValue(
+                  position.amount,
+                  position.underlying.decimals,
+                  price,
+                )}
+                )
+              </span>
             </div>
           </div>
           <div className="flex items-center justify-between">
             <div className="text-gray-500 text-xs">Collateral</div>
             <div className="flex items-center gap-1">
               <div className="text-xs sm:text-sm">
-                ${collateral} {collateralSymbol}
+                {formatUnits(
+                  position.collateralAmount,
+                  position.collateral.underlying.decimals,
+                  collateralPrice,
+                )}{' '}
+                {position.collateral.underlying.symbol}
               </div>
               <button>
                 <EditSvg onClick={onEditCollateral} />
@@ -126,12 +145,14 @@ const Position = ({
           </div>
           <div className="flex items-center justify-between text-gray-500 text-xs">
             <div>LTV</div>
-            <div className="flex text-green-500 text-xs sm:text-sm">{ltv}</div>
+            <div className="flex text-green-500 text-xs sm:text-sm">
+              {position.ltv.toFixed(2)}%
+            </div>
           </div>
           <div className="flex items-center justify-between text-xs">
             <div className="text-gray-500">Liquidation Threshold</div>
             <div className="flex text-xs sm:text-sm">
-              {liquidationThreshold}
+              {Number(position.collateral.liquidationThreshold) / 10000}%
             </div>
           </div>
         </div>
@@ -188,11 +209,13 @@ const Asset = ({
               <div className="text-gray-500 text-xs">{currency.name}</div>
             </div>
           </div>
-          <div className="text-sm font-bold sm:w-[80px]">{apy.toFixed(2)}</div>
+          <ClientComponent className="text-sm font-bold sm:w-[80px]">
+            {apy.toFixed(2)}
+          </ClientComponent>
         </div>
         <div className="flex flex-row sm:flex-col w-full sm:w-[120px] justify-between px-4 sm:p-0">
           <div className="sm:hidden text-gray-500 text-xs">Available</div>
-          <div className="flex flex-row sm:flex-col items-center sm:items-start gap-1 sm:gap-0">
+          <ClientComponent className="flex flex-row sm:flex-col items-center sm:items-start gap-1 sm:gap-0">
             <div className="text-xs sm:text-sm">
               {formatUnits(available, currency.decimals, price)}{' '}
               {currency.symbol}
@@ -202,11 +225,11 @@ const Asset = ({
               {formatDollarValue(available, currency.decimals, price)}
               <span className="sm:hidden">)</span>
             </div>
-          </div>
+          </ClientComponent>
         </div>
         <div className="flex flex-row sm:flex-col w-full sm:w-[120px] justify-between px-4 sm:p-0">
           <div className="sm:hidden text-gray-500 text-xs">Total Borrowed</div>
-          <div className="flex flex-row sm:flex-col sm:w-[120px] gap-1 sm:gap-0">
+          <ClientComponent className="flex flex-row sm:flex-col sm:w-[120px] gap-1 sm:gap-0">
             <div className="text-xs sm:text-sm">
               {formatUnits(borrowed, currency.decimals, price)}{' '}
               {currency.symbol}
@@ -216,7 +239,7 @@ const Asset = ({
               {formatDollarValue(borrowed, currency.decimals, price)}
               <span className="sm:hidden">)</span>
             </div>
-          </div>
+          </ClientComponent>
         </div>
       </div>
       <Link
@@ -237,7 +260,7 @@ const Borrow = ({
   epochs: Epoch[]
 }) => {
   const { prices } = useCurrencyContext()
-  const { positions, apy, available, borrowed } = useBorrowContext()
+  const { positions } = useBorrowContext()
   const [repayPosition, setRepayPosition] = useState<{
     currency: Currency
     amount: string
@@ -273,66 +296,46 @@ const Borrow = ({
               <div className="text-gray-500">Total Borrow Amount</div>
               <div className="font-bold">
                 $
-                {positions.reduce(
-                  (acc, position) => +position.price * +position.borrowed + acc,
-                  0,
-                )}
+                {positions
+                  .reduce(
+                    (acc, { underlying, amount }) =>
+                      +formatUnits(amount, underlying.decimals) *
+                        (prices[underlying.address] ?? 0) +
+                      acc,
+                    0,
+                  )
+                  .toFixed(2)}
               </div>
             </div>
             <div className="flex justify-between gap-3">
               <div className="text-gray-500">Total Collateral</div>
               <div className="font-bold">
                 $
-                {positions.reduce(
-                  (acc, position) =>
-                    +position.collateralPrice * +position.collateral + acc,
-                  0,
-                )}
+                {positions
+                  .reduce(
+                    (acc, { underlying, interest }) =>
+                      +formatUnits(interest, underlying.decimals) *
+                        (prices[underlying.address] ?? 0) +
+                      acc,
+                    0,
+                  )
+                  .toFixed(2)}
               </div>
-            </div>
-            <div className="flex justify-between gap-3">
-              <div className="text-gray-500">Average APY</div>
-              <div className="font-bold">5.0%</div>
             </div>
           </div>
           <div className="flex flex-col sm:grid sm:grid-cols-3 gap-4 sm:gap-6">
             {positions.map((position, i) => (
               <Position
                 key={i}
-                currency={position.currency}
-                apy={position.apy}
-                borrowed={position.borrowed}
-                collateral={position.collateral}
-                collateralSymbol={position.collateralSymbol}
-                expiry={position.expiry}
-                price={position.price}
-                collateralPrice={position.collateralPrice}
-                ltv={position.ltv}
-                liquidationThreshold={position.liquidationThreshold}
-                onRepay={() =>
-                  setRepayPosition({
-                    currency: position.currency,
-                    amount: position.borrowed,
-                  })
+                position={position}
+                price={prices[position.underlying.address] ?? 0}
+                collateralPrice={
+                  prices[position.collateral.underlying.address] ?? 0
                 }
-                onBorrowMore={() =>
-                  setBorrowMorePosition({
-                    currency: position.currency,
-                    amount: position.borrowed,
-                  })
-                }
-                onEditCollateral={() =>
-                  setEditCollateralPosition({
-                    currency: position.currency,
-                    amount: position.collateral,
-                  })
-                }
-                onEditExpiry={() =>
-                  setEditExpiryPosition({
-                    currency: position.currency,
-                    amount: position.borrowed,
-                  })
-                }
+                onRepay={() => console.log('repay')}
+                onBorrowMore={() => console.log('borrow more')}
+                onEditCollateral={() => console.log('edit collateral')}
+                onEditExpiry={() => console.log('edit expiry')}
               />
             ))}
           </div>
@@ -368,9 +371,9 @@ const Borrow = ({
                 <Asset
                   key={i}
                   currency={assetStatus.underlying}
-                  apy={apy[assetStatus.underlying.address] ?? 0}
-                  available={available[assetStatus.underlying.address] ?? 0n}
-                  borrowed={borrowed[assetStatus.underlying.address] ?? 0n}
+                  apy={12.34 ?? 0}
+                  available={100000000000n ?? 0n}
+                  borrowed={30000000n ?? 0n}
                   price={prices[assetStatus.underlying.address] ?? 0}
                 />
               ))}
