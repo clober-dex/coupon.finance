@@ -35,7 +35,7 @@ const WithdrawModal = ({
             position.substitute,
             position.amount,
             amount,
-            position.expiryEpoch,
+            position.toEpoch.id,
           )
         : {
             maxRepurchaseFee: 0n,
