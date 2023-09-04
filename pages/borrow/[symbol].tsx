@@ -149,7 +149,7 @@ const Borrow: NextPage<
     return interestsByEpochsBorrowed[epochs - 1]?.apr ?? 0
   }, [epochs, interestsByEpochsBorrowed])
 
-  const expectedInterests = useMemo(() => {
+  const expectedInterest = useMemo(() => {
     if (epochs === 0 || !interestsByEpochsBorrowed) {
       return 0n
     }
@@ -303,7 +303,7 @@ const Borrow: NextPage<
                         <div className="text-gray-400">
                           (
                           {formatUnits(
-                            expectedInterests,
+                            expectedInterest,
                             asset.underlying.decimals,
                             prices[asset.underlying.address] ?? 0,
                           )}{' '}
@@ -337,7 +337,7 @@ const Borrow: NextPage<
                       asset,
                       loanAmount,
                       epochs,
-                      expectedInterests,
+                      expectedInterest,
                     )
                     if (hash) {
                       await router.replace('/')

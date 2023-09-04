@@ -43,7 +43,7 @@ type BorrowContext = {
     loanAsset: Asset,
     loanAmount: bigint,
     epochs: number,
-    expectedInterests: bigint,
+    expectedInterest: bigint,
   ) => Promise<Hash | undefined>
 }
 
@@ -128,7 +128,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       loan: Asset,
       loanAmount: bigint,
       epochs: number,
-      expectedInterests: bigint,
+      expectedInterest: bigint,
     ): Promise<Hash | undefined> => {
       if (!walletClient) {
         // TODO: alert wallet connect
@@ -136,7 +136,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
 
       const maximumInterestPaid = BigInt(
-        Math.floor(Number(expectedInterests) * (1 + SLIPPAGE_PERCENTAGE)),
+        Math.floor(Number(expectedInterest) * (1 + SLIPPAGE_PERCENTAGE)),
       )
       const wethBalance = isEthereum(collateral)
         ? balances[collateral.address] - (balance?.value || 0n)
