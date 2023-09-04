@@ -110,19 +110,25 @@ export async function fetchDepositApyByEpochsDeposited(
 
 export async function fetchCouponsToWithdraw(
   substitute: Currency,
+  markets: Market[],
   positionAmount: bigint,
   withdrawAmount: bigint,
-  epoch: number,
 ): Promise<{
   maxRepurchaseFee: bigint
   repurchaseFee: bigint
   available: bigint
 }> {
-  const markets = (await fetchMarkets())
-    .filter((market) =>
-      isAddressEqual(market.quoteToken.address, substitute.address),
+  if (
+    markets.some(
+      (market) =>
+        !isAddressEqual(
+          market.quoteToken.address,
+          substitute.address as `0x${string}`,
+        ),
     )
-    .filter((market) => market.epoch <= epoch)
+  ) {
+    new Error('Substitute token is not supported')
+  }
 
   const maxRepurchaseFee = markets.reduce(
     (acc, market) =>

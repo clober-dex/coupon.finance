@@ -1,12 +1,12 @@
 import React, { useMemo, useState } from 'react'
-import { formatUnits, parseUnits } from 'viem'
+import { formatUnits, isAddressEqual, parseUnits } from 'viem'
 import { useQuery } from 'wagmi'
 import { min } from 'hardhat/internal/util/bigint'
 
 import { BondPosition } from '../../model/bond-position'
 import CurrencyAmountInput from '../currency-amount-input'
 import { useCurrencyContext } from '../../contexts/currency-context'
-import { fetchCouponsToWithdraw } from '../../api/market'
+import { fetchCouponsToWithdraw, fetchMarkets } from '../../api/market'
 import { useDepositContext } from '../../contexts/deposit-context'
 
 import Modal from './modal'
@@ -29,19 +29,29 @@ const WithdrawModal = ({
 
   const { data } = useQuery(
     ['coupon-repurchase-fee-to-withdraw', position?.underlying.address, amount],
-    async () =>
-      position
-        ? fetchCouponsToWithdraw(
-            position.substitute,
-            position.amount,
-            amount,
-            position.expiryEpoch,
-          )
-        : {
-            maxRepurchaseFee: 0n,
-            repurchaseFee: 0n,
-            available: 0n,
-          },
+    async () => {
+      if (!position) {
+        return {
+          maxRepurchaseFee: 0n,
+          repurchaseFee: 0n,
+          available: 0n,
+        }
+      }
+      const markets = (await fetchMarkets())
+        .filter((market) =>
+          isAddressEqual(
+            market.quoteToken.address,
+            position.substitute.address,
+          ),
+        )
+        .filter((market) => market.epoch <= position.expiryEpoch)
+      return fetchCouponsToWithdraw(
+        position.substitute,
+        markets,
+        position.amount,
+        amount,
+      )
+    },
     {
       keepPreviousData: true,
     },
