@@ -68,7 +68,7 @@ const Borrow: NextPage<
     [collateralValue, collateral?.underlying.decimals],
   )
   const collateralBalance = useMemo(
-    () => (collateral ? balances[collateral.underlying.address] : 0n),
+    () => (collateral ? balances[collateral.underlying.address] ?? 0n : 0n),
     [balances, collateral],
   )
 
@@ -173,13 +173,13 @@ const Borrow: NextPage<
       ? dollarValue(
           collateralAmount,
           collateral.underlying.decimals,
-          prices[collateral.underlying.address],
+          prices[collateral.underlying.address] ?? PRICE_ZERO,
         )
       : 0
     const loanDollarValue = dollarValue(
       loanAmount + expectedInterest,
       asset.underlying.decimals,
-      prices[asset.underlying.address] ?? 0,
+      prices[asset.underlying.address] ?? PRICE_ZERO,
     )
     return loanDollarValue.times(100).div(collateralDollarValue).toNumber()
   }, [
@@ -263,7 +263,7 @@ const Borrow: NextPage<
                     currency={asset.underlying}
                     value={loanValue}
                     onValueChange={setLoanValue}
-                    price={prices[asset.underlying.address] ?? 0}
+                    price={prices[asset.underlying.address] ?? PRICE_ZERO}
                     balance={maxLoanAmount}
                   />
                 </div>
@@ -303,7 +303,7 @@ const Borrow: NextPage<
                           {formatUnits(
                             expectedInterest,
                             asset.underlying.decimals,
-                            prices[asset.underlying.address] ?? 0,
+                            prices[asset.underlying.address] ?? PRICE_ZERO,
                           )}{' '}
                           {asset.underlying.symbol} in interest)
                         </div>
