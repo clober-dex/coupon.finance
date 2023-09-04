@@ -1,4 +1,5 @@
 import { Currency } from './currency'
+import { Epoch } from './epoch'
 
 export type BondPosition = {
   tokenId: bigint
@@ -6,6 +7,7 @@ export type BondPosition = {
   underlying: Currency
   interest: bigint
   amount: bigint
-  expiryEpoch: number
-  expiryTimestamp: number
+  fromEpoch: Epoch
+  toEpoch: Epoch
+  timestamp: number
 }

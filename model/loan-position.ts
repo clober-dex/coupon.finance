@@ -1,5 +1,6 @@
 import { Currency } from './currency'
 import { Collateral } from './collateral'
+import { Epoch } from './epoch'
 
 export type LoanPosition = {
   positionId: bigint
@@ -9,7 +10,8 @@ export type LoanPosition = {
   interest: bigint
   amount: bigint
   collateralAmount: bigint
-  expiryEpoch: number
-  expiryTimestamp: number
   ltv: number
+  fromEpoch: Epoch
+  toEpoch: Epoch
+  timestamp: number
 }

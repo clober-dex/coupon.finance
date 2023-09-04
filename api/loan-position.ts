@@ -29,8 +29,17 @@ export async function fetchLoanPositions(
     interest: BigInt(loanPosition.amount) - BigInt(loanPosition.principal),
     amount: BigInt(loanPosition.amount),
     collateralAmount: BigInt(loanPosition.collateralAmount),
-    expiryEpoch: Number(loanPosition.toEpoch.id),
-    expiryTimestamp: Number(loanPosition.toEpoch.endTimestamp),
     ltv: Number(loanPosition.ltv),
+    fromEpoch: {
+      id: Number(loanPosition.fromEpoch.id),
+      startTimestamp: Number(loanPosition.fromEpoch.startTimestamp),
+      endTimestamp: Number(loanPosition.fromEpoch.endTimestamp),
+    },
+    toEpoch: {
+      id: Number(loanPosition.toEpoch.id),
+      startTimestamp: Number(loanPosition.toEpoch.startTimestamp),
+      endTimestamp: Number(loanPosition.toEpoch.endTimestamp),
+    },
+    timestamp: Number(loanPosition.timestamp),
   }))
 }
