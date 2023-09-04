@@ -16,6 +16,7 @@ import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { formatUnits } from '../utils/numbers'
 import { BorrowController__factory } from '../typechain'
 import { max } from '../utils/bigint'
+import { Collateral } from '../model/collateral'
 
 import { isEthereum, useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -38,7 +39,7 @@ type BorrowContext = {
   available: { [key in `0x${string}`]: bigint }
   borrowed: { [key in `0x${string}`]: bigint }
   borrow: (
-    collateral: Currency,
+    collateral: Collateral,
     collateralAmount: bigint,
     loanAsset: Asset,
     loanAmount: bigint,
@@ -123,7 +124,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
   const borrow = useCallback(
     async (
-      collateral: Currency,
+      collateral: Collateral,
       collateralAmount: bigint,
       loanAsset: Asset,
       loanAmount: bigint,
@@ -138,19 +139,19 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       const maximumInterestPaid = BigInt(
         Math.floor(Number(expectedInterest) * (1 + SLIPPAGE_PERCENTAGE)),
       )
-      const wethBalance = isEthereum(collateral)
-        ? balances[collateral.address] - (balance?.value || 0n)
+      const wethBalance = isEthereum(collateral.underlying)
+        ? balances[collateral.underlying.address] - (balance?.value || 0n)
         : 0n
       const collateralSubstituteAddress =
         loanAsset.collaterals.find(({ underlying }) =>
-          isAddressEqual(underlying.address, collateral.address),
+          isAddressEqual(underlying.address, collateral.underlying.address),
         )?.substitute.address || AddressZero
 
       let hash: Hash | undefined
       try {
         const { deadline, r, s, v } = await permit20(
           walletClient,
-          collateral,
+          collateral.underlying,
           walletClient.account.address,
           CONTRACT_ADDRESSES.BorrowController,
           collateralAmount,
@@ -161,9 +162,12 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           body: 'Please confirm in your wallet.',
           fields: [
             {
-              currency: collateral,
-              label: collateral.symbol,
-              value: formatUnits(collateralAmount, collateral.decimals),
+              currency: collateral.underlying,
+              label: collateral.underlying.symbol,
+              value: formatUnits(
+                collateralAmount,
+                collateral.underlying.decimals,
+              ),
             },
             {
               currency: loanAsset.underlying,
@@ -185,7 +189,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             epochs,
             { deadline, v, r, s },
           ],
-          value: isEthereum(collateral)
+          value: isEthereum(collateral.underlying)
             ? max(collateralAmount - wethBalance, 0n)
             : 0n,
           account: walletClient.account,

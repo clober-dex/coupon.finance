@@ -7,7 +7,7 @@ import { useQuery } from 'wagmi'
 
 import Slider from '../../components/slider'
 import BackSvg from '../../components/svg/back-svg'
-import { Currency, getLogo } from '../../model/currency'
+import { getLogo } from '../../model/currency'
 import { Asset } from '../../model/asset'
 import { fetchAssets } from '../../api/asset'
 import CurrencySelect from '../../components/currency-select'
@@ -18,6 +18,7 @@ import { dollarValue, formatUnits, PRICE_ZERO } from '../../utils/numbers'
 import { ClientComponent } from '../../components/client-component'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import { min } from '../../utils/bigint'
+import { Collateral } from '../../model/collateral'
 
 const LIQUIDATION_TARGET_LTV_PRECISION = 10n ** 6n
 
@@ -48,7 +49,9 @@ const Borrow: NextPage<
   const [epochs, _setEpochs] = useState(0)
   const [collateralValue, setCollateralValue] = useState('')
   const [loanValue, setLoanValue] = useState('')
-  const [collateral, setCollateral] = useState<Currency | undefined>(undefined)
+  const [collateral, setCollateral] = useState<Collateral | undefined>(
+    undefined,
+  )
   const [showCollateralSelect, setShowCollateralSelect] = useState(false)
 
   const router = useRouter()
@@ -61,11 +64,11 @@ const Borrow: NextPage<
   )
 
   const collateralAmount = useMemo(
-    () => parseUnits(collateralValue, collateral?.decimals ?? 18),
-    [collateralValue, collateral?.decimals],
+    () => parseUnits(collateralValue, collateral?.underlying.decimals ?? 18),
+    [collateralValue, collateral?.underlying.decimals],
   )
   const collateralBalance = useMemo(
-    () => (collateral ? balances[collateral.address] : 0n),
+    () => (collateral ? balances[collateral.underlying.address] : 0n),
     [balances, collateral],
   )
 
@@ -79,7 +82,7 @@ const Borrow: NextPage<
       collateral
         ? BigInt(
             asset.collaterals.find(({ underlying }) =>
-              isAddressEqual(underlying.address, collateral.address),
+              isAddressEqual(underlying.address, collateral.underlying.address),
             )?.liquidationTargetLtv || 0n,
           )
         : 0n,
@@ -90,8 +93,9 @@ const Borrow: NextPage<
     if (epochs === 0 || !collateral || !asset) {
       return 0n
     }
-    const collateralPrice = prices[collateral.address]?.value ?? 0n
-    const collateralComplement = 10n ** BigInt(18 - collateral.decimals)
+    const collateralPrice = prices[collateral.underlying.address]?.value ?? 0n
+    const collateralComplement =
+      10n ** BigInt(18 - collateral.underlying.decimals)
     const loanPrice = prices[asset.underlying.address]?.value ?? 0n
     const loanComplement = 10n ** BigInt(18 - asset.underlying.decimals)
 
@@ -175,12 +179,12 @@ const Borrow: NextPage<
     const collateralDollarValue = collateral
       ? dollarValue(
           collateralAmount,
-          collateral.decimals,
-          prices[collateral.address],
+          collateral.underlying.decimals,
+          prices[collateral.underlying.address],
         )
       : 0
     const loanDollarValue = dollarValue(
-      loanAmount,
+      loanAmount + expectedInterest,
       asset.underlying.decimals,
       prices[asset.underlying.address] ?? 0,
     )
@@ -191,6 +195,7 @@ const Borrow: NextPage<
     collateral,
     collateralAmount,
     epochs,
+    expectedInterest,
     interestsByEpochsBorrowed,
     loanAmount,
     prices,
@@ -225,7 +230,11 @@ const Borrow: NextPage<
               )}
               onBack={() => setShowCollateralSelect(false)}
               onCurrencySelect={(currency) => {
-                setCollateral(currency)
+                setCollateral(
+                  asset.collaterals.find(({ underlying }) => {
+                    return isAddressEqual(underlying.address, currency.address)
+                  }),
+                )
                 setShowCollateralSelect(false)
               }}
             />
@@ -237,15 +246,17 @@ const Borrow: NextPage<
                     How much collateral would you like to add?
                   </div>
                   <CurrencyAmountInput
-                    currency={collateral}
+                    currency={collateral?.underlying}
                     value={collateralValue}
                     onValueChange={setCollateralValue}
                     balance={
-                      collateral ? balances[collateral?.address] ?? 0n : 0n
+                      collateral
+                        ? balances[collateral?.underlying.address] ?? 0n
+                        : 0n
                     }
                     price={
                       collateral
-                        ? prices[collateral?.address] ?? PRICE_ZERO
+                        ? prices[collateral?.underlying.address] ?? PRICE_ZERO
                         : PRICE_ZERO
                     }
                     onCurrencyClick={() => setShowCollateralSelect(true)}
@@ -345,11 +356,11 @@ const Borrow: NextPage<
                     : loanAmount === 0n
                     ? 'Enter loan amount'
                     : collateralAmount > collateralBalance
-                    ? 'Not enough collateral'
+                    ? `Insufficient ${collateral?.underlying.symbol} balance`
                     : loanAmount > available
                     ? 'Not enough coupons for sale'
                     : loanAmount + maxInterest > maxLoanAmountExcludingCouponFee
-                    ? 'Loan LTV too high'
+                    ? 'Not enough collateral'
                     : 'Borrow'}
                 </button>
               </div>
