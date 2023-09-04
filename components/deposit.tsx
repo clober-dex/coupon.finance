@@ -28,7 +28,7 @@ const Position = ({
   ...props
 }: {
   position: BondPosition
-  price: BigDecimal
+  price?: BigDecimal
   onWithdraw: () => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
   const currentTimestamp = Math.floor(new Date().getTime() / 1000)
@@ -120,7 +120,7 @@ const Asset = ({
   apy: number
   available: bigint
   deposited: bigint
-  price: BigDecimal
+  price?: BigDecimal
 } & React.HTMLAttributes<HTMLDivElement>) => {
   return (
     <div
@@ -254,14 +254,14 @@ const Deposit = ({
                 dollarValue(
                   position.amount,
                   position.underlying.decimals,
-                  prices[position.underlying.address] ?? 0,
+                  prices[position.underlying.address],
                 ).isGreaterThanOrEqualTo(0.01),
               )
               .map((position, i) => (
                 <Position
                   key={i}
                   position={position}
-                  price={prices[position.underlying.address] ?? 0}
+                  price={prices[position.underlying.address]}
                   onWithdraw={() => setWithdrawPosition(position)}
                 />
               ))}
@@ -327,7 +327,7 @@ const Deposit = ({
                       assetStatus.totalDeposited,
                       assetStatus.underlying.decimals,
                     )}
-                    price={prices[assetStatus.underlying.address] ?? 0}
+                    price={prices[assetStatus.underlying.address]}
                   />
                 )
               })}

@@ -14,7 +14,7 @@ import CurrencySelect from '../../components/currency-select'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import CurrencyAmountInput from '../../components/currency-amount-input'
 import { fetchBorrowAprByEpochsBorrowed } from '../../api/market'
-import { dollarValue, formatUnits, PRICE_ZERO } from '../../utils/numbers'
+import { dollarValue, formatUnits } from '../../utils/numbers'
 import { ClientComponent } from '../../components/client-component'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import { min } from '../../utils/bigint'
@@ -173,13 +173,13 @@ const Borrow: NextPage<
       ? dollarValue(
           collateralAmount,
           collateral.underlying.decimals,
-          prices[collateral.underlying.address] ?? PRICE_ZERO,
+          prices[collateral.underlying.address],
         )
       : 0
     const loanDollarValue = dollarValue(
       loanAmount + expectedInterest,
       asset.underlying.decimals,
-      prices[asset.underlying.address] ?? PRICE_ZERO,
+      prices[asset.underlying.address],
     )
     return loanDollarValue.times(100).div(collateralDollarValue).toNumber()
   }, [
@@ -249,8 +249,8 @@ const Borrow: NextPage<
                     }
                     price={
                       collateral
-                        ? prices[collateral?.underlying.address] ?? PRICE_ZERO
-                        : PRICE_ZERO
+                        ? prices[collateral?.underlying.address]
+                        : undefined
                     }
                     onCurrencyClick={() => setShowCollateralSelect(true)}
                   />
@@ -263,7 +263,7 @@ const Borrow: NextPage<
                     currency={asset.underlying}
                     value={loanValue}
                     onValueChange={setLoanValue}
-                    price={prices[asset.underlying.address] ?? PRICE_ZERO}
+                    price={prices[asset.underlying.address]}
                     balance={maxLoanAmount}
                   />
                 </div>
@@ -303,7 +303,7 @@ const Borrow: NextPage<
                           {formatUnits(
                             expectedInterest,
                             asset.underlying.decimals,
-                            prices[asset.underlying.address] ?? PRICE_ZERO,
+                            prices[asset.underlying.address],
                           )}{' '}
                           {asset.underlying.symbol} in interest)
                         </div>
