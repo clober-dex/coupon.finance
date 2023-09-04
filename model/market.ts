@@ -368,6 +368,7 @@ export const calculateBorrowApr = (
   currentTimestamp: number,
 ): {
   interest: bigint
+  maxInterest: bigint
   apr: number
   totalBorrow: bigint
   available: bigint
@@ -425,10 +426,8 @@ export const calculateBorrowApr = (
   return {
     apr,
     interest,
+    maxInterest,
     totalBorrow,
-    available: min(
-      maxAmountExcludingFee - maxInterest,
-      availableCoupons - interestAvailableCoupons,
-    ),
+    available: availableCoupons - interestAvailableCoupons,
   }
 }
