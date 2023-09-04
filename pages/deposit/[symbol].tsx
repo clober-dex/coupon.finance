@@ -121,7 +121,7 @@ const Deposit: NextPage<
                   value={value}
                   onValueChange={setValue}
                   balance={balance}
-                  price={prices[asset.underlying.address] ?? 0}
+                  price={prices[asset.underlying.address]}
                 />
               </div>
               <div className="flex flex-col gap-6">

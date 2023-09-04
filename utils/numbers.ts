@@ -6,11 +6,6 @@ export type BigDecimal = {
   decimals: number
 }
 
-export const PRICE_ZERO: BigDecimal = {
-  value: 0n,
-  decimals: 8,
-}
-
 export const dollarValue = (
   value: bigint,
   decimals: number,

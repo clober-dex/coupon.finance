@@ -21,7 +21,7 @@ const CurrencyAmountInput = ({
   value: string
   onValueChange: (value: string) => void
   balance: bigint
-  price: BigDecimal
+  price?: BigDecimal
   onCurrencyClick?: () => void
 } & React.HTMLAttributes<HTMLInputElement>) => {
   const decimals = useMemo(() => currency?.decimals ?? 18, [currency])

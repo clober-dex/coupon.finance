@@ -80,7 +80,7 @@ const CurrencySelect = ({
                     {formatDollarValue(
                       balances[currency.address] ?? 0n,
                       currency.decimals,
-                      prices[currency.address] ?? 0,
+                      prices[currency.address],
                     )}
                   </div>
                 </div>
