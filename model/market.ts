@@ -395,7 +395,6 @@ export const calculateBorrowApr = (
           acc + market.take(substitute.address, availableCoupons).amountIn,
         0n,
       ),
-    0n,
   )
 
   const maxInterest = markets.reduce(
