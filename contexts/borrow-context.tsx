@@ -125,7 +125,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
     async (
       collateral: Currency,
       collateralAmount: bigint,
-      loan: Asset,
+      loanAsset: Asset,
       loanAmount: bigint,
       epochs: number,
       expectedInterest: bigint,
@@ -142,7 +142,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         ? balances[collateral.address] - (balance?.value || 0n)
         : 0n
       const collateralSubstituteAddress =
-        loan.collaterals.find(({ underlying }) =>
+        loanAsset.collaterals.find(({ underlying }) =>
           isAddressEqual(underlying.address, collateral.address),
         )?.substitute.address || AddressZero
 
@@ -166,9 +166,9 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               value: formatUnits(collateralAmount, collateral.decimals),
             },
             {
-              currency: loan.underlying,
-              label: loan.underlying.symbol,
-              value: formatUnits(loanAmount, loan.underlying.decimals),
+              currency: loanAsset.underlying,
+              label: loanAsset.underlying.symbol,
+              value: formatUnits(loanAmount, loanAsset.underlying.decimals),
             },
           ],
         })
@@ -178,7 +178,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           functionName: 'borrow',
           args: [
             collateralSubstituteAddress,
-            loan.substitutes[0].address,
+            loanAsset.substitutes[0].address,
             collateralAmount,
             loanAmount + maximumInterestPaid,
             maximumInterestPaid,
