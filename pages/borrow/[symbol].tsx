@@ -4,7 +4,6 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { isAddressEqual, parseUnits } from 'viem'
 import { useQuery } from 'wagmi'
-import { min } from 'hardhat/internal/util/bigint'
 
 import Slider from '../../components/slider'
 import BackSvg from '../../components/svg/back-svg'
@@ -17,6 +16,8 @@ import CurrencyAmountInput from '../../components/currency-amount-input'
 import { fetchBorrowAprByEpochsBorrowed } from '../../api/market'
 import { dollarValue, formatUnits } from '../../utils/numbers'
 import { ClientComponent } from '../../components/client-component'
+import { useBorrowContext } from '../../contexts/borrow-context'
+import { min } from '../../utils/bigint'
 
 const PRICE_PRECISION = 10n ** 8n
 const LIQUIDATION_TARGET_LTV_PRECISION = 10n ** 6n
@@ -43,6 +44,8 @@ const Borrow: NextPage<
   InferGetServerSidePropsType<typeof getServerSideProps>
 > = ({ asset }) => {
   const { balances, prices } = useCurrencyContext()
+  const { borrow } = useBorrowContext()
+
   const [epochs, _setEpochs] = useState(0)
   const [collateralValue, setCollateralValue] = useState('')
   const [loanValue, setLoanValue] = useState('')
@@ -85,6 +88,9 @@ const Borrow: NextPage<
   )
 
   const maxLoanAmountExcludingCouponFee = useMemo(() => {
+    if (epochs === 0) {
+      return 0n
+    }
     const [collateralPrice, collateralComplement] = [
       collateral && prices[collateral.address]
         ? BigInt(prices[collateral.address] * Number(PRICE_PRECISION))
@@ -106,7 +112,14 @@ const Borrow: NextPage<
           loanPrice /
           loanComplement
       : 0n
-  }, [asset, collateral, collateralAmount, maxLiquidationTargetLtv, prices])
+  }, [
+    asset,
+    collateral,
+    collateralAmount,
+    epochs,
+    maxLiquidationTargetLtv,
+    prices,
+  ])
 
   const { data: interestsByEpochsBorrowed } = useQuery(
     ['borrow-apr', asset, loanAmount, maxLoanAmountExcludingCouponFee], // TODO: useDebounce
@@ -124,13 +137,10 @@ const Borrow: NextPage<
 
   const available = useMemo(() => {
     if (epochs === 0 || !interestsByEpochsBorrowed) {
-      return maxLoanAmountExcludingCouponFee
+      return 0n
     }
-    return min(
-      maxLoanAmountExcludingCouponFee,
-      interestsByEpochsBorrowed[epochs - 1]?.available ?? 0n,
-    )
-  }, [epochs, interestsByEpochsBorrowed, maxLoanAmountExcludingCouponFee])
+    return interestsByEpochsBorrowed[epochs - 1]?.available ?? 0n
+  }, [epochs, interestsByEpochsBorrowed])
 
   const borrowApr = useMemo(() => {
     if (epochs === 0 || !interestsByEpochsBorrowed) {
@@ -145,6 +155,28 @@ const Borrow: NextPage<
     }
     return interestsByEpochsBorrowed[epochs - 1]?.interest ?? 0n
   }, [epochs, interestsByEpochsBorrowed])
+
+  const maxInterest = useMemo(() => {
+    if (epochs === 0 || !interestsByEpochsBorrowed) {
+      return 0n
+    }
+    return interestsByEpochsBorrowed[epochs - 1]?.maxInterest ?? 0n
+  }, [epochs, interestsByEpochsBorrowed])
+
+  const maxLoanAmount = useMemo(() => {
+    if (
+      epochs === 0 ||
+      !interestsByEpochsBorrowed ||
+      !maxLoanAmountExcludingCouponFee
+    ) {
+      return 0n
+    }
+    return min(
+      maxLoanAmountExcludingCouponFee -
+        interestsByEpochsBorrowed[epochs - 1]?.maxInterest ?? 0n,
+      interestsByEpochsBorrowed[epochs - 1]?.available ?? 0n,
+    )
+  }, [epochs, interestsByEpochsBorrowed, maxLoanAmountExcludingCouponFee])
 
   const ltv = useMemo(() => {
     if (epochs === 0 || !interestsByEpochsBorrowed) {
@@ -234,7 +266,7 @@ const Borrow: NextPage<
                     value={loanValue}
                     onValueChange={setLoanValue}
                     price={prices[asset.underlying.address] ?? 0}
-                    balance={available}
+                    balance={maxLoanAmount}
                   />
                 </div>
                 <div className="flex flex-col gap-4">
@@ -289,17 +321,42 @@ const Borrow: NextPage<
                   disabled={
                     epochs === 0 ||
                     collateralAmount === 0n ||
-                    collateralAmount > collateralBalance ||
                     loanAmount === 0n ||
-                    loanAmount > available
+                    collateralAmount > collateralBalance ||
+                    loanAmount > available ||
+                    loanAmount + maxInterest > maxLoanAmountExcludingCouponFee
                   }
                   className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
+                  onClick={async () => {
+                    if (!collateral) {
+                      return
+                    }
+                    const hash = await borrow(
+                      collateral,
+                      collateralAmount,
+                      asset,
+                      loanAmount,
+                      epochs,
+                      expectedInterests,
+                    )
+                    if (hash) {
+                      await router.replace('/')
+                    }
+                  }}
                 >
-                  {collateralAmount > collateralBalance
-                    ? `Insufficient ${collateral?.symbol} balance`
+                  {epochs === 0
+                    ? 'Select expiration date'
+                    : collateralAmount === 0n
+                    ? 'Enter collateral amount'
+                    : loanAmount === 0n
+                    ? 'Enter loan amount'
+                    : collateralAmount > collateralBalance
+                    ? 'Not enough collateral'
                     : loanAmount > available
-                    ? 'Insufficient available to borrow'
-                    : 'Confirm'}
+                    ? 'Not enough coupons for sale'
+                    : loanAmount + maxInterest > maxLoanAmountExcludingCouponFee
+                    ? 'Loan LTV too high'
+                    : 'Borrow'}
                 </button>
               </div>
             </div>

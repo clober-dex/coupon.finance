@@ -177,19 +177,21 @@ export async function fetchBorrowAprByEpochsBorrowed(
   return markets
     .map((_, i) => markets.slice(0, i + 1))
     .map((markets) => {
-      const { apr, interest, totalBorrow, available } = calculateBorrowApr(
-        substitute,
-        markets,
-        amount,
-        maxAmountExcludingFee,
-        currentTimestamp,
-      )
+      const { apr, interest, maxInterest, totalBorrow, available } =
+        calculateBorrowApr(
+          substitute,
+          markets,
+          amount,
+          maxAmountExcludingFee,
+          currentTimestamp,
+        )
       return {
         date: new Date(Number(markets.at(-1)?.endTimestamp ?? 0n) * 1000)
           .toISOString()
           .slice(2, 10)
           .replace(/-/g, '/'), // TODO: format properly
         interest,
+        maxInterest,
         apr,
         totalBorrow,
         available,
