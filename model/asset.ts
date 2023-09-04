@@ -13,6 +13,7 @@ export type AssetStatus = {
   epoch: Epoch
   totalDepositAvailable: string
   totalDeposited: string
+  totalBorrowAvailable: string
   totalBorrowed: string
   bestCouponBidPrice: number
 }
