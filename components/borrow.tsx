@@ -187,7 +187,7 @@ const Asset = ({
   apy: number
   available: bigint
   borrowed: bigint
-  price: BigDecimal
+  price?: BigDecimal
 } & React.HTMLAttributes<HTMLDivElement>) => {
   return (
     <div
@@ -374,7 +374,7 @@ const Borrow = ({
                   apy={12.34 ?? 0}
                   available={100000000000n ?? 0n}
                   borrowed={30000000n ?? 0n}
-                  price={prices[assetStatus.underlying.address] ?? 0}
+                  price={prices[assetStatus.underlying.address]}
                 />
               ))}
           </div>

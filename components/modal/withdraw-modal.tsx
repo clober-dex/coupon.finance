@@ -71,7 +71,7 @@ const WithdrawModal = ({
           value={value}
           onValueChange={setValue}
           balance={min(position.amount - maxRepurchaseFee, available)}
-          price={prices[position.underlying.address] ?? 0}
+          price={prices[position.underlying.address]}
         />
       </div>
       <div className="flex text-xs sm:text-sm gap-3 mb-2 sm:mb-3 justify-between sm:justify-start">
