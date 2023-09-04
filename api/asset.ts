@@ -96,7 +96,7 @@ export async function fetchAssetStatuses(): Promise<AssetStatus[]> {
       })),
     })
     const decimals = assetStatus.asset.underlying.decimals
-    const totalAvailable = formatUnits(
+    const totalDepositAvailable = formatUnits(
       market.totalBidsInBaseAfterFees(),
       decimals,
     )
@@ -106,7 +106,7 @@ export async function fetchAssetStatuses(): Promise<AssetStatus[]> {
     return {
       underlying,
       epoch,
-      totalAvailable,
+      totalDepositAvailable,
       totalDeposited,
       totalBorrowed,
       bestCouponPrice,
