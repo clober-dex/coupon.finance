@@ -397,16 +397,22 @@ export const calculateBorrowApr = (
     0n,
   )
 
-  const interest = markets.reduce(
-    (acc, market) =>
-      acc + market.take(substitute.address, initialBorrow).amountIn,
-    0n,
-  )
   const maxInterest = markets.reduce(
     (acc, market) =>
       acc + market.take(substitute.address, maxAmountExcludingFee).amountIn,
     0n,
   )
+  let interest = 0n
+  const prevInterests = new Set<bigint>()
+  while (!prevInterests.has(interest)) {
+    prevInterests.add(interest)
+    interest = markets.reduce(
+      (acc, market) =>
+        acc +
+        market.take(substitute.address, initialBorrow + interest).amountIn,
+      0n,
+    )
+  }
 
   const endTimestamp = markets
     .map((market) => market.endTimestamp)
