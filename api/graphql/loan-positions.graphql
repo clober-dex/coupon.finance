@@ -43,7 +43,7 @@ query getLoanPositions($userAddress: String!) {
       startTimestamp
       endTimestamp
     }
-    timestamp
+    createdAt
     ltv
   }
 }

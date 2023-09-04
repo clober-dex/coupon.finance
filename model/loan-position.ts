@@ -13,5 +13,5 @@ export type LoanPosition = {
   ltv: number
   fromEpoch: Epoch
   toEpoch: Epoch
-  timestamp: number
+  createdAt: number
 }

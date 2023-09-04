@@ -40,6 +40,6 @@ export async function fetchLoanPositions(
       startTimestamp: Number(loanPosition.toEpoch.startTimestamp),
       endTimestamp: Number(loanPosition.toEpoch.endTimestamp),
     },
-    timestamp: Number(loanPosition.timestamp),
+    createdAt: Number(loanPosition.createdAt),
   }))
 }

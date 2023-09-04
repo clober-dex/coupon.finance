@@ -26,6 +26,6 @@ query getBondPositions($userAddress: String!) {
       startTimestamp
       endTimestamp
     }
-    timestamp
+    createdAt
   }
 }

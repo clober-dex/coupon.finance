@@ -51,7 +51,7 @@ const Position = ({
           <div className="font-bold">
             {calculateApy(
               Number(position.interest) / Number(position.amount),
-              position.toEpoch.endTimestamp - position.timestamp,
+              position.toEpoch.endTimestamp - position.createdAt,
             ).toFixed(2)}
             %
           </div>

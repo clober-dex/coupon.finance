@@ -9,5 +9,5 @@ export type BondPosition = {
   amount: bigint
   fromEpoch: Epoch
   toEpoch: Epoch
-  timestamp: number
+  createdAt: number
 }

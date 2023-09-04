@@ -32,6 +32,6 @@ export async function fetchBondPositions(
       startTimestamp: Number(bondPosition.toEpoch.startTimestamp),
       endTimestamp: Number(bondPosition.toEpoch.endTimestamp),
     },
-    timestamp: Number(bondPosition.timestamp),
+    createdAt: Number(bondPosition.createdAt),
   }))
 }
