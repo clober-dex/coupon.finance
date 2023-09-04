@@ -5,7 +5,7 @@ import { useBorrowContext } from '../contexts/borrow-context'
 import { Currency, getLogo } from '../model/currency'
 import { AssetStatus } from '../model/asset'
 import { useCurrencyContext } from '../contexts/currency-context'
-import { formatDollarValue, formatUnits } from '../utils/numbers'
+import { BigDecimal, formatDollarValue, formatUnits } from '../utils/numbers'
 import { Epoch } from '../model/epoch'
 
 import RepayModal from './modal/repay-modal'
@@ -166,7 +166,7 @@ const Asset = ({
   apy: number
   available: bigint
   borrowed: bigint
-  price: number
+  price: BigDecimal
 } & React.HTMLAttributes<HTMLDivElement>) => {
   return (
     <div

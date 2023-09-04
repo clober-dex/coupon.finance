@@ -3,6 +3,7 @@ import { readContracts } from '@wagmi/core'
 import { Currency } from '../model/currency'
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { CouponOracle__factory } from '../typechain'
+import { BigDecimal } from '../utils/numbers'
 
 import { fetchAssets } from './asset'
 
@@ -27,9 +28,9 @@ export async function fetchCurrencies() {
   )
 }
 
-export async function fetchPrices(
-  currencyAddresses: `0x${string}`[],
-): Promise<{ [key in `0x${string}`]: number }> {
+export async function fetchPrices(currencyAddresses: `0x${string}`[]): Promise<{
+  [key in `0x${string}`]: BigDecimal
+}> {
   const [{ result: prices }, { result: decimals }] = await readContracts({
     contracts: [
       {
@@ -45,13 +46,16 @@ export async function fetchPrices(
       },
     ],
   })
-  return prices && decimals
-    ? prices.reduce((acc, val, i) => {
-        const currencyAddress = currencyAddresses[i]
-        return {
-          ...acc,
-          [currencyAddress]: Number(val) / 10 ** decimals,
-        }
-      }, {})
-    : {}
+
+  if (!prices || !decimals) {
+    return {}
+  }
+
+  return prices.reduce((acc, value, i) => {
+    const currencyAddress = currencyAddresses[i]
+    return {
+      ...acc,
+      [currencyAddress]: { value, decimals },
+    }
+  }, {})
 }

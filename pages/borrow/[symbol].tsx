@@ -14,13 +14,12 @@ import CurrencySelect from '../../components/currency-select'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import CurrencyAmountInput from '../../components/currency-amount-input'
 import { fetchBorrowAprByEpochsBorrowed } from '../../api/market'
-import { dollarValue, formatUnits } from '../../utils/numbers'
+import { dollarValue, formatUnits, PRICE_ZERO } from '../../utils/numbers'
 import { ClientComponent } from '../../components/client-component'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import { min } from '../../utils/bigint'
 import { Collateral } from '../../model/collateral'
 
-const PRICE_PRECISION = 10n ** 8n
 const LIQUIDATION_TARGET_LTV_PRECISION = 10n ** 6n
 
 export const getServerSideProps: GetServerSideProps<{
@@ -94,28 +93,18 @@ const Borrow: NextPage<
     if (epochs === 0 || !collateral || !asset) {
       return 0n
     }
-    const [collateralPrice, collateralComplement] = [
-      collateral && prices[collateral.underlying.address]
-        ? BigInt(
-            prices[collateral.underlying.address] * Number(PRICE_PRECISION),
-          )
-        : 0n,
-      10n ** (18n - BigInt(collateral?.underlying.decimals ?? 18n)),
-    ]
-    const [loanPrice, loanComplement] = [
-      asset && prices[asset.underlying.address]
-        ? BigInt(prices[asset.underlying.address] * Number(PRICE_PRECISION))
-        : 0n,
-      10n ** (18n - BigInt(asset.underlying.decimals)),
-    ]
-    return collateral && loanPrice && collateralPrice
+    const collateralPrice = prices[collateral.underlying.address]?.value ?? 0n
+    const collateralComplement =
+      10n ** BigInt(18 - collateral.underlying.decimals)
+    const loanPrice = prices[asset.underlying.address]?.value ?? 0n
+    const loanComplement = 10n ** BigInt(18 - asset.underlying.decimals)
+
+    return loanPrice && collateralPrice
       ? (collateralAmount *
           maxLiquidationTargetLtv *
           collateralPrice *
           collateralComplement) /
-          LIQUIDATION_TARGET_LTV_PRECISION /
-          loanPrice /
-          loanComplement
+          (LIQUIDATION_TARGET_LTV_PRECISION * loanPrice * loanComplement)
       : 0n
   }, [
     asset,
@@ -267,8 +256,8 @@ const Borrow: NextPage<
                     }
                     price={
                       collateral
-                        ? prices[collateral?.underlying.address] ?? 0
-                        : 0
+                        ? prices[collateral?.underlying.address] ?? PRICE_ZERO
+                        : PRICE_ZERO
                     }
                     onCurrencyClick={() => setShowCollateralSelect(true)}
                   />
