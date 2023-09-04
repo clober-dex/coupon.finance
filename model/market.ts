@@ -383,35 +383,12 @@ export const calculateBorrowApr = (
     new Error('Substitute token is not supported')
   }
 
-  const availableCoupons = min(
-    ...markets.map((market) => market.totalAsksInBaseAfterFees()),
+  const { interest, maxInterest, available } = calculateCouponsToBorrow(
+    substitute,
+    markets,
+    maxAmountExcludingFee,
+    initialBorrow,
   )
-  const available = max(
-    availableCoupons -
-      markets.reduce(
-        (acc, market) =>
-          acc + market.take(substitute.address, availableCoupons).amountIn,
-        0n,
-      ),
-    0n,
-  )
-
-  const maxInterest = markets.reduce(
-    (acc, market) =>
-      acc + market.take(substitute.address, maxAmountExcludingFee).amountIn,
-    0n,
-  )
-  let interest = 0n
-  const prevInterests = new Set<bigint>()
-  while (!prevInterests.has(interest)) {
-    prevInterests.add(interest)
-    interest = markets.reduce(
-      (acc, market) =>
-        acc +
-        market.take(substitute.address, initialBorrow + interest).amountIn,
-      0n,
-    )
-  }
 
   const endTimestamp = Math.max(...markets.map((market) => market.endTimestamp))
   const totalBorrow = initialBorrow - interest
@@ -483,6 +460,64 @@ export async function calculateCouponsToWithdraw(
   return {
     maxRepurchaseFee,
     repurchaseFee,
+    available,
+  }
+}
+
+export function calculateCouponsToBorrow(
+  substitute: Currency,
+  markets: Market[],
+  maxAmountExcludingFee: bigint,
+  borrowAmount: bigint,
+): {
+  maxInterest: bigint
+  interest: bigint
+  available: bigint
+} {
+  if (
+    markets.some(
+      (market) =>
+        !isAddressEqual(
+          market.quoteToken.address,
+          substitute.address as `0x${string}`,
+        ),
+    )
+  ) {
+    new Error('Substitute token is not supported')
+  }
+
+  const availableCoupons = min(
+    ...markets.map((market) => market.totalAsksInBaseAfterFees()),
+  )
+  const available = max(
+    availableCoupons -
+      markets.reduce(
+        (acc, market) =>
+          acc + market.take(substitute.address, availableCoupons).amountIn,
+        0n,
+      ),
+    0n,
+  )
+
+  const maxInterest = markets.reduce(
+    (acc, market) =>
+      acc + market.take(substitute.address, maxAmountExcludingFee).amountIn,
+    0n,
+  )
+  let interest = 0n
+  const prevInterests = new Set<bigint>()
+  while (!prevInterests.has(interest)) {
+    prevInterests.add(interest)
+    interest = markets.reduce(
+      (acc, market) =>
+        acc + market.take(substitute.address, borrowAmount + interest).amountIn,
+      0n,
+    )
+  }
+
+  return {
+    interest,
+    maxInterest,
     available,
   }
 }
