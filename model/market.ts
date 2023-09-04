@@ -345,9 +345,7 @@ export const calculateDepositApy = (
     new Error('Substitute token is not supported')
   }
 
-  const endTimestamp = markets
-    .map((market) => market.endTimestamp)
-    .reduce((acc, val) => (acc < val ? val : acc), 0)
+  const endTimestamp = Math.max(...markets.map((market) => market.endTimestamp))
   const totalDeposit = calculateTotalDeposit(markets, initialDeposit)
   const p =
     (Number(totalDeposit) - Number(initialDeposit)) / Number(initialDeposit)
@@ -414,9 +412,7 @@ export const calculateBorrowApr = (
     )
   }
 
-  const endTimestamp = markets
-    .map((market) => market.endTimestamp)
-    .reduce((acc, val) => (acc < val ? val : acc), 0)
+  const endTimestamp = Math.max(...markets.map((market) => market.endTimestamp))
   const totalBorrow = initialBorrow - interest
   const p = Number(interest) / Number(totalBorrow)
   const d = Number(endTimestamp) - currentTimestamp
