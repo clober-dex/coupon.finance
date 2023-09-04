@@ -78,7 +78,7 @@ const Borrow: NextPage<
   )
 
   const liquidationTargetLtv = useMemo(
-    () => collateral?.liquidationTargetLtv ?? 0n,
+    () => BigInt(collateral?.liquidationTargetLtv ?? '0'),
     [collateral],
   )
 
