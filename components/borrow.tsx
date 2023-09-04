@@ -1,10 +1,16 @@
 import React, { SVGProps, useState } from 'react'
 import Link from 'next/link'
+import BigNumber from 'bignumber.js'
 
 import { useBorrowContext } from '../contexts/borrow-context'
 import { Currency, getLogo } from '../model/currency'
 import { AssetStatus } from '../model/asset'
-import { BigDecimal, formatDollarValue, formatUnits } from '../utils/numbers'
+import {
+  BigDecimal,
+  dollarValue,
+  formatDollarValue,
+  formatUnits,
+} from '../utils/numbers'
 import { Epoch } from '../model/epoch'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { LoanPosition } from '../model/loan-position'
@@ -61,8 +67,8 @@ const Position = ({
   ...props
 }: {
   position: LoanPosition
-  price: number
-  collateralPrice: number
+  price?: BigDecimal
+  collateralPrice?: BigDecimal
   onRepay: () => void
   onBorrowMore: () => void
   onEditCollateral: () => void
@@ -299,10 +305,12 @@ const Borrow = ({
                 {positions
                   .reduce(
                     (acc, { underlying, amount }) =>
-                      +formatUnits(amount, underlying.decimals) *
-                        (prices[underlying.address] ?? 0) +
-                      acc,
-                    0,
+                      dollarValue(
+                        amount,
+                        underlying.decimals,
+                        prices[underlying.address],
+                      ).plus(acc),
+                    new BigNumber(0),
                   )
                   .toFixed(2)}
               </div>
@@ -313,11 +321,13 @@ const Borrow = ({
                 $
                 {positions
                   .reduce(
-                    (acc, { underlying, interest }) =>
-                      +formatUnits(interest, underlying.decimals) *
-                        (prices[underlying.address] ?? 0) +
-                      acc,
-                    0,
+                    (acc, { collateral, collateralAmount }) =>
+                      dollarValue(
+                        collateralAmount,
+                        collateral.underlying.decimals,
+                        prices[collateral.underlying.address],
+                      ).plus(acc),
+                    new BigNumber(0),
                   )
                   .toFixed(2)}
               </div>
