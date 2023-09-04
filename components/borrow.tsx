@@ -266,7 +266,7 @@ const Borrow = ({
   epochs: Epoch[]
 }) => {
   const { prices } = useCurrencyContext()
-  const { positions } = useBorrowContext()
+  const { positions, apy, available, borrowed } = useBorrowContext()
   const [repayPosition, setRepayPosition] = useState<{
     currency: Currency
     amount: string
@@ -381,10 +381,10 @@ const Borrow = ({
                 <Asset
                   key={i}
                   currency={assetStatus.underlying}
-                  apy={12.34 ?? 0}
-                  available={100000000000n ?? 0n}
-                  borrowed={30000000n ?? 0n}
-                  price={prices[assetStatus.underlying.address]}
+                  apy={apy[assetStatus.underlying.address] ?? 0}
+                  available={available[assetStatus.underlying.address] ?? 0n}
+                  borrowed={borrowed[assetStatus.underlying.address] ?? 0n}
+                  price={prices[assetStatus.underlying.address] ?? 0}
                 />
               ))}
           </div>
