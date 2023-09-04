@@ -2,6 +2,8 @@ import { isAddressEqual } from 'viem'
 
 import { MarketDto } from '../api/market'
 import { calculateApy } from '../utils/apy'
+import { calculateApr } from '../utils/apr'
+import { max, min } from '../utils/bigint'
 
 import { Currency } from './currency'
 
@@ -343,9 +345,7 @@ export const calculateDepositApy = (
     new Error('Substitute token is not supported')
   }
 
-  const endTimestamp = markets
-    .map((market) => market.endTimestamp)
-    .reduce((acc, val) => (acc < val ? val : acc), 0)
+  const endTimestamp = Math.max(...markets.map((market) => market.endTimestamp))
   const totalDeposit = calculateTotalDeposit(markets, initialDeposit)
   const p =
     (Number(totalDeposit) - Number(initialDeposit)) / Number(initialDeposit)
@@ -355,5 +355,75 @@ export const calculateDepositApy = (
   return {
     apy,
     proceeds: totalDeposit - initialDeposit,
+  }
+}
+
+export const calculateBorrowApr = (
+  substitute: Currency,
+  markets: Market[],
+  initialBorrow: bigint,
+  maxAmountExcludingFee: bigint,
+  currentTimestamp: number,
+): {
+  interest: bigint
+  maxInterest: bigint
+  apr: number
+  totalBorrow: bigint
+  available: bigint
+} => {
+  if (
+    markets.some(
+      (market) =>
+        !isAddressEqual(
+          market.quoteToken.address,
+          substitute.address as `0x${string}`,
+        ),
+    )
+  ) {
+    new Error('Substitute token is not supported')
+  }
+
+  const availableCoupons = min(
+    ...markets.map((market) => market.totalAsksInBaseAfterFees()),
+  )
+  const available = max(
+    availableCoupons -
+      markets.reduce(
+        (acc, market) =>
+          acc + market.take(substitute.address, availableCoupons).amountIn,
+        0n,
+      ),
+    0n,
+  )
+
+  const maxInterest = markets.reduce(
+    (acc, market) =>
+      acc + market.take(substitute.address, maxAmountExcludingFee).amountIn,
+    0n,
+  )
+  let interest = 0n
+  const prevInterests = new Set<bigint>()
+  while (!prevInterests.has(interest)) {
+    prevInterests.add(interest)
+    interest = markets.reduce(
+      (acc, market) =>
+        acc +
+        market.take(substitute.address, initialBorrow + interest).amountIn,
+      0n,
+    )
+  }
+
+  const endTimestamp = Math.max(...markets.map((market) => market.endTimestamp))
+  const totalBorrow = initialBorrow - interest
+  const p = Number(interest) / Number(totalBorrow)
+  const d = Number(endTimestamp) - currentTimestamp
+  const apr = calculateApr(p, d)
+
+  return {
+    apr,
+    interest,
+    maxInterest,
+    totalBorrow,
+    available,
   }
 }

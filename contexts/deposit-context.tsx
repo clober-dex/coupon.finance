@@ -19,7 +19,6 @@ import { BondPosition } from '../model/bond-position'
 import { formatUnits } from '../utils/numbers'
 import { permit721 } from '../utils/permit721'
 import { Currency } from '../model/currency'
-import { zeroBytes32 } from '../utils/bytes'
 
 import { isEthereum, useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'

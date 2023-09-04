@@ -41,6 +41,7 @@ export async function fetchAssets(): Promise<Asset[]> {
     underlying: toCurrency(asset.underlying),
     collaterals: asset.collaterals.map((collateral) => ({
       underlying: toCurrency(collateral.underlying),
+      substitute: toCurrency(collateral.substitute),
       liquidationThreshold: collateral.liquidationThreshold,
       liquidationTargetLtv: collateral.liquidationTargetLtv,
     })),
