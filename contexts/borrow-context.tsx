@@ -32,15 +32,9 @@ type BorrowContext = {
     epochs: number,
     expectedInterest: bigint,
   ) => Promise<Hash | undefined>
-  apy: { [key in `0x${string}`]: number }
-  available: { [key in `0x${string}`]: bigint }
-  borrowed: { [key in `0x${string}`]: bigint }
 }
 
 const Context = React.createContext<BorrowContext>({
-  apy: {},
-  available: {},
-  borrowed: {},
   positions: [],
   borrow: () => Promise.resolve(undefined),
 })
@@ -156,26 +150,11 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
     ],
   )
 
-  const apy: {
-    [key in `0x${string}`]: number
-  } = {}
-
-  const available: {
-    [key in `0x${string}`]: bigint
-  } = {}
-
-  const borrowed: {
-    [key in `0x${string}`]: bigint
-  } = {}
-
   return (
     <Context.Provider
       value={{
         positions,
         borrow,
-        apy,
-        available,
-        borrowed,
       }}
     >
       {children}
