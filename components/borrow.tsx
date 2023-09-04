@@ -158,7 +158,8 @@ const Position = ({
           <div className="flex items-center justify-between text-xs">
             <div className="text-gray-500">Liquidation Threshold</div>
             <div className="flex text-xs sm:text-sm">
-              {Number(position.collateral.liquidationThreshold) / 10000}%
+              {formatUnits(BigInt(position.collateral.liquidationThreshold), 4)}
+              %
             </div>
           </div>
         </div>
