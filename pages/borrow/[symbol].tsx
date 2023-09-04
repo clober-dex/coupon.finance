@@ -77,16 +77,9 @@ const Borrow: NextPage<
     [loanValue, asset.underlying.decimals],
   )
 
-  const maxLiquidationTargetLtv = useMemo(
-    () =>
-      collateral
-        ? BigInt(
-            asset.collaterals.find(({ underlying }) =>
-              isAddressEqual(underlying.address, collateral.underlying.address),
-            )?.liquidationTargetLtv || 0n,
-          )
-        : 0n,
-    [asset.collaterals, collateral],
+  const liquidationTargetLtv = useMemo(
+    () => collateral?.liquidationTargetLtv ?? 0n,
+    [collateral],
   )
 
   const maxLoanAmountExcludingCouponFee = useMemo(() => {
@@ -101,7 +94,7 @@ const Borrow: NextPage<
 
     return loanPrice && collateralPrice
       ? (collateralAmount *
-          maxLiquidationTargetLtv *
+          liquidationTargetLtv *
           collateralPrice *
           collateralComplement) /
           (LIQUIDATION_TARGET_LTV_PRECISION * loanPrice * loanComplement)
@@ -111,7 +104,7 @@ const Borrow: NextPage<
     collateral,
     collateralAmount,
     epochs,
-    maxLiquidationTargetLtv,
+    liquidationTargetLtv,
     prices,
   ])
 
