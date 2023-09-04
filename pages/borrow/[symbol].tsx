@@ -7,7 +7,7 @@ import { useQuery } from 'wagmi'
 
 import Slider from '../../components/slider'
 import BackSvg from '../../components/svg/back-svg'
-import { Currency, getLogo } from '../../model/currency'
+import { getLogo } from '../../model/currency'
 import { Asset } from '../../model/asset'
 import { fetchAssets } from '../../api/asset'
 import CurrencySelect from '../../components/currency-select'
