@@ -20,18 +20,12 @@ const EditExpiryModal = ({
   const { extendLoanDuration, shortenLoanDuration } = useBorrowContext()
   const [selected, setSelected] = useState(0)
 
-  const { data } = useQuery(
-    ['coupon-amount-to-edit-expiry', position],
-    () => {
-      return fetchCouponAmountByEpochsBorrowed(
-        position.substitute,
-        position.amount,
-        position.toEpoch.id,
-      )
-    },
-    {
-      enabled: !!position,
-    },
+  const { data } = useQuery(['coupon-amount-to-edit-expiry', position], () =>
+    fetchCouponAmountByEpochsBorrowed(
+      position.substitute,
+      position.amount,
+      position.toEpoch.id,
+    ),
   )
 
   const [refund, interest, available, expiryEpochIndex] = useMemo(() => {
@@ -53,7 +47,7 @@ const EditExpiryModal = ({
   }, [expiryEpochIndex, position])
 
   return (
-    <Modal show={!!position} onClose={onClose}>
+    <Modal show onClose={onClose}>
       <h1 className="font-bold text-xl mb-3">Please select expiry date</h1>
       <div className="text-gray-500 text-sm mb-8">
         To select a further date, more interest must be paid.
