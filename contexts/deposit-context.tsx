@@ -80,8 +80,11 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const minimumInterestEarned = BigInt(
-        Math.floor(Number(expectedProceeds) * (1 - SLIPPAGE_PERCENTAGE)),
+      const minimumInterestEarned = min(
+        BigInt(
+          Math.floor(Number(expectedProceeds) * (1 - SLIPPAGE_PERCENTAGE)),
+        ),
+        expectedProceeds,
       )
       const wethBalance = isEthereum(asset.underlying)
         ? balances[asset.underlying.address] - (balance?.value || 0n)
@@ -156,8 +159,9 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const maximumInterestPaid = BigInt(
-        Math.floor(Number(repurchaseFee) * (1 + SLIPPAGE_PERCENTAGE)),
+      const maximumInterestPaid = max(
+        BigInt(Math.floor(Number(repurchaseFee) * (1 + SLIPPAGE_PERCENTAGE))),
+        repurchaseFee,
       )
 
       try {
