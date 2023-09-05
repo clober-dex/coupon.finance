@@ -6,7 +6,6 @@ import { LoanPosition } from '../../model/loan-position'
 import { fetchCouponAmountByEpochsBorrowed } from '../../api/market'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import { useCurrencyContext } from '../../contexts/currency-context'
-import { min } from '../../utils/bigint'
 
 import Modal from './modal'
 
@@ -37,18 +36,15 @@ const EditExpiryModal = ({
 
   const [refund, interest, available, expiryEpochIndex] = useMemo(() => {
     if (!data) {
-      return [0n, 0n, balances[position.underlying.address], 0]
+      return [0n, 0n, 0n, 0]
     }
     return [
       data?.[selected - 1]?.refund ?? 0n,
       data?.[selected - 1]?.interest ?? 0n,
-      min(
-        balances[position.underlying.address],
-        data?.[selected - 1]?.available ?? 2n ** 256n - 1n,
-      ),
+      data?.[selected - 1]?.available ?? 0n,
       data.findIndex((item) => item.expiryEpoch) + 1,
     ]
-  }, [balances, data, position.underlying.address, selected])
+  }, [data, selected])
 
   useEffect(() => {
     if (expiryEpochIndex > 0) {
@@ -92,6 +88,21 @@ const EditExpiryModal = ({
         }
         className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
         onClick={async () => {
+          if (selected > expiryEpochIndex) {
+            await extendLoanDuration(
+              position.underlying,
+              position.positionId,
+              selected - expiryEpochIndex,
+              interest,
+            )
+          } else if (selected < expiryEpochIndex) {
+            await shortenLoanDuration(
+              position.underlying,
+              position.positionId,
+              expiryEpochIndex - selected,
+              refund,
+            )
+          }
           setSelected(0)
           onClose()
         }}
