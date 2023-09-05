@@ -1,9 +1,12 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useQuery } from 'wagmi'
 
 import Slider from '../slider'
 import { LoanPosition } from '../../model/loan-position'
 import { fetchCouponAmountByEpochsBorrowed } from '../../api/market'
+import { useBorrowContext } from '../../contexts/borrow-context'
+import { useCurrencyContext } from '../../contexts/currency-context'
+import { min } from '../../utils/bigint'
 
 import Modal from './modal'
 
@@ -14,6 +17,8 @@ const EditExpiryModal = ({
   position: LoanPosition
   onClose: () => void
 }) => {
+  const { balances } = useCurrencyContext()
+  const { extendLoanDuration, shortenLoanDuration } = useBorrowContext()
   const [selected, setSelected] = useState(0)
 
   const { data } = useQuery(
@@ -30,16 +35,28 @@ const EditExpiryModal = ({
     },
   )
 
-  const [refund, interest, expiryEpochIndex] = useMemo(() => {
+  const [refund, interest, available, expiryEpochIndex] = useMemo(() => {
     if (!data) {
-      return [0n, 0n, 0]
+      return [0n, 0n, balances[position.underlying.address], 0]
     }
     return [
       data?.[selected - 1]?.refund ?? 0n,
       data?.[selected - 1]?.interest ?? 0n,
+      min(
+        balances[position.underlying.address],
+        data?.[selected - 1]?.available ?? 2n ** 256n - 1n,
+      ),
       data.findIndex((item) => item.expiryEpoch) + 1,
     ]
-  }, [data, selected])
+  }, [balances, data, position.underlying.address, selected])
+
+  useEffect(() => {
+    if (expiryEpochIndex > 0) {
+      setSelected(expiryEpochIndex)
+    }
+  }, [expiryEpochIndex, position])
+
+  console.log(interest, balances[position.underlying.address], available)
 
   return (
     <Modal show={!!position} onClose={onClose}>
@@ -49,7 +66,7 @@ const EditExpiryModal = ({
         <br />
         Select an earlier date to receive a refund on interest paid.
       </div>
-      <div className="flex flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
+      <div className="flex flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4 mb-1">
         <div className="px-6 mb-2">
           <Slider length={4} value={selected} onValueChange={setSelected} />
         </div>
@@ -69,7 +86,9 @@ const EditExpiryModal = ({
         disabled={
           selected === 0 ||
           expiryEpochIndex === selected ||
-          (refund === 0n && interest === 0n)
+          (refund === 0n && interest === 0n) ||
+          interest > balances[position.underlying.address] ||
+          interest > available
         }
         className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
         onClick={async () => {
@@ -80,9 +99,11 @@ const EditExpiryModal = ({
         {selected === 0
           ? 'Select expiry date'
           : expiryEpochIndex === selected
-          ? 'Expiry date must be different'
-          : refund === 0n && interest === 0n
+          ? 'Select expiry date'
+          : (refund === 0n && interest === 0n) || interest > available
           ? 'Not enough coupons for sale'
+          : interest > balances[position.underlying.address]
+          ? 'Not enough balance'
           : 'Confirm'}
       </button>
     </Modal>
