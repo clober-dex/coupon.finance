@@ -1,5 +1,4 @@
 import { getAddress, isAddressEqual } from 'viem'
-import { max } from 'hardhat/internal/util/bigint'
 
 import { getBuiltGraphSDK } from '../.graphclient'
 import {
@@ -10,8 +9,6 @@ import {
 import { Currency } from '../model/currency'
 import { Asset } from '../model/asset'
 import { getEpoch } from '../utils/epoch'
-import { min } from '../utils/bigint'
-
 const { getMarkets } = getBuiltGraphSDK()
 
 type DepthDto = {
@@ -106,59 +103,6 @@ export async function fetchDepositApyByEpochsDeposited(
         apy,
       }
     })
-}
-
-export async function fetchCouponsToWithdraw(
-  substitute: Currency,
-  positionAmount: bigint,
-  withdrawAmount: bigint,
-  epoch: number,
-): Promise<{
-  maxRepurchaseFee: bigint
-  repurchaseFee: bigint
-  available: bigint
-}> {
-  const markets = (await fetchMarkets())
-    .filter((market) =>
-      isAddressEqual(market.quoteToken.address, substitute.address),
-    )
-    .filter((market) => market.epoch <= epoch)
-
-  const maxRepurchaseFee = markets.reduce(
-    (acc, market) =>
-      acc + market.take(substitute.address, positionAmount).amountIn,
-    0n,
-  )
-  let repurchaseFee = 0n
-  const prevRepurchaseFees = new Set<bigint>()
-  while (!prevRepurchaseFees.has(repurchaseFee)) {
-    prevRepurchaseFees.add(repurchaseFee)
-    repurchaseFee = markets.reduce(
-      (acc, market) =>
-        acc +
-        market.take(substitute.address, withdrawAmount + repurchaseFee)
-          .amountIn,
-      0n,
-    )
-  }
-
-  const availableCoupons = min(
-    ...markets.map((market) => market.totalAsksInBaseAfterFees()),
-  )
-  const available = max(
-    availableCoupons -
-      markets.reduce(
-        (acc, market) =>
-          acc + market.take(substitute.address, availableCoupons).amountIn,
-        0n,
-      ),
-    0n,
-  )
-  return {
-    maxRepurchaseFee,
-    repurchaseFee,
-    available,
-  }
 }
 
 export async function fetchBorrowAprByEpochsBorrowed(
