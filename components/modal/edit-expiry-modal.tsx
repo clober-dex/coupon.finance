@@ -15,10 +15,7 @@ const EditExpiryModal = ({
   position,
   onClose,
 }: {
-  position: {
-    currency: Currency
-    amount: string
-  } | null
+  position: LoanPosition
   onClose: () => void
 }) => {
   const [selected, setSelected] = useState(0)

@@ -280,10 +280,8 @@ const Borrow = ({
     currency: Currency
     amount: string
   } | null>(null)
-  const [editExpiryPosition, setEditExpiryPosition] = useState<{
-    currency: Currency
-    amount: string
-  } | null>(null)
+  const [editExpiryPosition, setEditExpiryPosition] =
+    useState<LoanPosition | null>(null)
   const [epoch, setEpoch] = useState(epochs[0])
   return (
     <div className="flex flex-1 flex-col w-full sm:w-fit">
@@ -344,7 +342,7 @@ const Borrow = ({
                 onRepay={() => console.log('repay')}
                 onBorrowMore={() => console.log('borrow more')}
                 onEditCollateral={() => console.log('edit collateral')}
-                onEditExpiry={() => console.log('edit expiry')}
+                onEditExpiry={() => setEditExpiryPosition(position)}
               />
             ))}
           </div>
@@ -431,10 +429,14 @@ const Borrow = ({
         position={editCollateralPosition}
         onClose={() => setEditCollateralPosition(null)}
       />
-      <EditExpiryModal
-        position={editExpiryPosition}
-        onClose={() => setEditExpiryPosition(null)}
-      />
+      {editExpiryPosition ? (
+        <EditExpiryModal
+          position={editExpiryPosition}
+          onClose={() => setEditExpiryPosition(null)}
+        />
+      ) : (
+        <></>
+      )}
     </div>
   )
 }
