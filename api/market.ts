@@ -168,6 +168,7 @@ export async function fetchCouponAmountByEpochsBorrowed(
         market.epoch < expiryEpoch
           ? market.spend(market.baseToken.address, debtAmount).amountOut
           : 0n,
+      expiryEpoch: market.epoch === expiryEpoch,
     }
   })
 }

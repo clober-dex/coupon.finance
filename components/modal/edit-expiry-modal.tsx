@@ -30,25 +30,16 @@ const EditExpiryModal = ({
     },
   )
 
-  const [refund, interest] = useMemo(() => {
+  const [refund, interest, expiryEpochIndex] = useMemo(() => {
     if (!data) {
-      return [0n, 0n]
+      return [0n, 0n, 0]
     }
     return [
       data?.[selected - 1]?.refund ?? 0n,
       data?.[selected - 1]?.interest ?? 0n,
+      data.findIndex((item) => item.expiryEpoch) + 1,
     ]
   }, [data, selected])
-  console.log(refund, interest)
-
-  useEffect(() => {
-    const id = data?.findIndex(
-      (item) => item.interest === 0n && item.refund === 0n,
-    )
-    if (id !== undefined) {
-      setSelected(id + 1)
-    }
-  }, [data])
 
   return (
     <Modal show={!!position} onClose={onClose}>
@@ -75,10 +66,24 @@ const EditExpiryModal = ({
         </div>
       </div>
       <button
-        disabled={true}
-        className="font-bold text-xl disabled:bg-gray-100 dark:disabled:bg-gray-800 h-16 rounded-lg disabled:text-gray-300 dark:disabled:text-gray-500"
+        disabled={
+          selected === 0 ||
+          expiryEpochIndex === selected ||
+          (refund === 0n && interest === 0n)
+        }
+        className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
+        onClick={async () => {
+          setSelected(0)
+          onClose()
+        }}
       >
-        Confirm
+        {selected === 0
+          ? 'Select expiry date'
+          : expiryEpochIndex === selected
+          ? 'Expiry date must be different'
+          : refund === 0n && interest === 0n
+          ? 'Not enough coupons for sale'
+          : 'Confirm'}
       </button>
     </Modal>
   )
