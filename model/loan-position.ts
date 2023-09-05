@@ -3,7 +3,7 @@ import { Collateral } from './collateral'
 import { Epoch } from './epoch'
 
 export type LoanPosition = {
-  positionId: bigint
+  id: bigint
   substitute: Currency
   underlying: Currency
   collateral: Collateral

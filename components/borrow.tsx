@@ -272,10 +272,8 @@ const Borrow = ({
     currency: Currency
     amount: string
   } | null>(null)
-  const [borrowMorePosition, setBorrowMorePosition] = useState<{
-    currency: Currency
-    amount: string
-  } | null>(null)
+  const [borrowMorePosition, setBorrowMorePosition] =
+    useState<LoanPosition | null>(null)
   const [editCollateralPosition, setEditCollateralPosition] = useState<{
     currency: Currency
     amount: string
@@ -289,7 +287,7 @@ const Borrow = ({
         The Best Fixed-Rate <br className="flex sm:hidden" /> Borrowing in DeFi
       </h1>
       {positions.length > 0 ? (
-        <div className="flex flex-col gap-6 mb-12 sm:mb-20 px-4 sm:p-0">
+        <ClientComponent className="flex flex-col gap-6 mb-12 sm:mb-20 px-4 sm:p-0">
           <div className="flex gap-2 sm:gap-3 items-center">
             <h2 className="font-bold text-base sm:text-2xl">My Positions</h2>
             <div className="font-bold text-sm bg-gray-200 dark:bg-gray-700 rounded-full px-2.5 sm:px-3 py-0.5 sm:py-1">
@@ -340,13 +338,13 @@ const Borrow = ({
                 price={prices[position.underlying.address]}
                 collateralPrice={prices[position.collateral.underlying.address]}
                 onRepay={() => console.log('repay')}
-                onBorrowMore={() => console.log('borrow more')}
+                onBorrowMore={() => setBorrowMorePosition(position)}
                 onEditCollateral={() => console.log('edit collateral')}
                 onEditExpiry={() => setEditExpiryPosition(position)}
               />
             ))}
           </div>
-        </div>
+        </ClientComponent>
       ) : (
         <></>
       )}
@@ -421,10 +419,14 @@ const Borrow = ({
         position={repayPosition}
         onClose={() => setRepayPosition(null)}
       />
-      <BorrowMoreModal
-        position={borrowMorePosition}
-        onClose={() => setBorrowMorePosition(null)}
-      />
+      {borrowMorePosition ? (
+        <BorrowMoreModal
+          position={borrowMorePosition}
+          onClose={() => setBorrowMorePosition(null)}
+        />
+      ) : (
+        <></>
+      )}
       <EditCollateralModal
         position={editCollateralPosition}
         onClose={() => setEditCollateralPosition(null)}
