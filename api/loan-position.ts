@@ -17,7 +17,7 @@ export async function fetchLoanPositions(
     },
   )
   return loanPositions.map((loanPosition) => ({
-    positionId: BigInt(loanPosition.id),
+    id: BigInt(loanPosition.id),
     substitute: toCurrency(loanPosition.substitute),
     underlying: toCurrency(loanPosition.underlying),
     collateral: {
