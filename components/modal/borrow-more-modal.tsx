@@ -34,10 +34,7 @@ const BorrowMoreModal = ({
   position,
   onClose,
 }: {
-  position: {
-    currency: Currency
-    amount: string
-  } | null
+  position: LoanPosition
   onClose: () => void
 }) => {
   const [value, setValue] = useState('')
