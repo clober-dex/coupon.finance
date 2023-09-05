@@ -6,6 +6,7 @@ import CurrencyAmountInput from '../currency-amount-input'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { LIQUIDATION_TARGET_LTV_PRECISION, max } from '../../utils/bigint'
 import { dollarValue } from '../../utils/numbers'
+import { useBorrowContext } from '../../contexts/borrow-context'
 
 import Modal from './modal'
 
@@ -16,6 +17,7 @@ const EditCollateralModal = ({
   position: LoanPosition
   onClose: () => void
 }) => {
+  const { addCollateral, removeCollateral } = useBorrowContext()
   const { prices, balances } = useCurrencyContext()
   const [value, setValue] = useState('')
   const [isWithdrawCollateral, setIsWithdrawCollateral] = useState(false)
@@ -104,6 +106,13 @@ const EditCollateralModal = ({
       <button
         disabled={amount === 0n || amount > availableCollateralAmount}
         className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
+        onClick={async () => {
+          isWithdrawCollateral
+            ? await removeCollateral(position, amount)
+            : await addCollateral(position, amount)
+          setValue('')
+          onClose()
+        }}
       >
         {amount === 0n
           ? 'Enter collateral amount'
