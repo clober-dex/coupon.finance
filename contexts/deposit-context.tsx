@@ -156,6 +156,10 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
+      const maximumInterestPaid = BigInt(
+        Math.floor(Number(repurchaseFee) * (1 + SLIPPAGE_PERCENTAGE)),
+      )
+
       try {
         const { deadline, r, s, v } = await permit721(
           walletClient,
@@ -182,8 +186,8 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           functionName: 'withdraw',
           args: [
             tokenId,
-            amount + repurchaseFee,
-            repurchaseFee,
+            amount + maximumInterestPaid,
+            maximumInterestPaid,
             { deadline, v, r, s },
           ],
           account: walletClient.account,
