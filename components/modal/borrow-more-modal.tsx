@@ -9,6 +9,7 @@ import { fetchMarkets } from '../../api/market'
 import { calculateCouponsToBorrow } from '../../model/market'
 import { LIQUIDATION_TARGET_LTV_PRECISION, max, min } from '../../utils/bigint'
 import { dollarValue, formatUnits } from '../../utils/numbers'
+import { useBorrowContext } from '../../contexts/borrow-context'
 
 import Modal from './modal'
 
@@ -44,6 +45,7 @@ const BorrowMoreModal = ({
   position: LoanPosition
   onClose: () => void
 }) => {
+  const { borrowMore } = useBorrowContext()
   const { prices } = useCurrencyContext()
   const [value, setValue] = useState('')
 
@@ -177,7 +179,9 @@ const BorrowMoreModal = ({
         }
         className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
         onClick={async () => {
-          console.log('borrowing')
+          await borrowMore(position, amount, interest)
+          setValue('')
+          onClose()
         }}
       >
         {amount === 0n
