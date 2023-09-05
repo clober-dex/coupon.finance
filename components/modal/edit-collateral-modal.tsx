@@ -102,10 +102,16 @@ const EditCollateralModal = ({
         {ltv.toFixed(2)}%
       </div>
       <button
-        disabled={true}
-        className="font-bold text-xl disabled:bg-gray-100 dark:disabled:bg-gray-800 h-16 rounded-lg disabled:text-gray-300 dark:disabled:text-gray-500"
+        disabled={amount === 0n || amount > availableCollateralAmount}
+        className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
       >
-        Confirm
+        {amount === 0n
+          ? 'Enter collateral amount'
+          : !isWithdrawCollateral && amount > availableCollateralAmount
+          ? `Insufficient ${position.collateral.underlying.symbol} balance`
+          : isWithdrawCollateral && amount > position.collateralAmount
+          ? 'Not enough collateral'
+          : 'Confirm'}
       </button>
     </Modal>
   )
