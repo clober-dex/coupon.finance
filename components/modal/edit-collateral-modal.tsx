@@ -1,8 +1,11 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
+import { parseUnits } from 'viem'
 
 import { LoanPosition } from '../../model/loan-position'
 import CurrencyAmountInput from '../currency-amount-input'
 import { useCurrencyContext } from '../../contexts/currency-context'
+import { LIQUIDATION_TARGET_LTV_PRECISION, max } from '../../utils/bigint'
+import { dollarValue } from '../../utils/numbers'
 
 import Modal from './modal'
 
@@ -13,9 +16,59 @@ const EditCollateralModal = ({
   position: LoanPosition
   onClose: () => void
 }) => {
-  const { prices } = useCurrencyContext()
+  const { prices, balances } = useCurrencyContext()
   const [value, setValue] = useState('')
   const [isWithdrawCollateral, setIsWithdrawCollateral] = useState(false)
+
+  const amount = useMemo(
+    () =>
+      position
+        ? parseUnits(value, position.collateral.underlying.decimals)
+        : 0n,
+    [position, value],
+  )
+
+  const minCollateralAmount = useMemo(() => {
+    const collateralPrice =
+      prices[position.collateral.underlying.address]?.value ?? 0n
+    const collateralComplement =
+      10n ** BigInt(18 - position.collateral.underlying.decimals)
+    const loanPrice = prices[position.underlying.address]?.value ?? 0n
+    const loanComplement = 10n ** BigInt(18 - position.underlying.decimals)
+
+    return loanPrice && collateralPrice
+      ? (position.amount *
+          LIQUIDATION_TARGET_LTV_PRECISION *
+          loanPrice *
+          loanComplement) /
+          (collateralPrice *
+            collateralComplement *
+            BigInt(position.collateral.liquidationTargetLtv))
+      : 0n
+  }, [position, prices])
+
+  const availableCollateralAmount = useMemo(
+    () =>
+      isWithdrawCollateral
+        ? max(position.collateralAmount - minCollateralAmount, 0n)
+        : balances[position.collateral.underlying.address],
+    [balances, isWithdrawCollateral, minCollateralAmount, position],
+  )
+
+  const ltv = useMemo(() => {
+    const collateralDollarValue = dollarValue(
+      position.collateralAmount + (isWithdrawCollateral ? -amount : amount),
+      position.collateral.underlying.decimals,
+      prices[position.collateral.underlying.address],
+    )
+    const loanDollarValue = dollarValue(
+      position.amount,
+      position.underlying.decimals,
+      prices[position.underlying.address],
+    )
+    return loanDollarValue.times(100).div(collateralDollarValue).toNumber()
+  }, [amount, isWithdrawCollateral, position, prices])
+
   return (
     <Modal show onClose={onClose}>
       <h1 className="font-bold text-xl mb-6">Add or withdraw collateral</h1>
@@ -37,16 +90,16 @@ const EditCollateralModal = ({
       </div>
       <div className="mb-4">
         <CurrencyAmountInput
-          currency={position.underlying}
+          currency={position.collateral.underlying}
           value={value}
           onValueChange={setValue}
-          price={prices[position.underlying.address]}
-          balance={123123123123123123n}
+          price={prices[position.collateral.underlying.address]}
+          balance={availableCollateralAmount}
         />
       </div>
       <div className="flex text-sm gap-3 mb-8">
         <span className="text-gray-500">LTV</span>
-        1.00
+        {ltv.toFixed(2)}%
       </div>
       <button
         disabled={true}
