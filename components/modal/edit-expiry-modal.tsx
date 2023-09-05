@@ -18,7 +18,7 @@ const EditExpiryModal = ({
 }) => {
   const { balances } = useCurrencyContext()
   const { extendLoanDuration, shortenLoanDuration } = useBorrowContext()
-  const [selected, setSelected] = useState(0)
+  const [epochs, setEpochs] = useState(0)
 
   const { data } = useQuery(['coupon-amount-to-edit-expiry', position], () =>
     fetchCouponAmountByEpochsBorrowed(
@@ -33,16 +33,16 @@ const EditExpiryModal = ({
       return [0n, 0n, 0n, 0]
     }
     return [
-      data?.[selected - 1]?.refund ?? 0n,
-      data?.[selected - 1]?.interest ?? 0n,
-      data?.[selected - 1]?.available ?? 0n,
+      data?.[epochs - 1]?.refund ?? 0n,
+      data?.[epochs - 1]?.interest ?? 0n,
+      data?.[epochs - 1]?.available ?? 0n,
       data.findIndex((item) => item.expiryEpoch) + 1,
     ]
-  }, [data, selected])
+  }, [data, epochs])
 
   useEffect(() => {
     if (expiryEpochIndex > 0) {
-      setSelected(expiryEpochIndex)
+      setEpochs(expiryEpochIndex)
     }
   }, [expiryEpochIndex, position])
 
@@ -58,8 +58,8 @@ const EditExpiryModal = ({
         <div className="px-6 mb-2">
           <Slider
             length={data?.length ?? 0}
-            value={selected}
-            onValueChange={setSelected}
+            value={epochs}
+            onValueChange={setEpochs}
           />
         </div>
         <div className="flex justify-between">
@@ -67,7 +67,7 @@ const EditExpiryModal = ({
             <button
               key={i}
               className="flex flex-col items-center gap-2 w-[72px]"
-              onClick={() => setSelected(i + 1)}
+              onClick={() => setEpochs(i + 1)}
             >
               <div className="text-sm">{date}</div>
             </button>
@@ -76,36 +76,36 @@ const EditExpiryModal = ({
       </div>
       <button
         disabled={
-          selected === 0 ||
-          expiryEpochIndex === selected ||
+          epochs === 0 ||
+          expiryEpochIndex === epochs ||
           (refund === 0n && interest === 0n) ||
           interest > balances[position.underlying.address] ||
           interest > available
         }
         className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
         onClick={async () => {
-          if (selected > expiryEpochIndex) {
+          if (epochs > expiryEpochIndex) {
             await extendLoanDuration(
               position.underlying,
               position.positionId,
-              selected - expiryEpochIndex,
+              epochs - expiryEpochIndex,
               interest,
             )
-          } else if (selected < expiryEpochIndex) {
+          } else if (epochs < expiryEpochIndex) {
             await shortenLoanDuration(
               position.underlying,
               position.positionId,
-              expiryEpochIndex - selected,
+              expiryEpochIndex - epochs,
               refund,
             )
           }
-          setSelected(0)
+          setEpochs(0)
           onClose()
         }}
       >
-        {selected === 0
+        {epochs === 0
           ? 'Select expiry date'
-          : expiryEpochIndex === selected
+          : expiryEpochIndex === epochs
           ? 'Select expiry date'
           : (refund === 0n && interest === 0n) || interest > available
           ? 'Not enough coupons for sale'
