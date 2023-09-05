@@ -20,6 +20,8 @@ import { Collateral } from '../model/collateral'
 import { LoanPosition } from '../model/loan-position'
 import { Currency } from '../model/currency'
 import { permit721 } from '../utils/permit721'
+import { zeroBytes32 } from '../utils/bytes'
+import { approve20 } from '../utils/approve20'
 
 import { isEthereum, useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -203,13 +205,22 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           CONTRACT_ADDRESSES.BorrowController,
           deadline,
         )
-        const debtPermitResult = await permit20(
+
+        // TODO: check tx when contract is updated
+        // const debtPermitResult = await permit20(
+        //   walletClient,
+        //   underlying,
+        //   walletClient.account.address,
+        //   CONTRACT_ADDRESSES.BorrowController,
+        //   maximumInterestPaid,
+        //   deadline,
+        // )
+        await approve20(
           walletClient,
           underlying,
           walletClient.account.address,
           CONTRACT_ADDRESSES.BorrowController,
           maximumInterestPaid,
-          deadline,
         )
 
         setConfirmation({
@@ -234,14 +245,19 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             epochs,
             maximumInterestPaid,
             { ...positionPermitResult },
-            { ...debtPermitResult },
+            {
+              r: zeroBytes32 as `0x${string}`,
+              s: zeroBytes32 as `0x${string}`,
+              v: 0,
+              deadline: 0n,
+            },
           ],
           value: isEthereum(underlying)
             ? max(maximumInterestPaid - wethBalance, 0n)
             : 0n,
           account: walletClient.account,
         })
-        await walletClient.writeContract(request)
+        // await walletClient.writeContract(request)
         await queryClient.invalidateQueries(['loan-positions'])
       } catch (e) {
         console.error(e)
