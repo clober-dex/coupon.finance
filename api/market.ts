@@ -155,7 +155,7 @@ export async function fetchCouponAmountByEpochsBorrowed(
     )
     .sort((a, b) => Number(a.epoch) - Number(b.epoch))
 
-  return markets.map((market) => {
+  const amounts = markets.map((market) => {
     const buyMarkets = markets.filter(
       (buyMarket) =>
         expiryEpoch < buyMarket.epoch && buyMarket.epoch <= market.epoch,
@@ -195,4 +195,13 @@ export async function fetchCouponAmountByEpochsBorrowed(
       expiryEpoch: market.epoch === expiryEpoch,
     }
   })
+  return amounts.map((amount, i) => ({
+    ...amount,
+    interest: amounts
+      .slice(0, i + 1)
+      .reduce((acc, amount) => acc + amount.interest, 0n),
+    refund: amounts
+      .slice(0, i + 1)
+      .reduce((acc, amount) => acc + amount.refund, 0n),
+  }))
 }
