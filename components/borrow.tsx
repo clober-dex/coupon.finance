@@ -1,6 +1,7 @@
 import React, { SVGProps, useState } from 'react'
 import Link from 'next/link'
 import BigNumber from 'bignumber.js'
+import { isAddressEqual, parseUnits } from 'viem'
 
 import { useBorrowContext } from '../contexts/borrow-context'
 import { Currency, getLogo } from '../model/currency'
@@ -183,14 +184,14 @@ const Position = ({
 
 const Asset = ({
   currency,
-  apy,
+  apr,
   available,
   borrowed,
   price,
   ...props
 }: {
   currency: Currency
-  apy: number
+  apr: number
   available: bigint
   borrowed: bigint
   price?: BigDecimal
@@ -216,7 +217,7 @@ const Asset = ({
             </div>
           </div>
           <ClientComponent className="text-sm font-bold sm:w-[80px]">
-            {apy.toFixed(2)}
+            {apr.toFixed(2)}%
           </ClientComponent>
         </div>
         <div className="flex flex-row sm:flex-col w-full sm:w-[120px] justify-between px-4 sm:p-0">
@@ -266,7 +267,7 @@ const Borrow = ({
   epochs: Epoch[]
 }) => {
   const { prices } = useCurrencyContext()
-  const { positions, apy, available, borrowed } = useBorrowContext()
+  const { positions } = useBorrowContext()
   const [repayPosition, setRepayPosition] = useState<{
     currency: Currency
     amount: string
@@ -368,23 +369,53 @@ const Borrow = ({
         <div className="flex flex-col mb-12 gap-4">
           <div className="hidden sm:flex gap-4 text-gray-500 text-xs">
             <div className="w-[156px]">Asset</div>
-            <div className="w-[80px]">APY</div>
+            <div className="w-[80px]">APR</div>
             <div className="w-[120px]">Available</div>
             <div className="w-[120px]">Total Borrowed</div>
           </div>
           <div className="flex flex-col gap-4 sm:gap-3">
             {assetStatuses
               .filter((assetStatus) => assetStatus.epoch.id === epoch.id)
-              .map((assetStatus, i) => (
-                <Asset
-                  key={i}
-                  currency={assetStatus.underlying}
-                  apy={apy[assetStatus.underlying.address] ?? 0}
-                  available={available[assetStatus.underlying.address] ?? 0n}
-                  borrowed={borrowed[assetStatus.underlying.address] ?? 0n}
-                  price={prices[assetStatus.underlying.address]}
-                />
-              ))}
+              .filter((assetStatus) => assetStatus.totalBorrowAvailable !== '0')
+              .map((assetStatus, i) => {
+                const validAssetStatuses = assetStatuses.filter(
+                  ({ underlying, epoch }) =>
+                    isAddressEqual(
+                      underlying.address,
+                      assetStatus.underlying.address,
+                    ) && epoch.id <= assetStatus.epoch.id,
+                )
+                const interest = validAssetStatuses.reduce(
+                  (acc, { bestCouponAskPrice }) => acc + bestCouponAskPrice,
+                  0,
+                )
+                const currentTimestamp = Math.floor(new Date().getTime() / 1000)
+                const apr = calculateApr(
+                  interest,
+                  assetStatus.epoch.endTimestamp - currentTimestamp,
+                )
+                const available = validAssetStatuses
+                  .map(({ totalBorrowAvailable }) =>
+                    parseUnits(
+                      totalBorrowAvailable,
+                      assetStatus.underlying.decimals,
+                    ),
+                  )
+                  .reduce((acc, val) => (acc > val ? acc : val), 0n)
+                return (
+                  <Asset
+                    key={i}
+                    currency={assetStatus.underlying}
+                    apr={apr}
+                    available={available}
+                    borrowed={parseUnits(
+                      assetStatus.totalBorrowed,
+                      assetStatus.underlying.decimals,
+                    )}
+                    price={prices[assetStatus.underlying.address]}
+                  />
+                )
+              })}
           </div>
         </div>
       </div>
