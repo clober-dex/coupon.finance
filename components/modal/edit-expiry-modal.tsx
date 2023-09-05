@@ -54,7 +54,7 @@ const EditExpiryModal = ({
         <br />
         Select an earlier date to receive a refund on interest paid.
       </div>
-      <div className="flex flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4 mb-1">
+      <div className="flex flex-col relative bg-white dark:bg-gray-900 rounded-lg p-4 mb-8">
         <div className="px-6 mb-2">
           <Slider length={4} value={selected} onValueChange={setSelected} />
         </div>
