@@ -110,7 +110,7 @@ const EditExpiryModal = ({
           : (refund === 0n && interest === 0n) || interest > available
           ? 'Not enough coupons for sale'
           : interest > balances[position.underlying.address]
-          ? 'Not enough balance'
+          ? `Insufficient ${position.underlying.symbol} balance`
           : 'Confirm'}
       </button>
     </Modal>
