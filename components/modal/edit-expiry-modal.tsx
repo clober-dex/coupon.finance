@@ -52,8 +52,6 @@ const EditExpiryModal = ({
     }
   }, [expiryEpochIndex, position])
 
-  console.log(interest, balances[position.underlying.address], available)
-
   return (
     <Modal show={!!position} onClose={onClose}>
       <h1 className="font-bold text-xl mb-3">Please select expiry date</h1>
