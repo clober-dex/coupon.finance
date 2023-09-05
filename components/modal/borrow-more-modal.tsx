@@ -1,7 +1,14 @@
-import React, { SVGProps, useState } from 'react'
+import React, { SVGProps, useMemo, useState } from 'react'
+import { useQuery } from 'wagmi'
+import { isAddressEqual, parseUnits } from 'viem'
 
-import NumberInput from '../number-input'
-import { Currency, getLogo } from '../../model/currency'
+import { LoanPosition } from '../../model/loan-position'
+import { useCurrencyContext } from '../../contexts/currency-context'
+import CurrencyAmountInput from '../currency-amount-input'
+import { fetchMarkets } from '../../api/market'
+import { calculateCouponsToBorrow } from '../../model/market'
+import { LIQUIDATION_TARGET_LTV_PRECISION, min } from '../../utils/bigint'
+import { dollarValue, formatUnits } from '../../utils/numbers'
 
 import Modal from './modal'
 
@@ -37,53 +44,108 @@ const BorrowMoreModal = ({
   position: LoanPosition
   onClose: () => void
 }) => {
+  const { prices } = useCurrencyContext()
   const [value, setValue] = useState('')
+
+  const amount = useMemo(
+    () => (position ? parseUnits(value, position.underlying.decimals) : 0n),
+    [position, value],
+  )
+
+  const maxLoanAmountExcludingCouponFee = useMemo(() => {
+    const collateralPrice =
+      prices[position.collateral.underlying.address]?.value ?? 0n
+    const collateralComplement =
+      10n ** BigInt(18 - position.collateral.underlying.decimals)
+    const loanPrice = prices[position.underlying.address]?.value ?? 0n
+    const loanComplement = 10n ** BigInt(18 - position.underlying.decimals)
+
+    return loanPrice && collateralPrice
+      ? (position.collateralAmount *
+          BigInt(position.collateral.liquidationTargetLtv) *
+          collateralPrice *
+          collateralComplement) /
+          (LIQUIDATION_TARGET_LTV_PRECISION * loanPrice * loanComplement)
+      : 0n
+  }, [position, prices])
+
+  const { data } = useQuery(
+    ['coupon-repurchase-fee-to-borrow', position.underlying.address, amount],
+    async () => {
+      if (!position) {
+        return {
+          maxInterest: 0n,
+          interest: 0n,
+          available: 0n,
+        }
+      }
+      const markets = (await fetchMarkets())
+        .filter((market) =>
+          isAddressEqual(
+            market.quoteToken.address,
+            position.substitute.address,
+          ),
+        )
+        .filter((market) => market.epoch <= position.toEpoch.id)
+      return calculateCouponsToBorrow(
+        position.substitute,
+        markets,
+        position.amount,
+        amount,
+      )
+    },
+    {
+      keepPreviousData: true,
+    },
+  )
+
+  const maxInterest = useMemo(() => data?.maxInterest ?? 0n, [data])
+  const interest = useMemo(() => data?.interest ?? 0n, [data])
+  const available = useMemo(() => data?.available ?? 0n, [data])
+  const maxLoanAmount = useMemo(() => {
+    return min(
+      maxLoanAmountExcludingCouponFee - position.amount,
+      data?.available ?? 0n,
+    )
+  }, [data?.available, maxLoanAmountExcludingCouponFee, position.amount])
+
+  const ltv = useMemo(() => {
+    const collateralDollarValue = dollarValue(
+      position.collateralAmount,
+      position.collateral.underlying.decimals,
+      prices[position.collateral.underlying.address],
+    )
+    const loanDollarValue = dollarValue(
+      position.amount + amount + interest,
+      position.underlying.decimals,
+      prices[position.underlying.address],
+    )
+    return loanDollarValue.times(100).div(collateralDollarValue).toNumber()
+  }, [position, amount, interest, prices])
+
   return (
     <Modal show={!!position} onClose={onClose}>
       <h1 className="font-bold text-sm sm:text-xl mb-4 sm:mb-6">
         How much would you like to borrow?
       </h1>
       <div className="mb-4">
-        <div className="flex bg-white dark:bg-gray-800 rounded-lg p-3 shadow dark:shadow-none">
-          <div className="flex flex-col flex-1 justify-between gap-2">
-            <NumberInput
-              className="text-xl sm:text-2xl placeholder-gray-400 outline-none bg-transparent w-40 sm:w-auto"
-              value={value}
-              onValueChange={setValue}
-              placeholder="0.0000"
-            />
-            <div className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm">
-              ~$0.0000
-            </div>
-          </div>
-          <div className="flex flex-col items-end justify-between">
-            <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
-              <img
-                src={getLogo(position?.currency)}
-                alt={position?.currency.name}
-                className="w-5 h-5"
-              />
-              <div className="text-sm sm:text-base">
-                {position?.currency.symbol}
-              </div>
-            </div>
-            <div className="flex text-xs sm:text-sm gap-1 sm:gap-2">
-              <div className="text-gray-500">Available</div>
-              <div>{position?.amount}</div>
-              <button className="text-green-500">MAX</button>
-            </div>
-          </div>
-        </div>
+        <CurrencyAmountInput
+          currency={position.underlying}
+          value={value}
+          onValueChange={setValue}
+          price={prices[position.underlying.address]}
+          balance={maxLoanAmount}
+        />
       </div>
       <div className="flex flex-col mb-6 sm:mb-8 gap-2 sm:gap-3 text-xs sm:text-sm">
         <div className="flex gap-3 justify-between sm:justify-start">
           <div className="text-gray-500">LTV</div>
           <div className="flex items-center gap-1">
-            <span className="text-green-500">37.28%</span>
+            <span className="text-green-500">{position.ltv.toFixed(2)}%</span>
             {value ? (
               <>
                 <Arrow />
-                <span className="text-red-500">12.12%</span>
+                <span className="text-red-500">{ltv.toFixed(2)}%</span>
               </>
             ) : (
               <></>
@@ -92,14 +154,35 @@ const BorrowMoreModal = ({
         </div>
         <div className="flex gap-3 justify-between sm:justify-start">
           <div className="text-gray-500">Coupon Purchase Fee</div>
-          <div>24.1234 ETH</div>
+          <div>
+            {formatUnits(
+              interest,
+              position.underlying.decimals,
+              prices[position.underlying.address],
+            )}{' '}
+            {position.underlying.symbol}
+          </div>
         </div>
       </div>
       <button
-        disabled={true}
-        className="font-bold text-base sm:text-xl disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg disabled:text-gray-300 dark:disabled:text-gray-500"
+        disabled={
+          position.collateralAmount === 0n ||
+          amount === 0n ||
+          amount > available ||
+          amount + maxInterest > maxLoanAmountExcludingCouponFee
+        }
+        className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
+        onClick={async () => {
+          console.log('borrowing')
+        }}
       >
-        Confirm
+        {amount === 0n
+          ? 'Enter loan amount'
+          : amount > available
+          ? 'Not enough coupons for sale'
+          : amount + maxInterest > maxLoanAmountExcludingCouponFee
+          ? 'Not enough collateral'
+          : 'Borrow'}
       </button>
     </Modal>
   )
