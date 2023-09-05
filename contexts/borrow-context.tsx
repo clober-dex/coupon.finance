@@ -18,6 +18,8 @@ import { max } from '../utils/bigint'
 import { fetchLoanPositions } from '../api/loan-position'
 import { Collateral } from '../model/collateral'
 import { LoanPosition } from '../model/loan-position'
+import { Currency } from '../model/currency'
+import { permit721 } from '../utils/permit721'
 
 import { isEthereum, useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -32,11 +34,18 @@ type BorrowContext = {
     epochs: number,
     expectedInterest: bigint,
   ) => Promise<Hash | undefined>
+  borrowMore: (
+    positionId: bigint,
+    loanCurrency: Currency,
+    loanAmount: bigint,
+    expectedInterest: bigint,
+  ) => Promise<void>
 }
 
 const Context = React.createContext<BorrowContext>({
   positions: [],
   borrow: () => Promise.resolve(undefined),
+  borrowMore: () => Promise.resolve(),
 })
 
 const SLIPPAGE_PERCENTAGE = 0
@@ -153,11 +162,75 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
     ],
   )
 
+  const borrowMore = useCallback(
+    async (
+      positionId: bigint,
+      loanCurrency: Currency,
+      loanAmount: bigint,
+      expectedInterest: bigint,
+    ): Promise<void> => {
+      if (!walletClient) {
+        // TODO: alert wallet connect
+        return
+      }
+
+      const maximumInterestPaid = max(
+        BigInt(
+          Math.floor(Number(expectedInterest) * (1 + SLIPPAGE_PERCENTAGE)),
+        ),
+        expectedInterest,
+      )
+
+      try {
+        const { deadline, r, s, v } = await permit721(
+          walletClient,
+          CONTRACT_ADDRESSES.LoanPositionManager,
+          positionId,
+          walletClient.account.address,
+          CONTRACT_ADDRESSES.BorrowController,
+          BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
+        )
+        setConfirmation({
+          title: `Borrowing ${loanCurrency.symbol}`,
+          body: 'Please confirm in your wallet.',
+          fields: [
+            {
+              currency: loanCurrency,
+              label: loanCurrency.symbol,
+              value: formatUnits(loanAmount, loanCurrency.decimals),
+            },
+          ],
+        })
+        const { request } = await publicClient.simulateContract({
+          address: CONTRACT_ADDRESSES.BorrowController,
+          abi: BorrowController__factory.abi,
+          functionName: 'borrowMore',
+          args: [
+            positionId,
+            loanAmount + maximumInterestPaid,
+            maximumInterestPaid,
+            { deadline, v, r, s },
+          ],
+          account: walletClient.account,
+        })
+        await walletClient.writeContract(request)
+        await queryClient.invalidateQueries(['loan-positions'])
+      } catch (e) {
+        console.error(e)
+      } finally {
+        await queryClient.invalidateQueries(['balances'])
+        setConfirmation(undefined)
+      }
+    },
+    [publicClient, queryClient, setConfirmation, walletClient],
+  )
+
   return (
     <Context.Provider
       value={{
         positions,
         borrow,
+        borrowMore,
       }}
     >
       {children}
