@@ -74,13 +74,6 @@ const BorrowMoreModal = ({
   const { data } = useQuery(
     ['coupon-repurchase-fee-to-borrow', position.underlying.address, amount],
     async () => {
-      if (!position) {
-        return {
-          maxInterest: 0n,
-          interest: 0n,
-          available: 0n,
-        }
-      }
       const markets = (await fetchMarkets())
         .filter((market) =>
           isAddressEqual(
@@ -129,7 +122,7 @@ const BorrowMoreModal = ({
   }, [position, amount, interest, prices])
 
   return (
-    <Modal show={!!position} onClose={onClose}>
+    <Modal show onClose={onClose}>
       <h1 className="font-bold text-sm sm:text-xl mb-4 sm:mb-6">
         How much would you like to borrow?
       </h1>
