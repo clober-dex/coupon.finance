@@ -18,7 +18,6 @@ import { max } from '../utils/bigint'
 import { fetchLoanPositions } from '../api/loan-position'
 import { Collateral } from '../model/collateral'
 import { LoanPosition } from '../model/loan-position'
-import { Currency } from '../model/currency'
 import { permit721 } from '../utils/permit721'
 
 import { isEthereum, useCurrencyContext } from './currency-context'
