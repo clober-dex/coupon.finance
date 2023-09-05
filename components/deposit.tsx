@@ -293,7 +293,9 @@ const Deposit = ({
           <div className="flex flex-col gap-4 sm:gap-3">
             {assetStatuses
               .filter((assetStatus) => assetStatus.epoch.id === epoch.id)
-              .filter((assetStatus) => assetStatus.totalAvailable !== '0')
+              .filter(
+                (assetStatus) => assetStatus.totalDepositAvailable !== '0',
+              )
               .map((assetStatus, i) => {
                 const validAssetStatuses = assetStatuses.filter(
                   ({ underlying, epoch }) =>
@@ -303,7 +305,7 @@ const Deposit = ({
                     ) && epoch.id <= assetStatus.epoch.id,
                 )
                 const proceeds = validAssetStatuses.reduce(
-                  (acc, { bestCouponPrice }) => acc + bestCouponPrice,
+                  (acc, { bestCouponBidPrice }) => acc + bestCouponBidPrice,
                   0,
                 )
                 const currentTimestamp = Math.floor(new Date().getTime() / 1000)
@@ -312,8 +314,11 @@ const Deposit = ({
                   assetStatus.epoch.endTimestamp - currentTimestamp,
                 )
                 const available = validAssetStatuses
-                  .map(({ totalAvailable }) =>
-                    parseUnits(totalAvailable, assetStatus.underlying.decimals),
+                  .map(({ totalDepositAvailable }) =>
+                    parseUnits(
+                      totalDepositAvailable,
+                      assetStatus.underlying.decimals,
+                    ),
                   )
                   .reduce((acc, val) => (acc > val ? acc : val), 0n)
                 return (
