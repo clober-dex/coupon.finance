@@ -110,14 +110,14 @@ const EditExpiryModal = ({
           if (epochs > expiryEpochIndex) {
             await extendLoanDuration(
               position.underlying,
-              position.positionId,
+              position.id,
               epochs - expiryEpochIndex,
               interest,
             )
           } else if (epochs < expiryEpochIndex) {
             await shortenLoanDuration(
               position.underlying,
-              position.positionId,
+              position.id,
               expiryEpochIndex - epochs,
               refund,
             )
