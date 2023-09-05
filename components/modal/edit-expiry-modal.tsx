@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useQuery } from 'wagmi'
 
 import Slider from '../slider'
@@ -18,7 +18,14 @@ const EditExpiryModal = ({
 }) => {
   const { balances } = useCurrencyContext()
   const { extendLoanDuration, shortenLoanDuration } = useBorrowContext()
-  const [epochs, setEpochs] = useState(0)
+  const [epochs, _setEpochs] = useState(0)
+
+  const setEpochs = useCallback(
+    (value: number) => {
+      _setEpochs(value === epochs ? value - 1 : value)
+    },
+    [epochs],
+  )
 
   const { data } = useQuery(['coupon-amount-to-edit-expiry', position], () =>
     fetchCouponAmountByEpochsBorrowed(
@@ -57,9 +64,9 @@ const EditExpiryModal = ({
 
   useEffect(() => {
     if (expiryEpochIndex > 0) {
-      setEpochs(expiryEpochIndex)
+      _setEpochs(expiryEpochIndex)
     }
-  }, [expiryEpochIndex, position])
+  }, [expiryEpochIndex, position, _setEpochs])
 
   return (
     <Modal show onClose={onClose}>
@@ -122,7 +129,7 @@ const EditExpiryModal = ({
         {epochs === 0
           ? 'Select expiry date'
           : expiryEpochIndex === epochs
-          ? 'Select expiry date'
+          ? 'Select new expiry date'
           : epochs > expiryEpochIndex && !payable
           ? 'Not enough coupons for pay'
           : epochs < expiryEpochIndex && !refundable
