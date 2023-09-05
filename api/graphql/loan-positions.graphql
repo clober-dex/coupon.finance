@@ -1,0 +1,49 @@
+query getLoanPositions($userAddress: String!) {
+  loanPositions(where: { user: $userAddress }) {
+    id
+    user
+    amount
+    principal
+    substitute {
+      id
+      decimals
+      name
+      symbol
+    }
+    underlying {
+      id
+      decimals
+      name
+      symbol
+    }
+    collateral {
+      substitute {
+        id
+        decimals
+        name
+        symbol
+      }
+      underlying {
+        id
+        decimals
+        name
+        symbol
+      }
+      liquidationThreshold
+      liquidationTargetLtv
+    }
+    collateralAmount
+    fromEpoch {
+      id
+      startTimestamp
+      endTimestamp
+    }
+    toEpoch {
+      id
+      startTimestamp
+      endTimestamp
+    }
+    createdAt
+    ltv
+  }
+}

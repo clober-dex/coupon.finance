@@ -1,43 +1,29 @@
 import React, { useCallback } from 'react'
-import { Hash, isAddressEqual } from 'viem'
+import { Hash } from 'viem'
 import {
   useAccount,
   useBalance,
   usePublicClient,
+  useQuery,
   useQueryClient,
   useWalletClient,
 } from 'wagmi'
-import { AddressZero } from '@ethersproject/constants'
 
-import { Currency } from '../model/currency'
 import { Asset } from '../model/asset'
 import { permit20 } from '../utils/permit20'
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { formatUnits } from '../utils/numbers'
 import { BorrowController__factory } from '../typechain'
 import { max } from '../utils/bigint'
+import { fetchLoanPositions } from '../api/loan-position'
 import { Collateral } from '../model/collateral'
+import { LoanPosition } from '../model/loan-position'
 
 import { isEthereum, useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
 
 type BorrowContext = {
-  // TODO: change to bigInt
-  positions: {
-    currency: Currency
-    apy: string
-    borrowed: string
-    collateral: string
-    collateralSymbol: string
-    expiry: string
-    price: string
-    collateralPrice: string
-    ltv: string
-    liquidationThreshold: string
-  }[]
-  apy: { [key in `0x${string}`]: number }
-  available: { [key in `0x${string}`]: bigint }
-  borrowed: { [key in `0x${string}`]: bigint }
+  positions: LoanPosition[]
   borrow: (
     collateral: Collateral,
     collateralAmount: bigint,
@@ -46,17 +32,20 @@ type BorrowContext = {
     epochs: number,
     expectedInterest: bigint,
   ) => Promise<Hash | undefined>
+  apy: { [key in `0x${string}`]: number }
+  available: { [key in `0x${string}`]: bigint }
+  borrowed: { [key in `0x${string}`]: bigint }
 }
 
 const Context = React.createContext<BorrowContext>({
-  positions: [],
   apy: {},
   available: {},
   borrowed: {},
+  positions: [],
   borrow: () => Promise.resolve(undefined),
 })
 
-const SLIPPAGE_PERCENTAGE = 0.0005 // 0.05%
+const SLIPPAGE_PERCENTAGE = 0
 
 export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient()
@@ -69,58 +58,15 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { setConfirmation } = useTransactionContext()
   const { balances } = useCurrencyContext()
 
-  const dummyPositions = [
+  const { data: positions } = useQuery(
+    ['loan-positions', userAddress],
+    () => (userAddress ? fetchLoanPositions(userAddress) : []),
     {
-      currency: {
-        address: '0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9' as `0x${string}`,
-        name: 'Ethereum',
-        symbol: 'ETH',
-        decimals: 18,
-      },
-      apy: '5.00%',
-      borrowed: '69.00',
-      collateral: '69.00',
-      collateralSymbol: 'USDC',
-      expiry: '12/12/2021',
-      price: '2000.00',
-      collateralPrice: '1.00',
-      ltv: '50%',
-      liquidationThreshold: '60%',
+      refetchOnWindowFocus: true,
+      refetchInterval: 2 * 1000,
+      initialData: [],
     },
-    {
-      currency: {
-        address: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1' as `0x${string}`,
-        name: 'Arbitrum',
-        symbol: 'ARB',
-        decimals: 18,
-      },
-      apy: '5.00%',
-      borrowed: '42.00',
-      collateral: '42.00',
-      collateralSymbol: 'USDC',
-      deposited: '42.00',
-      expiry: '12/12/2021',
-      price: '30000.00',
-      collateralPrice: '1.00',
-      ltv: '50%',
-      liquidationThreshold: '60%',
-    },
-  ]
-
-  // TODO: get apy from order book
-  const apy: {
-    [key in `0x${string}`]: number
-  } = {}
-
-  // TODO: get available
-  const available: {
-    [key in `0x${string}`]: bigint
-  } = {}
-
-  // TODO: get borrowed
-  const borrowed: {
-    [key in `0x${string}`]: bigint
-  } = {}
+  )
 
   const borrow = useCallback(
     async (
@@ -142,10 +88,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       const wethBalance = isEthereum(collateral.underlying)
         ? balances[collateral.underlying.address] - (balance?.value || 0n)
         : 0n
-      const collateralSubstituteAddress =
-        loanAsset.collaterals.find(({ underlying }) =>
-          isAddressEqual(underlying.address, collateral.underlying.address),
-        )?.substitute.address || AddressZero
 
       let hash: Hash | undefined
       try {
@@ -181,7 +123,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           abi: BorrowController__factory.abi,
           functionName: 'borrow',
           args: [
-            collateralSubstituteAddress,
+            collateral.substitute.address,
             loanAsset.substitutes[0].address,
             collateralAmount,
             loanAmount + maximumInterestPaid,
@@ -214,14 +156,26 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
     ],
   )
 
+  const apy: {
+    [key in `0x${string}`]: number
+  } = {}
+
+  const available: {
+    [key in `0x${string}`]: bigint
+  } = {}
+
+  const borrowed: {
+    [key in `0x${string}`]: bigint
+  } = {}
+
   return (
     <Context.Provider
       value={{
-        positions: dummyPositions,
+        positions,
+        borrow,
         apy,
         available,
         borrowed,
-        borrow,
       }}
     >
       {children}

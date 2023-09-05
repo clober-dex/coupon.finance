@@ -45,7 +45,7 @@ const WithdrawModal = ({
             position.substitute.address,
           ),
         )
-        .filter((market) => market.epoch <= position.expiryEpoch)
+        .filter((market) => market.epoch <= position.toEpoch.id)
       return calculateCouponsToWithdraw(
         position.substitute,
         markets,

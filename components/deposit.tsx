@@ -31,7 +31,6 @@ const Position = ({
   price?: BigDecimal
   onWithdraw: () => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
-  const currentTimestamp = Math.floor(new Date().getTime() / 1000)
   return (
     <div className="rounded-xl shadow bg-gray-50 dark:bg-gray-900" {...props}>
       <div className="flex justify-between rounded-t-xl p-4 bg-white dark:bg-gray-800">
@@ -52,12 +51,12 @@ const Position = ({
           <div className="font-bold">
             {calculateApy(
               Number(position.interest) / Number(position.amount),
-              position.expiryTimestamp - currentTimestamp,
+              position.toEpoch.endTimestamp - position.createdAt,
             ).toFixed(2)}
             %
           </div>
           <div className="text-xs sm:text-sm">
-            {new Date(Number(position.expiryTimestamp) * 1000)
+            {new Date(Number(position.toEpoch.endTimestamp) * 1000)
               .toISOString()
               .slice(2, 10)
               .replace(/-/g, '/')}
