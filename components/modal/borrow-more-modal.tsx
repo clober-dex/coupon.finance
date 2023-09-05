@@ -7,7 +7,7 @@ import { useCurrencyContext } from '../../contexts/currency-context'
 import CurrencyAmountInput from '../currency-amount-input'
 import { fetchMarkets } from '../../api/market'
 import { calculateCouponsToBorrow } from '../../model/market'
-import { LIQUIDATION_TARGET_LTV_PRECISION, min } from '../../utils/bigint'
+import { LIQUIDATION_TARGET_LTV_PRECISION, max, min } from '../../utils/bigint'
 import { dollarValue, formatUnits } from '../../utils/numbers'
 
 import Modal from './modal'
@@ -90,7 +90,7 @@ const BorrowMoreModal = ({
       return calculateCouponsToBorrow(
         position.substitute,
         markets,
-        position.amount,
+        maxLoanAmountExcludingCouponFee,
         amount,
       )
     },
@@ -103,11 +103,14 @@ const BorrowMoreModal = ({
   const interest = useMemo(() => data?.interest ?? 0n, [data])
   const available = useMemo(() => data?.available ?? 0n, [data])
   const maxLoanAmount = useMemo(() => {
-    return min(
-      maxLoanAmountExcludingCouponFee - position.amount,
-      data?.available ?? 0n,
+    return max(
+      min(
+        maxLoanAmountExcludingCouponFee - (data?.maxInterest ?? 0n),
+        data?.available ?? 0n,
+      ) - position.amount,
+      0n,
     )
-  }, [data?.available, maxLoanAmountExcludingCouponFee, position.amount])
+  }, [data, maxLoanAmountExcludingCouponFee, position.amount])
 
   const ltv = useMemo(() => {
     const collateralDollarValue = dollarValue(
@@ -168,8 +171,9 @@ const BorrowMoreModal = ({
         disabled={
           position.collateralAmount === 0n ||
           amount === 0n ||
-          amount > available ||
-          amount + maxInterest > maxLoanAmountExcludingCouponFee
+          amount + position.amount > available ||
+          amount + maxInterest + position.amount >
+            maxLoanAmountExcludingCouponFee
         }
         className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
         onClick={async () => {
@@ -178,9 +182,10 @@ const BorrowMoreModal = ({
       >
         {amount === 0n
           ? 'Enter loan amount'
-          : amount > available
+          : amount + position.amount > available
           ? 'Not enough coupons for sale'
-          : amount + maxInterest > maxLoanAmountExcludingCouponFee
+          : amount + maxInterest + position.amount >
+            maxLoanAmountExcludingCouponFee
           ? 'Not enough collateral'
           : 'Borrow'}
       </button>
