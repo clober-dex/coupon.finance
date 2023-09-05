@@ -142,3 +142,32 @@ export async function fetchBorrowAprByEpochsBorrowed(
       }
     })
 }
+
+export async function fetchCouponAmountByEpochsBorrowed(
+  substitute: Currency,
+  debtAmount: bigint,
+  expiryEpoch: number,
+) {
+  const markets = (await fetchMarkets())
+    .filter((market) =>
+      isAddressEqual(market.quoteToken.address, substitute.address),
+    )
+    .sort((a, b) => Number(a.epoch) - Number(b.epoch))
+
+  return markets.map((market) => {
+    return {
+      date: new Date(Number(market.endTimestamp) * 1000)
+        .toISOString()
+        .slice(2, 10)
+        .replace(/-/g, '/'), // TODO: format properly
+      interest:
+        market.epoch > expiryEpoch
+          ? market.take(market.quoteToken.address, debtAmount).amountIn
+          : 0n,
+      refund:
+        market.epoch < expiryEpoch
+          ? market.spend(market.baseToken.address, debtAmount).amountOut
+          : 0n,
+    }
+  })
+}

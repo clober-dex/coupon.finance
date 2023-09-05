@@ -1,16 +1,12 @@
-import React, { useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useQuery } from 'wagmi'
 
 import Slider from '../slider'
-import { Currency } from '../../model/currency'
+import { LoanPosition } from '../../model/loan-position'
+import { fetchCouponAmountByEpochsBorrowed } from '../../api/market'
 
 import Modal from './modal'
 
-const dummy = [
-  { date: '24-06-30', profit: '102.37' },
-  { date: '24-12-31', profit: '102.37' },
-  { date: '25-06-30', profit: '102.37' },
-  { date: '25-12-31', profit: '102.37' },
-]
 const EditExpiryModal = ({
   position,
   onClose,
@@ -19,6 +15,41 @@ const EditExpiryModal = ({
   onClose: () => void
 }) => {
   const [selected, setSelected] = useState(0)
+
+  const { data } = useQuery(
+    ['coupon-amount-to-edit-expiry', position],
+    () => {
+      return fetchCouponAmountByEpochsBorrowed(
+        position.substitute,
+        position.amount,
+        position.toEpoch.id,
+      )
+    },
+    {
+      enabled: !!position,
+    },
+  )
+
+  const [refund, interest] = useMemo(() => {
+    if (!data) {
+      return [0n, 0n]
+    }
+    return [
+      data?.[selected - 1]?.refund ?? 0n,
+      data?.[selected - 1]?.interest ?? 0n,
+    ]
+  }, [data, selected])
+  console.log(refund, interest)
+
+  useEffect(() => {
+    const id = data?.findIndex(
+      (item) => item.interest === 0n && item.refund === 0n,
+    )
+    if (id !== undefined) {
+      setSelected(id + 1)
+    }
+  }, [data])
+
   return (
     <Modal show={!!position} onClose={onClose}>
       <h1 className="font-bold text-xl mb-3">Please select expiry date</h1>
@@ -32,7 +63,7 @@ const EditExpiryModal = ({
           <Slider length={4} value={selected} onValueChange={setSelected} />
         </div>
         <div className="flex justify-between">
-          {dummy.map(({ date }, i) => (
+          {(data || []).map(({ date }, i) => (
             <button
               key={i}
               className="flex flex-col items-center gap-2 w-[72px]"
