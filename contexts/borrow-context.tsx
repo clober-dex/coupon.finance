@@ -35,9 +35,8 @@ type BorrowContext = {
     expectedInterest: bigint,
   ) => Promise<Hash | undefined>
   borrowMore: (
-    positionId: bigint,
-    loanCurrency: Currency,
-    loanAmount: bigint,
+    position: LoanPosition,
+    amount: bigint,
     expectedInterest: bigint,
   ) => Promise<void>
 }
@@ -164,9 +163,8 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
   const borrowMore = useCallback(
     async (
-      positionId: bigint,
-      loanCurrency: Currency,
-      loanAmount: bigint,
+      position: LoanPosition,
+      amount: bigint,
       expectedInterest: bigint,
     ): Promise<void> => {
       if (!walletClient) {
@@ -185,19 +183,19 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         const { deadline, r, s, v } = await permit721(
           walletClient,
           CONTRACT_ADDRESSES.LoanPositionManager,
-          positionId,
+          position.id,
           walletClient.account.address,
           CONTRACT_ADDRESSES.BorrowController,
           BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
         )
         setConfirmation({
-          title: `Borrowing ${loanCurrency.symbol}`,
+          title: `Borrowing more ${position.underlying.symbol}`,
           body: 'Please confirm in your wallet.',
           fields: [
             {
-              currency: loanCurrency,
-              label: loanCurrency.symbol,
-              value: formatUnits(loanAmount, loanCurrency.decimals),
+              currency: position.underlying,
+              label: position.underlying.symbol,
+              value: formatUnits(amount, position.underlying.decimals),
             },
           ],
         })
@@ -206,8 +204,8 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           abi: BorrowController__factory.abi,
           functionName: 'borrowMore',
           args: [
-            positionId,
-            loanAmount + maximumInterestPaid,
+            position.id,
+            amount + maximumInterestPaid,
             maximumInterestPaid,
             { deadline, v, r, s },
           ],
