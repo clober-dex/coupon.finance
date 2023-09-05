@@ -338,7 +338,7 @@ const Borrow: NextPage<
                       expectedInterest,
                     )
                     if (hash) {
-                      await router.replace('/')
+                      await router.replace('/?mode=borrow')
                     }
                   }}
                 >
