@@ -76,8 +76,11 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const maximumInterestPaid = BigInt(
-        Math.floor(Number(expectedInterest) * (1 + SLIPPAGE_PERCENTAGE)),
+      const maximumInterestPaid = max(
+        BigInt(
+          Math.floor(Number(expectedInterest) * (1 + SLIPPAGE_PERCENTAGE)),
+        ),
+        expectedInterest,
       )
       const wethBalance = isEthereum(collateral.underlying)
         ? balances[collateral.underlying.address] - (balance?.value || 0n)

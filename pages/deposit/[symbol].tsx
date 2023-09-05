@@ -222,7 +222,7 @@ const Deposit: NextPage<
                     expectedProceeds,
                   )
                   if (hash) {
-                    await router.replace('/')
+                    await router.replace('/?mode=deposit')
                   }
                 }}
               >
