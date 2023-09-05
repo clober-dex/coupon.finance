@@ -17,10 +17,8 @@ import { fetchBorrowAprByEpochsBorrowed } from '../../api/market'
 import { dollarValue, formatUnits } from '../../utils/numbers'
 import { ClientComponent } from '../../components/client-component'
 import { useBorrowContext } from '../../contexts/borrow-context'
-import { min } from '../../utils/bigint'
+import { LIQUIDATION_TARGET_LTV_PRECISION, min } from '../../utils/bigint'
 import { Collateral } from '../../model/collateral'
-
-const LIQUIDATION_TARGET_LTV_PRECISION = 10n ** 6n
 
 export const getServerSideProps: GetServerSideProps<{
   asset: Asset
