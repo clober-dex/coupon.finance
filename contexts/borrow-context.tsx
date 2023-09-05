@@ -257,7 +257,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             : 0n,
           account: walletClient.account,
         })
-        // await walletClient.writeContract(request)
+        await walletClient.writeContract(request)
         await queryClient.invalidateQueries(['loan-positions'])
       } catch (e) {
         console.error(e)

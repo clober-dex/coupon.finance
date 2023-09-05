@@ -34,17 +34,32 @@ const EditExpiryModal = ({
     },
   )
 
-  const [refund, interest, available, expiryEpochIndex] = useMemo(() => {
+  const expiryEpochIndex = useMemo(() => {
     if (!data) {
-      return [0n, 0n, 0n, 0]
+      return 0
+    }
+    return data.findIndex((item) => item.expiryEpoch) + 1
+  }, [data])
+
+  const [interest, payable, refund, refundable] = useMemo(() => {
+    if (!data) {
+      return [0n, false, 0n, false]
     }
     return [
-      data?.[selected - 1]?.refund ?? 0n,
-      data?.[selected - 1]?.interest ?? 0n,
-      data?.[selected - 1]?.available ?? 0n,
-      data.findIndex((item) => item.expiryEpoch) + 1,
+      data
+        .slice(expiryEpochIndex, selected)
+        .reduce((acc, { interest }) => acc + interest, 0n),
+      data
+        .slice(expiryEpochIndex, selected)
+        .reduce((acc, { payable }) => acc && payable, true),
+      data
+        .slice(selected - 1, expiryEpochIndex - 1)
+        .reduce((acc, { refund }) => acc + refund, 0n),
+      data
+        .slice(selected - 1, expiryEpochIndex - 1)
+        .reduce((acc, { refundable }) => acc && refundable, true),
     ]
-  }, [data, selected])
+  }, [data, expiryEpochIndex, selected])
 
   useEffect(() => {
     if (expiryEpochIndex > 0) {
@@ -82,7 +97,8 @@ const EditExpiryModal = ({
           expiryEpochIndex === selected ||
           (refund === 0n && interest === 0n) ||
           interest > balances[position.underlying.address] ||
-          interest > available
+          !payable ||
+          !refundable
         }
         className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
         onClick={async () => {
@@ -109,8 +125,10 @@ const EditExpiryModal = ({
           ? 'Select expiry date'
           : expiryEpochIndex === selected
           ? 'Select expiry date'
-          : (refund === 0n && interest === 0n) || interest > available
-          ? 'Not enough coupons for sale'
+          : selected > expiryEpochIndex && !payable
+          ? 'Not enough coupons for pay'
+          : selected < expiryEpochIndex && !refundable
+          ? 'Not enough coupons for refund'
           : interest > balances[position.underlying.address]
           ? 'Not enough balance'
           : 'Confirm'}

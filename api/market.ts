@@ -9,7 +9,6 @@ import {
 import { Currency } from '../model/currency'
 import { Asset } from '../model/asset'
 import { getEpoch } from '../utils/epoch'
-import { max, min } from '../utils/bigint'
 const { getMarkets } = getBuiltGraphSDK()
 
 type DepthDto = {
@@ -155,53 +154,25 @@ export async function fetchCouponAmountByEpochsBorrowed(
     )
     .sort((a, b) => Number(a.epoch) - Number(b.epoch))
 
-  const amounts = markets.map((market) => {
-    const buyMarkets = markets.filter(
-      (buyMarket) =>
-        expiryEpoch < buyMarket.epoch && buyMarket.epoch <= market.epoch,
-    )
-    const availableCoupons =
-      buyMarkets.length > 0
-        ? min(...buyMarkets.map((market) => market.totalAsksInBaseAfterFees()))
+  return markets.map((market) => {
+    const interest =
+      market.epoch > expiryEpoch
+        ? market.take(market.quoteToken.address, debtAmount).amountIn
         : 0n
-    const available =
-      buyMarkets.length > 0
-        ? max(
-            availableCoupons -
-              buyMarkets.reduce(
-                (acc, market) =>
-                  acc +
-                  market.take(substitute.address, availableCoupons).amountIn,
-                0n,
-              ),
-            0n,
-          )
+    const refund =
+      market.epoch < expiryEpoch
+        ? market.spend(market.baseToken.address, debtAmount).amountOut
         : 0n
-
     return {
-      available: BigInt(Math.floor(Number(available) * (1 - 0.0001))), // 0.01%,
       date: new Date(Number(market.endTimestamp) * 1000)
         .toISOString()
         .slice(2, 10)
         .replace(/-/g, '/'), // TODO: format properly
-      interest:
-        market.epoch > expiryEpoch
-          ? market.take(market.quoteToken.address, debtAmount).amountIn
-          : 0n,
-      refund:
-        market.epoch < expiryEpoch
-          ? market.spend(market.baseToken.address, debtAmount).amountOut
-          : 0n,
+      interest,
+      payable: debtAmount <= market.totalAsksInBaseAfterFees(),
+      refund,
+      refundable: debtAmount <= market.totalBidsInBaseAfterFees(),
       expiryEpoch: market.epoch === expiryEpoch,
     }
   })
-  return amounts.map((amount, i) => ({
-    ...amount,
-    interest: amounts
-      .slice(0, i + 1)
-      .reduce((acc, amount) => acc + amount.interest, 0n),
-    refund: amounts
-      .slice(0, i + 1)
-      .reduce((acc, amount) => acc + amount.refund, 0n),
-  }))
 }
