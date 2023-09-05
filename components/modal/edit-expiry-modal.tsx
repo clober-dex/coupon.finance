@@ -56,10 +56,14 @@ const EditExpiryModal = ({
       </div>
       <div className="flex flex-col relative bg-white dark:bg-gray-900 rounded-lg p-4 mb-8">
         <div className="px-6 mb-2">
-          <Slider length={4} value={selected} onValueChange={setSelected} />
+          <Slider
+            length={data?.length ?? 0}
+            value={selected}
+            onValueChange={setSelected}
+          />
         </div>
         <div className="flex justify-between">
-          {(data || []).map(({ date }, i) => (
+          {(data ?? []).map(({ date }, i) => (
             <button
               key={i}
               className="flex flex-col items-center gap-2 w-[72px]"
