@@ -128,7 +128,7 @@ const EditExpiryModal = ({
           : selected < expiryEpochIndex && !refundable
           ? 'Not enough coupons for refund'
           : interest > balances[position.underlying.address]
-          ? 'Not enough balance'
+          ? `Insufficient ${position.underlying.symbol} balance`
           : 'Confirm'}
       </button>
     </Modal>
