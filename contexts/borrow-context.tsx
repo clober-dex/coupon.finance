@@ -514,6 +514,10 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
+      const wethBalance = isEthereum(position.underlying)
+        ? balances[position.underlying.address] - (balance?.value || 0n)
+        : 0n
+
       try {
         const deadline = BigInt(
           Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24),
@@ -560,6 +564,9 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             { ...positionPermitResult },
             { ...debtPermitResult },
           ],
+          value: isEthereum(position.collateral.underlying)
+            ? max(amount - wethBalance, 0n)
+            : 0n,
           account: walletClient.account,
         })
         await walletClient.writeContract(request)
@@ -571,7 +578,14 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [publicClient, queryClient, setConfirmation, walletClient],
+    [
+      balance?.value,
+      balances,
+      publicClient,
+      queryClient,
+      setConfirmation,
+      walletClient,
+    ],
   )
 
   const removeCollateral = useCallback(
