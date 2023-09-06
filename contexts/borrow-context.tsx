@@ -13,7 +13,10 @@ import { Asset } from '../model/asset'
 import { permit20 } from '../utils/permit20'
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { formatUnits } from '../utils/numbers'
-import { BorrowController__factory } from '../typechain'
+import {
+  BorrowController__factory,
+  OdosRepayAdapter__factory,
+} from '../typechain'
 import { max, min } from '../utils/bigint'
 import { fetchLoanPositions } from '../api/loan-position'
 import { Collateral } from '../model/collateral'
@@ -58,6 +61,13 @@ type BorrowContext = {
     amount: bigint,
     expectedProceeds: bigint,
   ) => Promise<void>
+  repayWithCollateral: (
+    position: LoanPosition,
+    amount: bigint,
+    mightBoughtDebtAmount: bigint,
+    expectedProceeds: bigint,
+    swapData: `0x${string}`,
+  ) => Promise<void>
   addCollateral: (position: LoanPosition, amount: bigint) => Promise<void>
   removeCollateral: (position: LoanPosition, amount: bigint) => Promise<void>
 }
@@ -66,6 +76,7 @@ const Context = React.createContext<BorrowContext>({
   positions: [],
   borrow: () => Promise.resolve(undefined),
   repay: () => Promise.resolve(),
+  repayWithCollateral: () => Promise.resolve(),
   borrowMore: () => Promise.resolve(),
   extendLoanDuration: () => Promise.resolve(),
   shortenLoanDuration: () => Promise.resolve(),
@@ -274,6 +285,84 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       setConfirmation,
       walletClient,
     ],
+  )
+
+  const repayWithCollateral = useCallback(
+    async (
+      position: LoanPosition,
+      amount: bigint,
+      mightBoughtDebtAmount: bigint,
+      expectedProceeds: bigint,
+      swapData: `0x${string}`,
+    ): Promise<void> => {
+      if (!walletClient) {
+        // TODO: alert wallet connect
+        return
+      }
+
+      const minimumInterestEarned = min(
+        BigInt(
+          Math.floor(Number(expectedProceeds) * (1 - SLIPPAGE_PERCENTAGE)),
+        ),
+        expectedProceeds,
+      )
+
+      try {
+        const { deadline, r, s, v } = await permit721(
+          walletClient,
+          CONTRACT_ADDRESSES.LoanPositionManager,
+          position.id,
+          walletClient.account.address,
+          CONTRACT_ADDRESSES.OdosRepayAdapter,
+          BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
+        )
+
+        setConfirmation({
+          title: `Repay with collateral ${position.underlying.symbol}`,
+          body: 'Please confirm in your wallet.',
+          fields: [
+            {
+              currency: position.collateral.underlying,
+              label: position.collateral.underlying.symbol,
+              value: formatUnits(
+                amount,
+                position.collateral.underlying.decimals,
+              ),
+            },
+            {
+              currency: position.underlying,
+              label: position.underlying.symbol,
+              value: formatUnits(
+                mightBoughtDebtAmount,
+                position.underlying.decimals,
+              ),
+            },
+          ],
+        })
+
+        const { request } = await publicClient.simulateContract({
+          address: CONTRACT_ADDRESSES.OdosRepayAdapter,
+          abi: OdosRepayAdapter__factory.abi,
+          functionName: 'repayWithCollateral',
+          args: [
+            position.id,
+            amount,
+            minimumInterestEarned,
+            swapData,
+            { deadline, v, r, s },
+          ],
+          account: walletClient.account,
+        })
+        await walletClient.writeContract(request)
+        await queryClient.invalidateQueries(['loan-positions'])
+      } catch (e) {
+        console.error(e)
+      } finally {
+        await queryClient.invalidateQueries(['balances'])
+        setConfirmation(undefined)
+      }
+    },
+    [queryClient, setConfirmation, walletClient],
   )
 
   const borrowMore = useCallback(
@@ -645,6 +734,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         positions,
         borrow,
         repay,
+        repayWithCollateral,
         borrowMore,
         extendLoanDuration,
         shortenLoanDuration,

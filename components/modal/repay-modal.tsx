@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { useQuery } from 'wagmi'
+import { useAccount, useFeeData, useNetwork, useQuery } from 'wagmi'
 import { isAddressEqual, parseUnits } from 'viem'
 
 import { LoanPosition } from '../../model/loan-position'
@@ -9,8 +9,9 @@ import { dollarValue, formatUnits } from '../../utils/numbers'
 import { Arrow } from '../svg/arrow'
 import { fetchMarkets } from '../../api/market'
 import { calculateCouponsToRepay } from '../../model/market'
-import { min } from '../../utils/bigint'
+import { max, min } from '../../utils/bigint'
 import { useBorrowContext } from '../../contexts/borrow-context'
+import { fetchAmountOutByOdos, fetchCallDataByOdos } from '../../api/odos'
 
 import Modal from './modal'
 
@@ -21,18 +22,88 @@ const RepayModal = ({
   position: LoanPosition
   onClose: () => void
 }) => {
-  const { repay } = useBorrowContext()
+  const { data: feeData } = useFeeData()
+  const { address: userAddress } = useAccount()
+  const { chain: connectedChain } = useNetwork()
+  const { repay, repayWithCollateral } = useBorrowContext()
   const { prices, balances } = useCurrencyContext()
   const [isUseCollateral, setIsUseCollateral] = useState(false)
   const [value, setValue] = useState('')
 
   const amount = useMemo(
-    () => (position ? parseUnits(value, position.underlying.decimals) : 0n),
-    [position, value],
+    () =>
+      parseUnits(
+        value,
+        isUseCollateral
+          ? position.collateral.underlying.decimals
+          : position.underlying.decimals,
+      ),
+    [isUseCollateral, position, value],
+  )
+
+  const {
+    data: { repayAmount, maximumPayableCollateralAmount, pathId },
+  } = useQuery(
+    ['calculate-repay-amount', position, amount, isUseCollateral],
+    async () => {
+      if (
+        !isUseCollateral ||
+        isAddressEqual(
+          position.collateral.underlying.address,
+          position.underlying.address,
+        )
+      ) {
+        return {
+          repayAmount: amount,
+          maximumPayableCollateralAmount: position.collateralAmount,
+          pathId: undefined,
+        }
+      }
+      if (feeData?.gasPrice && userAddress && connectedChain) {
+        const { amountOut: maximumPayableCollateralAmount } =
+          await fetchAmountOutByOdos({
+            chainId: connectedChain.id,
+            amountIn: position.amount.toString(),
+            tokenIn: position.underlying.address,
+            tokenOut: position.collateral.underlying.address,
+            slippageLimitPercent: 1,
+            userAddress,
+            gasPrice: Number(feeData.gasPrice),
+          })
+        const { amountOut: repayAmount, pathId } = await fetchAmountOutByOdos({
+          chainId: connectedChain.id,
+          amountIn: amount.toString(),
+          tokenIn: position.collateral.underlying.address,
+          tokenOut: position.underlying.address,
+          slippageLimitPercent: 1,
+          userAddress,
+          gasPrice: Number(feeData.gasPrice),
+        })
+        return {
+          repayAmount,
+          maximumPayableCollateralAmount,
+          pathId,
+        }
+      }
+      return {
+        repayAmount: 0n,
+        maximumPayableCollateralAmount: 0n,
+        pathId: undefined,
+      }
+    },
+    {
+      refetchInterval: 5000,
+      keepPreviousData: true,
+      initialData: {
+        repayAmount: 0n,
+        maximumPayableCollateralAmount: 0n,
+        pathId: undefined,
+      },
+    },
   )
 
   const { data } = useQuery(
-    ['coupon-refundable-amount-to-repoy', position.underlying.address, amount],
+    ['coupon-refundable-amount-to-repay', position, repayAmount],
     async () => {
       const market = (await fetchMarkets())
         .filter((market) =>
@@ -42,32 +113,38 @@ const RepayModal = ({
           ),
         )
         .filter((market) => market.epoch === position.toEpoch.id)[0]
-      return calculateCouponsToRepay(position.substitute, market, amount)
+      return calculateCouponsToRepay(position.substitute, market, repayAmount)
     },
     {
       keepPreviousData: true,
     },
   )
 
-  const refund = useMemo(() => data?.refund ?? 0n, [data])
-  const available = useMemo(() => data?.available ?? 0n, [data])
+  const refund = useMemo(() => data?.refund ?? 0n, [data?.refund])
+  const available = useMemo(() => data?.available ?? 0n, [data?.available])
 
   const ltv = useMemo(() => {
-    const collateralDollarValue = dollarValue(
-      position.collateralAmount,
-      position.collateral.underlying.decimals,
-      prices[position.collateral.underlying.address],
-    )
-    const loanDollarValue = dollarValue(
-      position.amount - amount,
+    const debtAmount = max(position.amount - repayAmount, 0n)
+    const debtValue = dollarValue(
+      debtAmount,
       position.underlying.decimals,
       prices[position.underlying.address],
     )
-    return Math.max(
-      loanDollarValue.times(100).div(collateralDollarValue).toNumber(),
-      0,
+    const collateralAmount = max(
+      position.collateralAmount - (isUseCollateral ? amount : 0n),
+      0n,
     )
-  }, [position, amount, prices])
+    const collateralValue = dollarValue(
+      collateralAmount,
+      position.collateral.underlying.decimals,
+      prices[position.collateral.underlying.address],
+    )
+    return debtAmount > 0n && collateralAmount === 0n
+      ? 'Infinity'
+      : collateralAmount === 0n
+      ? '0'
+      : debtValue.times(100).div(collateralValue).toFixed(2)
+  }, [repayAmount, isUseCollateral, amount, position, prices])
 
   return (
     <Modal show onClose={onClose}>
@@ -90,17 +167,36 @@ const RepayModal = ({
       </div>
       <div className="mb-4 font-bold">How much would you like to repay?</div>
       <div className="mb-6">
-        <CurrencyAmountInput
-          currency={position.underlying}
-          value={value}
-          onValueChange={setValue}
-          price={prices[position.underlying.address]}
-          balance={min(
-            position.amount,
-            available,
-            balances[position.underlying.address],
-          )}
-        />{' '}
+        {isUseCollateral ? (
+          <CurrencyAmountInput
+            currency={position.collateral.underlying}
+            value={value}
+            onValueChange={setValue}
+            price={prices[position.collateral.underlying.address]}
+            balance={min(
+              position.collateralAmount,
+              isAddressEqual(
+                position.underlying.address,
+                position.collateral.underlying.address,
+              )
+                ? position.amount
+                : 2n ** 256n - 1n,
+              maximumPayableCollateralAmount,
+            )}
+          />
+        ) : (
+          <CurrencyAmountInput
+            currency={position.underlying}
+            value={value}
+            onValueChange={setValue}
+            price={prices[position.underlying.address]}
+            balance={min(
+              position.amount,
+              available,
+              balances[position.underlying.address],
+            )}
+          />
+        )}
       </div>
       <div className="font-bold mb-3">Transaction Overview</div>
       <div className="flex flex-col gap-2 text-gray-500 text-sm mb-8">
@@ -122,7 +218,7 @@ const RepayModal = ({
             {value ? (
               <>
                 <Arrow />
-                <span className="text-green-500">{ltv.toFixed(2)}%</span>
+                <span className="text-green-500">{ltv}%</span>
               </>
             ) : (
               <></>
@@ -132,26 +228,50 @@ const RepayModal = ({
       </div>
       <button
         disabled={
-          amount === 0n ||
-          amount > available ||
-          amount > position.amount ||
-          amount > balances[position.underlying.address]
+          repayAmount === 0n ||
+          repayAmount > available ||
+          repayAmount > position.amount ||
+          (!isUseCollateral &&
+            repayAmount > balances[position.underlying.address])
         }
         className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
         onClick={async () => {
-          await repay(position, amount, refund)
+          if (!userAddress) {
+            return
+          }
+          if (isUseCollateral && pathId) {
+            const swapData = await fetchCallDataByOdos({
+              pathId,
+              userAddress,
+            })
+            await repayWithCollateral(
+              position,
+              amount,
+              repayAmount,
+              refund,
+              swapData,
+            )
+          } else if (isUseCollateral && !pathId) {
+            //TODO: support debt asset and collateral asset are the same
+            console.error('not supported same asset')
+          } else if (!isUseCollateral) {
+            await repay(position, amount, refund)
+          }
           setValue('')
           onClose()
         }}
       >
-        {amount === 0n
+        {repayAmount === 0n
           ? 'Enter amount to repay'
-          : amount > available
+          : repayAmount > available
           ? 'Not enough coupons for sale'
-          : amount > position.amount
+          : repayAmount > position.amount
           ? 'Repay amount exceeds debt'
-          : amount > balances[position.underlying.address]
+          : !isUseCollateral &&
+            repayAmount > balances[position.underlying.address]
           ? `Insufficient ${position.underlying.symbol} balance`
+          : isUseCollateral
+          ? 'Repay with Collateral'
           : 'Repay'}
       </button>
     </Modal>
