@@ -329,18 +329,22 @@ const Borrow = ({
             </div>
           </div>
           <div className="flex flex-col sm:grid sm:grid-cols-3 gap-4 sm:gap-6">
-            {positions.map((position, i) => (
-              <Position
-                key={i}
-                position={position}
-                price={prices[position.underlying.address]}
-                collateralPrice={prices[position.collateral.underlying.address]}
-                onRepay={() => console.log('repay')}
-                onBorrowMore={() => setBorrowMorePosition(position)}
-                onEditCollateral={() => setEditCollateralPosition(position)}
-                onEditExpiry={() => setEditExpiryPosition(position)}
-              />
-            ))}
+            {positions
+              .sort((a, b) => Number(b.createdAt) - Number(a.createdAt))
+              .map((position, i) => (
+                <Position
+                  key={i}
+                  position={position}
+                  price={prices[position.underlying.address]}
+                  collateralPrice={
+                    prices[position.collateral.underlying.address]
+                  }
+                  onRepay={() => console.log('repay')}
+                  onBorrowMore={() => setBorrowMorePosition(position)}
+                  onEditCollateral={() => setEditCollateralPosition(position)}
+                  onEditExpiry={() => setEditExpiryPosition(position)}
+                />
+              ))}
           </div>
         </ClientComponent>
       ) : (
