@@ -1,10 +1,15 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
+import { useQuery } from 'wagmi'
+import { isAddressEqual, parseUnits } from 'viem'
 
 import { LoanPosition } from '../../model/loan-position'
 import CurrencyAmountInput from '../currency-amount-input'
 import { useCurrencyContext } from '../../contexts/currency-context'
-import { formatUnits } from '../../utils/numbers'
+import { dollarValue, formatUnits } from '../../utils/numbers'
 import { Arrow } from '../arrow'
+import { fetchMarkets } from '../../api/market'
+import { calculateCouponsToRepay } from '../../model/market'
+import { min } from '../../utils/bigint'
 
 import Modal from './modal'
 
@@ -15,11 +20,55 @@ const RepayModal = ({
   position: LoanPosition
   onClose: () => void
 }) => {
-  const { prices } = useCurrencyContext()
+  const { prices, balances } = useCurrencyContext()
   const [isUseCollateral, setIsUseCollateral] = useState(false)
   const [value, setValue] = useState('')
+
+  const amount = useMemo(
+    () => (position ? parseUnits(value, position.underlying.decimals) : 0n),
+    [position, value],
+  )
+
+  const { data } = useQuery(
+    ['coupon-refundable-amount-to-repoy', position.underlying.address, amount],
+    async () => {
+      const market = (await fetchMarkets())
+        .filter((market) =>
+          isAddressEqual(
+            market.quoteToken.address,
+            position.substitute.address,
+          ),
+        )
+        .filter((market) => market.epoch === position.toEpoch.id)[0]
+      return calculateCouponsToRepay(position.substitute, market, amount)
+    },
+    {
+      keepPreviousData: true,
+    },
+  )
+
+  const refund = useMemo(() => data?.refund ?? 0n, [data])
+  const available = useMemo(() => data?.available ?? 0n, [data])
+
+  const ltv = useMemo(() => {
+    const collateralDollarValue = dollarValue(
+      position.collateralAmount,
+      position.collateral.underlying.decimals,
+      prices[position.collateral.underlying.address],
+    )
+    const loanDollarValue = dollarValue(
+      position.amount - amount,
+      position.underlying.decimals,
+      prices[position.underlying.address],
+    )
+    return Math.max(
+      loanDollarValue.times(100).div(collateralDollarValue).toNumber(),
+      0,
+    )
+  }, [position, amount, prices])
+
   return (
-    <Modal show={!!position} onClose={onClose}>
+    <Modal show onClose={onClose}>
       <h1 className="font-bold text-sm sm:text-xl mb-4 sm:mb-6">Repay</h1>
       <div className="flex mb-6 rounded text-xs bg-gray-100 dark:bg-gray-800 text-gray-500">
         <button
@@ -44,7 +93,11 @@ const RepayModal = ({
           value={value}
           onValueChange={setValue}
           price={prices[position.underlying.address]}
-          balance={123123123123123123n}
+          balance={min(
+            position.amount,
+            available,
+            balances[position.underlying.address],
+          )}
         />{' '}
       </div>
       <div className="font-bold mb-3">Transaction Overview</div>
@@ -53,7 +106,7 @@ const RepayModal = ({
           <div className="text-gray-500">Remaining Debt</div>
           <div>
             {formatUnits(
-              123n,
+              position.amount,
               position.underlying.decimals,
               prices[position.underlying.address],
             )}{' '}
@@ -67,7 +120,7 @@ const RepayModal = ({
             {value ? (
               <>
                 <Arrow />
-                <span className="text-green-500">{3.3}%</span>
+                <span className="text-green-500">{ltv.toFixed(2)}%</span>
               </>
             ) : (
               <></>
@@ -76,10 +129,28 @@ const RepayModal = ({
         </div>
       </div>
       <button
-        disabled={true}
-        className="font-bold text-base sm:text-xl disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg disabled:text-gray-300 dark:disabled:text-gray-500"
+        disabled={
+          amount === 0n ||
+          amount > available ||
+          amount > position.amount ||
+          amount > balances[position.underlying.address]
+        }
+        className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
+        onClick={async () => {
+          console.log('repay', refund, amount)
+          setValue('')
+          onClose()
+        }}
       >
-        Confirm
+        {amount === 0n
+          ? 'Enter repay amount'
+          : amount > available
+          ? 'Not enough coupons for sale'
+          : amount > position.amount
+          ? 'Repay amount exceeds debt'
+          : amount > balances[position.underlying.address]
+          ? `Insufficient ${position.underlying.symbol} balance`
+          : 'Repay'}
       </button>
     </Modal>
   )
