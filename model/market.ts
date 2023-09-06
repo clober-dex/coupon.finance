@@ -460,7 +460,7 @@ export function calculateCouponsToWithdraw(
   return {
     maxRepurchaseFee,
     repurchaseFee,
-    available: BigInt(Math.floor(Number(available) * (1 - 0.0001))), // 0.01%
+    available,
   }
 }
 
@@ -518,6 +518,6 @@ export function calculateCouponsToBorrow(
   return {
     interest,
     maxInterest,
-    available: BigInt(Math.floor(Number(available) * (1 - 0.0001))), // 0.01%
+    available,
   }
 }
