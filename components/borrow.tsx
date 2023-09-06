@@ -268,10 +268,7 @@ const Borrow = ({
 }) => {
   const { prices } = useCurrencyContext()
   const { positions } = useBorrowContext()
-  const [repayPosition, setRepayPosition] = useState<{
-    currency: Currency
-    amount: string
-  } | null>(null)
+  const [repayPosition, setRepayPosition] = useState<LoanPosition | null>(null)
   const [borrowMorePosition, setBorrowMorePosition] =
     useState<LoanPosition | null>(null)
   const [editCollateralPosition, setEditCollateralPosition] =
@@ -335,7 +332,7 @@ const Borrow = ({
                 position={position}
                 price={prices[position.underlying.address]}
                 collateralPrice={prices[position.collateral.underlying.address]}
-                onRepay={() => console.log('repay')}
+                onRepay={() => setRepayPosition(position)}
                 onBorrowMore={() => setBorrowMorePosition(position)}
                 onEditCollateral={() => setEditCollateralPosition(position)}
                 onEditExpiry={() => setEditExpiryPosition(position)}
@@ -413,10 +410,14 @@ const Borrow = ({
           </div>
         </div>
       </div>
-      <RepayModal
-        position={repayPosition}
-        onClose={() => setRepayPosition(null)}
-      />
+      {repayPosition ? (
+        <RepayModal
+          position={repayPosition}
+          onClose={() => setRepayPosition(null)}
+        />
+      ) : (
+        <></>
+      )}
       {borrowMorePosition ? (
         <BorrowMoreModal
           position={borrowMorePosition}

@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 
-import NumberInput from '../number-input'
-import { Currency, getLogo } from '../../model/currency'
+import { LoanPosition } from '../../model/loan-position'
+import CurrencyAmountInput from '../currency-amount-input'
+import { useCurrencyContext } from '../../contexts/currency-context'
 
 import Modal from './modal'
 
@@ -9,12 +10,10 @@ const RepayModal = ({
   position,
   onClose,
 }: {
-  position: {
-    currency: Currency
-    amount: string
-  } | null
+  position: LoanPosition
   onClose: () => void
 }) => {
+  const { prices } = useCurrencyContext()
   const [isUseCollateral, setIsUseCollateral] = useState(false)
   const [value, setValue] = useState('')
   return (
@@ -38,36 +37,13 @@ const RepayModal = ({
       </div>
       <div className="mb-4 font-bold">How much would you like to repay?</div>
       <div className="mb-6">
-        <div className="flex bg-white dark:bg-gray-800 rounded-lg p-3 shadow dark:shadow-none">
-          <div className="flex flex-col flex-1 justify-between gap-2">
-            <NumberInput
-              className="text-xl sm:text-2xl placeholder-gray-400 outline-none bg-transparent w-40 sm:w-auto"
-              value={value}
-              onValueChange={setValue}
-              placeholder="0.0000"
-            />
-            <div className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm">
-              ~$0.0000
-            </div>
-          </div>
-          <div className="flex flex-col items-end justify-between">
-            <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
-              <img
-                src={getLogo(position?.currency)}
-                alt={position?.currency.name}
-                className="w-5 h-5"
-              />
-              <div className="text-sm sm:text-base">
-                {position?.currency.symbol}
-              </div>
-            </div>
-            <div className="flex text-xs sm:text-sm gap-1 sm:gap-2">
-              <div className="text-gray-500">Available</div>
-              <div>{position?.amount}</div>
-              <button className="text-green-500">MAX</button>
-            </div>
-          </div>
-        </div>
+        <CurrencyAmountInput
+          currency={position.underlying}
+          value={value}
+          onValueChange={setValue}
+          price={prices[position.underlying.address]}
+          balance={123123123123123123n}
+        />{' '}
       </div>
       <div className="font-bold mb-3">Transaction Overview</div>
       <div className="flex flex-col gap-2 text-gray-500 text-sm mb-8">
