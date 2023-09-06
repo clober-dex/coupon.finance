@@ -340,16 +340,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           ],
         })
 
-        console.log('arg', [
-          position.id,
-          amount,
-          minimumInterestEarned,
-          swapData,
-          { deadline, v, r, s },
-        ])
-
-        // const { request } = await publicClient.simulateContract({
-        await walletClient.writeContract({
+        const { request } = await publicClient.simulateContract({
           address: CONTRACT_ADDRESSES.OdosRepayAdapter,
           abi: OdosRepayAdapter__factory.abi,
           functionName: 'repayWithCollateral',
@@ -362,7 +353,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           ],
           account: walletClient.account,
         })
-        // await walletClient.writeContract(request)
+        await walletClient.writeContract(request)
         await queryClient.invalidateQueries(['loan-positions'])
       } catch (e) {
         console.error(e)
