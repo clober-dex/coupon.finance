@@ -53,6 +53,8 @@ type BorrowContext = {
     amount: bigint,
     expectedInterest: bigint,
   ) => Promise<void>
+  addCollateral: (position: LoanPosition, amount: bigint) => Promise<void>
+  removeCollateral: (position: LoanPosition, amount: bigint) => Promise<void>
 }
 
 const Context = React.createContext<BorrowContext>({
@@ -61,6 +63,8 @@ const Context = React.createContext<BorrowContext>({
   borrowMore: () => Promise.resolve(),
   extendLoanDuration: () => Promise.resolve(),
   shortenLoanDuration: () => Promise.resolve(),
+  addCollateral: () => Promise.resolve(),
+  removeCollateral: () => Promise.resolve(),
 })
 
 const SLIPPAGE_PERCENTAGE = 0
@@ -408,6 +412,124 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
     [publicClient, queryClient, setConfirmation, walletClient],
   )
 
+  const addCollateral = useCallback(
+    async (position: LoanPosition, amount: bigint): Promise<void> => {
+      if (!walletClient) {
+        // TODO: alert wallet connect
+        return
+      }
+
+      try {
+        const deadline = BigInt(
+          Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24),
+        )
+        const positionPermitResult = await permit721(
+          walletClient,
+          CONTRACT_ADDRESSES.LoanPositionManager,
+          position.id,
+          walletClient.account.address,
+          CONTRACT_ADDRESSES.BorrowController,
+          deadline,
+        )
+        const debtPermitResult = await permit20(
+          walletClient,
+          position.collateral.underlying,
+          walletClient.account.address,
+          CONTRACT_ADDRESSES.BorrowController,
+          amount,
+          deadline,
+        )
+
+        setConfirmation({
+          title: `Adding collateral`,
+          body: 'Please confirm in your wallet.',
+          fields: [
+            {
+              currency: position.collateral.underlying,
+              label: position.collateral.underlying.symbol,
+              value: formatUnits(
+                amount,
+                position.collateral.underlying.decimals,
+              ),
+            },
+          ],
+        })
+
+        const { request } = await publicClient.simulateContract({
+          address: CONTRACT_ADDRESSES.BorrowController,
+          abi: BorrowController__factory.abi,
+          functionName: 'addCollateral',
+          args: [
+            position.id,
+            amount,
+            { ...positionPermitResult },
+            { ...debtPermitResult },
+          ],
+          account: walletClient.account,
+        })
+        await walletClient.writeContract(request)
+        await queryClient.invalidateQueries(['loan-positions'])
+      } catch (e) {
+        console.error(e)
+      } finally {
+        await queryClient.invalidateQueries(['balances'])
+        setConfirmation(undefined)
+      }
+    },
+    [publicClient, queryClient, setConfirmation, walletClient],
+  )
+
+  const removeCollateral = useCallback(
+    async (position: LoanPosition, amount: bigint): Promise<void> => {
+      if (!walletClient) {
+        // TODO: alert wallet connect
+        return
+      }
+
+      try {
+        const { deadline, r, s, v } = await permit721(
+          walletClient,
+          CONTRACT_ADDRESSES.LoanPositionManager,
+          position.id,
+          walletClient.account.address,
+          CONTRACT_ADDRESSES.BorrowController,
+          BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
+        )
+
+        setConfirmation({
+          title: `Removing collateral`,
+          body: 'Please confirm in your wallet.',
+          fields: [
+            {
+              currency: position.collateral.underlying,
+              label: position.collateral.underlying.symbol,
+              value: formatUnits(
+                amount,
+                position.collateral.underlying.decimals,
+              ),
+            },
+          ],
+        })
+
+        const { request } = await publicClient.simulateContract({
+          address: CONTRACT_ADDRESSES.BorrowController,
+          abi: BorrowController__factory.abi,
+          functionName: 'removeCollateral',
+          args: [position.id, amount, { deadline, v, r, s }],
+          account: walletClient.account,
+        })
+        await walletClient.writeContract(request)
+        await queryClient.invalidateQueries(['loan-positions'])
+      } catch (e) {
+        console.error(e)
+      } finally {
+        await queryClient.invalidateQueries(['balances'])
+        setConfirmation(undefined)
+      }
+    },
+    [publicClient, queryClient, setConfirmation, walletClient],
+  )
+
   return (
     <Context.Provider
       value={{
@@ -416,6 +538,8 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         borrowMore,
         extendLoanDuration,
         shortenLoanDuration,
+        addCollateral,
+        removeCollateral,
       }}
     >
       {children}
