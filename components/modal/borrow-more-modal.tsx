@@ -1,4 +1,4 @@
-import React, { SVGProps, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useQuery } from 'wagmi'
 import { isAddressEqual, parseUnits } from 'viem'
 
@@ -10,33 +10,9 @@ import { calculateCouponsToBorrow } from '../../model/market'
 import { LIQUIDATION_TARGET_LTV_PRECISION, max, min } from '../../utils/bigint'
 import { dollarValue, formatUnits } from '../../utils/numbers'
 import { useBorrowContext } from '../../contexts/borrow-context'
+import { Arrow } from '../svg/arrow'
 
 import Modal from './modal'
-
-const Arrow = (props: SVGProps<any>) => (
-  <svg
-    width="12"
-    height="12"
-    viewBox="0 0 12 12"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
-    <path
-      d="M1.875 6L9.75 6"
-      stroke="#6B7280"
-      strokeWidth="1.5"
-      strokeLinecap="square"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M6.75 9.375L10.125 6L6.75 2.625"
-      stroke="#6B7280"
-      strokeWidth="1.5"
-      strokeLinecap="square"
-    />
-  </svg>
-)
 
 const BorrowMoreModal = ({
   position,
@@ -164,7 +140,6 @@ const BorrowMoreModal = ({
       </div>
       <button
         disabled={
-          position.collateralAmount === 0n ||
           amount === 0n ||
           amount + position.amount > available ||
           amount + maxInterest + position.amount >
