@@ -87,6 +87,13 @@ const Deposit: NextPage<
     return proceedsByEpochsDeposited[epochs - 1]?.proceeds ?? 0n
   }, [proceedsByEpochsDeposited, epochs])
 
+  const available = useMemo(() => {
+    if (epochs === 0 || !proceedsByEpochsDeposited) {
+      return 0n
+    }
+    return proceedsByEpochsDeposited[epochs - 1]?.available ?? 0n
+  }, [proceedsByEpochsDeposited, epochs])
+
   return (
     <div className="flex flex-1">
       <Head>
@@ -212,7 +219,12 @@ const Deposit: NextPage<
                 </div>
               </div>
               <button
-                disabled={amount === 0n || epochs === 0 || amount > balance}
+                disabled={
+                  amount === 0n ||
+                  epochs === 0 ||
+                  amount > balance ||
+                  amount > available
+                }
                 className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
                 onClick={async () => {
                   const hash = await deposit(
@@ -228,6 +240,8 @@ const Deposit: NextPage<
               >
                 {amount > balance
                   ? `Insufficient ${asset.underlying.symbol} balance`
+                  : amount > available
+                  ? 'Not enough coupons for sale'
                   : 'Confirm'}
               </button>
             </div>
