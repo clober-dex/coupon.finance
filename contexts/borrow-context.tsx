@@ -266,7 +266,14 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [publicClient, queryClient, setConfirmation, walletClient],
+    [
+      balance?.value,
+      balances,
+      publicClient,
+      queryClient,
+      setConfirmation,
+      walletClient,
+    ],
   )
 
   const borrowMore = useCallback(
