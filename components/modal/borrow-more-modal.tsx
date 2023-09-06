@@ -140,7 +140,6 @@ const BorrowMoreModal = ({
       </div>
       <button
         disabled={
-          position.collateralAmount === 0n ||
           amount === 0n ||
           amount + position.amount > available ||
           amount + maxInterest + position.amount >
