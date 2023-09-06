@@ -1,6 +1,32 @@
 import { fetchOdosApi } from '../utils/odos'
 
-export async function fetchExpectedAmountOutByOdos({
+export async function fetchCallDataByOdos({
+  pathId,
+  userAddress,
+}: {
+  pathId: string
+  userAddress: string
+}): Promise<`0x${string}`> {
+  const { transaction } = await fetchOdosApi<{
+    transaction: {
+      data: `0x${string}`
+    }
+  }>('sor/assemble', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      accept: 'application/json',
+    },
+    body: JSON.stringify({
+      pathId,
+      simulate: true,
+      userAddr: userAddress,
+    }),
+  })
+  return transaction.data
+}
+
+export async function fetchAmountOutByOdos({
   chainId,
   amountIn,
   tokenIn,
@@ -16,7 +42,10 @@ export async function fetchExpectedAmountOutByOdos({
   slippageLimitPercent: number
   userAddress: string
   gasPrice: number
-}): Promise<bigint> {
+}): Promise<{
+  amountOut: bigint
+  pathId: string
+}> {
   const result: {
     outAmounts: string[]
     pathId: string
@@ -47,5 +76,8 @@ export async function fetchExpectedAmountOutByOdos({
       pathViz: false,
     }),
   })
-  return BigInt(result.outAmounts[0])
+  return {
+    amountOut: BigInt(result.outAmounts[0]),
+    pathId: result.pathId,
+  }
 }
