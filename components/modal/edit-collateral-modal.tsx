@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { parseUnits } from 'viem'
+import BigNumber from 'bignumber.js'
 
 import { LoanPosition } from '../../model/loan-position'
 import CurrencyAmountInput from '../currency-amount-input'
@@ -58,10 +59,13 @@ const EditCollateralModal = ({
   )
 
   const ltv = useMemo(() => {
-    const collateralDollarValue = dollarValue(
-      position.collateralAmount + (isWithdrawCollateral ? -amount : amount),
-      position.collateral.underlying.decimals,
-      prices[position.collateral.underlying.address],
+    const collateralDollarValue = Math.max(
+      dollarValue(
+        position.collateralAmount + (isWithdrawCollateral ? -amount : amount),
+        position.collateral.underlying.decimals,
+        prices[position.collateral.underlying.address],
+      ).toNumber(),
+      0,
     )
     const loanDollarValue = dollarValue(
       position.amount,
