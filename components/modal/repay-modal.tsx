@@ -10,6 +10,7 @@ import { Arrow } from '../arrow'
 import { fetchMarkets } from '../../api/market'
 import { calculateCouponsToRepay } from '../../model/market'
 import { min } from '../../utils/bigint'
+import { useBorrowContext } from '../../contexts/borrow-context'
 
 import Modal from './modal'
 
@@ -20,6 +21,7 @@ const RepayModal = ({
   position: LoanPosition
   onClose: () => void
 }) => {
+  const { repay } = useBorrowContext()
   const { prices, balances } = useCurrencyContext()
   const [isUseCollateral, setIsUseCollateral] = useState(false)
   const [value, setValue] = useState('')
@@ -137,7 +139,7 @@ const RepayModal = ({
         }
         className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
         onClick={async () => {
-          console.log('repay', refund, amount)
+          await repay(position, amount, refund)
           setValue('')
           onClose()
         }}

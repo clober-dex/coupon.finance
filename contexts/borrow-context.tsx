@@ -53,6 +53,11 @@ type BorrowContext = {
     amount: bigint,
     expectedInterest: bigint,
   ) => Promise<void>
+  repay: (
+    position: LoanPosition,
+    amount: bigint,
+    expectedProceeds: bigint,
+  ) => Promise<void>
   addCollateral: (position: LoanPosition, amount: bigint) => Promise<void>
   removeCollateral: (position: LoanPosition, amount: bigint) => Promise<void>
 }
@@ -60,6 +65,7 @@ type BorrowContext = {
 const Context = React.createContext<BorrowContext>({
   positions: [],
   borrow: () => Promise.resolve(undefined),
+  repay: () => Promise.resolve(),
   borrowMore: () => Promise.resolve(),
   extendLoanDuration: () => Promise.resolve(),
   shortenLoanDuration: () => Promise.resolve(),
@@ -179,6 +185,88 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       setConfirmation,
       walletClient,
     ],
+  )
+
+  const repay = useCallback(
+    async (
+      position: LoanPosition,
+      amount: bigint,
+      expectedProceeds: bigint,
+    ): Promise<void> => {
+      if (!walletClient) {
+        // TODO: alert wallet connect
+        return
+      }
+
+      const minimumInterestEarned = min(
+        BigInt(
+          Math.floor(Number(expectedProceeds) * (1 - SLIPPAGE_PERCENTAGE)),
+        ),
+        expectedProceeds,
+      )
+      const wethBalance = isEthereum(position.underlying)
+        ? balances[position.underlying.address] - (balance?.value || 0n)
+        : 0n
+
+      try {
+        const deadline = BigInt(
+          Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24),
+        )
+        const positionPermitResult = await permit721(
+          walletClient,
+          CONTRACT_ADDRESSES.LoanPositionManager,
+          position.id,
+          walletClient.account.address,
+          CONTRACT_ADDRESSES.BorrowController,
+          deadline,
+        )
+        const debtPermitResult = await permit20(
+          walletClient,
+          position.underlying,
+          walletClient.account.address,
+          CONTRACT_ADDRESSES.BorrowController,
+          amount,
+          deadline,
+        )
+
+        setConfirmation({
+          title: `Repaying ${position.underlying.symbol}`,
+          body: 'Please confirm in your wallet.',
+          fields: [
+            {
+              currency: position.underlying,
+              label: position.underlying.symbol,
+              value: formatUnits(amount, position.underlying.decimals),
+            },
+          ],
+        })
+
+        const { request } = await publicClient.simulateContract({
+          address: CONTRACT_ADDRESSES.BorrowController,
+          abi: BorrowController__factory.abi,
+          functionName: 'repay',
+          args: [
+            position.id,
+            amount,
+            minimumInterestEarned,
+            { ...positionPermitResult },
+            { ...debtPermitResult },
+          ],
+          value: isEthereum(position.underlying)
+            ? max(amount - wethBalance, 0n)
+            : 0n,
+          account: walletClient.account,
+        })
+        await walletClient.writeContract(request)
+        await queryClient.invalidateQueries(['loan-positions'])
+      } catch (e) {
+        console.error(e)
+      } finally {
+        await queryClient.invalidateQueries(['balances'])
+        setConfirmation(undefined)
+      }
+    },
+    [publicClient, queryClient, setConfirmation, walletClient],
   )
 
   const borrowMore = useCallback(
@@ -535,6 +623,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       value={{
         positions,
         borrow,
+        repay,
         borrowMore,
         extendLoanDuration,
         shortenLoanDuration,
