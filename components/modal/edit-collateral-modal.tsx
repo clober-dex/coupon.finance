@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react'
 import { parseUnits } from 'viem'
-import BigNumber from 'bignumber.js'
 
 import { LoanPosition } from '../../model/loan-position'
 import CurrencyAmountInput from '../currency-amount-input'
