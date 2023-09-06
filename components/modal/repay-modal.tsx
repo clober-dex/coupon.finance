@@ -145,7 +145,7 @@ const RepayModal = ({
         }}
       >
         {amount === 0n
-          ? 'Enter repay amount'
+          ? 'Enter amount to repay'
           : amount > available
           ? 'Not enough coupons for sale'
           : amount > position.amount
