@@ -304,10 +304,17 @@ export class Market {
 export const calculateTotalDeposit = (
   markets: Market[],
   initialDeposit: bigint,
-): bigint => {
+): {
+  totalDeposit: bigint
+  available: bigint
+} => {
   let totalDeposit = initialDeposit
   const amountOuts = [...Array(markets.length).keys()].map(
     () => 2n ** 256n - 1n,
+  )
+
+  const available = min(
+    ...markets.map((market) => market.totalBidsInBaseAfterFees()),
   )
 
   while (amountOuts.reduce((a, b) => a + b, 0n) > 0n) {
@@ -321,7 +328,7 @@ export const calculateTotalDeposit = (
     totalDeposit = totalDeposit + initialDeposit
   }
 
-  return totalDeposit
+  return { totalDeposit, available }
 }
 
 export const calculateDepositApy = (
@@ -332,6 +339,7 @@ export const calculateDepositApy = (
 ): {
   proceeds: bigint
   apy: number
+  available: bigint
 } => {
   if (
     markets.some(
@@ -346,7 +354,10 @@ export const calculateDepositApy = (
   }
 
   const endTimestamp = Math.max(...markets.map((market) => market.endTimestamp))
-  const totalDeposit = calculateTotalDeposit(markets, initialDeposit)
+  const { totalDeposit, available } = calculateTotalDeposit(
+    markets,
+    initialDeposit,
+  )
   const p =
     (Number(totalDeposit) - Number(initialDeposit)) / Number(initialDeposit)
   const d = Number(endTimestamp) - currentTimestamp
@@ -355,6 +366,7 @@ export const calculateDepositApy = (
   return {
     apy,
     proceeds: totalDeposit - initialDeposit,
+    available,
   }
 }
 
@@ -460,7 +472,7 @@ export function calculateCouponsToWithdraw(
   return {
     maxRepurchaseFee,
     repurchaseFee,
-    available: BigInt(Math.floor(Number(available) * (1 - 0.0001))), // 0.01%
+    available,
   }
 }
 
@@ -518,6 +530,6 @@ export function calculateCouponsToBorrow(
   return {
     interest,
     maxInterest,
-    available: BigInt(Math.floor(Number(available) * (1 - 0.0001))), // 0.01%
+    available,
   }
 }
