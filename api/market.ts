@@ -88,7 +88,7 @@ export async function fetchDepositApyByEpochsDeposited(
   return markets
     .map((_, i) => markets.slice(0, i + 1))
     .map((markets) => {
-      const { apy, proceeds } = calculateDepositApy(
+      const { apy, proceeds, available } = calculateDepositApy(
         substitute,
         markets,
         amount,
@@ -101,6 +101,7 @@ export async function fetchDepositApyByEpochsDeposited(
           .replace(/-/g, '/'), // TODO: format properly
         proceeds,
         apy,
+        available,
       }
     })
 }
