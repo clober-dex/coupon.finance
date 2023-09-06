@@ -10,7 +10,7 @@ import { calculateCouponsToBorrow } from '../../model/market'
 import { LIQUIDATION_TARGET_LTV_PRECISION, max, min } from '../../utils/bigint'
 import { dollarValue, formatUnits } from '../../utils/numbers'
 import { useBorrowContext } from '../../contexts/borrow-context'
-import { Arrow } from '../arrow'
+import { Arrow } from '../svg/arrow'
 
 import Modal from './modal'
 
