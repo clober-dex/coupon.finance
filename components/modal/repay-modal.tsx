@@ -3,6 +3,8 @@ import React, { useState } from 'react'
 import { LoanPosition } from '../../model/loan-position'
 import CurrencyAmountInput from '../currency-amount-input'
 import { useCurrencyContext } from '../../contexts/currency-context'
+import { formatUnits } from '../../utils/numbers'
+import { Arrow } from '../arrow'
 
 import Modal from './modal'
 
@@ -47,8 +49,31 @@ const RepayModal = ({
       </div>
       <div className="font-bold mb-3">Transaction Overview</div>
       <div className="flex flex-col gap-2 text-gray-500 text-sm mb-8">
-        <div>Remaining Debt</div>
-        <div>LTV</div>
+        <div className="flex gap-3 justify-between sm:justify-start">
+          <div className="text-gray-500">Remaining Debt</div>
+          <div>
+            {formatUnits(
+              123n,
+              position.underlying.decimals,
+              prices[position.underlying.address],
+            )}{' '}
+            {position.underlying.symbol}
+          </div>
+        </div>
+        <div className="flex gap-3 justify-between sm:justify-start">
+          <div className="text-gray-500">LTV</div>
+          <div className="flex items-center gap-1">
+            <span className="text-green-500">{position.ltv.toFixed(2)}%</span>
+            {value ? (
+              <>
+                <Arrow />
+                <span className="text-green-500">{3.3}%</span>
+              </>
+            ) : (
+              <></>
+            )}
+          </div>
+        </div>
       </div>
       <button
         disabled={true}
