@@ -21,7 +21,7 @@ export const CONTRACT_ADDRESSES: {
     LoanPositionManager:
       '0xDAC1D90536df1390E599534B6A6F5Fe35c907e20' as `0x${string}`,
     OdosRepayAdapter:
-      '0x0000000000000000000000000000000000000000' as `0x${string}`,
+      '0x1b2820D628F83b65126Ff591F468c960220E2594' as `0x${string}`,
   },
   dev: {
     BondPositionManager:
