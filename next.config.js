@@ -3,7 +3,7 @@ const BUILD =
 const SUBGRAPH_URL =
   BUILD === 'dev'
     ? 'http://dev-subgraph.coupon.finance:8000/subgraphs/name/coupon-subgraph'
-    : 'https://api.studio.thegraph.com/query/51933/coupon-subgraph-testnet/version/latest'
+    : 'http://testnet-subgraph.coupon.finance:8000/subgraphs/name/coupon-subgraph'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
