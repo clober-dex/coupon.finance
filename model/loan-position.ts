@@ -1,12 +1,16 @@
 import { Currency } from './currency'
+import { Collateral } from './collateral'
 import { Epoch } from './epoch'
 
-export type BondPosition = {
-  tokenId: bigint
+export type LoanPosition = {
+  id: bigint
   substitute: Currency
   underlying: Currency
+  collateral: Collateral
   interest: bigint
   amount: bigint
+  collateralAmount: bigint
+  ltv: number
   fromEpoch: Epoch
   toEpoch: Epoch
   createdAt: number

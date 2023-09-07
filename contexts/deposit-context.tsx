@@ -12,14 +12,13 @@ import { Hash } from 'viem'
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { DepositController__factory } from '../typechain'
 import { Asset } from '../model/asset'
-import { max } from '../utils/bigint'
+import { max, min } from '../utils/bigint'
 import { permit20 } from '../utils/permit20'
 import { fetchBondPositions } from '../api/bond-position'
 import { BondPosition } from '../model/bond-position'
 import { formatUnits } from '../utils/numbers'
 import { permit721 } from '../utils/permit721'
 import { Currency } from '../model/currency'
-import { zeroBytes32 } from '../utils/bytes'
 
 import { isEthereum, useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -81,8 +80,11 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const minimumInterestEarned = BigInt(
-        Math.floor(Number(expectedProceeds) * (1 - SLIPPAGE_PERCENTAGE)),
+      const minimumInterestEarned = min(
+        BigInt(
+          Math.floor(Number(expectedProceeds) * (1 - SLIPPAGE_PERCENTAGE)),
+        ),
+        expectedProceeds,
       )
       const wethBalance = isEthereum(asset.underlying)
         ? balances[asset.underlying.address] - (balance?.value || 0n)
@@ -157,6 +159,11 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
+      const maximumInterestPaid = max(
+        BigInt(Math.floor(Number(repurchaseFee) * (1 + SLIPPAGE_PERCENTAGE))),
+        repurchaseFee,
+      )
+
       try {
         const { deadline, r, s, v } = await permit721(
           walletClient,
@@ -183,8 +190,8 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           functionName: 'withdraw',
           args: [
             tokenId,
-            amount + repurchaseFee,
-            repurchaseFee,
+            amount + maximumInterestPaid,
+            maximumInterestPaid,
             { deadline, v, r, s },
           ],
           account: walletClient.account,

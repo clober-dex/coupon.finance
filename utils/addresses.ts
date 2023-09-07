@@ -7,6 +7,7 @@ export const CONTRACT_ADDRESSES: {
   BorrowController: `0x${string}`
   CouponOracle: `0x${string}`
   DepositController: `0x${string}`
+  LoanPositionManager: `0x${string}`
   OdosRepayAdapter: `0x${string}`
 } = {
   prod: {
@@ -17,8 +18,10 @@ export const CONTRACT_ADDRESSES: {
     CouponOracle: '0xE0dBCB42CCAc63C949cE3EF879A647DDb662916d' as `0x${string}`,
     DepositController:
       '0x724D0757261c4d0461A0fd71929e080447162148' as `0x${string}`,
+    LoanPositionManager:
+      '0xDAC1D90536df1390E599534B6A6F5Fe35c907e20' as `0x${string}`,
     OdosRepayAdapter:
-      '0x0000000000000000000000000000000000000000' as `0x${string}`,
+      '0x1b2820D628F83b65126Ff591F468c960220E2594' as `0x${string}`,
   },
   dev: {
     BondPositionManager:
@@ -28,7 +31,9 @@ export const CONTRACT_ADDRESSES: {
     CouponOracle: '0x8831c769874fF23ED5DF0daacfD84Cc147335506' as `0x${string}`,
     DepositController:
       '0xDbAb42F029333BF720814732Bb3e3D74c074B558' as `0x${string}`,
+    LoanPositionManager:
+      '0xE0dBCB42CCAc63C949cE3EF879A647DDb662916d' as `0x${string}`,
     OdosRepayAdapter:
-      '0x06ad1569cc3f430D16f906D21Cd2D1DA6eCA8e48' as `0x${string}`,
+      '0x2A783C61080fF2b97B6F4D7fbD63B5E5f6874b10' as `0x${string}`,
   },
 }[BUILD]

@@ -1,18 +1,28 @@
 import React, { SVGProps, useState } from 'react'
 import Link from 'next/link'
+import BigNumber from 'bignumber.js'
+import { isAddressEqual, parseUnits } from 'viem'
 
 import { useBorrowContext } from '../contexts/borrow-context'
 import { Currency, getLogo } from '../model/currency'
 import { AssetStatus } from '../model/asset'
-import { useCurrencyContext } from '../contexts/currency-context'
-import { formatDollarValue, formatUnits } from '../utils/numbers'
+import {
+  BigDecimal,
+  dollarValue,
+  formatDollarValue,
+  formatUnits,
+} from '../utils/numbers'
 import { Epoch } from '../model/epoch'
+import { useCurrencyContext } from '../contexts/currency-context'
+import { LoanPosition } from '../model/loan-position'
+import { calculateApr } from '../utils/apr'
 
 import RepayModal from './modal/repay-modal'
 import BorrowMoreModal from './modal/borrow-more-modal'
 import EditCollateralModal from './modal/edit-collateral-modal'
 import EditExpiryModal from './modal/edit-expiry-modal'
 import EpochSelect from './epoch-select'
+import { ClientComponent } from './client-component'
 
 const EditSvg = (props: SVGProps<any>) => (
   <svg
@@ -48,56 +58,54 @@ const EditSvg = (props: SVGProps<any>) => (
 )
 
 const Position = ({
-  currency,
-  apy,
-  borrowed,
-  collateral,
-  collateralSymbol,
-  expiry,
+  position,
   price,
   collateralPrice,
-  ltv,
-  liquidationThreshold,
   onRepay,
   onBorrowMore,
   onEditCollateral,
   onEditExpiry,
   ...props
 }: {
-  currency: Currency
-  apy: string
-  borrowed: string
-  collateral: string
-  collateralSymbol: string
-  expiry: string
-  price: string
-  collateralPrice: string
-  ltv: string
-  liquidationThreshold: string
+  position: LoanPosition
+  price?: BigDecimal
+  collateralPrice?: BigDecimal
   onRepay: () => void
   onBorrowMore: () => void
   onEditCollateral: () => void
   onEditExpiry: () => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
-  collateralPrice // TODO remove
   return (
     <div className="rounded-xl shadow bg-gray-50 dark:bg-gray-900" {...props}>
       <div className="flex justify-between rounded-t-xl p-4 bg-white dark:bg-gray-800">
         <div className="flex items-center gap-3">
           <img
-            src={getLogo(currency)}
-            alt={currency.name}
+            src={getLogo(position.underlying)}
+            alt={position.underlying.name}
             className="w-8 h-8"
           />
           <div className="flex flex-col">
-            <div className="font-bold">{currency.symbol}</div>
-            <div className="text-gray-500 text-sm">{currency.name}</div>
+            <div className="font-bold">{position.underlying.symbol}</div>
+            <div className="text-gray-500 text-sm">
+              {position.underlying.name}
+            </div>
           </div>
         </div>
         <div className="flex flex-col items-end">
-          <div className="font-bold">{apy}</div>
+          <div className="font-bold">
+            {calculateApr(
+              Number(position.interest) / Number(position.amount),
+              position.toEpoch.endTimestamp - position.createdAt,
+            ).toFixed(2)}
+            %
+          </div>
           <div className="flex items-center gap-1">
-            <div className="text-xs sm:text-sm">{expiry}</div>
+            <div className="text-xs sm:text-sm">
+              {new Date(Number(position.toEpoch.endTimestamp) * 1000)
+                .toISOString()
+                .slice(2, 10)
+                .replace(/-/g, '/')}
+            </div>
             <button>
               <EditSvg onClick={onEditExpiry} />
             </button>
@@ -109,15 +117,32 @@ const Position = ({
           <div className="flex items-center justify-between text-xs">
             <div className="text-gray-500">Borrow Amount</div>
             <div className="flex gap-1 text-xs sm:text-sm">
-              {borrowed}
-              <span className="text-gray-500">(${+borrowed * +price})</span>
+              {formatUnits(
+                position.amount,
+                position.underlying.decimals,
+                price,
+              )}
+              <span className="text-gray-500">
+                (
+                {formatDollarValue(
+                  position.amount,
+                  position.underlying.decimals,
+                  price,
+                )}
+                )
+              </span>
             </div>
           </div>
           <div className="flex items-center justify-between">
             <div className="text-gray-500 text-xs">Collateral</div>
             <div className="flex items-center gap-1">
               <div className="text-xs sm:text-sm">
-                ${collateral} {collateralSymbol}
+                {formatUnits(
+                  position.collateralAmount,
+                  position.collateral.underlying.decimals,
+                  collateralPrice,
+                )}{' '}
+                {position.collateral.underlying.symbol}
               </div>
               <button>
                 <EditSvg onClick={onEditCollateral} />
@@ -126,12 +151,15 @@ const Position = ({
           </div>
           <div className="flex items-center justify-between text-gray-500 text-xs">
             <div>LTV</div>
-            <div className="flex text-green-500 text-xs sm:text-sm">{ltv}</div>
+            <div className="flex text-green-500 text-xs sm:text-sm">
+              {position.ltv.toFixed(2)}%
+            </div>
           </div>
           <div className="flex items-center justify-between text-xs">
             <div className="text-gray-500">Liquidation Threshold</div>
             <div className="flex text-xs sm:text-sm">
-              {liquidationThreshold}
+              {formatUnits(BigInt(position.collateral.liquidationThreshold), 4)}
+              %
             </div>
           </div>
         </div>
@@ -156,17 +184,17 @@ const Position = ({
 
 const Asset = ({
   currency,
-  apy,
+  apr,
   available,
   borrowed,
   price,
   ...props
 }: {
   currency: Currency
-  apy: number
+  apr: number
   available: bigint
   borrowed: bigint
-  price: number
+  price?: BigDecimal
 } & React.HTMLAttributes<HTMLDivElement>) => {
   return (
     <div
@@ -188,11 +216,13 @@ const Asset = ({
               <div className="text-gray-500 text-xs">{currency.name}</div>
             </div>
           </div>
-          <div className="text-sm font-bold sm:w-[80px]">{apy.toFixed(2)}</div>
+          <ClientComponent className="text-sm font-bold sm:w-[80px]">
+            {apr.toFixed(2)}%
+          </ClientComponent>
         </div>
         <div className="flex flex-row sm:flex-col w-full sm:w-[120px] justify-between px-4 sm:p-0">
           <div className="sm:hidden text-gray-500 text-xs">Available</div>
-          <div className="flex flex-row sm:flex-col items-center sm:items-start gap-1 sm:gap-0">
+          <ClientComponent className="flex flex-row sm:flex-col items-center sm:items-start gap-1 sm:gap-0">
             <div className="text-xs sm:text-sm">
               {formatUnits(available, currency.decimals, price)}{' '}
               {currency.symbol}
@@ -202,11 +232,11 @@ const Asset = ({
               {formatDollarValue(available, currency.decimals, price)}
               <span className="sm:hidden">)</span>
             </div>
-          </div>
+          </ClientComponent>
         </div>
         <div className="flex flex-row sm:flex-col w-full sm:w-[120px] justify-between px-4 sm:p-0">
           <div className="sm:hidden text-gray-500 text-xs">Total Borrowed</div>
-          <div className="flex flex-row sm:flex-col sm:w-[120px] gap-1 sm:gap-0">
+          <ClientComponent className="flex flex-row sm:flex-col sm:w-[120px] gap-1 sm:gap-0">
             <div className="text-xs sm:text-sm">
               {formatUnits(borrowed, currency.decimals, price)}{' '}
               {currency.symbol}
@@ -216,7 +246,7 @@ const Asset = ({
               {formatDollarValue(borrowed, currency.decimals, price)}
               <span className="sm:hidden">)</span>
             </div>
-          </div>
+          </ClientComponent>
         </div>
       </div>
       <Link
@@ -237,23 +267,14 @@ const Borrow = ({
   epochs: Epoch[]
 }) => {
   const { prices } = useCurrencyContext()
-  const { positions, apy, available, borrowed } = useBorrowContext()
-  const [repayPosition, setRepayPosition] = useState<{
-    currency: Currency
-    amount: string
-  } | null>(null)
-  const [borrowMorePosition, setBorrowMorePosition] = useState<{
-    currency: Currency
-    amount: string
-  } | null>(null)
-  const [editCollateralPosition, setEditCollateralPosition] = useState<{
-    currency: Currency
-    amount: string
-  } | null>(null)
-  const [editExpiryPosition, setEditExpiryPosition] = useState<{
-    currency: Currency
-    amount: string
-  } | null>(null)
+  const { positions } = useBorrowContext()
+  const [repayPosition, setRepayPosition] = useState<LoanPosition | null>(null)
+  const [borrowMorePosition, setBorrowMorePosition] =
+    useState<LoanPosition | null>(null)
+  const [editCollateralPosition, setEditCollateralPosition] =
+    useState<LoanPosition | null>(null)
+  const [editExpiryPosition, setEditExpiryPosition] =
+    useState<LoanPosition | null>(null)
   const [epoch, setEpoch] = useState(epochs[0])
   return (
     <div className="flex flex-1 flex-col w-full sm:w-fit">
@@ -261,7 +282,7 @@ const Borrow = ({
         The Best Fixed-Rate <br className="flex sm:hidden" /> Borrowing in DeFi
       </h1>
       {positions.length > 0 ? (
-        <div className="flex flex-col gap-6 mb-12 sm:mb-20 px-4 sm:p-0">
+        <ClientComponent className="flex flex-col gap-6 mb-12 sm:mb-20 px-4 sm:p-0">
           <div className="flex gap-2 sm:gap-3 items-center">
             <h2 className="font-bold text-base sm:text-2xl">My Positions</h2>
             <div className="font-bold text-sm bg-gray-200 dark:bg-gray-700 rounded-full px-2.5 sm:px-3 py-0.5 sm:py-1">
@@ -273,70 +294,56 @@ const Borrow = ({
               <div className="text-gray-500">Total Borrow Amount</div>
               <div className="font-bold">
                 $
-                {positions.reduce(
-                  (acc, position) => +position.price * +position.borrowed + acc,
-                  0,
-                )}
+                {positions
+                  .reduce(
+                    (acc, { underlying, amount }) =>
+                      dollarValue(
+                        amount,
+                        underlying.decimals,
+                        prices[underlying.address],
+                      ).plus(acc),
+                    new BigNumber(0),
+                  )
+                  .toFixed(2)}
               </div>
             </div>
             <div className="flex justify-between gap-3">
               <div className="text-gray-500">Total Collateral</div>
               <div className="font-bold">
                 $
-                {positions.reduce(
-                  (acc, position) =>
-                    +position.collateralPrice * +position.collateral + acc,
-                  0,
-                )}
+                {positions
+                  .reduce(
+                    (acc, { collateral, collateralAmount }) =>
+                      dollarValue(
+                        collateralAmount,
+                        collateral.underlying.decimals,
+                        prices[collateral.underlying.address],
+                      ).plus(acc),
+                    new BigNumber(0),
+                  )
+                  .toFixed(2)}
               </div>
-            </div>
-            <div className="flex justify-between gap-3">
-              <div className="text-gray-500">Average APY</div>
-              <div className="font-bold">5.0%</div>
             </div>
           </div>
           <div className="flex flex-col sm:grid sm:grid-cols-3 gap-4 sm:gap-6">
-            {positions.map((position, i) => (
-              <Position
-                key={i}
-                currency={position.currency}
-                apy={position.apy}
-                borrowed={position.borrowed}
-                collateral={position.collateral}
-                collateralSymbol={position.collateralSymbol}
-                expiry={position.expiry}
-                price={position.price}
-                collateralPrice={position.collateralPrice}
-                ltv={position.ltv}
-                liquidationThreshold={position.liquidationThreshold}
-                onRepay={() =>
-                  setRepayPosition({
-                    currency: position.currency,
-                    amount: position.borrowed,
-                  })
-                }
-                onBorrowMore={() =>
-                  setBorrowMorePosition({
-                    currency: position.currency,
-                    amount: position.borrowed,
-                  })
-                }
-                onEditCollateral={() =>
-                  setEditCollateralPosition({
-                    currency: position.currency,
-                    amount: position.collateral,
-                  })
-                }
-                onEditExpiry={() =>
-                  setEditExpiryPosition({
-                    currency: position.currency,
-                    amount: position.borrowed,
-                  })
-                }
-              />
-            ))}
+            {positions
+              .sort((a, b) => Number(b.createdAt) - Number(a.createdAt))
+              .map((position, i) => (
+                <Position
+                  key={i}
+                  position={position}
+                  price={prices[position.underlying.address]}
+                  collateralPrice={
+                    prices[position.collateral.underlying.address]
+                  }
+                  onRepay={() => setRepayPosition(position)}
+                  onBorrowMore={() => setBorrowMorePosition(position)}
+                  onEditCollateral={() => setEditCollateralPosition(position)}
+                  onEditExpiry={() => setEditExpiryPosition(position)}
+                />
+              ))}
           </div>
-        </div>
+        </ClientComponent>
       ) : (
         <></>
       )}
@@ -357,42 +364,88 @@ const Borrow = ({
         <div className="flex flex-col mb-12 gap-4">
           <div className="hidden sm:flex gap-4 text-gray-500 text-xs">
             <div className="w-[156px]">Asset</div>
-            <div className="w-[80px]">APY</div>
+            <div className="w-[80px]">APR</div>
             <div className="w-[120px]">Available</div>
             <div className="w-[120px]">Total Borrowed</div>
           </div>
           <div className="flex flex-col gap-4 sm:gap-3">
             {assetStatuses
               .filter((assetStatus) => assetStatus.epoch.id === epoch.id)
-              .map((assetStatus, i) => (
-                <Asset
-                  key={i}
-                  currency={assetStatus.underlying}
-                  apy={apy[assetStatus.underlying.address] ?? 0}
-                  available={available[assetStatus.underlying.address] ?? 0n}
-                  borrowed={borrowed[assetStatus.underlying.address] ?? 0n}
-                  price={prices[assetStatus.underlying.address] ?? 0}
-                />
-              ))}
+              .filter((assetStatus) => assetStatus.totalBorrowAvailable !== '0')
+              .map((assetStatus, i) => {
+                const validAssetStatuses = assetStatuses.filter(
+                  ({ underlying, epoch }) =>
+                    isAddressEqual(
+                      underlying.address,
+                      assetStatus.underlying.address,
+                    ) && epoch.id <= assetStatus.epoch.id,
+                )
+                const interest = validAssetStatuses.reduce(
+                  (acc, { bestCouponAskPrice }) => acc + bestCouponAskPrice,
+                  0,
+                )
+                const currentTimestamp = Math.floor(new Date().getTime() / 1000)
+                const apr = calculateApr(
+                  interest,
+                  assetStatus.epoch.endTimestamp - currentTimestamp,
+                )
+                const available = validAssetStatuses
+                  .map(({ totalBorrowAvailable }) =>
+                    parseUnits(
+                      totalBorrowAvailable,
+                      assetStatus.underlying.decimals,
+                    ),
+                  )
+                  .reduce((acc, val) => (acc > val ? acc : val), 0n)
+                return (
+                  <Asset
+                    key={i}
+                    currency={assetStatus.underlying}
+                    apr={apr}
+                    available={available}
+                    borrowed={parseUnits(
+                      assetStatus.totalBorrowed,
+                      assetStatus.underlying.decimals,
+                    )}
+                    price={prices[assetStatus.underlying.address]}
+                  />
+                )
+              })}
           </div>
         </div>
       </div>
-      <RepayModal
-        position={repayPosition}
-        onClose={() => setRepayPosition(null)}
-      />
-      <BorrowMoreModal
-        position={borrowMorePosition}
-        onClose={() => setBorrowMorePosition(null)}
-      />
-      <EditCollateralModal
-        position={editCollateralPosition}
-        onClose={() => setEditCollateralPosition(null)}
-      />
-      <EditExpiryModal
-        position={editExpiryPosition}
-        onClose={() => setEditExpiryPosition(null)}
-      />
+      {repayPosition ? (
+        <RepayModal
+          position={repayPosition}
+          onClose={() => setRepayPosition(null)}
+        />
+      ) : (
+        <></>
+      )}
+      {borrowMorePosition ? (
+        <BorrowMoreModal
+          position={borrowMorePosition}
+          onClose={() => setBorrowMorePosition(null)}
+        />
+      ) : (
+        <></>
+      )}
+      {editCollateralPosition ? (
+        <EditCollateralModal
+          position={editCollateralPosition}
+          onClose={() => setEditCollateralPosition(null)}
+        />
+      ) : (
+        <></>
+      )}
+      {editExpiryPosition ? (
+        <EditExpiryModal
+          position={editExpiryPosition}
+          onClose={() => setEditExpiryPosition(null)}
+        />
+      ) : (
+        <></>
+      )}
     </div>
   )
 }

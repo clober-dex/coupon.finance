@@ -1,7 +1,12 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
+import { parseUnits } from 'viem'
 
-import NumberInput from '../number-input'
-import { Currency, getLogo } from '../../model/currency'
+import { LoanPosition } from '../../model/loan-position'
+import CurrencyAmountInput from '../currency-amount-input'
+import { useCurrencyContext } from '../../contexts/currency-context'
+import { LIQUIDATION_TARGET_LTV_PRECISION, max } from '../../utils/bigint'
+import { dollarValue } from '../../utils/numbers'
+import { useBorrowContext } from '../../contexts/borrow-context'
 
 import Modal from './modal'
 
@@ -9,16 +14,68 @@ const EditCollateralModal = ({
   position,
   onClose,
 }: {
-  position: {
-    currency: Currency
-    amount: string
-  } | null
+  position: LoanPosition
   onClose: () => void
 }) => {
+  const { addCollateral, removeCollateral } = useBorrowContext()
+  const { prices, balances } = useCurrencyContext()
   const [value, setValue] = useState('')
   const [isWithdrawCollateral, setIsWithdrawCollateral] = useState(false)
+
+  const amount = useMemo(
+    () =>
+      position
+        ? parseUnits(value, position.collateral.underlying.decimals)
+        : 0n,
+    [position, value],
+  )
+
+  const minCollateralAmount = useMemo(() => {
+    const collateralPrice =
+      prices[position.collateral.underlying.address]?.value ?? 0n
+    const collateralComplement =
+      10n ** BigInt(18 - position.collateral.underlying.decimals)
+    const loanPrice = prices[position.underlying.address]?.value ?? 0n
+    const loanComplement = 10n ** BigInt(18 - position.underlying.decimals)
+
+    return loanPrice && collateralPrice
+      ? (position.amount *
+          LIQUIDATION_TARGET_LTV_PRECISION *
+          loanPrice *
+          loanComplement) /
+          (collateralPrice *
+            collateralComplement *
+            BigInt(position.collateral.liquidationTargetLtv))
+      : 0n
+  }, [position, prices])
+
+  const availableCollateralAmount = useMemo(
+    () =>
+      isWithdrawCollateral
+        ? max(position.collateralAmount - minCollateralAmount, 0n)
+        : balances[position.collateral.underlying.address],
+    [balances, isWithdrawCollateral, minCollateralAmount, position],
+  )
+
+  const ltv = useMemo(() => {
+    const collateralDollarValue = Math.max(
+      dollarValue(
+        position.collateralAmount + (isWithdrawCollateral ? -amount : amount),
+        position.collateral.underlying.decimals,
+        prices[position.collateral.underlying.address],
+      ).toNumber(),
+      0,
+    )
+    const loanDollarValue = dollarValue(
+      position.amount,
+      position.underlying.decimals,
+      prices[position.underlying.address],
+    )
+    return loanDollarValue.times(100).div(collateralDollarValue).toNumber()
+  }, [amount, isWithdrawCollateral, position, prices])
+
   return (
-    <Modal show={!!position} onClose={onClose}>
+    <Modal show onClose={onClose}>
       <h1 className="font-bold text-xl mb-6">Add or withdraw collateral</h1>
       <div className="flex mb-6 rounded text-xs bg-gray-100 dark:bg-gray-800 text-gray-500">
         <button
@@ -37,44 +94,36 @@ const EditCollateralModal = ({
         </button>
       </div>
       <div className="mb-4">
-        <div className="flex bg-white dark:bg-gray-800 rounded-lg p-3 shadow dark:shadow-none">
-          <div className="flex flex-col flex-1 justify-between gap-2">
-            <NumberInput
-              className="text-2xl placeholder-gray-400 outline-none bg-transparent"
-              value={value}
-              onValueChange={setValue}
-              placeholder="0.0000"
-            />
-            <div className="text-gray-400 dark:text-gray-500 text-sm">
-              ~$0.0000
-            </div>
-          </div>
-          <div className="flex flex-col items-end justify-between">
-            <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
-              <img
-                src={getLogo(position?.currency)}
-                alt={position?.currency.name}
-                className="w-5 h-5"
-              />
-              <div>{position?.currency.symbol}</div>
-            </div>
-            <div className="flex text-sm gap-2">
-              <div className="text-gray-500">Available</div>
-              <div>{position?.amount}</div>
-              <button className="text-green-500">MAX</button>
-            </div>
-          </div>
-        </div>
+        <CurrencyAmountInput
+          currency={position.collateral.underlying}
+          value={value}
+          onValueChange={setValue}
+          price={prices[position.collateral.underlying.address]}
+          balance={availableCollateralAmount}
+        />
       </div>
       <div className="flex text-sm gap-3 mb-8">
         <span className="text-gray-500">LTV</span>
-        1.00
+        {ltv.toFixed(2)}%
       </div>
       <button
-        disabled={true}
-        className="font-bold text-xl disabled:bg-gray-100 dark:disabled:bg-gray-800 h-16 rounded-lg disabled:text-gray-300 dark:disabled:text-gray-500"
+        disabled={amount === 0n || amount > availableCollateralAmount}
+        className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
+        onClick={async () => {
+          isWithdrawCollateral
+            ? await removeCollateral(position, amount)
+            : await addCollateral(position, amount)
+          setValue('')
+          onClose()
+        }}
       >
-        Confirm
+        {amount === 0n
+          ? 'Enter collateral amount'
+          : !isWithdrawCollateral && amount > availableCollateralAmount
+          ? `Insufficient ${position.collateral.underlying.symbol} balance`
+          : isWithdrawCollateral && amount > position.collateralAmount
+          ? 'Not enough collateral'
+          : 'Confirm'}
       </button>
     </Modal>
   )

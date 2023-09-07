@@ -37,7 +37,7 @@ const price = 10n ** 17n // 10%
 
 describe('Deposit controller', () => {
   it('check deposit to 1 market', () => {
-    const depositedAmount = calculateTotalDeposit(
+    const { totalDeposit: depositedAmount } = calculateTotalDeposit(
       [
         Market.from(
           market,
@@ -55,7 +55,7 @@ describe('Deposit controller', () => {
     )
     expect(depositedAmount).toEqual(111111111111000000000n)
 
-    const depositedAmount2 = calculateTotalDeposit(
+    const { totalDeposit: depositedAmount2 } = calculateTotalDeposit(
       [
         Market.from(
           market,
@@ -73,7 +73,7 @@ describe('Deposit controller', () => {
     )
     expect(depositedAmount2).toEqual(110000000000000000000n)
 
-    const depositedAmount3 = calculateTotalDeposit(
+    const { totalDeposit: depositedAmount3 } = calculateTotalDeposit(
       [
         Market.from(
           market,
@@ -98,7 +98,7 @@ describe('Deposit controller', () => {
   })
 
   it('check deposit to 2 markets', () => {
-    const depositedAmount = calculateTotalDeposit(
+    const { totalDeposit: depositedAmount } = calculateTotalDeposit(
       [
         Market.from(
           market,
@@ -128,7 +128,7 @@ describe('Deposit controller', () => {
 
     expect(Number(depositedAmount) / 10 ** 18).toBeCloseTo(125)
 
-    const depositedAmount2 = calculateTotalDeposit(
+    const { totalDeposit: depositedAmount2 } = calculateTotalDeposit(
       [
         Market.from(
           market,
@@ -245,7 +245,7 @@ describe('Deposit controller', () => {
       initialDeposit,
       1688169600,
     )
-    expect(apy).toBeCloseTo(100 / (1 - 0.2) / 100)
+    expect(apy).toBeCloseTo(100 / (1 - 0.2) - 100, 0.01)
     expect(Number(proceeds) / 10 ** 18).toBeCloseTo(25)
   })
 })

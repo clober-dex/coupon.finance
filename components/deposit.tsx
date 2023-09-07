@@ -1,13 +1,19 @@
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { isAddressEqual, parseUnits } from 'viem'
+import BigNumber from 'bignumber.js'
 
 import { useDepositContext } from '../contexts/deposit-context'
 import { Currency, getLogo } from '../model/currency'
 import { AssetStatus } from '../model/asset'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { BondPosition } from '../model/bond-position'
-import { dollarValue, formatDollarValue, formatUnits } from '../utils/numbers'
+import {
+  BigDecimal,
+  dollarValue,
+  formatDollarValue,
+  formatUnits,
+} from '../utils/numbers'
 import { Epoch } from '../model/epoch'
 import { calculateApy } from '../utils/apy'
 
@@ -22,10 +28,9 @@ const Position = ({
   ...props
 }: {
   position: BondPosition
-  price: number
+  price?: BigDecimal
   onWithdraw: () => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
-  const currentTimestamp = Math.floor(new Date().getTime() / 1000)
   return (
     <div className="rounded-xl shadow bg-gray-50 dark:bg-gray-900" {...props}>
       <div className="flex justify-between rounded-t-xl p-4 bg-white dark:bg-gray-800">
@@ -46,12 +51,12 @@ const Position = ({
           <div className="font-bold">
             {calculateApy(
               Number(position.interest) / Number(position.amount),
-              position.expiryTimestamp - currentTimestamp,
+              position.toEpoch.endTimestamp - position.createdAt,
             ).toFixed(2)}
             %
           </div>
           <div className="text-xs sm:text-sm">
-            {new Date(Number(position.expiryTimestamp) * 1000)
+            {new Date(Number(position.toEpoch.endTimestamp) * 1000)
               .toISOString()
               .slice(2, 10)
               .replace(/-/g, '/')}
@@ -114,7 +119,7 @@ const Asset = ({
   apy: number
   available: bigint
   deposited: bigint
-  price: number
+  price?: BigDecimal
 } & React.HTMLAttributes<HTMLDivElement>) => {
   return (
     <div
@@ -214,10 +219,12 @@ const Deposit = ({
                 {positions
                   .reduce(
                     (acc, { underlying, amount }) =>
-                      +formatUnits(amount, underlying.decimals) *
-                        (prices[underlying.address] ?? 0) +
-                      acc,
-                    0,
+                      dollarValue(
+                        amount,
+                        underlying.decimals,
+                        prices[underlying.address],
+                      ).plus(acc),
+                    new BigNumber(0),
                   )
                   .toFixed(2)}
               </div>
@@ -229,10 +236,12 @@ const Deposit = ({
                 {positions
                   .reduce(
                     (acc, { underlying, interest }) =>
-                      +formatUnits(interest, underlying.decimals) *
-                        (prices[underlying.address] ?? 0) +
-                      acc,
-                    0,
+                      dollarValue(
+                        interest,
+                        underlying.decimals,
+                        prices[underlying.address],
+                      ).plus(acc),
+                    new BigNumber(0),
                   )
                   .toFixed(2)}
               </div>
@@ -244,14 +253,14 @@ const Deposit = ({
                 dollarValue(
                   position.amount,
                   position.underlying.decimals,
-                  prices[position.underlying.address] ?? 0,
+                  prices[position.underlying.address],
                 ).isGreaterThanOrEqualTo(0.01),
               )
               .map((position, i) => (
                 <Position
                   key={i}
                   position={position}
-                  price={prices[position.underlying.address] ?? 0}
+                  price={prices[position.underlying.address]}
                   onWithdraw={() => setWithdrawPosition(position)}
                 />
               ))}
@@ -284,7 +293,9 @@ const Deposit = ({
           <div className="flex flex-col gap-4 sm:gap-3">
             {assetStatuses
               .filter((assetStatus) => assetStatus.epoch.id === epoch.id)
-              .filter((assetStatus) => assetStatus.totalAvailable !== '0')
+              .filter(
+                (assetStatus) => assetStatus.totalDepositAvailable !== '0',
+              )
               .map((assetStatus, i) => {
                 const validAssetStatuses = assetStatuses.filter(
                   ({ underlying, epoch }) =>
@@ -294,7 +305,7 @@ const Deposit = ({
                     ) && epoch.id <= assetStatus.epoch.id,
                 )
                 const proceeds = validAssetStatuses.reduce(
-                  (acc, { bestCouponPrice }) => acc + bestCouponPrice,
+                  (acc, { bestCouponBidPrice }) => acc + bestCouponBidPrice,
                   0,
                 )
                 const currentTimestamp = Math.floor(new Date().getTime() / 1000)
@@ -303,8 +314,11 @@ const Deposit = ({
                   assetStatus.epoch.endTimestamp - currentTimestamp,
                 )
                 const available = validAssetStatuses
-                  .map(({ totalAvailable }) =>
-                    parseUnits(totalAvailable, assetStatus.underlying.decimals),
+                  .map(({ totalDepositAvailable }) =>
+                    parseUnits(
+                      totalDepositAvailable,
+                      assetStatus.underlying.decimals,
+                    ),
                   )
                   .reduce((acc, val) => (acc > val ? acc : val), 0n)
                 return (
@@ -317,7 +331,7 @@ const Deposit = ({
                       assetStatus.totalDeposited,
                       assetStatus.underlying.decimals,
                     )}
-                    price={prices[assetStatus.underlying.address] ?? 0}
+                    price={prices[assetStatus.underlying.address]}
                   />
                 )
               })}

@@ -41,6 +41,7 @@ export async function fetchAssets(): Promise<Asset[]> {
     underlying: toCurrency(asset.underlying),
     collaterals: asset.collaterals.map((collateral) => ({
       underlying: toCurrency(collateral.underlying),
+      substitute: toCurrency(collateral.substitute),
       liquidationThreshold: collateral.liquidationThreshold,
       liquidationTargetLtv: collateral.liquidationTargetLtv,
     })),
@@ -95,18 +96,27 @@ export async function fetchAssetStatuses(): Promise<AssetStatus[]> {
       })),
     })
     const decimals = assetStatus.asset.underlying.decimals
-    const totalAvailable = formatUnits(
+    const totalDepositAvailable = formatUnits(
       market.totalBidsInBaseAfterFees(),
       decimals,
     )
+    const totalBorrowAvailable = formatUnits(
+      market.totalAsksInBaseAfterFees(),
+      decimals,
+    )
     const totalDeposited = formatUnits(assetStatus.totalDeposited, decimals)
-    const bestCouponPrice = Number(market.bids[0]?.price ?? 0n) / 1e18
+    const totalBorrowed = formatUnits(assetStatus.totalBorrowed, decimals)
+    const bestCouponBidPrice = Number(market.bids[0]?.price ?? 0n) / 1e18
+    const bestCouponAskPrice = Number(market.asks[0]?.price ?? 0n) / 1e18
     return {
       underlying,
       epoch,
-      totalAvailable,
+      totalDepositAvailable,
       totalDeposited,
-      bestCouponPrice,
+      totalBorrowAvailable,
+      totalBorrowed,
+      bestCouponBidPrice,
+      bestCouponAskPrice,
     }
   })
 }

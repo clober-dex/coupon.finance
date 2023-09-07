@@ -11,7 +11,10 @@ export type Asset = {
 export type AssetStatus = {
   underlying: Currency
   epoch: Epoch
-  totalAvailable: string
+  totalDepositAvailable: string
   totalDeposited: string
-  bestCouponPrice: number
+  totalBorrowAvailable: string
+  totalBorrowed: string
+  bestCouponBidPrice: number
+  bestCouponAskPrice: number
 }

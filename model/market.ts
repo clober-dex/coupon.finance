@@ -2,6 +2,8 @@ import { isAddressEqual } from 'viem'
 
 import { MarketDto } from '../api/market'
 import { calculateApy } from '../utils/apy'
+import { calculateApr } from '../utils/apr'
+import { max, min } from '../utils/bigint'
 
 import { Currency } from './currency'
 
@@ -302,10 +304,17 @@ export class Market {
 export const calculateTotalDeposit = (
   markets: Market[],
   initialDeposit: bigint,
-): bigint => {
+): {
+  totalDeposit: bigint
+  available: bigint
+} => {
   let totalDeposit = initialDeposit
   const amountOuts = [...Array(markets.length).keys()].map(
     () => 2n ** 256n - 1n,
+  )
+
+  const available = min(
+    ...markets.map((market) => market.totalBidsInBaseAfterFees()),
   )
 
   while (amountOuts.reduce((a, b) => a + b, 0n) > 0n) {
@@ -319,7 +328,7 @@ export const calculateTotalDeposit = (
     totalDeposit = totalDeposit + initialDeposit
   }
 
-  return totalDeposit
+  return { totalDeposit, available }
 }
 
 export const calculateDepositApy = (
@@ -330,6 +339,7 @@ export const calculateDepositApy = (
 ): {
   proceeds: bigint
   apy: number
+  available: bigint
 } => {
   if (
     markets.some(
@@ -343,10 +353,11 @@ export const calculateDepositApy = (
     new Error('Substitute token is not supported')
   }
 
-  const endTimestamp = markets
-    .map((market) => market.endTimestamp)
-    .reduce((acc, val) => (acc < val ? val : acc), 0)
-  const totalDeposit = calculateTotalDeposit(markets, initialDeposit)
+  const endTimestamp = Math.max(...markets.map((market) => market.endTimestamp))
+  const { totalDeposit, available } = calculateTotalDeposit(
+    markets,
+    initialDeposit,
+  )
   const p =
     (Number(totalDeposit) - Number(initialDeposit)) / Number(initialDeposit)
   const d = Number(endTimestamp) - currentTimestamp
@@ -355,5 +366,193 @@ export const calculateDepositApy = (
   return {
     apy,
     proceeds: totalDeposit - initialDeposit,
+    available,
+  }
+}
+
+export const calculateBorrowApr = (
+  substitute: Currency,
+  markets: Market[],
+  initialBorrow: bigint,
+  maxAmountExcludingFee: bigint,
+  currentTimestamp: number,
+): {
+  interest: bigint
+  maxInterest: bigint
+  apr: number
+  totalBorrow: bigint
+  available: bigint
+} => {
+  if (
+    markets.some(
+      (market) =>
+        !isAddressEqual(
+          market.quoteToken.address,
+          substitute.address as `0x${string}`,
+        ),
+    )
+  ) {
+    new Error('Substitute token is not supported')
+  }
+
+  const { interest, maxInterest, available } = calculateCouponsToBorrow(
+    substitute,
+    markets,
+    maxAmountExcludingFee,
+    initialBorrow,
+  )
+
+  const endTimestamp = Math.max(...markets.map((market) => market.endTimestamp))
+  const totalBorrow = initialBorrow - interest
+  const p = Number(interest) / Number(totalBorrow)
+  const d = Number(endTimestamp) - currentTimestamp
+  const apr = calculateApr(p, d)
+
+  return {
+    apr,
+    interest,
+    maxInterest,
+    totalBorrow,
+    available,
+  }
+}
+
+export function calculateCouponsToWithdraw(
+  substitute: Currency,
+  markets: Market[],
+  positionAmount: bigint,
+  withdrawAmount: bigint,
+): {
+  maxRepurchaseFee: bigint
+  repurchaseFee: bigint
+  available: bigint
+} {
+  if (
+    markets.some(
+      (market) =>
+        !isAddressEqual(
+          market.quoteToken.address,
+          substitute.address as `0x${string}`,
+        ),
+    )
+  ) {
+    new Error('Substitute token is not supported')
+  }
+
+  const maxRepurchaseFee = markets.reduce(
+    (acc, market) =>
+      acc + market.take(substitute.address, positionAmount).amountIn,
+    0n,
+  )
+  let repurchaseFee = 0n
+  const prevRepurchaseFees = new Set<bigint>()
+  while (!prevRepurchaseFees.has(repurchaseFee)) {
+    prevRepurchaseFees.add(repurchaseFee)
+    repurchaseFee = markets.reduce(
+      (acc, market) =>
+        acc +
+        market.take(substitute.address, withdrawAmount + repurchaseFee)
+          .amountIn,
+      0n,
+    )
+  }
+
+  const availableCoupons = min(
+    ...markets.map((market) => market.totalAsksInBaseAfterFees()),
+  )
+  const available = max(
+    availableCoupons -
+      markets.reduce(
+        (acc, market) =>
+          acc + market.take(substitute.address, availableCoupons).amountIn,
+        0n,
+      ),
+    0n,
+  )
+  return {
+    maxRepurchaseFee,
+    repurchaseFee,
+    available,
+  }
+}
+
+export function calculateCouponsToBorrow(
+  substitute: Currency,
+  markets: Market[],
+  maxAmountExcludingFee: bigint,
+  borrowAmount: bigint,
+): {
+  maxInterest: bigint
+  interest: bigint
+  available: bigint
+} {
+  if (
+    markets.some(
+      (market) =>
+        !isAddressEqual(
+          market.quoteToken.address,
+          substitute.address as `0x${string}`,
+        ),
+    )
+  ) {
+    new Error('Substitute token is not supported')
+  }
+
+  const availableCoupons = min(
+    ...markets.map((market) => market.totalAsksInBaseAfterFees()),
+  )
+  const available = max(
+    availableCoupons -
+      markets.reduce(
+        (acc, market) =>
+          acc + market.take(substitute.address, availableCoupons).amountIn,
+        0n,
+      ),
+    0n,
+  )
+
+  const maxInterest = markets.reduce(
+    (acc, market) =>
+      acc + market.take(substitute.address, maxAmountExcludingFee).amountIn,
+    0n,
+  )
+  let interest = 0n
+  const prevInterests = new Set<bigint>()
+  while (!prevInterests.has(interest)) {
+    prevInterests.add(interest)
+    interest = markets.reduce(
+      (acc, market) =>
+        acc + market.take(substitute.address, borrowAmount + interest).amountIn,
+      0n,
+    )
+  }
+
+  return {
+    interest,
+    maxInterest,
+    available,
+  }
+}
+
+export function calculateCouponsToRepay(
+  substitute: Currency,
+  market: Market,
+  repayAmount: bigint,
+): {
+  refund: bigint
+  available: bigint
+} {
+  if (
+    !isAddressEqual(
+      market.quoteToken.address,
+      substitute.address as `0x${string}`,
+    )
+  ) {
+    new Error('Substitute token is not supported')
+  }
+
+  return {
+    refund: market.spend(market.baseToken.address, repayAmount).amountOut,
+    available: market.totalBidsInBaseAfterFees(),
   }
 }

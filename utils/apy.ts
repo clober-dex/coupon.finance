@@ -6,5 +6,5 @@ const YEAR_IN_SECONDS = 31536000
  * @param d {number} duration until last coupon expires in seconds
  */
 export const calculateApy = (p: number, d: number) => {
-  return (1 / (1 - p) ** (YEAR_IN_SECONDS / d) - 1) * 100
+  return ((1 + p) ** (YEAR_IN_SECONDS / d) - 1) * 100
 }

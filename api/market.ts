@@ -1,13 +1,14 @@
 import { getAddress, isAddressEqual } from 'viem'
-import { max } from 'hardhat/internal/util/bigint'
 
 import { getBuiltGraphSDK } from '../.graphclient'
-import { calculateDepositApy, Market } from '../model/market'
+import {
+  calculateBorrowApr,
+  calculateDepositApy,
+  Market,
+} from '../model/market'
 import { Currency } from '../model/currency'
 import { Asset } from '../model/asset'
 import { getEpoch } from '../utils/epoch'
-import { min } from '../utils/bigint'
-
 const { getMarkets } = getBuiltGraphSDK()
 
 type DepthDto = {
@@ -87,7 +88,7 @@ export async function fetchDepositApyByEpochsDeposited(
   return markets
     .map((_, i) => markets.slice(0, i + 1))
     .map((markets) => {
-      const { apy, proceeds } = calculateDepositApy(
+      const { apy, proceeds, available } = calculateDepositApy(
         substitute,
         markets,
         amount,
@@ -100,59 +101,79 @@ export async function fetchDepositApyByEpochsDeposited(
           .replace(/-/g, '/'), // TODO: format properly
         proceeds,
         apy,
+        available,
       }
     })
 }
 
-export async function fetchCoupons(
-  substitute: Currency,
-  positionAmount: bigint,
-  withdrawAmount: bigint,
-  epoch: number,
-): Promise<{
-  maxRepurchaseFee: bigint
-  repurchaseFee: bigint
-  available: bigint
-}> {
+export async function fetchBorrowAprByEpochsBorrowed(
+  asset: Asset,
+  amount: bigint,
+  maxAmountExcludingFee: bigint,
+) {
+  const substitute = asset.substitutes[0]
   const markets = (await fetchMarkets())
     .filter((market) =>
       isAddressEqual(market.quoteToken.address, substitute.address),
     )
-    .filter((market) => market.epoch <= epoch)
+    .sort((a, b) => Number(a.epoch) - Number(b.epoch))
 
-  const maxRepurchaseFee = markets.reduce(
-    (acc, market) =>
-      acc + market.take(substitute.address, positionAmount).amountIn,
-    0n,
-  )
-  let repurchaseFee = 0n
-  const prevRepurchaseFees = new Set<bigint>()
-  while (!prevRepurchaseFees.has(repurchaseFee)) {
-    prevRepurchaseFees.add(repurchaseFee)
-    repurchaseFee = markets.reduce(
-      (acc, market) =>
-        acc +
-        market.take(substitute.address, withdrawAmount + repurchaseFee)
-          .amountIn,
-      0n,
+  const currentTimestamp = Math.floor(new Date().getTime() / 1000)
+  return markets
+    .map((_, i) => markets.slice(0, i + 1))
+    .map((markets) => {
+      const { apr, interest, maxInterest, totalBorrow, available } =
+        calculateBorrowApr(
+          substitute,
+          markets,
+          amount,
+          maxAmountExcludingFee,
+          currentTimestamp,
+        )
+      return {
+        date: new Date(Number(markets.at(-1)?.endTimestamp ?? 0n) * 1000)
+          .toISOString()
+          .slice(2, 10)
+          .replace(/-/g, '/'), // TODO: format properly
+        interest,
+        maxInterest,
+        apr,
+        totalBorrow,
+        available,
+      }
+    })
+}
+
+export async function fetchCouponAmountByEpochsBorrowed(
+  substitute: Currency,
+  debtAmount: bigint,
+  expiryEpoch: number,
+) {
+  const markets = (await fetchMarkets())
+    .filter((market) =>
+      isAddressEqual(market.quoteToken.address, substitute.address),
     )
-  }
+    .sort((a, b) => Number(a.epoch) - Number(b.epoch))
 
-  const availableCoupons = min(
-    ...markets.map((market) => market.totalAsksInBaseAfterFees()),
-  )
-  const available = max(
-    availableCoupons -
-      markets.reduce(
-        (acc, market) =>
-          acc + market.take(substitute.address, availableCoupons).amountIn,
-        0n,
-      ),
-    0n,
-  )
-  return {
-    maxRepurchaseFee,
-    repurchaseFee,
-    available,
-  }
+  return markets.map((market) => {
+    const interest =
+      market.epoch > expiryEpoch
+        ? market.take(market.quoteToken.address, debtAmount).amountIn
+        : 0n
+    const refund =
+      market.epoch < expiryEpoch
+        ? market.spend(market.baseToken.address, debtAmount).amountOut
+        : 0n
+    return {
+      date: new Date(Number(market.endTimestamp) * 1000)
+        .toISOString()
+        .slice(2, 10)
+        .replace(/-/g, '/'), // TODO: format properly
+      interest,
+      payable: debtAmount <= market.totalAsksInBaseAfterFees(),
+      refund,
+      refundable: debtAmount <= market.totalBidsInBaseAfterFees(),
+      expiryEpoch: market.epoch === expiryEpoch,
+    }
+  })
 }
