@@ -4,10 +4,11 @@ export async function fetchOdosApi<T>(
 ): Promise<T> {
   const ODOS_API_BASE_URL =
     process.env.NEXT_PUBLIC_ODOS_API_BASE_URL ||
-    process.env.NEXT_PUBLIC_VERCEL_URL ||
-    (process.env.BUILD === 'dev'
+    process.env.NEXT_PUBLIC_VERCEL_URL
+      ? `${process.env.NEXT_PUBLIC_VERCEL_URL}/api/mock`
+      : process.env.BUILD === 'dev'
       ? 'http://localhost:3000/api/mock'
-      : 'https://api.odos.xyz')
+      : 'https://api.odos.xyz'
   const response = await fetch(`${ODOS_API_BASE_URL}/${path}`, options)
 
   if (response.ok) {
