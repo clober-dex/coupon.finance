@@ -75,7 +75,7 @@ const Position = ({
   onEditCollateral: () => void
   onEditExpiry: () => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
-  const ltv = useMemo(
+  const currentLtv = useMemo(
     () =>
       dollarValue(position.amount, position.underlying.decimals, price)
         .times(100)
@@ -166,7 +166,7 @@ const Position = ({
           <div className="flex items-center justify-between text-gray-500 text-xs">
             <div>LTV</div>
             <div className="flex text-green-500 text-xs sm:text-sm">
-              {ltv.toFixed(2)}%
+              {currentLtv.toFixed(2)}%
             </div>
           </div>
           <div className="flex items-center justify-between text-xs">

@@ -57,7 +57,7 @@ const EditCollateralModal = ({
     [balances, isWithdrawCollateral, minCollateralAmount, position],
   )
 
-  const ltv = useMemo(() => {
+  const currentLtv = useMemo(() => {
     const collateralDollarValue = Math.max(
       dollarValue(
         position.collateralAmount + (isWithdrawCollateral ? -amount : amount),
@@ -104,7 +104,7 @@ const EditCollateralModal = ({
       </div>
       <div className="flex text-sm gap-3 mb-8">
         <span className="text-gray-500">LTV</span>
-        {ltv.toFixed(2)}%
+        {currentLtv.toFixed(2)}%
       </div>
       <button
         disabled={amount === 0n || amount > availableCollateralAmount}

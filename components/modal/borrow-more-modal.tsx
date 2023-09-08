@@ -83,7 +83,7 @@ const BorrowMoreModal = ({
     )
   }, [data, maxLoanAmountExcludingCouponFee, position.amount])
 
-  const ltv = useMemo(
+  const currentLtv = useMemo(
     () =>
       dollarValue(
         position.amount,
@@ -101,7 +101,7 @@ const BorrowMoreModal = ({
     [position, prices],
   )
 
-  const latestLTV = useMemo(() => {
+  const expectedLtv = useMemo(() => {
     const collateralDollarValue = dollarValue(
       position.collateralAmount,
       position.collateral.underlying.decimals,
@@ -133,11 +133,11 @@ const BorrowMoreModal = ({
         <div className="flex gap-3 justify-between sm:justify-start">
           <div className="text-gray-500">LTV</div>
           <div className="flex items-center gap-1">
-            <span className="text-green-500">{ltv.toFixed(2)}%</span>
+            <span className="text-green-500">{currentLtv.toFixed(2)}%</span>
             {value ? (
               <>
                 <Arrow />
-                <span className="text-red-500">{latestLTV.toFixed(2)}%</span>
+                <span className="text-red-500">{expectedLtv.toFixed(2)}%</span>
               </>
             ) : (
               <></>
