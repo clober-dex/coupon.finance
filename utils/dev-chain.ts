@@ -11,10 +11,10 @@ export const couponFinanceChain: Chain = {
   },
   rpcUrls: {
     default: {
-      http: ['http://dev-rpc.coupon.finance'],
+      http: ['https://dev-rpc.coupon.finance'],
     },
     public: {
-      http: ['http://dev-rpc.coupon.finance'],
+      http: ['https://dev-rpc.coupon.finance'],
     },
   },
   blockExplorers: {
