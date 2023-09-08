@@ -2,8 +2,8 @@ const BUILD =
   process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF !== 'master' ? 'dev' : 'prod'
 const SUBGRAPH_URL =
   BUILD === 'dev'
-    ? 'http://dev-subgraph.coupon.finance:8000/subgraphs/name/coupon-subgraph'
-    : 'https://api.studio.thegraph.com/query/51933/coupon-subgraph-testnet/version/latest'
+    ? 'https://dev-subgraph.coupon.finance/subgraphs/name/coupon-subgraph'
+    : 'https://testnet-subgraph.coupon.finance/subgraphs/name/coupon-subgraph'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
