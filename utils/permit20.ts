@@ -6,6 +6,8 @@ import { fetchAllowance } from '../api/allowance'
 import { IERC20Metadata__factory, IERC20Permit__factory } from '../typechain'
 
 import { zeroBytes32 } from './bytes'
+import { approve20 } from './approve20'
+import { CONTRACT_ADDRESSES } from './addresses'
 
 export const permit20 = async (
   walletClient: GetWalletClientResult,
@@ -68,7 +70,19 @@ export const permit20 = async (
     })
 
   if (nonce === undefined || !name) {
-    throw new Error('Could not fetch eip20Domain')
+    await approve20(
+      walletClient,
+      currency,
+      walletClient.account.address,
+      spender,
+      value,
+    )
+    return {
+      r: zeroBytes32 as `0x${string}`,
+      s: zeroBytes32 as `0x${string}`,
+      v: 0,
+      deadline: 0n,
+    }
   }
 
   const signature = await walletClient.signTypedData({

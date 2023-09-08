@@ -1,5 +1,4 @@
 import { GetWalletClientResult } from '@wagmi/core'
-import { Hash } from 'viem'
 
 import { Currency } from '../model/currency'
 import { fetchAllowance } from '../api/allowance'

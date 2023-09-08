@@ -4,6 +4,7 @@ import { getBuiltGraphSDK, Token } from '../.graphclient'
 import { Asset, AssetStatus } from '../model/asset'
 import { Market } from '../model/market'
 import { formatUnits } from '../utils/numbers'
+import { isEthereum } from '../contexts/currency-context'
 
 const { getAssets, getAssetStatuses } = getBuiltGraphSDK()
 
@@ -12,7 +13,10 @@ let cache: Asset[] | null = null
 export const toCurrency = (
   token: Pick<Token, 'id' | 'symbol' | 'name' | 'decimals'>,
 ) =>
-  token.name === 'Wrapped Ether'
+  isEthereum({
+    address: getAddress(token.id),
+    ...token,
+  })
     ? {
         address: getAddress(token.id),
         name: 'Ethereum',
