@@ -19,6 +19,7 @@ import { BondPosition } from '../model/bond-position'
 import { formatUnits } from '../utils/numbers'
 import { permit721 } from '../utils/permit721'
 import { Currency } from '../model/currency'
+import { writeContract } from '../utils/wallet'
 
 import { isEthereum, useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -111,7 +112,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
             },
           ],
         })
-        const { request } = await publicClient.simulateContract({
+        hash = await writeContract(publicClient, walletClient, {
           address: CONTRACT_ADDRESSES.DepositController,
           abi: DepositController__factory.abi,
           functionName: 'deposit',
@@ -127,7 +128,6 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
             : 0n,
           account: walletClient.account,
         })
-        hash = await walletClient.writeContract(request)
         await queryClient.invalidateQueries(['bond-positions'])
       } catch (e) {
         console.error(e)
@@ -184,7 +184,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
             },
           ],
         })
-        const { request } = await publicClient.simulateContract({
+        await writeContract(publicClient, walletClient, {
           address: CONTRACT_ADDRESSES.DepositController,
           abi: DepositController__factory.abi,
           functionName: 'withdraw',
@@ -196,7 +196,6 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           ],
           account: walletClient.account,
         })
-        await walletClient.writeContract(request)
       } catch (e) {
         console.error(e)
       } finally {
