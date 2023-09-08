@@ -1,4 +1,4 @@
-import React, { SVGProps, useState } from 'react'
+import React, { SVGProps, useMemo, useState } from 'react'
 import Link from 'next/link'
 import BigNumber from 'bignumber.js'
 import { isAddressEqual, parseUnits } from 'viem'
@@ -75,6 +75,20 @@ const Position = ({
   onEditCollateral: () => void
   onEditExpiry: () => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
+  const ltv = useMemo(
+    () =>
+      dollarValue(position.amount, position.underlying.decimals, price)
+        .times(100)
+        .div(
+          dollarValue(
+            position.collateralAmount,
+            position.collateral.underlying.decimals,
+            collateralPrice,
+          ),
+        ),
+    [collateralPrice, position, price],
+  )
+
   return (
     <div className="rounded-xl shadow bg-gray-50 dark:bg-gray-900" {...props}>
       <div className="flex justify-between rounded-t-xl p-4 bg-white dark:bg-gray-800">
@@ -152,7 +166,7 @@ const Position = ({
           <div className="flex items-center justify-between text-gray-500 text-xs">
             <div>LTV</div>
             <div className="flex text-green-500 text-xs sm:text-sm">
-              {position.ltv.toFixed(2)}%
+              {ltv.toFixed(2)}%
             </div>
           </div>
           <div className="flex items-center justify-between text-xs">
