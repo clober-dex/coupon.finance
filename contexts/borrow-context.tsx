@@ -25,6 +25,7 @@ import { Currency } from '../model/currency'
 import { zeroBytes32 } from '../utils/bytes'
 import { approve20 } from '../utils/approve20'
 import { permit721 } from '../utils/permit721'
+import { writeContract } from '../utils/wallet'
 
 import { isEthereum, useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -160,7 +161,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             },
           ],
         })
-        const { request } = await publicClient.simulateContract({
+        hash = await writeContract(publicClient, walletClient, {
           address: CONTRACT_ADDRESSES.BorrowController,
           abi: BorrowController__factory.abi,
           functionName: 'borrow',
@@ -178,7 +179,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             : 0n,
           account: walletClient.account,
         })
-        hash = await walletClient.writeContract(request)
         await queryClient.invalidateQueries(['loan-positions'])
       } catch (e) {
         console.error(e)
@@ -251,8 +251,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             },
           ],
         })
-
-        const { request } = await publicClient.simulateContract({
+        await writeContract(publicClient, walletClient, {
           address: CONTRACT_ADDRESSES.BorrowController,
           abi: BorrowController__factory.abi,
           functionName: 'repay',
@@ -268,7 +267,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             : 0n,
           account: walletClient.account,
         })
-        await walletClient.writeContract(request)
         await queryClient.invalidateQueries(['loan-positions'])
       } catch (e) {
         console.error(e)
@@ -340,7 +338,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           ],
         })
 
-        const { request } = await publicClient.simulateContract({
+        await writeContract(publicClient, walletClient, {
           address: CONTRACT_ADDRESSES.OdosRepayAdapter,
           abi: OdosRepayAdapter__factory.abi,
           functionName: 'repayWithCollateral',
@@ -353,7 +351,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           ],
           account: walletClient.account,
         })
-        await walletClient.writeContract(request)
         await queryClient.invalidateQueries(['loan-positions'])
       } catch (e) {
         console.error(e)
@@ -403,7 +400,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             },
           ],
         })
-        const { request } = await publicClient.simulateContract({
+        await writeContract(publicClient, walletClient, {
           address: CONTRACT_ADDRESSES.BorrowController,
           abi: BorrowController__factory.abi,
           functionName: 'borrowMore',
@@ -415,7 +412,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           ],
           account: walletClient.account,
         })
-        await walletClient.writeContract(request)
         await queryClient.invalidateQueries(['loan-positions'])
       } catch (e) {
         console.error(e)
@@ -492,7 +488,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         })
 
         // TODO: check tx when contract is updated
-        const { request } = await publicClient.simulateContract({
+        await writeContract(publicClient, walletClient, {
           address: CONTRACT_ADDRESSES.BorrowController,
           abi: BorrowController__factory.abi,
           functionName: 'extendLoanDuration',
@@ -513,7 +509,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             : 0n,
           account: walletClient.account,
         })
-        await walletClient.writeContract(request)
         await queryClient.invalidateQueries(['loan-positions'])
       } catch (e) {
         console.error(e)
@@ -571,8 +566,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             },
           ],
         })
-
-        const { request } = await publicClient.simulateContract({
+        await writeContract(publicClient, walletClient, {
           address: CONTRACT_ADDRESSES.BorrowController,
           abi: BorrowController__factory.abi,
           functionName: 'shortenLoanDuration',
@@ -584,7 +578,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           ],
           account: walletClient.account,
         })
-        await walletClient.writeContract(request)
         await queryClient.invalidateQueries(['loan-positions'])
       } catch (e) {
         console.error(e)
@@ -642,8 +635,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             },
           ],
         })
-
-        const { request } = await publicClient.simulateContract({
+        await writeContract(publicClient, walletClient, {
           address: CONTRACT_ADDRESSES.BorrowController,
           abi: BorrowController__factory.abi,
           functionName: 'addCollateral',
@@ -658,7 +650,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             : 0n,
           account: walletClient.account,
         })
-        await walletClient.writeContract(request)
         await queryClient.invalidateQueries(['loan-positions'])
       } catch (e) {
         console.error(e)
@@ -708,15 +699,13 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             },
           ],
         })
-
-        const { request } = await publicClient.simulateContract({
+        await writeContract(publicClient, walletClient, {
           address: CONTRACT_ADDRESSES.BorrowController,
           abi: BorrowController__factory.abi,
           functionName: 'removeCollateral',
           args: [position.id, amount, { deadline, v, r, s }],
           account: walletClient.account,
         })
-        await walletClient.writeContract(request)
         await queryClient.invalidateQueries(['loan-positions'])
       } catch (e) {
         console.error(e)

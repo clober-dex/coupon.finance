@@ -123,7 +123,25 @@ const RepayModal = ({
   const refund = useMemo(() => data?.refund ?? 0n, [data?.refund])
   const available = useMemo(() => data?.available ?? 0n, [data?.available])
 
-  const ltv = useMemo(() => {
+  const currentLtv = useMemo(
+    () =>
+      dollarValue(
+        position.amount,
+        position.underlying.decimals,
+        prices[position.underlying.address],
+      )
+        .times(100)
+        .div(
+          dollarValue(
+            position.collateralAmount,
+            position.collateral.underlying.decimals,
+            prices[position.collateral.underlying.address],
+          ),
+        ),
+    [position, prices],
+  )
+
+  const expectedLtv = useMemo(() => {
     const debtAmount = max(position.amount - repayAmount, 0n)
     const debtValue = dollarValue(
       debtAmount,
@@ -214,11 +232,11 @@ const RepayModal = ({
         <div className="flex gap-3 justify-between sm:justify-start">
           <div className="text-gray-500">LTV</div>
           <div className="flex items-center gap-1">
-            <span className="text-green-500">{position.ltv.toFixed(2)}%</span>
+            <span className="text-green-500">{currentLtv.toFixed(2)}%</span>
             {value ? (
               <>
                 <Arrow />
-                <span className="text-green-500">{ltv}%</span>
+                <span className="text-green-500">{expectedLtv}%</span>
               </>
             ) : (
               <></>

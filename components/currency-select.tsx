@@ -61,30 +61,22 @@ const CurrencySelect = ({
                   <div className="text-xs text-gray-500">{currency.name}</div>
                 </div>
               </div>
-              {formatUnits(
-                balances[currency.address] ?? 0n,
-                currency.decimals,
-                prices[currency.address],
-              ) ? (
-                <div className="text-sm text-end">0</div>
-              ) : (
-                <div className="text-sm text-end">
-                  <div>
-                    {formatUnits(
-                      balances[currency.address] ?? 0n,
-                      currency.decimals,
-                      prices[currency.address],
-                    )}
-                  </div>
-                  <div className="text-gray-500 text-xs">
-                    {formatDollarValue(
-                      balances[currency.address] ?? 0n,
-                      currency.decimals,
-                      prices[currency.address],
-                    )}
-                  </div>
+              <div className="text-sm text-end">
+                <div>
+                  {formatUnits(
+                    balances[currency.address] ?? 0n,
+                    currency.decimals,
+                    prices[currency.address],
+                  )}
                 </div>
-              )}
+                <div className="text-gray-500 text-xs">
+                  {formatDollarValue(
+                    balances[currency.address] ?? 0n,
+                    currency.decimals,
+                    prices[currency.address],
+                  )}
+                </div>
+              </div>
             </button>
           ))}
         </div>

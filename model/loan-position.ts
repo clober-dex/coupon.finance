@@ -10,7 +10,6 @@ export type LoanPosition = {
   interest: bigint
   amount: bigint
   collateralAmount: bigint
-  ltv: number
   fromEpoch: Epoch
   toEpoch: Epoch
   createdAt: number

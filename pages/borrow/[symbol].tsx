@@ -163,7 +163,7 @@ const Borrow: NextPage<
     )
   }, [epochs, interestsByEpochsBorrowed, maxLoanAmountExcludingCouponFee])
 
-  const ltv = useMemo(() => {
+  const currentLtv = useMemo(() => {
     if (epochs === 0 || !interestsByEpochsBorrowed) {
       return 0
     }
@@ -272,7 +272,7 @@ const Borrow: NextPage<
                   <div className="flex flex-row-reverse justify-between sm:flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4">
                     <div className="sm:px-6 sm:mb-2">
                       <Slider
-                        length={4}
+                        length={interestsByEpochsBorrowed?.length ?? 0}
                         value={epochs}
                         onValueChange={setEpochs}
                       />
@@ -309,7 +309,9 @@ const Borrow: NextPage<
                     </div>
                     <div className="flex w-full sm:w-fit text-sm gap-2 justify-between">
                       <span className="text-gray-500">LTV</span>
-                      <div className="text-yellow-500">{ltv.toFixed(2)}%</div>
+                      <div className="text-yellow-500">
+                        {currentLtv.toFixed(2)}%
+                      </div>
                     </div>
                   </div>
                 </div>
