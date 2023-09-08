@@ -163,7 +163,7 @@ const Borrow: NextPage<
     )
   }, [epochs, interestsByEpochsBorrowed, maxLoanAmountExcludingCouponFee])
 
-  const ltv = useMemo(() => {
+  const currentLtv = useMemo(() => {
     if (epochs === 0 || !interestsByEpochsBorrowed) {
       return 0
     }
@@ -309,7 +309,9 @@ const Borrow: NextPage<
                     </div>
                     <div className="flex w-full sm:w-fit text-sm gap-2 justify-between">
                       <span className="text-gray-500">LTV</span>
-                      <div className="text-yellow-500">{ltv.toFixed(2)}%</div>
+                      <div className="text-yellow-500">
+                        {currentLtv.toFixed(2)}%
+                      </div>
                     </div>
                   </div>
                 </div>
