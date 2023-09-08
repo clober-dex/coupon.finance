@@ -1,6 +1,7 @@
 import React from 'react'
 import { useAccount, useBalance, useQuery } from 'wagmi'
 import { readContracts } from '@wagmi/core'
+import { getAddress } from 'viem'
 
 import { IERC20__factory } from '../typechain'
 import { fetchCurrencies, fetchPrices } from '../api/currency'
@@ -17,10 +18,14 @@ const Context = React.createContext<CurrencyContext>({
   prices: {},
 })
 
-export const isEthereum = (currency: Currency) =>
-  currency.name === 'Ethereum' &&
-  currency.symbol === 'ETH' &&
-  currency.decimals === 18
+export const isEthereum = (currency: Currency) => {
+  return [
+    '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+    '0x4284186b053ACdBA28E8B26E99475d891533086a',
+  ]
+    .map((address) => getAddress(address))
+    .includes(getAddress(currency.address))
+}
 
 export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { address: userAddress } = useAccount()
