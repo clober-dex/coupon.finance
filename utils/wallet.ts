@@ -14,11 +14,8 @@ export async function writeContract(
   if (!walletClient) {
     return
   }
-  const useSimulator =
-    process.env.NEXT_PUBLIC_USE_SIMULATOR !== undefined
-      ? process.env.NEXT_PUBLIC_USE_SIMULATOR === 'true'
-      : false
-  if (useSimulator) {
+  const useSimulate = !(process.env.NEXT_PUBLIC_USE_SIMULATE === 'false')
+  if (useSimulate) {
     const { request } = await publicClient.simulateContract(
       args as SimulateContractParameters,
     )
