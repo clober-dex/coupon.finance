@@ -249,6 +249,11 @@ const Deposit = ({
           </div>
           <div className="flex flex-col sm:grid sm:grid-cols-3 gap-4 sm:gap-6">
             {positions
+              .sort(
+                (a, b) =>
+                  Number(a.toEpoch.endTimestamp) -
+                  Number(b.toEpoch.endTimestamp),
+              )
               .filter((position) =>
                 dollarValue(
                   position.amount,
