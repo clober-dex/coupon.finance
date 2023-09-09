@@ -53,21 +53,27 @@ export function getAuthOptions(): NextAuthOptions {
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
 export default async function auth(req: NextApiRequest, res: NextApiResponse) {
-  const authOptions = getAuthOptions()
+  try {
+    const authOptions = getAuthOptions()
 
-  if (!Array.isArray(req.query.nextauth)) {
-    res.status(400).send('Bad request')
-    return
+    if (!Array.isArray(req.query.nextauth)) {
+      res.status(400).send('Bad request')
+      return
+    }
+
+    const isDefaultSigninPage =
+      req.method === 'GET' &&
+      req.query.nextauth.find((value) => value === 'signin')
+
+    // Hide Sign-In with Ethereum from default sign page
+    if (isDefaultSigninPage) {
+      authOptions.providers.pop()
+    }
+
+    return NextAuth(req, res, authOptions)
+  } catch (e) {
+    res.json({
+      error: 'An error occurred while processing the request.',
+    })
   }
-
-  const isDefaultSigninPage =
-    req.method === 'GET' &&
-    req.query.nextauth.find((value) => value === 'signin')
-
-  // Hide Sign-In with Ethereum from default sign page
-  if (isDefaultSigninPage) {
-    authOptions.providers.pop()
-  }
-
-  return NextAuth(req, res, authOptions)
 }
