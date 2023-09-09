@@ -15,7 +15,7 @@ import { Epoch } from '../model/epoch'
 export const getServerSideProps: GetServerSideProps<{
   assetStatuses: AssetStatus[]
   epochs: Epoch[]
-}> = async ({ req }) => {
+}> = async () => {
   const [assetStatuses, epochs] = await Promise.all([
     fetchAssetStatuses(),
     fetchEpochs(),
