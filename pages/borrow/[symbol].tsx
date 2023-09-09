@@ -216,9 +216,15 @@ const Borrow: NextPage<
           </button>
           {showCollateralSelect ? (
             <CurrencySelect
-              currencies={asset.collaterals.map(
-                (collateral) => collateral.underlying,
-              )}
+              currencies={asset.collaterals
+                .filter(
+                  ({ underlying }) =>
+                    !isAddressEqual(
+                      underlying.address,
+                      asset.underlying.address,
+                    ),
+                )
+                .map((collateral) => collateral.underlying)}
               onBack={() => setShowCollateralSelect(false)}
               onCurrencySelect={(currency) => {
                 setCollateral(
