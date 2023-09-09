@@ -107,7 +107,12 @@ const Borrow: NextPage<
   ])
 
   const { data: interestsByEpochsBorrowed } = useQuery(
-    ['borrow-apr', asset, loanAmount, maxLoanAmountExcludingCouponFee], // TODO: useDebounce
+    [
+      'borrow-apr',
+      asset.underlying.address,
+      loanAmount.toString(),
+      maxLoanAmountExcludingCouponFee.toString(),
+    ], // TODO: useDebounce
     () =>
       fetchBorrowAprByEpochsBorrowed(
         asset,

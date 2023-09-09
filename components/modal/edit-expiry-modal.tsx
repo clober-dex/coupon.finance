@@ -27,12 +27,14 @@ const EditExpiryModal = ({
     [epochs],
   )
 
-  const { data } = useQuery(['coupon-amount-to-edit-expiry', position], () =>
-    fetchCouponAmountByEpochsBorrowed(
-      position.substitute,
-      position.amount,
-      position.toEpoch.id,
-    ),
+  const { data } = useQuery(
+    ['coupon-amount-to-edit-expiry', position.id.toString()],
+    () =>
+      fetchCouponAmountByEpochsBorrowed(
+        position.substitute,
+        position.amount,
+        position.toEpoch.id,
+      ),
   )
 
   const expiryEpochIndex = useMemo(() => {

@@ -54,7 +54,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   )
 
   const { data: balances } = useQuery(
-    ['balances', userAddress, balance, currencies],
+    ['balances', userAddress, balance?.value.toString(), currencies],
     async () => {
       if (!userAddress) {
         return {}
