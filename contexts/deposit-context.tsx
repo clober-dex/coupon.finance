@@ -1,13 +1,7 @@
 import React, { useCallback } from 'react'
-import {
-  useAccount,
-  useBalance,
-  usePublicClient,
-  useQuery,
-  useQueryClient,
-  useWalletClient,
-} from 'wagmi'
+import { useAccount, useBalance, usePublicClient, useWalletClient } from 'wagmi'
 import { Hash } from 'viem'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { DepositController__factory } from '../typechain'

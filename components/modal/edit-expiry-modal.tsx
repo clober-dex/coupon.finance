@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { useQuery } from 'wagmi'
+import { useQuery } from '@tanstack/react-query'
 
 import Slider from '../slider'
 import { LoanPosition } from '../../model/loan-position'

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { useQuery } from 'wagmi'
+import { useQuery } from '@tanstack/react-query'
 import { isAddressEqual, parseUnits } from 'viem'
 
 import { LoanPosition } from '../../model/loan-position'

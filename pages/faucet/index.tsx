@@ -5,9 +5,10 @@ import {
   GoogleReCaptchaProvider,
   useGoogleReCaptcha,
 } from 'react-google-recaptcha-v3'
-import { useAccount, useQuery, useQueryClient } from 'wagmi'
+import { useAccount } from 'wagmi'
 import { createPublicClient, http } from 'viem'
 import { arbitrumGoerli } from 'wagmi/chains'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { ClientComponent } from '../../components/client-component'
 
