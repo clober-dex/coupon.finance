@@ -45,7 +45,12 @@ const RepayModal = ({
   const {
     data: { repayAmount, maximumPayableCollateralAmount, pathId },
   } = useQuery(
-    ['calculate-repay-amount', position, amount, isUseCollateral],
+    [
+      'calculate-repay-amount',
+      position.id.toString(),
+      amount.toString(),
+      isUseCollateral,
+    ],
     async () => {
       if (
         !isUseCollateral ||
@@ -104,7 +109,11 @@ const RepayModal = ({
   )
 
   const { data } = useQuery(
-    ['coupon-refundable-amount-to-repay', position, repayAmount],
+    [
+      'coupon-refundable-amount-to-repay',
+      position.id.toString(),
+      repayAmount.toString(),
+    ],
     async () => {
       const market = (await fetchMarkets())
         .filter((market) =>

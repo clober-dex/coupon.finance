@@ -48,7 +48,11 @@ const BorrowMoreModal = ({
   }, [position, prices])
 
   const { data } = useQuery(
-    ['coupon-repurchase-fee-to-borrow', position.underlying.address, amount],
+    [
+      'coupon-repurchase-fee-to-borrow',
+      position.underlying.address,
+      amount.toString(),
+    ],
     async () => {
       const markets = (await fetchMarkets())
         .filter((market) =>

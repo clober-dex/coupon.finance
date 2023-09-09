@@ -29,7 +29,11 @@ const WithdrawModal = ({
   )
 
   const { data } = useQuery(
-    ['coupon-repurchase-fee-to-withdraw', position?.underlying.address, amount],
+    [
+      'coupon-repurchase-fee-to-withdraw',
+      position?.underlying.address,
+      amount.toString(),
+    ],
     async () => {
       if (!position) {
         return {

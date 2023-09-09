@@ -61,7 +61,7 @@ const Deposit: NextPage<
   )
 
   const { data: proceedsByEpochsDeposited } = useQuery(
-    ['deposit-apy', asset, amount], // TODO: useDebounce
+    ['deposit-apy', asset.underlying.address, amount.toString()], // TODO: useDebounce
     () => fetchDepositApyByEpochsDeposited(asset, amount),
     {
       refetchOnWindowFocus: true,
