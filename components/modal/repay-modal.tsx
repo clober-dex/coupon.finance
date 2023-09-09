@@ -12,6 +12,7 @@ import { calculateCouponsToRepay } from '../../model/market'
 import { max, min } from '../../utils/bigint'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import { fetchAmountOutByOdos, fetchCallDataByOdos } from '../../api/odos'
+import SwapSvg from '../svg/swap-svg'
 
 import Modal from './modal'
 
@@ -183,37 +184,49 @@ const RepayModal = ({
           Repay with <br className="flex sm:hidden" /> Collateral
         </button>
       </div>
-      <div className="mb-4 font-bold">How much would you like to repay?</div>
       <div className="mb-6">
         {isUseCollateral ? (
-          <CurrencyAmountInput
-            currency={position.collateral.underlying}
-            value={value}
-            onValueChange={setValue}
-            price={prices[position.collateral.underlying.address]}
-            balance={min(
-              position.collateralAmount,
-              isAddressEqual(
-                position.underlying.address,
-                position.collateral.underlying.address,
-              )
-                ? position.amount
-                : 2n ** 256n - 1n,
-              maximumPayableCollateralAmount,
-            )}
-          />
+          <div className="flex flex-col w-full">
+            <div className="mb-4 font-bold">Collateral amount to be used</div>
+            <CurrencyAmountInput
+              currency={position.collateral.underlying}
+              value={value}
+              onValueChange={setValue}
+              price={prices[position.collateral.underlying.address]}
+              balance={min(
+                position.collateralAmount,
+                maximumPayableCollateralAmount,
+              )}
+            />
+            <SwapSvg className="w-4 h-4 sm:w-6 sm:h-6 self-center my-3 sm:my-4" />
+            <div className="mb-4 font-bold">
+              How much would you like to repay
+            </div>
+            <CurrencyAmountInput
+              currency={position.underlying}
+              value={value} // TODO: use collateral amount
+              onValueChange={setValue}
+              price={prices[position.underlying.address]}
+              balance={min(position.amount)} // TODO: add max repay amount
+            />
+          </div>
         ) : (
-          <CurrencyAmountInput
-            currency={position.underlying}
-            value={value}
-            onValueChange={setValue}
-            price={prices[position.underlying.address]}
-            balance={min(
-              position.amount,
-              available,
-              balances[position.underlying.address],
-            )}
-          />
+          <>
+            <div className="mb-4 font-bold">
+              How much would you like to repay?
+            </div>
+            <CurrencyAmountInput
+              currency={position.underlying}
+              value={value}
+              onValueChange={setValue}
+              price={prices[position.underlying.address]}
+              balance={min(
+                position.amount,
+                available,
+                balances[position.underlying.address],
+              )}
+            />
+          </>
         )}
       </div>
       <div className="font-bold mb-3">Transaction Overview</div>
