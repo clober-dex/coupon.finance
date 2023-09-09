@@ -3,7 +3,6 @@ import Link from 'next/link'
 import BigNumber from 'bignumber.js'
 import { isAddressEqual, parseUnits } from 'viem'
 
-import { useBorrowContext } from '../contexts/borrow-context'
 import { Currency, getLogo } from '../model/currency'
 import { AssetStatus } from '../model/asset'
 import {
@@ -276,12 +275,13 @@ const Asset = ({
 const Borrow = ({
   assetStatuses,
   epochs,
+  positions,
 }: {
   assetStatuses: AssetStatus[]
   epochs: Epoch[]
+  positions: LoanPosition[]
 }) => {
   const { prices } = useCurrencyContext()
-  const { positions } = useBorrowContext()
   const [repayPosition, setRepayPosition] = useState<LoanPosition | null>(null)
   const [borrowMorePosition, setBorrowMorePosition] =
     useState<LoanPosition | null>(null)

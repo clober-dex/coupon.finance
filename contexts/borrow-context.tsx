@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 import { Hash } from 'viem'
 import { useAccount, useBalance, usePublicClient, useWalletClient } from 'wagmi'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 
 import { Asset } from '../model/asset'
 import { permit20 } from '../utils/permit20'
@@ -12,7 +12,6 @@ import {
   OdosRepayAdapter__factory,
 } from '../typechain'
 import { max, min } from '../utils/bigint'
-import { fetchLoanPositions } from '../api/loan-position'
 import { Collateral } from '../model/collateral'
 import { LoanPosition } from '../model/loan-position'
 import { Currency } from '../model/currency'
@@ -25,7 +24,6 @@ import { isEthereum, useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
 
 type BorrowContext = {
-  positions: LoanPosition[]
   borrow: (
     collateral: Collateral,
     collateralAmount: bigint,
@@ -68,7 +66,6 @@ type BorrowContext = {
 }
 
 const Context = React.createContext<BorrowContext>({
-  positions: [],
   borrow: () => Promise.resolve(undefined),
   repay: () => Promise.resolve(),
   repayWithCollateral: () => Promise.resolve(),
@@ -91,16 +88,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
   const { balances } = useCurrencyContext()
-
-  const { data: positions } = useQuery(
-    ['loan-positions', userAddress],
-    () => (userAddress ? fetchLoanPositions(userAddress) : []),
-    {
-      refetchOnWindowFocus: true,
-      refetchInterval: 2 * 1000,
-      initialData: [],
-    },
-  )
 
   const borrow = useCallback(
     async (
@@ -714,7 +701,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   return (
     <Context.Provider
       value={{
-        positions,
         borrow,
         repay,
         repayWithCollateral,

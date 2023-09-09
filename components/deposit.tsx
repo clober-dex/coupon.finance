@@ -3,7 +3,6 @@ import Link from 'next/link'
 import { isAddressEqual, parseUnits } from 'viem'
 import BigNumber from 'bignumber.js'
 
-import { useDepositContext } from '../contexts/deposit-context'
 import { Currency, getLogo } from '../model/currency'
 import { AssetStatus } from '../model/asset'
 import { useCurrencyContext } from '../contexts/currency-context'
@@ -187,12 +186,13 @@ const Asset = ({
 const Deposit = ({
   assetStatuses,
   epochs,
+  positions,
 }: {
   assetStatuses: AssetStatus[]
   epochs: Epoch[]
+  positions: BondPosition[]
 }) => {
   const { prices } = useCurrencyContext()
-  const { positions } = useDepositContext()
   const [withdrawPosition, setWithdrawPosition] = useState<BondPosition | null>(
     null,
   )
