@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { useQuery } from 'wagmi'
+import { useQuery } from '@tanstack/react-query'
 import { isAddressEqual, parseUnits } from 'viem'
 
 import { LoanPosition } from '../../model/loan-position'
@@ -48,7 +48,11 @@ const BorrowMoreModal = ({
   }, [position, prices])
 
   const { data } = useQuery(
-    ['coupon-repurchase-fee-to-borrow', position.underlying.address, amount],
+    [
+      'coupon-repurchase-fee-to-borrow',
+      position.underlying.address,
+      amount.toString(),
+    ],
     async () => {
       const markets = (await fetchMarkets())
         .filter((market) =>

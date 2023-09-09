@@ -1,13 +1,7 @@
 import React, { useCallback } from 'react'
 import { Hash } from 'viem'
-import {
-  useAccount,
-  useBalance,
-  usePublicClient,
-  useQuery,
-  useQueryClient,
-  useWalletClient,
-} from 'wagmi'
+import { useAccount, useBalance, usePublicClient, useWalletClient } from 'wagmi'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { Asset } from '../model/asset'
 import { permit20 } from '../utils/permit20'

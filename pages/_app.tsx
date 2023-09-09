@@ -23,6 +23,12 @@ import { identify } from '@web3analytic/funnel-sdk'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import {
+  Hydrate,
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query'
 
 import Header from '../components/header'
 import { ThemeProvider, useThemeContext } from '../contexts/theme-context'
@@ -130,6 +136,7 @@ const AccountProvider = ({ children }: React.PropsWithChildren) => {
 
 function MyApp({ Component, pageProps }: AppProps) {
   const [open, setOpen] = useState(false)
+  const [queryClient] = useState(() => new QueryClient())
   return (
     <>
       <Head>
@@ -144,30 +151,38 @@ function MyApp({ Component, pageProps }: AppProps) {
           <WalletProvider>
             <AccountProvider>
               <Web3AnalyticWrapper>
-                <TransactionProvider>
-                  <CurrencyProvider>
-                    <DepositProvider>
-                      <BorrowProvider>
-                        <div className="flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white">
-                          <Panel open={open} setOpen={setOpen} />
-                          <Header onMenuClick={() => setOpen(true)} />
-                          <Component {...pageProps} />
-                          <Link
-                            target="_blank"
-                            href="https://github.com/clober-dex/coupon.finance"
-                            className="fixed right-4 bottom-4 bg-gray-200 dark:bg-gray-800 rounded-full text-xs px-4 py-1"
-                          >
-                            #
-                            {process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(
-                              0,
-                              7,
-                            )}
-                          </Link>
-                        </div>
-                      </BorrowProvider>
-                    </DepositProvider>
-                  </CurrencyProvider>
-                </TransactionProvider>
+                <QueryClientProvider client={queryClient}>
+                  <Hydrate state={pageProps.dehydratedState}>
+                    <TransactionProvider>
+                      <CurrencyProvider>
+                        <DepositProvider>
+                          <BorrowProvider>
+                            <div className="flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white">
+                              <Panel open={open} setOpen={setOpen} />
+                              <Header onMenuClick={() => setOpen(true)} />
+                              <Component {...pageProps} />
+                              <Link
+                                target="_blank"
+                                href="https://github.com/clober-dex/coupon.finance"
+                                className="fixed right-4 bottom-4 bg-gray-200 dark:bg-gray-800 rounded-full text-xs px-4 py-1"
+                              >
+                                #
+                                {process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(
+                                  0,
+                                  7,
+                                )}
+                              </Link>
+                            </div>
+                          </BorrowProvider>
+                        </DepositProvider>
+                      </CurrencyProvider>
+                    </TransactionProvider>
+                    <ReactQueryDevtools
+                      initialIsOpen={false}
+                      position="bottom-right"
+                    />
+                  </Hydrate>
+                </QueryClientProvider>
               </Web3AnalyticWrapper>
             </AccountProvider>
           </WalletProvider>

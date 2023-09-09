@@ -4,8 +4,8 @@ import Head from 'next/head'
 import CountUp from 'react-countup'
 import { useRouter } from 'next/router'
 import { parseUnits } from 'viem'
-import { useQuery } from 'wagmi'
 import Link from 'next/link'
+import { useQuery } from '@tanstack/react-query'
 
 import Slider from '../../components/slider'
 import BackSvg from '../../components/svg/back-svg'
@@ -61,7 +61,7 @@ const Deposit: NextPage<
   )
 
   const { data: proceedsByEpochsDeposited } = useQuery(
-    ['deposit-apy', asset, amount], // TODO: useDebounce
+    ['deposit-apy', asset.underlying.address, amount.toString()], // TODO: useDebounce
     () => fetchDepositApyByEpochsDeposited(asset, amount),
     {
       refetchOnWindowFocus: true,

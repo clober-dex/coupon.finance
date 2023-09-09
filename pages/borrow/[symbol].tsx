@@ -3,7 +3,7 @@ import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { isAddressEqual, parseUnits } from 'viem'
-import { useQuery } from 'wagmi'
+import { useQuery } from '@tanstack/react-query'
 
 import Slider from '../../components/slider'
 import BackSvg from '../../components/svg/back-svg'
@@ -107,7 +107,12 @@ const Borrow: NextPage<
   ])
 
   const { data: interestsByEpochsBorrowed } = useQuery(
-    ['borrow-apr', asset, loanAmount, maxLoanAmountExcludingCouponFee], // TODO: useDebounce
+    [
+      'borrow-apr',
+      asset.underlying.address,
+      loanAmount.toString(),
+      maxLoanAmountExcludingCouponFee.toString(),
+    ], // TODO: useDebounce
     () =>
       fetchBorrowAprByEpochsBorrowed(
         asset,

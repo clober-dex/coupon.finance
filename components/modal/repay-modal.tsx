@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react'
-import { useAccount, useFeeData, useNetwork, useQuery } from 'wagmi'
+import { useAccount, useFeeData, useNetwork } from 'wagmi'
 import { isAddressEqual, parseUnits } from 'viem'
+import { useQuery } from '@tanstack/react-query'
 
 import { LoanPosition } from '../../model/loan-position'
 import CurrencyAmountInput from '../currency-amount-input'
@@ -44,7 +45,12 @@ const RepayModal = ({
   const {
     data: { repayAmount, maximumPayableCollateralAmount, pathId },
   } = useQuery(
-    ['calculate-repay-amount', position, amount, isUseCollateral],
+    [
+      'calculate-repay-amount',
+      position.id.toString(),
+      amount.toString(),
+      isUseCollateral,
+    ],
     async () => {
       if (
         !isUseCollateral ||
@@ -103,7 +109,11 @@ const RepayModal = ({
   )
 
   const { data } = useQuery(
-    ['coupon-refundable-amount-to-repay', position, repayAmount],
+    [
+      'coupon-refundable-amount-to-repay',
+      position.id.toString(),
+      repayAmount.toString(),
+    ],
     async () => {
       const market = (await fetchMarkets())
         .filter((market) =>

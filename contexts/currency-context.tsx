@@ -1,7 +1,8 @@
 import React from 'react'
-import { useAccount, useBalance, useQuery } from 'wagmi'
+import { useAccount, useBalance } from 'wagmi'
 import { readContracts } from '@wagmi/core'
 import { getAddress } from 'viem'
+import { useQuery } from '@tanstack/react-query'
 
 import { IERC20__factory } from '../typechain'
 import { fetchCurrencies, fetchPrices } from '../api/currency'
@@ -53,7 +54,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   )
 
   const { data: balances } = useQuery(
-    ['balances', userAddress, balance, currencies],
+    ['balances', userAddress, balance?.value.toString(), currencies],
     async () => {
       if (!userAddress) {
         return {}
