@@ -17,7 +17,7 @@ export async function fetchLoanPositions(
     },
   )
   return loanPositions.map((loanPosition) => ({
-    id: BigInt(loanPosition.id),
+    id: loanPosition.id,
     substitute: toCurrency(loanPosition.substitute),
     underlying: toCurrency(loanPosition.underlying),
     collateral: {
@@ -26,9 +26,11 @@ export async function fetchLoanPositions(
       liquidationThreshold: loanPosition.collateral.liquidationThreshold,
       liquidationTargetLtv: loanPosition.collateral.liquidationTargetLtv,
     },
-    interest: BigInt(loanPosition.amount) - BigInt(loanPosition.principal),
-    amount: BigInt(loanPosition.amount),
-    collateralAmount: BigInt(loanPosition.collateralAmount),
+    interest: (
+      BigInt(loanPosition.amount) - BigInt(loanPosition.principal)
+    ).toString(),
+    amount: loanPosition.amount,
+    collateralAmount: loanPosition.collateralAmount,
     fromEpoch: {
       id: Number(loanPosition.fromEpoch.id),
       startTimestamp: Number(loanPosition.fromEpoch.startTimestamp),

@@ -220,7 +220,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         const positionPermitResult = await permit721(
           walletClient,
           CONTRACT_ADDRESSES.LoanPositionManager,
-          position.id,
+          BigInt(position.id),
           walletClient.account.address,
           CONTRACT_ADDRESSES.BorrowController,
           deadline,
@@ -303,7 +303,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         const { deadline, r, s, v } = await permit721(
           walletClient,
           CONTRACT_ADDRESSES.LoanPositionManager,
-          position.id,
+          BigInt(position.id),
           walletClient.account.address,
           CONTRACT_ADDRESSES.OdosRepayAdapter,
           BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
@@ -378,7 +378,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         const { deadline, r, s, v } = await permit721(
           walletClient,
           CONTRACT_ADDRESSES.LoanPositionManager,
-          position.id,
+          BigInt(position.id),
           walletClient.account.address,
           CONTRACT_ADDRESSES.BorrowController,
           BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
@@ -601,7 +601,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         const positionPermitResult = await permit721(
           walletClient,
           CONTRACT_ADDRESSES.LoanPositionManager,
-          position.id,
+          BigInt(position.id),
           walletClient.account.address,
           CONTRACT_ADDRESSES.BorrowController,
           deadline,
@@ -673,7 +673,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         const { deadline, r, s, v } = await permit721(
           walletClient,
           CONTRACT_ADDRESSES.LoanPositionManager,
-          position.id,
+          BigInt(position.id),
           walletClient.account.address,
           CONTRACT_ADDRESSES.BorrowController,
           BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),

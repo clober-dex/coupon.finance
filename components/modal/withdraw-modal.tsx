@@ -27,6 +27,10 @@ const WithdrawModal = ({
     () => (position ? parseUnits(value, position.underlying.decimals) : 0n),
     [position, value],
   )
+  const positionAmount = useMemo(
+    () => (position ? BigInt(position.amount) : 0n),
+    [position],
+  )
 
   const { data } = useQuery(
     [
@@ -53,7 +57,7 @@ const WithdrawModal = ({
       return calculateCouponsToWithdraw(
         position.substitute,
         markets,
-        position.amount,
+        positionAmount,
         amount,
       )
     },
@@ -85,13 +89,13 @@ const WithdrawModal = ({
           currency={position.underlying}
           value={value}
           onValueChange={setValue}
-          balance={min(position.amount - maxRepurchaseFee, available)}
+          balance={min(positionAmount - maxRepurchaseFee, available)}
           price={prices[position.underlying.address]}
         />
       </div>
       <div className="flex text-xs sm:text-sm gap-3 mb-2 sm:mb-3 justify-between sm:justify-start">
         <span className="text-gray-500">Your deposit amount</span>
-        {formatUnits(position.amount, position.underlying.decimals)}{' '}
+        {formatUnits(positionAmount, position.underlying.decimals)}{' '}
         {position.underlying.symbol}
       </div>
       <div className="flex text-xs sm:text-sm gap-3 mb-6 sm:mb-8 justify-between sm:justify-start">
@@ -102,13 +106,13 @@ const WithdrawModal = ({
       <button
         disabled={
           amount === 0n ||
-          amount > min(position.amount - maxRepurchaseFee, available)
+          amount > min(positionAmount - maxRepurchaseFee, available)
         }
         className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
         onClick={async () => {
           await withdraw(
             position.underlying,
-            position.tokenId,
+            BigInt(position.tokenId),
             amount,
             repurchaseFee,
           )
@@ -118,9 +122,9 @@ const WithdrawModal = ({
       >
         {amount > available
           ? 'Not enough coupons for sale'
-          : amount > position.amount
+          : amount > positionAmount
           ? 'Not enough deposited'
-          : amount + maxRepurchaseFee > position.amount
+          : amount + maxRepurchaseFee > positionAmount
           ? 'Cannot cover repurchase fee'
           : 'Confirm'}
       </button>

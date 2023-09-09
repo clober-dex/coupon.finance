@@ -29,6 +29,11 @@ const EditCollateralModal = ({
         : 0n,
     [position, value],
   )
+  const positionAmount = useMemo(() => BigInt(position.amount), [position])
+  const positionCollateralAmount = useMemo(
+    () => BigInt(position.collateralAmount),
+    [position],
+  )
 
   const minCollateralAmount = useMemo(() => {
     const collateralPrice =
@@ -39,7 +44,7 @@ const EditCollateralModal = ({
     const loanComplement = 10n ** BigInt(18 - position.underlying.decimals)
 
     return loanPrice && collateralPrice
-      ? (position.amount *
+      ? (positionAmount *
           LIQUIDATION_TARGET_LTV_PRECISION *
           loanPrice *
           loanComplement) /
@@ -47,32 +52,45 @@ const EditCollateralModal = ({
             collateralComplement *
             BigInt(position.collateral.liquidationTargetLtv))
       : 0n
-  }, [position, prices])
+  }, [position, prices, positionAmount])
 
   const availableCollateralAmount = useMemo(
     () =>
       isWithdrawCollateral
-        ? max(position.collateralAmount - minCollateralAmount, 0n)
+        ? max(positionCollateralAmount - minCollateralAmount, 0n)
         : balances[position.collateral.underlying.address],
-    [balances, isWithdrawCollateral, minCollateralAmount, position],
+    [
+      balances,
+      isWithdrawCollateral,
+      minCollateralAmount,
+      position,
+      positionCollateralAmount,
+    ],
   )
 
   const currentLtv = useMemo(() => {
     const collateralDollarValue = Math.max(
       dollarValue(
-        position.collateralAmount + (isWithdrawCollateral ? -amount : amount),
+        positionCollateralAmount + (isWithdrawCollateral ? -amount : amount),
         position.collateral.underlying.decimals,
         prices[position.collateral.underlying.address],
       ).toNumber(),
       0,
     )
     const loanDollarValue = dollarValue(
-      position.amount,
+      positionAmount,
       position.underlying.decimals,
       prices[position.underlying.address],
     )
     return loanDollarValue.times(100).div(collateralDollarValue).toNumber()
-  }, [amount, isWithdrawCollateral, position, prices])
+  }, [
+    amount,
+    isWithdrawCollateral,
+    position,
+    prices,
+    positionAmount,
+    positionCollateralAmount,
+  ])
 
   return (
     <Modal show onClose={onClose}>
@@ -121,7 +139,7 @@ const EditCollateralModal = ({
           ? 'Enter collateral amount'
           : !isWithdrawCollateral && amount > availableCollateralAmount
           ? `Insufficient ${position.collateral.underlying.symbol} balance`
-          : isWithdrawCollateral && amount > position.collateralAmount
+          : isWithdrawCollateral && amount > positionCollateralAmount
           ? 'Not enough collateral'
           : 'Confirm'}
       </button>

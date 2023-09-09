@@ -32,7 +32,7 @@ const EditExpiryModal = ({
     () =>
       fetchCouponAmountByEpochsBorrowed(
         position.substitute,
-        position.amount,
+        BigInt(position.amount),
         position.toEpoch.id,
       ),
   )
@@ -112,14 +112,14 @@ const EditExpiryModal = ({
           if (epochs > expiryEpochIndex) {
             await extendLoanDuration(
               position.underlying,
-              position.id,
+              BigInt(position.id),
               epochs - expiryEpochIndex,
               interest,
             )
           } else if (epochs < expiryEpochIndex) {
             await shortenLoanDuration(
               position.underlying,
-              position.id,
+              BigInt(position.id),
               expiryEpochIndex - epochs,
               refund,
             )

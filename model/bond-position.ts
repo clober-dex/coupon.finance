@@ -2,11 +2,11 @@ import { Currency } from './currency'
 import { Epoch } from './epoch'
 
 export type BondPosition = {
-  tokenId: bigint
+  tokenId: string
   substitute: Currency
   underlying: Currency
-  interest: bigint
-  amount: bigint
+  interest: string
+  amount: string
   fromEpoch: Epoch
   toEpoch: Epoch
   createdAt: number

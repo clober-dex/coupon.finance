@@ -17,11 +17,13 @@ export async function fetchBondPositions(
     },
   )
   return bondPositions.map((bondPosition) => ({
-    tokenId: BigInt(bondPosition.id),
+    tokenId: bondPosition.id,
     substitute: toCurrency(bondPosition.substitute),
     underlying: toCurrency(bondPosition.underlying),
-    interest: BigInt(bondPosition.amount) - BigInt(bondPosition.principal),
-    amount: BigInt(bondPosition.amount),
+    interest: (
+      BigInt(bondPosition.amount) - BigInt(bondPosition.principal)
+    ).toString(),
+    amount: bondPosition.amount,
     fromEpoch: {
       id: Number(bondPosition.fromEpoch.id),
       startTimestamp: Number(bondPosition.fromEpoch.startTimestamp),

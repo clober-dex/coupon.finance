@@ -41,6 +41,11 @@ const RepayModal = ({
       ),
     [isUseCollateral, position, value],
   )
+  const positionAmount = useMemo(() => BigInt(position.amount), [position])
+  const positionCollateralAmount = useMemo(
+    () => BigInt(position.collateralAmount),
+    [position],
+  )
 
   const {
     data: { repayAmount, maximumPayableCollateralAmount, pathId },
@@ -61,7 +66,7 @@ const RepayModal = ({
       ) {
         return {
           repayAmount: amount,
-          maximumPayableCollateralAmount: position.collateralAmount,
+          maximumPayableCollateralAmount: positionCollateralAmount,
           pathId: undefined,
         }
       }
@@ -143,23 +148,23 @@ const RepayModal = ({
         .times(100)
         .div(
           dollarValue(
-            position.collateralAmount,
+            positionCollateralAmount,
             position.collateral.underlying.decimals,
             prices[position.collateral.underlying.address],
           ),
         ),
-    [position, prices],
+    [position, prices, positionCollateralAmount],
   )
 
   const expectedLtv = useMemo(() => {
-    const debtAmount = max(position.amount - repayAmount, 0n)
+    const debtAmount = max(positionAmount - repayAmount, 0n)
     const debtValue = dollarValue(
       debtAmount,
       position.underlying.decimals,
       prices[position.underlying.address],
     )
     const collateralAmount = max(
-      position.collateralAmount - (isUseCollateral ? amount : 0n),
+      positionCollateralAmount - (isUseCollateral ? amount : 0n),
       0n,
     )
     const collateralValue = dollarValue(
@@ -172,7 +177,15 @@ const RepayModal = ({
       : collateralAmount === 0n
       ? '0'
       : debtValue.times(100).div(collateralValue).toFixed(2)
-  }, [repayAmount, isUseCollateral, amount, position, prices])
+  }, [
+    repayAmount,
+    isUseCollateral,
+    amount,
+    position,
+    prices,
+    positionAmount,
+    positionCollateralAmount,
+  ])
 
   return (
     <Modal show onClose={onClose}>
@@ -202,12 +215,12 @@ const RepayModal = ({
             onValueChange={setValue}
             price={prices[position.collateral.underlying.address]}
             balance={min(
-              position.collateralAmount,
+              positionCollateralAmount,
               isAddressEqual(
                 position.underlying.address,
                 position.collateral.underlying.address,
               )
-                ? position.amount
+                ? positionAmount
                 : 2n ** 256n - 1n,
               maximumPayableCollateralAmount,
             )}
@@ -219,7 +232,7 @@ const RepayModal = ({
             onValueChange={setValue}
             price={prices[position.underlying.address]}
             balance={min(
-              position.amount,
+              positionAmount,
               available,
               balances[position.underlying.address],
             )}
@@ -232,7 +245,7 @@ const RepayModal = ({
           <div className="text-gray-500">Remaining Debt</div>
           <div>
             {formatUnits(
-              position.amount,
+              positionAmount,
               position.underlying.decimals,
               prices[position.underlying.address],
             )}{' '}
@@ -258,7 +271,7 @@ const RepayModal = ({
         disabled={
           repayAmount === 0n ||
           repayAmount > available ||
-          repayAmount > position.amount ||
+          repayAmount > positionAmount ||
           (!isUseCollateral &&
             repayAmount > balances[position.underlying.address])
         }
@@ -293,7 +306,7 @@ const RepayModal = ({
           ? 'Enter amount to repay'
           : repayAmount > available
           ? 'Not enough coupons for sale'
-          : repayAmount > position.amount
+          : repayAmount > positionAmount
           ? 'Repay amount exceeds debt'
           : !isUseCollateral &&
             repayAmount > balances[position.underlying.address]

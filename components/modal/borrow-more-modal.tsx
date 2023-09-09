@@ -29,6 +29,11 @@ const BorrowMoreModal = ({
     () => (position ? parseUnits(value, position.underlying.decimals) : 0n),
     [position, value],
   )
+  const positionAmount = useMemo(() => BigInt(position.amount), [position])
+  const positionCollateralAmount = useMemo(
+    () => BigInt(position.collateralAmount),
+    [position],
+  )
 
   const maxLoanAmountExcludingCouponFee = useMemo(() => {
     const collateralPrice =
@@ -39,13 +44,13 @@ const BorrowMoreModal = ({
     const loanComplement = 10n ** BigInt(18 - position.underlying.decimals)
 
     return loanPrice && collateralPrice
-      ? (position.collateralAmount *
+      ? (positionCollateralAmount *
           BigInt(position.collateral.liquidationTargetLtv) *
           collateralPrice *
           collateralComplement) /
           (LIQUIDATION_TARGET_LTV_PRECISION * loanPrice * loanComplement)
       : 0n
-  }, [position, prices])
+  }, [position, prices, positionCollateralAmount])
 
   const { data } = useQuery(
     [
@@ -82,10 +87,10 @@ const BorrowMoreModal = ({
       min(
         maxLoanAmountExcludingCouponFee - (data?.maxInterest ?? 0n),
         data?.available ?? 0n,
-      ) - position.amount,
+      ) - positionAmount,
       0n,
     )
-  }, [data, maxLoanAmountExcludingCouponFee, position.amount])
+  }, [data, maxLoanAmountExcludingCouponFee, positionAmount])
 
   const currentLtv = useMemo(
     () =>
@@ -97,17 +102,17 @@ const BorrowMoreModal = ({
         .times(100)
         .div(
           dollarValue(
-            position.collateralAmount,
+            positionCollateralAmount,
             position.collateral.underlying.decimals,
             prices[position.collateral.underlying.address],
           ),
         ),
-    [position, prices],
+    [position, prices, positionCollateralAmount],
   )
 
   const expectedLtv = useMemo(() => {
     const collateralDollarValue = dollarValue(
-      position.collateralAmount,
+      positionCollateralAmount,
       position.collateral.underlying.decimals,
       prices[position.collateral.underlying.address],
     )
@@ -117,7 +122,7 @@ const BorrowMoreModal = ({
       prices[position.underlying.address],
     )
     return loanDollarValue.times(100).div(collateralDollarValue).toNumber()
-  }, [position, amount, interest, prices])
+  }, [position, amount, interest, prices, positionCollateralAmount])
 
   return (
     <Modal show onClose={onClose}>
@@ -163,8 +168,8 @@ const BorrowMoreModal = ({
       <button
         disabled={
           amount === 0n ||
-          amount + position.amount > available ||
-          amount + maxInterest + position.amount >
+          amount + positionAmount > available ||
+          amount + maxInterest + positionAmount >
             maxLoanAmountExcludingCouponFee
         }
         className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
@@ -176,9 +181,9 @@ const BorrowMoreModal = ({
       >
         {amount === 0n
           ? 'Enter loan amount'
-          : amount + position.amount > available
+          : amount + positionAmount > available
           ? 'Not enough coupons for sale'
-          : amount + maxInterest + position.amount >
+          : amount + maxInterest + positionAmount >
             maxLoanAmountExcludingCouponFee
           ? 'Not enough collateral'
           : 'Borrow'}
