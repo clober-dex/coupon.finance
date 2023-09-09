@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { formatUnits, isAddressEqual, parseUnits } from 'viem'
-import { useQuery } from 'wagmi'
+import { useQuery } from '@tanstack/react-query'
 import { min } from 'hardhat/internal/util/bigint'
 
 import { BondPosition } from '../../model/bond-position'

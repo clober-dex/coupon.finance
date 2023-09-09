@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react'
-import { useAccount, useFeeData, useNetwork, useQuery } from 'wagmi'
+import { useAccount, useFeeData, useNetwork } from 'wagmi'
 import { isAddressEqual, parseUnits } from 'viem'
+import { useQuery } from '@tanstack/react-query'
 
 import { LoanPosition } from '../../model/loan-position'
 import CurrencyAmountInput from '../currency-amount-input'
