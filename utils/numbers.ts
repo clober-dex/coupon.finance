@@ -7,7 +7,7 @@ export type BigDecimal = {
 }
 
 export const dollarValue = (
-  value: bigint,
+  value: bigint | string,
   decimals: number,
   price?: BigDecimal,
 ): BigNumber => {
@@ -21,7 +21,7 @@ export const dollarValue = (
 }
 
 export const formatDollarValue = (
-  value: bigint,
+  value: bigint | string,
   decimals: number,
   price?: BigDecimal,
 ): string => {
@@ -29,11 +29,11 @@ export const formatDollarValue = (
 }
 
 export const formatUnits = (
-  value: bigint,
+  value: bigint | string,
   decimals: number,
   price?: BigDecimal,
 ): string => {
-  const formatted = _formatUnits(value, decimals)
+  const formatted = _formatUnits(BigInt(value), decimals)
   if (!price) {
     return formatted
   }
