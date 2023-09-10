@@ -17,14 +17,14 @@ const SlippageSelect = ({
   return (
     <div className="relative" onClick={(e) => e.stopPropagation()}>
       {show ? (
-        <div className="flex flex-col absolute bottom-10 right-0 p-4 bg-gray-50 shadow-md rounded-xl gap-4">
+        <div className="flex flex-col absolute bottom-10 right-0 p-4 bg-gray-50 dark:bg-gray-800 shadow-md rounded-xl gap-4">
           <div className="font-bold">Set Slippage</div>
-          <div className="flex bg-white items-center justify-between rounded shadow pr-3">
+          <div className="flex bg-white dark:bg-gray-700 items-center justify-between rounded shadow pr-3">
             <NumberInput
               value={slippage}
               onValueChange={setSlippage}
               onBlur={() => +slippage > 50 && setSlippage('50')}
-              className="p-3 outline-none"
+              className="p-3 outline-none bg-transparent"
               placeholder="0"
             />
             %
@@ -32,25 +32,25 @@ const SlippageSelect = ({
           <div className="flex gap-1">
             <button
               onClick={() => setSlippage('')}
-              className="flex items-center justify-center rounded px-3 py-1.5 text-green-500 text-sm bg-green-500 bg-opacity-10 hover:bg-opacity-20 flex-1"
+              className="flex items-center justify-center rounded px-3 py-1.5 text-green-500 dark:text-white text-sm bg-green-500 dark:bg-transparent bg-opacity-10 border-[1.5px] border-solid border-gray-700 hover:bg-opacity-20 dark:hover:border-white flex-1"
             >
               0.0%
             </button>
             <button
               onClick={() => setSlippage('0.5')}
-              className="flex items-center justify-center rounded px-3 py-1.5 text-green-500 text-sm bg-green-500 bg-opacity-10 hover:bg-opacity-20 flex-1"
+              className="flex items-center justify-center rounded px-3 py-1.5 text-green-500 dark:text-white text-sm bg-green-500 dark:bg-transparent bg-opacity-10 border-[1.5px] border-solid border-gray-700 hover:bg-opacity-20 dark:hover:border-white flex-1"
             >
               0.5%
             </button>
             <button
               onClick={() => setSlippage('1')}
-              className="flex items-center justify-center rounded px-3 py-1.5 text-green-500 text-sm bg-green-500 bg-opacity-10 hover:bg-opacity-20 flex-1"
+              className="flex items-center justify-center rounded px-3 py-1.5 text-green-500 dark:text-white text-sm bg-green-500 dark:bg-transparent bg-opacity-10 border-[1.5px] border-solid border-gray-700 hover:bg-opacity-20 dark:hover:border-white flex-1"
             >
               1.0%
             </button>
             <button
               onClick={() => setSlippage('1.5')}
-              className="flex items-center justify-center rounded px-3 py-1.5 text-green-500 text-sm bg-green-500 bg-opacity-10 hover:bg-opacity-20 flex-1"
+              className="flex items-center justify-center rounded px-3 py-1.5 text-green-500 dark:text-white text-sm bg-green-500 dark:bg-transparent bg-opacity-10 border-[1.5px] border-solid border-gray-700 hover:bg-opacity-20 dark:hover:border-white flex-1"
             >
               1.5%
             </button>
