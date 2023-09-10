@@ -13,6 +13,7 @@ import { max, min } from '../../utils/bigint'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import { fetchAmountOutByOdos, fetchCallDataByOdos } from '../../api/odos'
 import SwapSvg from '../svg/swap-svg'
+import SlippageSelect from '../slippage-select'
 
 import Modal from './modal'
 
@@ -30,6 +31,8 @@ const RepayModal = ({
   const { prices, balances } = useCurrencyContext()
   const [isUseCollateral, setIsUseCollateral] = useState(false)
   const [value, setValue] = useState('')
+  const [slippage, setSlippage] = useState('')
+  const [showSlippageSelect, setShowSlippageSelect] = useState(false)
 
   const amount = useMemo(
     () =>
@@ -166,7 +169,11 @@ const RepayModal = ({
   }, [repayAmount, isUseCollateral, amount, position, prices])
 
   return (
-    <Modal show onClose={onClose}>
+    <Modal
+      show
+      onClose={onClose}
+      onModalClick={() => setShowSlippageSelect(false)}
+    >
       <h1 className="font-bold text-sm sm:text-xl mb-4 sm:mb-6">Repay</h1>
       <div className="flex mb-6 rounded text-xs bg-gray-100 dark:bg-gray-800 text-gray-500">
         <button
@@ -229,7 +236,19 @@ const RepayModal = ({
           </>
         )}
       </div>
-      <div className="font-bold mb-3">Transaction Overview</div>
+      <div className="flex justify-between items-center mb-3">
+        <div className="font-bold">Transaction Overview</div>
+        {isUseCollateral ? (
+          <SlippageSelect
+            show={showSlippageSelect}
+            setShow={setShowSlippageSelect}
+            slippage={slippage}
+            setSlippage={setSlippage}
+          />
+        ) : (
+          <></>
+        )}
+      </div>
       <div className="flex flex-col gap-2 text-gray-500 text-sm mb-8">
         <div className="flex gap-3 justify-between sm:justify-start">
           <div className="text-gray-500">Remaining Debt</div>
