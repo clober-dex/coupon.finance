@@ -9,7 +9,10 @@ const NumberInput = ({
   value: string
   onValueChange: (value: string) => void
   supportNegative?: boolean
-} & React.HTMLAttributes<HTMLInputElement>) => {
+} & React.DetailedHTMLProps<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  HTMLInputElement
+>) => {
   const handleChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const newValue = event.target.value.replace(/[,a-zA-Z]/g, '')
