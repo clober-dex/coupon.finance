@@ -23,7 +23,10 @@ const CurrencyAmountInput = ({
   balance: bigint
   price?: BigDecimal
   onCurrencyClick?: () => void
-} & React.HTMLAttributes<HTMLInputElement>) => {
+} & React.DetailedHTMLProps<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  HTMLInputElement
+>) => {
   const decimals = useMemo(() => currency?.decimals ?? 18, [currency])
 
   const onBlur = useCallback(() => {

@@ -13,7 +13,10 @@ const SlippageSelect = ({
   setShow: React.Dispatch<React.SetStateAction<boolean>>
   slippage: string
   setSlippage: React.Dispatch<React.SetStateAction<string>>
-} & React.HTMLAttributes<HTMLDivElement>) => {
+} & React.DetailedHTMLProps<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  HTMLInputElement
+>) => {
   return (
     <div className="relative" onClick={(e) => e.stopPropagation()}>
       {show ? (
