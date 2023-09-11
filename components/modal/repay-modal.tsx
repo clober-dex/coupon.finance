@@ -192,7 +192,7 @@ const RepayModal = ({
               onValueChange={setValue}
               price={prices[position.underlying.address]}
               balance={0n}
-              disabled={isUseCollateral}
+              disabled
             />
           </div>
         ) : (
