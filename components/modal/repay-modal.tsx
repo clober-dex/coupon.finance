@@ -50,13 +50,7 @@ const RepayModal = ({
   } = useQuery(
     ['calculate-repay-amount', position, amount, isUseCollateral],
     async () => {
-      if (
-        !isUseCollateral ||
-        isAddressEqual(
-          position.collateral.underlying.address,
-          position.underlying.address,
-        )
-      ) {
+      if (!isUseCollateral) {
         return {
           repayAmount: amount,
           maximumPayableCollateralAmount: position.collateralAmount,
@@ -211,10 +205,11 @@ const RepayModal = ({
             </div>
             <CurrencyAmountInput
               currency={position.underlying}
-              value={value} // TODO: use collateral amount
+              value={formatUnits(repayAmount, position.underlying.decimals)}
               onValueChange={setValue}
               price={prices[position.underlying.address]}
-              balance={min(position.amount)} // TODO: add max repay amount
+              balance={0n}
+              disabled={isUseCollateral}
             />
           </div>
         ) : (
