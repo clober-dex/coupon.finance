@@ -31,7 +31,7 @@ const RepayModal = ({
   const { prices, balances } = useCurrencyContext()
   const [isUseCollateral, setIsUseCollateral] = useState(false)
   const [value, setValue] = useState('')
-  const [slippage, setSlippage] = useState('')
+  const [slippage, setSlippage] = useState('1')
   const [showSlippageSelect, setShowSlippageSelect] = useState(false)
 
   const amount = useMemo(
@@ -70,7 +70,7 @@ const RepayModal = ({
             amountIn: position.amount.toString(),
             tokenIn: position.underlying.address,
             tokenOut: position.collateral.underlying.address,
-            slippageLimitPercent: 1,
+            slippageLimitPercent: Number(slippage),
             userAddress,
             gasPrice: Number(feeData.gasPrice),
           })
@@ -79,7 +79,7 @@ const RepayModal = ({
           amountIn: amount.toString(),
           tokenIn: position.collateral.underlying.address,
           tokenOut: position.underlying.address,
-          slippageLimitPercent: 1,
+          slippageLimitPercent: Number(slippage),
           userAddress,
           gasPrice: Number(feeData.gasPrice),
         })
