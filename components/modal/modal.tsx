@@ -5,7 +5,12 @@ const Modal = ({
   show,
   onClose,
   children,
-}: { show: boolean; onClose: () => void } & React.PropsWithChildren) => {
+  onModalClick,
+}: {
+  show: boolean
+  onClose: () => void
+  onModalClick?: () => void
+} & React.PropsWithChildren) => {
   if (!show) {
     return <></>
   }
@@ -17,7 +22,10 @@ const Modal = ({
     >
       <div
         className="shadow flex flex-col bg-gray-50 w-full sm:w-[480px] dark:bg-gray-900 text-gray-950 dark:text-white rounded-xl sm:rounded-2xl p-4 sm:p-6"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          onModalClick?.()
+          e.stopPropagation()
+        }}
       >
         {children}
       </div>

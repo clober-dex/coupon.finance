@@ -12,6 +12,8 @@ import { calculateCouponsToRepay } from '../../model/market'
 import { max, min } from '../../utils/bigint'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import { fetchAmountOutByOdos, fetchCallDataByOdos } from '../../api/odos'
+import SwapSvg from '../svg/swap-svg'
+import SlippageSelect from '../slippage-select'
 
 import Modal from './modal'
 
@@ -29,6 +31,8 @@ const RepayModal = ({
   const { prices, balances } = useCurrencyContext()
   const [isUseCollateral, setIsUseCollateral] = useState(false)
   const [value, setValue] = useState('')
+  const [slippage, setSlippage] = useState('1')
+  const [showSlippageSelect, setShowSlippageSelect] = useState(false)
 
   const amount = useMemo(
     () =>
@@ -42,52 +46,33 @@ const RepayModal = ({
   )
 
   const {
-    data: { repayAmount, maximumPayableCollateralAmount, pathId },
+    data: { repayAmount, pathId },
   } = useQuery(
     ['calculate-repay-amount', position, amount, isUseCollateral],
     async () => {
-      if (
-        !isUseCollateral ||
-        isAddressEqual(
-          position.collateral.underlying.address,
-          position.underlying.address,
-        )
-      ) {
+      if (!isUseCollateral) {
         return {
           repayAmount: amount,
-          maximumPayableCollateralAmount: position.collateralAmount,
           pathId: undefined,
         }
       }
       if (feeData?.gasPrice && userAddress && connectedChain) {
-        const { amountOut: maximumPayableCollateralAmount } =
-          await fetchAmountOutByOdos({
-            chainId: connectedChain.id,
-            amountIn: position.amount.toString(),
-            tokenIn: position.underlying.address,
-            tokenOut: position.collateral.underlying.address,
-            slippageLimitPercent: 1,
-            userAddress,
-            gasPrice: Number(feeData.gasPrice),
-          })
         const { amountOut: repayAmount, pathId } = await fetchAmountOutByOdos({
           chainId: connectedChain.id,
           amountIn: amount.toString(),
           tokenIn: position.collateral.underlying.address,
           tokenOut: position.underlying.address,
-          slippageLimitPercent: 1,
+          slippageLimitPercent: Number(slippage),
           userAddress,
           gasPrice: Number(feeData.gasPrice),
         })
         return {
           repayAmount,
-          maximumPayableCollateralAmount,
           pathId,
         }
       }
       return {
         repayAmount: 0n,
-        maximumPayableCollateralAmount: 0n,
         pathId: undefined,
       }
     },
@@ -96,7 +81,6 @@ const RepayModal = ({
       keepPreviousData: true,
       initialData: {
         repayAmount: 0n,
-        maximumPayableCollateralAmount: 0n,
         pathId: undefined,
       },
     },
@@ -165,7 +149,11 @@ const RepayModal = ({
   }, [repayAmount, isUseCollateral, amount, position, prices])
 
   return (
-    <Modal show onClose={onClose}>
+    <Modal
+      show
+      onClose={onClose}
+      onModalClick={() => setShowSlippageSelect(false)}
+    >
       <h1 className="font-bold text-sm sm:text-xl mb-4 sm:mb-6">Repay</h1>
       <div className="flex mb-6 rounded text-xs bg-gray-100 dark:bg-gray-800 text-gray-500">
         <button
@@ -183,50 +171,89 @@ const RepayModal = ({
           Repay with <br className="flex sm:hidden" /> Collateral
         </button>
       </div>
-      <div className="mb-4 font-bold">How much would you like to repay?</div>
       <div className="mb-6">
         {isUseCollateral ? (
-          <CurrencyAmountInput
-            currency={position.collateral.underlying}
-            value={value}
-            onValueChange={setValue}
-            price={prices[position.collateral.underlying.address]}
-            balance={min(
-              position.collateralAmount,
-              isAddressEqual(
-                position.underlying.address,
-                position.collateral.underlying.address,
-              )
-                ? position.amount
-                : 2n ** 256n - 1n,
-              maximumPayableCollateralAmount,
-            )}
-          />
+          <div className="flex flex-col w-full">
+            <div className="mb-4 font-bold">Collateral amount to be used</div>
+            <CurrencyAmountInput
+              currency={position.collateral.underlying}
+              value={value}
+              onValueChange={setValue}
+              price={prices[position.collateral.underlying.address]}
+              balance={position.collateralAmount}
+            />
+            <SwapSvg className="w-4 h-4 sm:w-6 sm:h-6 self-center my-3 sm:my-4" />
+            <div className="mb-4 font-bold">
+              How much would you like to repay
+            </div>
+            <CurrencyAmountInput
+              currency={position.underlying}
+              value={formatUnits(repayAmount, position.underlying.decimals)}
+              onValueChange={setValue}
+              price={prices[position.underlying.address]}
+              balance={0n}
+              disabled
+            />
+          </div>
         ) : (
-          <CurrencyAmountInput
-            currency={position.underlying}
-            value={value}
-            onValueChange={setValue}
-            price={prices[position.underlying.address]}
-            balance={min(
-              position.amount,
-              available,
-              balances[position.underlying.address],
-            )}
-          />
+          <>
+            <div className="mb-4 font-bold">
+              How much would you like to repay?
+            </div>
+            <CurrencyAmountInput
+              currency={position.underlying}
+              value={value}
+              onValueChange={setValue}
+              price={prices[position.underlying.address]}
+              balance={min(
+                position.amount,
+                available,
+                balances[position.underlying.address],
+              )}
+            />
+          </>
         )}
       </div>
-      <div className="font-bold mb-3">Transaction Overview</div>
+      <div className="flex justify-between items-center mb-3">
+        <div className="font-bold">Transaction Overview</div>
+        {isUseCollateral ? (
+          <SlippageSelect
+            show={showSlippageSelect}
+            setShow={setShowSlippageSelect}
+            slippage={slippage}
+            setSlippage={setSlippage}
+          />
+        ) : (
+          <></>
+        )}
+      </div>
       <div className="flex flex-col gap-2 text-gray-500 text-sm mb-8">
         <div className="flex gap-3 justify-between sm:justify-start">
           <div className="text-gray-500">Remaining Debt</div>
-          <div>
-            {formatUnits(
-              position.amount,
-              position.underlying.decimals,
-              prices[position.underlying.address],
-            )}{' '}
-            {position.underlying.symbol}
+          <div className="flex items-center gap-1">
+            <span>
+              {formatUnits(
+                position.amount,
+                position.underlying.decimals,
+                prices[position.underlying.address],
+              )}{' '}
+              {position.underlying.symbol}
+            </span>
+            {value ? (
+              <>
+                <Arrow />
+                <span className="text-green-500">
+                  {formatUnits(
+                    position.amount - repayAmount,
+                    position.underlying.decimals,
+                    prices[position.underlying.address],
+                  )}{' '}
+                  {position.underlying.symbol}
+                </span>
+              </>
+            ) : (
+              <></>
+            )}
           </div>
         </div>
         <div className="flex gap-3 justify-between sm:justify-start">
@@ -248,7 +275,6 @@ const RepayModal = ({
         disabled={
           repayAmount === 0n ||
           repayAmount > available ||
-          repayAmount > position.amount ||
           (!isUseCollateral &&
             repayAmount > balances[position.underlying.address])
         }
@@ -283,8 +309,6 @@ const RepayModal = ({
           ? 'Enter amount to repay'
           : repayAmount > available
           ? 'Not enough coupons for sale'
-          : repayAmount > position.amount
-          ? 'Repay amount exceeds debt'
           : !isUseCollateral &&
             repayAmount > balances[position.underlying.address]
           ? `Insufficient ${position.underlying.symbol} balance`
