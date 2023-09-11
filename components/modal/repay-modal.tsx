@@ -46,28 +46,17 @@ const RepayModal = ({
   )
 
   const {
-    data: { repayAmount, maximumPayableCollateralAmount, pathId },
+    data: { repayAmount, pathId },
   } = useQuery(
     ['calculate-repay-amount', position, amount, isUseCollateral],
     async () => {
       if (!isUseCollateral) {
         return {
           repayAmount: amount,
-          maximumPayableCollateralAmount: position.collateralAmount,
           pathId: undefined,
         }
       }
       if (feeData?.gasPrice && userAddress && connectedChain) {
-        const { amountOut: maximumPayableCollateralAmount } =
-          await fetchAmountOutByOdos({
-            chainId: connectedChain.id,
-            amountIn: position.amount.toString(),
-            tokenIn: position.underlying.address,
-            tokenOut: position.collateral.underlying.address,
-            slippageLimitPercent: Number(slippage),
-            userAddress,
-            gasPrice: Number(feeData.gasPrice),
-          })
         const { amountOut: repayAmount, pathId } = await fetchAmountOutByOdos({
           chainId: connectedChain.id,
           amountIn: amount.toString(),
@@ -79,13 +68,11 @@ const RepayModal = ({
         })
         return {
           repayAmount,
-          maximumPayableCollateralAmount,
           pathId,
         }
       }
       return {
         repayAmount: 0n,
-        maximumPayableCollateralAmount: 0n,
         pathId: undefined,
       }
     },
@@ -94,7 +81,6 @@ const RepayModal = ({
       keepPreviousData: true,
       initialData: {
         repayAmount: 0n,
-        maximumPayableCollateralAmount: 0n,
         pathId: undefined,
       },
     },
@@ -194,10 +180,7 @@ const RepayModal = ({
               value={value}
               onValueChange={setValue}
               price={prices[position.collateral.underlying.address]}
-              balance={min(
-                position.collateralAmount,
-                maximumPayableCollateralAmount,
-              )}
+              balance={position.collateralAmount}
             />
             <SwapSvg className="w-4 h-4 sm:w-6 sm:h-6 self-center my-3 sm:my-4" />
             <div className="mb-4 font-bold">
@@ -247,13 +230,30 @@ const RepayModal = ({
       <div className="flex flex-col gap-2 text-gray-500 text-sm mb-8">
         <div className="flex gap-3 justify-between sm:justify-start">
           <div className="text-gray-500">Remaining Debt</div>
-          <div>
-            {formatUnits(
-              position.amount,
-              position.underlying.decimals,
-              prices[position.underlying.address],
-            )}{' '}
-            {position.underlying.symbol}
+          <div className="flex items-center gap-1">
+            <span>
+              {formatUnits(
+                position.amount,
+                position.underlying.decimals,
+                prices[position.underlying.address],
+              )}{' '}
+              {position.underlying.symbol}
+            </span>
+            {value ? (
+              <>
+                <Arrow />
+                <span className="text-green-500">
+                  {formatUnits(
+                    position.amount - repayAmount,
+                    position.underlying.decimals,
+                    prices[position.underlying.address],
+                  )}{' '}
+                  {position.underlying.symbol}
+                </span>
+              </>
+            ) : (
+              <></>
+            )}
           </div>
         </div>
         <div className="flex gap-3 justify-between sm:justify-start">
@@ -275,7 +275,6 @@ const RepayModal = ({
         disabled={
           repayAmount === 0n ||
           repayAmount > available ||
-          repayAmount > position.amount ||
           (!isUseCollateral &&
             repayAmount > balances[position.underlying.address])
         }
@@ -310,8 +309,6 @@ const RepayModal = ({
           ? 'Enter amount to repay'
           : repayAmount > available
           ? 'Not enough coupons for sale'
-          : repayAmount > position.amount
-          ? 'Repay amount exceeds debt'
           : !isUseCollateral &&
             repayAmount > balances[position.underlying.address]
           ? `Insufficient ${position.underlying.symbol} balance`
