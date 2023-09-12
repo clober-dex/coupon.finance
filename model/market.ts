@@ -1,6 +1,6 @@
 import { isAddressEqual } from 'viem'
 
-import { MarketDto } from '../api/market'
+import { MarketDto } from '../apis/market'
 import { calculateApy } from '../utils/apy'
 import { calculateApr } from '../utils/apr'
 import { max, min } from '../utils/bigint'

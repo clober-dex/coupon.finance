@@ -5,7 +5,7 @@ sources:
         endpoint: '{context.url:http://dev-subgraph.coupon.finance:8000/subgraphs/name/coupon-subgraph}'
 
 documents:
-  - ./api/**/*.graphql
+  - ./apis/**/*.graphql
   - ./__tests__/**/*.graphql
 
 

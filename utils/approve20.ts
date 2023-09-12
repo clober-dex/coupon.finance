@@ -1,7 +1,7 @@
 import { GetWalletClientResult } from '@wagmi/core'
 
 import { Currency } from '../model/currency'
-import { fetchAllowance } from '../api/allowance'
+import { fetchAllowance } from '../apis/allowance'
 import { IERC20__factory } from '../typechain'
 
 export const approve20 = async (

@@ -3,7 +3,7 @@ import { useQuery } from 'wagmi'
 
 import Slider from '../slider'
 import { LoanPosition } from '../../model/loan-position'
-import { fetchCouponAmountByEpochsBorrowed } from '../../api/market'
+import { fetchCouponAmountByEpochsBorrowed } from '../../apis/market'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import { useCurrencyContext } from '../../contexts/currency-context'
 
