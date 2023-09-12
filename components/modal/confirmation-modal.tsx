@@ -44,7 +44,7 @@ const ConfirmationModal = ({
                     <Image
                       src={getLogo(field.currency)}
                       alt={field.currency.name}
-                      layout="fill"
+                      fill
                     />
                   </div>
                 ) : (

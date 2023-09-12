@@ -149,7 +149,7 @@ const FaucetForm = () => {
                   <Image
                     src={`/assets/icons/icon-${asset.symbol.toLowerCase()}.svg`}
                     alt={asset.symbol}
-                    layout="fill"
+                    fill
                   />
                 </div>
                 <div>{asset.name}</div>
