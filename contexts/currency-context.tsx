@@ -4,7 +4,7 @@ import { readContracts } from '@wagmi/core'
 import { getAddress } from 'viem'
 
 import { IERC20__factory } from '../typechain'
-import { fetchCurrencies, fetchPrices } from '../api/currency'
+import { fetchCurrencies, fetchPrices } from '../apis/currency'
 import { Currency } from '../model/currency'
 import { BigDecimal } from '../utils/numbers'
 

@@ -4,16 +4,17 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { isAddressEqual, parseUnits } from 'viem'
 import { useQuery } from 'wagmi'
+import Image from 'next/image'
 
 import Slider from '../../components/slider'
 import BackSvg from '../../components/svg/back-svg'
 import { getLogo } from '../../model/currency'
 import { Asset } from '../../model/asset'
-import { fetchAssets } from '../../api/asset'
+import { fetchAssets } from '../../apis/asset'
 import CurrencySelect from '../../components/currency-select'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import CurrencyAmountInput from '../../components/currency-amount-input'
-import { fetchBorrowAprByEpochsBorrowed } from '../../api/market'
+import { fetchBorrowAprByEpochsBorrowed } from '../../apis/market'
 import { dollarValue, formatUnits } from '../../utils/numbers'
 import { ClientComponent } from '../../components/client-component'
 import { useBorrowContext } from '../../contexts/borrow-context'
@@ -206,11 +207,13 @@ const Borrow: NextPage<
             <BackSvg className="w-4 h-4 sm:w-8 sm:h-8" />
             Borrow
             <div className="flex gap-2">
-              <img
-                src={getLogo(asset.underlying)}
-                alt={asset.underlying.name}
-                className="w-6 h-6 sm:w-8 sm:h-8"
-              />
+              <div className="w-6 h-6 sm:w-8 sm:h-8 relative">
+                <Image
+                  src={getLogo(asset.underlying)}
+                  alt={asset.underlying.name}
+                  layout="fill"
+                />
+              </div>
               <div>{asset.underlying.symbol}</div>
             </div>
           </button>
@@ -277,11 +280,13 @@ const Borrow: NextPage<
                   </div>
                   <div className="flex flex-row-reverse justify-between sm:flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4">
                     <div className="sm:px-6 sm:mb-2">
-                      <Slider
-                        length={interestsByEpochsBorrowed?.length ?? 0}
-                        value={epochs}
-                        onValueChange={setEpochs}
-                      />
+                      <ClientComponent>
+                        <Slider
+                          length={interestsByEpochsBorrowed?.length ?? 0}
+                          value={epochs}
+                          onValueChange={setEpochs}
+                        />
+                      </ClientComponent>
                     </div>
                     <ClientComponent className="flex flex-col sm:flex-row justify-between">
                       {(interestsByEpochsBorrowed || []).map(({ date }, i) => (

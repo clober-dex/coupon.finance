@@ -2,12 +2,11 @@ import { GetWalletClientResult, readContracts } from '@wagmi/core'
 import { hexToSignature } from 'viem'
 
 import { Currency } from '../model/currency'
-import { fetchAllowance } from '../api/allowance'
+import { fetchAllowance } from '../apis/allowance'
 import { IERC20Metadata__factory, IERC20Permit__factory } from '../typechain'
 
 import { zeroBytes32 } from './bytes'
 import { approve20 } from './approve20'
-import { CONTRACT_ADDRESSES } from './addresses'
 
 export const permit20 = async (
   walletClient: GetWalletClientResult,
