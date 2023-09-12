@@ -280,11 +280,13 @@ const Borrow: NextPage<
                   </div>
                   <div className="flex flex-row-reverse justify-between sm:flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4">
                     <div className="sm:px-6 sm:mb-2">
-                      <Slider
-                        length={interestsByEpochsBorrowed?.length ?? 0}
-                        value={epochs}
-                        onValueChange={setEpochs}
-                      />
+                      <ClientComponent>
+                        <Slider
+                          length={interestsByEpochsBorrowed?.length ?? 0}
+                          value={epochs}
+                          onValueChange={setEpochs}
+                        />
+                      </ClientComponent>
                     </div>
                     <ClientComponent className="flex flex-col sm:flex-row justify-between">
                       {(interestsByEpochsBorrowed || []).map(({ date }, i) => (
