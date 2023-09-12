@@ -18,7 +18,7 @@ import {
   OdosRepayAdapter__factory,
 } from '../typechain'
 import { max, min } from '../utils/bigint'
-import { fetchLoanPositions } from '../api/loan-position'
+import { fetchLoanPositions } from '../apis/loan-position'
 import { Collateral } from '../model/collateral'
 import { LoanPosition } from '../model/loan-position'
 import { Currency } from '../model/currency'

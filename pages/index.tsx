@@ -8,8 +8,8 @@ import Link from 'next/link'
 import Deposit from '../components/deposit'
 import Borrow from '../components/borrow'
 import { AssetStatus } from '../model/asset'
-import { fetchAssetStatuses } from '../api/asset'
-import { fetchEpochs } from '../api/epoch'
+import { fetchAssetStatuses } from '../apis/asset'
+import { fetchEpochs } from '../apis/epoch'
 import { Epoch } from '../model/epoch'
 
 export const getServerSideProps: GetServerSideProps<{

@@ -1,7 +1,7 @@
 import { GetWalletClientResult, readContracts } from '@wagmi/core'
 import { hexToSignature, isAddressEqual, zeroAddress } from 'viem'
 
-import { fetchApproval } from '../api/approval'
+import { fetchApproval } from '../apis/approval'
 import { EIP712__factory, IERC721Permit__factory } from '../typechain'
 
 import { zeroBytes32 } from './bytes'
