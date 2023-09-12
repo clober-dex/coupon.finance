@@ -4,6 +4,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { isAddressEqual, parseUnits } from 'viem'
 import { useQuery } from 'wagmi'
+import Image from 'next/image'
 
 import Slider from '../../components/slider'
 import BackSvg from '../../components/svg/back-svg'
@@ -206,10 +207,12 @@ const Borrow: NextPage<
             <BackSvg className="w-4 h-4 sm:w-8 sm:h-8" />
             Borrow
             <div className="flex gap-2">
-              <img
+              <Image
                 src={getLogo(asset.underlying)}
                 alt={asset.underlying.name}
                 className="w-6 h-6 sm:w-8 sm:h-8"
+                height={16}
+                width={16}
               />
               <div>{asset.underlying.symbol}</div>
             </div>

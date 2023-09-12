@@ -6,6 +6,7 @@ import { useRouter } from 'next/router'
 import { parseUnits } from 'viem'
 import { useQuery } from 'wagmi'
 import Link from 'next/link'
+import Image from 'next/image'
 
 import Slider from '../../components/slider'
 import BackSvg from '../../components/svg/back-svg'
@@ -109,10 +110,12 @@ const Deposit: NextPage<
             <BackSvg className="w-4 h-4 sm:w-8 sm:h-8" />
             Deposit
             <div className="flex items-center gap-2">
-              <img
+              <Image
                 src={getLogo(asset.underlying)}
                 alt={asset.underlying.name}
                 className="w-6 h-6 sm:w-8 sm:h-8"
+                height={16}
+                width={16}
               />
               <div>{asset.underlying.symbol}</div>
             </div>

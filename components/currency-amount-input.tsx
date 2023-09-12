@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo } from 'react'
 import { parseUnits } from 'viem'
+import Image from 'next/image'
 
 import { Currency, getLogo } from '../model/currency'
 import { BigDecimal, formatDollarValue, formatUnits } from '../utils/numbers'
@@ -55,10 +56,12 @@ const CurrencyAmountInput = ({
               className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2"
               onClick={onCurrencyClick}
             >
-              <img
+              <Image
                 src={getLogo(currency)}
                 alt={currency.name}
                 className="w-5 h-5"
+                height={16}
+                width={16}
               />
               <div className="text-sm sm:text-base">{currency.symbol}</div>
             </button>
@@ -72,10 +75,12 @@ const CurrencyAmountInput = ({
           )
         ) : currency ? (
           <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
-            <img
+            <Image
               src={getLogo(currency)}
               alt={currency.name}
               className="w-5 h-5"
+              height={16}
+              width={16}
             />
             <div className="text-sm sm:text-base">{currency.symbol}</div>
           </div>

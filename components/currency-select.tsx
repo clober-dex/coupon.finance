@@ -1,4 +1,5 @@
 import React from 'react'
+import Image from 'next/image'
 
 import { Currency, getLogo } from '../model/currency'
 import { useCurrencyContext } from '../contexts/currency-context'
@@ -49,10 +50,12 @@ const CurrencySelect = ({
               onClick={() => onCurrencySelect(currency)}
             >
               <div className="flex items-center gap-3">
-                <img
+                <Image
                   src={getLogo(currency)}
                   alt={currency.name}
                   className="w-6 h-6 sm:w-8 sm:h-8"
+                  height={16}
+                  width={16}
                 />
                 <div>
                   <div className="text-sm sm:text-base font-bold">

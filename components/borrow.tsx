@@ -2,6 +2,7 @@ import React, { SVGProps, useMemo, useState } from 'react'
 import Link from 'next/link'
 import BigNumber from 'bignumber.js'
 import { isAddressEqual, parseUnits } from 'viem'
+import Image from 'next/image'
 
 import { useBorrowContext } from '../contexts/borrow-context'
 import { Currency, getLogo } from '../model/currency'
@@ -93,10 +94,12 @@ const Position = ({
     <div className="rounded-xl shadow bg-gray-50 dark:bg-gray-900" {...props}>
       <div className="flex justify-between rounded-t-xl p-4 bg-white dark:bg-gray-800">
         <div className="flex items-center gap-3">
-          <img
+          <Image
             src={getLogo(position.underlying)}
             alt={position.underlying.name}
             className="w-8 h-8"
+            height={16}
+            width={16}
           />
           <div className="flex flex-col">
             <div className="font-bold">{position.underlying.symbol}</div>
@@ -218,10 +221,12 @@ const Asset = ({
       <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
         <div className="flex justify-between w-full sm:w-auto items-center gap-4 bg-white p-4 rounded-t-xl dark:bg-gray-800 dark:sm:bg-gray-900 sm:p-0 mb-2 sm:mb-0">
           <div className="flex items-center gap-3 sm:w-[140px]">
-            <img
+            <Image
               src={getLogo(currency)}
               alt={currency.name}
               className="w-8 h-8"
+              height={16}
+              width={16}
             />
             <div className="flex flex-col gap-0.5 sm:gap-0">
               <div className="font-bold text-sm sm:text-base">

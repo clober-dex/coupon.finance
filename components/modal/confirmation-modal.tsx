@@ -1,5 +1,6 @@
 import React from 'react'
 import { createPortal } from 'react-dom'
+import Image from 'next/image'
 
 import { Confirmation } from '../../contexts/transaction-context'
 import { getLogo } from '../../model/currency'
@@ -39,10 +40,12 @@ const ConfirmationModal = ({
             >
               <div className="flex items-center gap-2">
                 {field.currency ? (
-                  <img
+                  <Image
                     src={getLogo(field.currency)}
                     alt={field.currency.name}
                     className="w-5 h-5"
+                    height={16}
+                    width={16}
                   />
                 ) : (
                   <></>
