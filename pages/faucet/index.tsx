@@ -8,6 +8,7 @@ import {
 import { useAccount, useQuery, useQueryClient } from 'wagmi'
 import { createPublicClient, http } from 'viem'
 import { arbitrumGoerli } from 'wagmi/chains'
+import Image from 'next/image'
 
 import { ClientComponent } from '../../components/client-component'
 
@@ -144,11 +145,13 @@ const FaucetForm = () => {
               className="flex items-center justify-between bg-white dark:bg-gray-800 px-3 py-2 text-sm sm:text-base rounded-lg"
             >
               <div className="flex items-center gap-2">
-                <img
-                  src={`/assets/icons/icon-${asset.symbol.toLowerCase()}.svg`}
-                  alt={asset.symbol}
-                  className="w-5 h-5"
-                />
+                <div className="w-5 h-5 relative">
+                  <Image
+                    src={`/assets/icons/icon-${asset.symbol.toLowerCase()}.svg`}
+                    alt={asset.symbol}
+                    layout="fill"
+                  />
+                </div>
                 <div>{asset.name}</div>
               </div>
               <div>
