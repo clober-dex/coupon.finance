@@ -110,13 +110,13 @@ const Deposit: NextPage<
             <BackSvg className="w-4 h-4 sm:w-8 sm:h-8" />
             Deposit
             <div className="flex items-center gap-2">
-              <Image
-                src={getLogo(asset.underlying)}
-                alt={asset.underlying.name}
-                className="w-6 h-6 sm:w-8 sm:h-8"
-                height={16}
-                width={16}
-              />
+              <div className="w-6 h-6 sm:w-8 sm:h-8 relative">
+                <Image
+                  src={getLogo(asset.underlying)}
+                  alt={asset.underlying.name}
+                  layout="fill"
+                />
+              </div>
               <div>{asset.underlying.symbol}</div>
             </div>
           </Link>

@@ -56,13 +56,13 @@ const CurrencyAmountInput = ({
               className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2"
               onClick={onCurrencyClick}
             >
-              <Image
-                src={getLogo(currency)}
-                alt={currency.name}
-                className="w-5 h-5"
-                height={16}
-                width={16}
-              />
+              <div className="w-5 h-5 relative">
+                <Image
+                  src={getLogo(currency)}
+                  alt={currency.name}
+                  layout="fill"
+                />
+              </div>
               <div className="text-sm sm:text-base">{currency.symbol}</div>
             </button>
           ) : (
@@ -75,13 +75,13 @@ const CurrencyAmountInput = ({
           )
         ) : currency ? (
           <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
-            <Image
-              src={getLogo(currency)}
-              alt={currency.name}
-              className="w-5 h-5"
-              height={16}
-              width={16}
-            />
+            <div className="w-5 h-5 relative">
+              <Image
+                src={getLogo(currency)}
+                alt={currency.name}
+                layout="fill"
+              />
+            </div>
             <div className="text-sm sm:text-base">{currency.symbol}</div>
           </div>
         ) : (

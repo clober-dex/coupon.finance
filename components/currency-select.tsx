@@ -50,13 +50,14 @@ const CurrencySelect = ({
               onClick={() => onCurrencySelect(currency)}
             >
               <div className="flex items-center gap-3">
-                <Image
-                  src={getLogo(currency)}
-                  alt={currency.name}
-                  className="w-6 h-6 sm:w-8 sm:h-8"
-                  height={16}
-                  width={16}
-                />
+                <div className="w-6 h-6 sm:w-8 sm:h-8 relative">
+                  <Image
+                    src={getLogo(currency)}
+                    alt={currency.name}
+                    className="w-6 h-6 sm:w-8 sm:h-8"
+                    layout="fill"
+                  />
+                </div>
                 <div>
                   <div className="text-sm sm:text-base font-bold">
                     {currency.symbol}

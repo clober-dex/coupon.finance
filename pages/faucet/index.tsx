@@ -145,13 +145,13 @@ const FaucetForm = () => {
               className="flex items-center justify-between bg-white dark:bg-gray-800 px-3 py-2 text-sm sm:text-base rounded-lg"
             >
               <div className="flex items-center gap-2">
-                <Image
-                  src={`/assets/icons/icon-${asset.symbol.toLowerCase()}.svg`}
-                  alt={asset.symbol}
-                  className="w-5 h-5"
-                  height={16}
-                  width={16}
-                />
+                <div className="w-5 h-5 relative">
+                  <Image
+                    src={`/assets/icons/icon-${asset.symbol.toLowerCase()}.svg`}
+                    alt={asset.symbol}
+                    layout="fill"
+                  />
+                </div>
                 <div>{asset.name}</div>
               </div>
               <div>
