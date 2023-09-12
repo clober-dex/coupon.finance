@@ -8,7 +8,7 @@ import {
 import { useAccount, useQuery, useQueryClient } from 'wagmi'
 import { createPublicClient, http } from 'viem'
 import { arbitrumGoerli } from 'wagmi/chains'
-import Image from 'next/legacy/image'
+import Image from 'next/image'
 
 import { ClientComponent } from '../../components/client-component'
 

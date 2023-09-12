@@ -4,7 +4,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { isAddressEqual, parseUnits } from 'viem'
 import { useQuery } from 'wagmi'
-import Image from 'next/legacy/image'
+import Image from 'next/image'
 
 import Slider from '../../components/slider'
 import BackSvg from '../../components/svg/back-svg'

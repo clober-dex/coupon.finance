@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { isAddressEqual, parseUnits } from 'viem'
 import BigNumber from 'bignumber.js'
-import Image from 'next/legacy/image'
+import Image from 'next/image'
 
 import { useDepositContext } from '../contexts/deposit-context'
 import { Currency, getLogo } from '../model/currency'
