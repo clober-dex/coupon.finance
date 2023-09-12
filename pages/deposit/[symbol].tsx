@@ -6,7 +6,7 @@ import { useRouter } from 'next/router'
 import { parseUnits } from 'viem'
 import { useQuery } from 'wagmi'
 import Link from 'next/link'
-import Image from 'next/image'
+import Image from 'next/legacy/image'
 
 import Slider from '../../components/slider'
 import BackSvg from '../../components/svg/back-svg'

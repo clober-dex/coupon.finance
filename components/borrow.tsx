@@ -2,7 +2,7 @@ import React, { SVGProps, useMemo, useState } from 'react'
 import Link from 'next/link'
 import BigNumber from 'bignumber.js'
 import { isAddressEqual, parseUnits } from 'viem'
-import Image from 'next/image'
+import Image from 'next/legacy/image'
 
 import { useBorrowContext } from '../contexts/borrow-context'
 import { Currency, getLogo } from '../model/currency'
