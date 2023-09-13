@@ -40,7 +40,7 @@ const Position = ({
             <Image
               src={getLogo(position.underlying)}
               alt={position.underlying.name}
-              layout="fill"
+              fill
             />
           </div>
           <div className="flex flex-col">
@@ -133,11 +133,7 @@ const Asset = ({
         <div className="flex justify-between w-full sm:w-auto items-center gap-4 bg-white p-4 rounded-t-xl dark:bg-gray-800 dark:sm:bg-gray-900 sm:p-0 mb-2 sm:mb-0">
           <div className="flex items-center gap-3 sm:w-[140px]">
             <div className="w-8 h-8 relative">
-              <Image
-                src={getLogo(currency)}
-                alt={currency.name}
-                layout="fill"
-              />
+              <Image src={getLogo(currency)} alt={currency.name} fill />
             </div>
             <div className="flex flex-col gap-0.5 sm:gap-0">
               <div className="font-bold text-sm sm:text-base">

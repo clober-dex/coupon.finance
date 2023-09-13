@@ -57,11 +57,7 @@ const CurrencyAmountInput = ({
               onClick={onCurrencyClick}
             >
               <div className="w-5 h-5 relative">
-                <Image
-                  src={getLogo(currency)}
-                  alt={currency.name}
-                  layout="fill"
-                />
+                <Image src={getLogo(currency)} alt={currency.name} fill />
               </div>
               <div className="text-sm sm:text-base">{currency.symbol}</div>
             </button>
@@ -76,11 +72,7 @@ const CurrencyAmountInput = ({
         ) : currency ? (
           <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
             <div className="w-5 h-5 relative">
-              <Image
-                src={getLogo(currency)}
-                alt={currency.name}
-                layout="fill"
-              />
+              <Image src={getLogo(currency)} alt={currency.name} fill />
             </div>
             <div className="text-sm sm:text-base">{currency.symbol}</div>
           </div>
