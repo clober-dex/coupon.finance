@@ -114,7 +114,7 @@ const Deposit: NextPage<
                 <Image
                   src={getLogo(asset.underlying)}
                   alt={asset.underlying.name}
-                  layout="fill"
+                  fill
                 />
               </div>
               <div>{asset.underlying.symbol}</div>

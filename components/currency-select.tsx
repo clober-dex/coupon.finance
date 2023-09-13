@@ -55,7 +55,7 @@ const CurrencySelect = ({
                     src={getLogo(currency)}
                     alt={currency.name}
                     className="w-6 h-6 sm:w-8 sm:h-8"
-                    layout="fill"
+                    fill
                   />
                 </div>
                 <div>
