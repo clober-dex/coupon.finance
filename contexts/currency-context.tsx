@@ -7,15 +7,23 @@ import { IERC20__factory } from '../typechain'
 import { fetchCurrencies, fetchPrices } from '../apis/currency'
 import { Currency } from '../model/currency'
 import { BigDecimal } from '../utils/numbers'
+import { fetchAssetStatuses } from '../apis/asset'
+import { AssetStatus } from '../model/asset'
+import { Epoch } from '../model/epoch'
+import { fetchEpochs } from '../apis/epoch'
 
 type CurrencyContext = {
   balances: { [key in `0x${string}`]: bigint }
   prices: { [key in `0x${string}`]: BigDecimal }
+  assetStatuses: AssetStatus[]
+  epochs: Epoch[]
 }
 
 const Context = React.createContext<CurrencyContext>({
   balances: {},
   prices: {},
+  assetStatuses: [],
+  epochs: [],
 })
 
 export const isEthereum = (currency: Currency) => {
@@ -34,6 +42,26 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
     ['currencies'],
     async () => {
       return fetchCurrencies()
+    },
+    {
+      initialData: [],
+    },
+  )
+
+  const { data: assetStatuses } = useQuery(
+    ['assetStatuses'],
+    async () => {
+      return fetchAssetStatuses()
+    },
+    {
+      initialData: [],
+    },
+  )
+
+  const { data: epochs } = useQuery(
+    ['epochs'],
+    async () => {
+      return fetchEpochs()
     },
     {
       initialData: [],
@@ -86,6 +114,8 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
       value={{
         prices: prices ?? {},
         balances: balances ?? {},
+        assetStatuses: assetStatuses ?? [],
+        epochs: epochs ?? [],
       }}
     >
       {children}

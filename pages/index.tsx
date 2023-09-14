@@ -1,36 +1,14 @@
 import React from 'react'
-import type { NextPage } from 'next'
-import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 
 import Deposit from '../components/deposit'
 import Borrow from '../components/borrow'
-import { AssetStatus } from '../model/asset'
-import { fetchAssetStatuses } from '../apis/asset'
-import { fetchEpochs } from '../apis/epoch'
-import { Epoch } from '../model/epoch'
+import { useCurrencyContext } from '../contexts/currency-context'
 
-export const getServerSideProps: GetServerSideProps<{
-  assetStatuses: AssetStatus[]
-  epochs: Epoch[]
-}> = async () => {
-  const [assetStatuses, epochs] = await Promise.all([
-    fetchAssetStatuses(),
-    fetchEpochs(),
-  ])
-  return {
-    props: {
-      assetStatuses,
-      epochs,
-    },
-  }
-}
-
-const Home: NextPage<
-  InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ assetStatuses, epochs }) => {
+const Home = () => {
+  const { assetStatuses, epochs } = useCurrencyContext()
   const router = useRouter()
 
   return (
