@@ -362,7 +362,7 @@ const Borrow = ({
       ) : (
         <></>
       )}
-      <div className="flex flex-col gap-6 sm:gap-8 px-4 sm:p-0">
+      <ClientComponent className="flex flex-col gap-6 sm:gap-8 px-4 sm:p-0">
         <div className="flex items-center gap-6 justify-between">
           <h2 className="font-bold text-base sm:text-2xl">Assets to borrow</h2>
           <div className="flex items-center gap-6">
@@ -428,7 +428,7 @@ const Borrow = ({
               })}
           </div>
         </div>
-      </div>
+      </ClientComponent>
       {repayPosition ? (
         <RepayModal
           position={repayPosition}
