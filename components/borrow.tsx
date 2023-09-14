@@ -1,4 +1,4 @@
-import React, { SVGProps, useMemo, useState } from 'react'
+import React, { SVGProps, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import BigNumber from 'bignumber.js'
 import { isAddressEqual, parseUnits } from 'viem'
@@ -291,6 +291,11 @@ const Borrow = ({
   const [editExpiryPosition, setEditExpiryPosition] =
     useState<LoanPosition | null>(null)
   const [epoch, setEpoch] = useState(epochs[0])
+  useEffect(() => {
+    if (epochs.length > 0) {
+      setEpoch(epochs[0])
+    }
+  }, [epochs])
   return (
     <div className="flex flex-1 flex-col w-full sm:w-fit">
       <h1 className="flex justify-center text-center font-bold text-lg sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-12 mb-8 sm:mb-16">
