@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { isAddressEqual, parseUnits } from 'viem'
 import BigNumber from 'bignumber.js'
 import Image from 'next/image'
@@ -202,12 +202,7 @@ const Deposit = ({
   const [withdrawPosition, setWithdrawPosition] = useState<BondPosition | null>(
     null,
   )
-  const [epoch, setEpoch] = useState(epochs[0])
-  useEffect(() => {
-    if (epochs.length > 0) {
-      setEpoch(epochs[0])
-    }
-  }, [epochs])
+  const [epoch, setEpoch] = useState<Epoch | null>(null)
   return (
     <div className="flex flex-1 flex-col w-full sm:w-fit">
       <h1 className="flex justify-center text-center font-bold text-lg sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-12 mb-8 sm:mb-16">
@@ -280,75 +275,83 @@ const Deposit = ({
       ) : (
         <></>
       )}
-      <ClientComponent className="flex flex-col gap-6 sm:gap-8 px-4 sm:p-0">
-        <div className="flex items-center gap-6 justify-between">
-          <h2 className="font-bold text-base sm:text-2xl">Assets to deposit</h2>
-          <div className="flex items-center gap-6">
-            <label htmlFor="epoch" className="hidden sm:flex">
-              How long are you going to deposit?
-            </label>
-            <EpochSelect
-              epochs={epochs}
-              value={epoch}
-              onValueChange={setEpoch}
-            />
+      {epoch ? (
+        <ClientComponent className="flex flex-col gap-6 sm:gap-8 px-4 sm:p-0">
+          <div className="flex items-center gap-6 justify-between">
+            <h2 className="font-bold text-base sm:text-2xl">
+              Assets to deposit
+            </h2>
+            <div className="flex items-center gap-6">
+              <label htmlFor="epoch" className="hidden sm:flex">
+                How long are you going to deposit?
+              </label>
+              <EpochSelect
+                epochs={epochs}
+                value={epoch}
+                onValueChange={setEpoch}
+              />
+            </div>
           </div>
-        </div>
-        <div className="flex flex-col mb-12 gap-4">
-          <div className="hidden sm:flex gap-4 text-gray-500 text-xs">
-            <div className="w-[156px]">Asset</div>
-            <div className="w-[80px]">APY</div>
-            <div className="w-[136px]">Available</div>
-            <div className="w-[152px]">Total Deposited</div>
-          </div>
-          <div className="flex flex-col gap-4 sm:gap-3">
-            {assetStatuses
-              .filter((assetStatus) => assetStatus.epoch.id === epoch.id)
-              .filter(
-                (assetStatus) => assetStatus.totalDepositAvailable !== '0',
-              )
-              .map((assetStatus, i) => {
-                const validAssetStatuses = assetStatuses.filter(
-                  ({ underlying, epoch }) =>
-                    isAddressEqual(
-                      underlying.address,
-                      assetStatus.underlying.address,
-                    ) && epoch.id <= assetStatus.epoch.id,
+          <div className="flex flex-col mb-12 gap-4">
+            <div className="hidden sm:flex gap-4 text-gray-500 text-xs">
+              <div className="w-[156px]">Asset</div>
+              <div className="w-[80px]">APY</div>
+              <div className="w-[136px]">Available</div>
+              <div className="w-[152px]">Total Deposited</div>
+            </div>
+            <div className="flex flex-col gap-4 sm:gap-3">
+              {assetStatuses
+                .filter((assetStatus) => assetStatus.epoch.id === epoch.id)
+                .filter(
+                  (assetStatus) => assetStatus.totalDepositAvailable !== '0',
                 )
-                const proceeds = validAssetStatuses.reduce(
-                  (acc, { bestCouponBidPrice }) => acc + bestCouponBidPrice,
-                  0,
-                )
-                const currentTimestamp = Math.floor(new Date().getTime() / 1000)
-                const apy = calculateApy(
-                  proceeds,
-                  assetStatus.epoch.endTimestamp - currentTimestamp,
-                )
-                const available = validAssetStatuses
-                  .map(({ totalDepositAvailable }) =>
-                    parseUnits(
-                      totalDepositAvailable,
-                      assetStatus.underlying.decimals,
-                    ),
+                .map((assetStatus, i) => {
+                  const validAssetStatuses = assetStatuses.filter(
+                    ({ underlying, epoch }) =>
+                      isAddressEqual(
+                        underlying.address,
+                        assetStatus.underlying.address,
+                      ) && epoch.id <= assetStatus.epoch.id,
                   )
-                  .reduce((acc, val) => (acc > val ? acc : val), 0n)
-                return (
-                  <Asset
-                    key={i}
-                    currency={assetStatus.underlying}
-                    apy={apy}
-                    available={available}
-                    deposited={parseUnits(
-                      assetStatus.totalDeposited,
-                      assetStatus.underlying.decimals,
-                    )}
-                    price={prices[assetStatus.underlying.address]}
-                  />
-                )
-              })}
+                  const proceeds = validAssetStatuses.reduce(
+                    (acc, { bestCouponBidPrice }) => acc + bestCouponBidPrice,
+                    0,
+                  )
+                  const currentTimestamp = Math.floor(
+                    new Date().getTime() / 1000,
+                  )
+                  const apy = calculateApy(
+                    proceeds,
+                    assetStatus.epoch.endTimestamp - currentTimestamp,
+                  )
+                  const available = validAssetStatuses
+                    .map(({ totalDepositAvailable }) =>
+                      parseUnits(
+                        totalDepositAvailable,
+                        assetStatus.underlying.decimals,
+                      ),
+                    )
+                    .reduce((acc, val) => (acc > val ? acc : val), 0n)
+                  return (
+                    <Asset
+                      key={i}
+                      currency={assetStatus.underlying}
+                      apy={apy}
+                      available={available}
+                      deposited={parseUnits(
+                        assetStatus.totalDeposited,
+                        assetStatus.underlying.decimals,
+                      )}
+                      price={prices[assetStatus.underlying.address]}
+                    />
+                  )
+                })}
+            </div>
           </div>
-        </div>
-      </ClientComponent>
+        </ClientComponent>
+      ) : (
+        <></>
+      )}
       <WithdrawModal
         position={withdrawPosition}
         onClose={() => setWithdrawPosition(null)}
