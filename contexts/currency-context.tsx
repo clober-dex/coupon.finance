@@ -64,13 +64,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
       return fetchEpochs()
     },
     {
-      initialData: [
-        {
-          id: 0,
-          startTimestamp: 0,
-          endTimestamp: 0,
-        },
-      ],
+      initialData: [],
     },
   )
 
