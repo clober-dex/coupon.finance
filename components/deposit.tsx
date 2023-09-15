@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { isAddressEqual, parseUnits } from 'viem'
 import BigNumber from 'bignumber.js'
 import Image from 'next/image'
@@ -203,6 +203,11 @@ const Deposit = ({
     null,
   )
   const [epoch, setEpoch] = useState<Epoch | undefined>(undefined)
+  useEffect(() => {
+    if (epochs.length > 0) {
+      setEpoch(epochs[0])
+    }
+  }, [epochs])
   return (
     <div className="flex flex-1 flex-col w-full sm:w-fit">
       <h1 className="flex justify-center text-center font-bold text-lg sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-12 mb-8 sm:mb-16">
