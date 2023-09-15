@@ -1,8 +1,8 @@
 import React, { SVGProps, useEffect, useMemo, useState } from 'react'
-import Link from 'next/link'
 import BigNumber from 'bignumber.js'
 import { isAddressEqual, parseUnits } from 'viem'
 import Image from 'next/image'
+import { useRouter } from 'next/router'
 
 import { useBorrowContext } from '../contexts/borrow-context'
 import { Currency, getLogo } from '../model/currency'
@@ -213,6 +213,7 @@ const Asset = ({
   borrowed: bigint
   price?: BigDecimal
 } & React.HTMLAttributes<HTMLDivElement>) => {
+  const router = useRouter()
   return (
     <div
       className="flex flex-col sm:flex-row sm:items-center justify-between rounded-xl sm:p-4 bg-gray-50 sm:bg-white dark:bg-gray-900 shadow-md"
@@ -264,12 +265,16 @@ const Asset = ({
           </ClientComponent>
         </div>
       </div>
-      <Link
-        href={`/borrow/${currency.symbol}`}
+      <button
+        onClick={() =>
+          router.replace(`/borrow/?asset=${currency.symbol}`, undefined, {
+            shallow: true,
+          })
+        }
         className="flex items-center justify-center bg-green-500 m-4 sm:m-0 sm:h-fit sm:w-24 rounded px-3 py-2 font-bold text-xs text-white"
       >
         Borrow
-      </Link>
+      </button>
     </div>
   )
 }

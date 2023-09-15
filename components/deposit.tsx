@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import Link from 'next/link'
 import { isAddressEqual, parseUnits } from 'viem'
 import BigNumber from 'bignumber.js'
 import Image from 'next/image'
+import { useRouter } from 'next/router'
 
 import { useDepositContext } from '../contexts/deposit-context'
 import { Currency, getLogo } from '../model/currency'
@@ -124,6 +124,7 @@ const Asset = ({
   deposited: bigint
   price?: BigDecimal
 } & React.HTMLAttributes<HTMLDivElement>) => {
+  const router = useRouter()
   return (
     <div
       className="flex flex-col sm:flex-row sm:items-center justify-between rounded-xl sm:p-4 bg-gray-50 sm:bg-white dark:bg-gray-900 shadow-md"
@@ -175,12 +176,16 @@ const Asset = ({
           </ClientComponent>
         </div>
       </div>
-      <Link
-        href={`/deposit/${currency.symbol}`}
+      <button
+        onClick={() =>
+          router.replace(`/deposit/?asset=${currency.symbol}`, undefined, {
+            shallow: true,
+          })
+        }
         className="flex items-center justify-center bg-green-500 m-4 sm:m-0 sm:h-fit sm:w-24 rounded px-3 py-2 font-bold text-xs text-white"
       >
         Deposit
-      </Link>
+      </button>
     </div>
   )
 }
