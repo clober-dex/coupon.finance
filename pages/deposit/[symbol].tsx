@@ -10,7 +10,6 @@ import Image from 'next/image'
 import Slider from '../../components/slider'
 import BackSvg from '../../components/svg/back-svg'
 import { getLogo } from '../../model/currency'
-import { Asset } from '../../model/asset'
 import { useDepositContext } from '../../contexts/deposit-context'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { ClientComponent } from '../../components/client-component'
@@ -18,14 +17,19 @@ import { fetchDepositApyByEpochsDeposited } from '../../apis/market'
 import CurrencyAmountInput from '../../components/currency-amount-input'
 import { formatUnits } from '../../utils/numbers'
 
-const Deposit = ({ asset }: { asset: Asset | undefined }) => {
-  const { balances, prices } = useCurrencyContext()
+const Deposit = () => {
+  const { balances, prices, assets } = useCurrencyContext()
   const { deposit } = useDepositContext()
 
   const [epochs, _setEpochs] = useState(0)
   const [value, setValue] = useState('')
 
   const router = useRouter()
+  const asset = useMemo(() => {
+    return assets.find(
+      (asset) => asset.underlying.symbol === router.query.symbol,
+    )
+  }, [assets, router.query.symbol])
 
   const setEpochs = useCallback(
     (value: number) => {
