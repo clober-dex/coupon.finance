@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { GetServerSideProps, InferGetServerSidePropsType, NextPage } from 'next'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { isAddressEqual, parseUnits } from 'viem'
@@ -10,7 +9,6 @@ import Slider from '../../components/slider'
 import BackSvg from '../../components/svg/back-svg'
 import { getLogo } from '../../model/currency'
 import { Asset } from '../../model/asset'
-import { fetchAssets } from '../../apis/asset'
 import CurrencySelect from '../../components/currency-select'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import CurrencyAmountInput from '../../components/currency-amount-input'
@@ -21,27 +19,7 @@ import { useBorrowContext } from '../../contexts/borrow-context'
 import { LIQUIDATION_TARGET_LTV_PRECISION, min } from '../../utils/bigint'
 import { Collateral } from '../../model/collateral'
 
-export const getServerSideProps: GetServerSideProps<{
-  asset: Asset
-}> = async ({ params }) => {
-  const assets = await fetchAssets()
-  const asset = assets.find(
-    ({ underlying }) => underlying.symbol === params?.symbol,
-  )
-  if (!asset) {
-    return {
-      notFound: true,
-    }
-  }
-
-  return {
-    props: { asset },
-  }
-}
-
-const Borrow: NextPage<
-  InferGetServerSidePropsType<typeof getServerSideProps>
-> = ({ asset }) => {
+const Borrow = ({ asset }: { asset: Asset | undefined }) => {
   const { balances, prices } = useCurrencyContext()
   const { borrow } = useBorrowContext()
 
@@ -72,8 +50,8 @@ const Borrow: NextPage<
   )
 
   const loanAmount = useMemo(
-    () => parseUnits(loanValue, asset.underlying.decimals),
-    [loanValue, asset.underlying.decimals],
+    () => parseUnits(loanValue, asset?.underlying.decimals ?? 18),
+    [loanValue, asset?.underlying.decimals],
   )
 
   const liquidationTargetLtv = useMemo(
@@ -110,11 +88,13 @@ const Borrow: NextPage<
   const { data: interestsByEpochsBorrowed } = useQuery(
     ['borrow-apr', asset, loanAmount, maxLoanAmountExcludingCouponFee], // TODO: useDebounce
     () =>
-      fetchBorrowAprByEpochsBorrowed(
-        asset,
-        loanAmount,
-        maxLoanAmountExcludingCouponFee,
-      ),
+      asset
+        ? fetchBorrowAprByEpochsBorrowed(
+            asset,
+            loanAmount,
+            maxLoanAmountExcludingCouponFee,
+          )
+        : [],
     {
       refetchOnWindowFocus: true,
       keepPreviousData: true,
@@ -165,7 +145,7 @@ const Borrow: NextPage<
   }, [epochs, interestsByEpochsBorrowed, maxLoanAmountExcludingCouponFee])
 
   const currentLtv = useMemo(() => {
-    if (epochs === 0 || !interestsByEpochsBorrowed) {
+    if (epochs === 0 || !interestsByEpochsBorrowed || !asset) {
       return 0
     }
     const collateralDollarValue = collateral
@@ -182,8 +162,7 @@ const Borrow: NextPage<
     )
     return loanDollarValue.times(100).div(collateralDollarValue).toNumber()
   }, [
-    asset.underlying.address,
-    asset.underlying.decimals,
+    asset,
     collateral,
     collateralAmount,
     epochs,
@@ -196,182 +175,192 @@ const Borrow: NextPage<
   return (
     <div className="flex flex-1">
       <Head>
-        <title>Borrow {asset.underlying.symbol}</title>
+        <title>Borrow {asset?.underlying.symbol}</title>
       </Head>
-      <main className="flex flex-1 flex-col justify-center items-center">
-        <div className="flex flex-1 flex-col w-full">
-          <button
-            className="flex items-center font-bold text-base sm:text-2xl gap-2 sm:gap-3 mt-24 mb-2 sm:mb-2 ml-4 sm:ml-6"
-            onClick={() => router.back()}
-          >
-            <BackSvg className="w-4 h-4 sm:w-8 sm:h-8" />
-            Borrow
-            <div className="flex gap-2">
-              <div className="w-6 h-6 sm:w-8 sm:h-8 relative">
-                <Image
-                  src={getLogo(asset.underlying)}
-                  alt={asset.underlying.name}
-                  fill
-                />
+      {asset ? (
+        <main className="flex flex-1 flex-col justify-center items-center">
+          <div className="flex flex-1 flex-col w-full">
+            <button
+              className="flex items-center font-bold text-base sm:text-2xl gap-2 sm:gap-3 mt-24 mb-2 sm:mb-2 ml-4 sm:ml-6"
+              onClick={() => router.back()}
+            >
+              <BackSvg className="w-4 h-4 sm:w-8 sm:h-8" />
+              Borrow
+              <div className="flex gap-2">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 relative">
+                  <Image
+                    src={getLogo(asset.underlying)}
+                    alt={asset.underlying.name}
+                    fill
+                  />
+                </div>
+                <div>{asset.underlying.symbol}</div>
               </div>
-              <div>{asset.underlying.symbol}</div>
-            </div>
-          </button>
-          {showCollateralSelect ? (
-            <CurrencySelect
-              currencies={asset.collaterals
-                .filter(
-                  ({ underlying }) =>
-                    !isAddressEqual(
-                      underlying.address,
-                      asset.underlying.address,
-                    ),
-                )
-                .map((collateral) => collateral.underlying)}
-              onBack={() => setShowCollateralSelect(false)}
-              onCurrencySelect={(currency) => {
-                setCollateral(
-                  asset.collaterals.find(({ underlying }) => {
-                    return isAddressEqual(underlying.address, currency.address)
-                  }),
-                )
-                setShowCollateralSelect(false)
-              }}
-            />
-          ) : (
-            <div className="flex flex-1 sm:items-center justify-center">
-              <div className="flex flex-col sm:shadow bg-gray-50 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 w-full sm:w-[480px] gap-8">
-                <div className="flex flex-col gap-4">
-                  <div className="font-bold text-sm sm:text-lg">
-                    How much collateral would you like to add?
+            </button>
+            {showCollateralSelect ? (
+              <CurrencySelect
+                currencies={asset.collaterals
+                  .filter(
+                    ({ underlying }) =>
+                      !isAddressEqual(
+                        underlying.address,
+                        asset.underlying.address,
+                      ),
+                  )
+                  .map((collateral) => collateral.underlying)}
+                onBack={() => setShowCollateralSelect(false)}
+                onCurrencySelect={(currency) => {
+                  setCollateral(
+                    asset.collaterals.find(({ underlying }) => {
+                      return isAddressEqual(
+                        underlying.address,
+                        currency.address,
+                      )
+                    }),
+                  )
+                  setShowCollateralSelect(false)
+                }}
+              />
+            ) : (
+              <div className="flex flex-1 sm:items-center justify-center">
+                <div className="flex flex-col sm:shadow bg-gray-50 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 w-full sm:w-[480px] gap-8">
+                  <div className="flex flex-col gap-4">
+                    <div className="font-bold text-sm sm:text-lg">
+                      How much collateral would you like to add?
+                    </div>
+                    <CurrencyAmountInput
+                      currency={collateral?.underlying}
+                      value={collateralValue}
+                      onValueChange={setCollateralValue}
+                      balance={
+                        collateral
+                          ? balances[collateral?.underlying.address] ?? 0n
+                          : 0n
+                      }
+                      price={
+                        collateral
+                          ? prices[collateral?.underlying.address]
+                          : undefined
+                      }
+                      onCurrencyClick={() => setShowCollateralSelect(true)}
+                    />
                   </div>
-                  <CurrencyAmountInput
-                    currency={collateral?.underlying}
-                    value={collateralValue}
-                    onValueChange={setCollateralValue}
-                    balance={
-                      collateral
-                        ? balances[collateral?.underlying.address] ?? 0n
-                        : 0n
-                    }
-                    price={
-                      collateral
-                        ? prices[collateral?.underlying.address]
-                        : undefined
-                    }
-                    onCurrencyClick={() => setShowCollateralSelect(true)}
-                  />
-                </div>
-                <div className="flex flex-col gap-4">
-                  <div className="font-bold text-sm sm:text-lg">
-                    How much would you like to borrow?
+                  <div className="flex flex-col gap-4">
+                    <div className="font-bold text-sm sm:text-lg">
+                      How much would you like to borrow?
+                    </div>
+                    <CurrencyAmountInput
+                      currency={asset.underlying}
+                      value={loanValue}
+                      onValueChange={setLoanValue}
+                      price={prices[asset.underlying.address]}
+                      balance={maxLoanAmount}
+                    />
                   </div>
-                  <CurrencyAmountInput
-                    currency={asset.underlying}
-                    value={loanValue}
-                    onValueChange={setLoanValue}
-                    price={prices[asset.underlying.address]}
-                    balance={maxLoanAmount}
-                  />
-                </div>
-                <div className="flex flex-col gap-4">
-                  <div className="font-bold text-sm sm:text-lg">
-                    Select expiration date.
-                  </div>
-                  <div className="flex flex-row-reverse justify-between sm:flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4">
-                    <div className="sm:px-6 sm:mb-2">
-                      <ClientComponent>
-                        <Slider
-                          length={interestsByEpochsBorrowed?.length ?? 0}
-                          value={epochs}
-                          onValueChange={setEpochs}
-                        />
+                  <div className="flex flex-col gap-4">
+                    <div className="font-bold text-sm sm:text-lg">
+                      Select expiration date.
+                    </div>
+                    <div className="flex flex-row-reverse justify-between sm:flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4">
+                      <div className="sm:px-6 sm:mb-2">
+                        <ClientComponent>
+                          <Slider
+                            length={interestsByEpochsBorrowed?.length ?? 0}
+                            value={epochs}
+                            onValueChange={setEpochs}
+                          />
+                        </ClientComponent>
+                      </div>
+                      <ClientComponent className="flex flex-col sm:flex-row justify-between">
+                        {(interestsByEpochsBorrowed || []).map(
+                          ({ date }, i) => (
+                            <button
+                              key={i}
+                              className="flex flex-col items-center gap-2 w-[72px]"
+                              onClick={() => setEpochs(i + 1)}
+                            >
+                              <div className="text-sm">{date}</div>
+                            </button>
+                          ),
+                        )}
                       </ClientComponent>
                     </div>
-                    <ClientComponent className="flex flex-col sm:flex-row justify-between">
-                      {(interestsByEpochsBorrowed || []).map(({ date }, i) => (
-                        <button
-                          key={i}
-                          className="flex flex-col items-center gap-2 w-[72px]"
-                          onClick={() => setEpochs(i + 1)}
-                        >
-                          <div className="text-sm">{date}</div>
-                        </button>
-                      ))}
-                    </ClientComponent>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <div className="flex w-full sm:w-fit text-sm gap-2 justify-between">
-                      <span className="text-gray-500">APR</span>
-                      <div className="flex gap-1">
-                        <div className="text-gray-800 dark:text-white">
-                          {borrowApr.toFixed(2)}%
+                    <div className="flex flex-col gap-2">
+                      <div className="flex w-full sm:w-fit text-sm gap-2 justify-between">
+                        <span className="text-gray-500">APR</span>
+                        <div className="flex gap-1">
+                          <div className="text-gray-800 dark:text-white">
+                            {borrowApr.toFixed(2)}%
+                          </div>
+                          <div className="text-gray-400">
+                            (
+                            {formatUnits(
+                              expectedInterest,
+                              asset.underlying.decimals,
+                              prices[asset.underlying.address],
+                            )}{' '}
+                            {asset.underlying.symbol} in interest)
+                          </div>
                         </div>
-                        <div className="text-gray-400">
-                          (
-                          {formatUnits(
-                            expectedInterest,
-                            asset.underlying.decimals,
-                            prices[asset.underlying.address],
-                          )}{' '}
-                          {asset.underlying.symbol} in interest)
+                      </div>
+                      <div className="flex w-full sm:w-fit text-sm gap-2 justify-between">
+                        <span className="text-gray-500">LTV</span>
+                        <div className="text-yellow-500">
+                          {currentLtv.toFixed(2)}%
                         </div>
                       </div>
                     </div>
-                    <div className="flex w-full sm:w-fit text-sm gap-2 justify-between">
-                      <span className="text-gray-500">LTV</span>
-                      <div className="text-yellow-500">
-                        {currentLtv.toFixed(2)}%
-                      </div>
-                    </div>
                   </div>
+                  <button
+                    disabled={
+                      epochs === 0 ||
+                      collateralAmount === 0n ||
+                      loanAmount === 0n ||
+                      collateralAmount > collateralBalance ||
+                      loanAmount > available ||
+                      loanAmount + maxInterest > maxLoanAmountExcludingCouponFee
+                    }
+                    className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
+                    onClick={async () => {
+                      if (!collateral) {
+                        return
+                      }
+                      const hash = await borrow(
+                        collateral,
+                        collateralAmount,
+                        asset,
+                        loanAmount,
+                        epochs,
+                        expectedInterest,
+                      )
+                      if (hash) {
+                        await router.replace('/?mode=borrow')
+                      }
+                    }}
+                  >
+                    {epochs === 0
+                      ? 'Select expiration date'
+                      : collateralAmount === 0n
+                      ? 'Enter collateral amount'
+                      : loanAmount === 0n
+                      ? 'Enter loan amount'
+                      : collateralAmount > collateralBalance
+                      ? `Insufficient ${collateral?.underlying.symbol} balance`
+                      : loanAmount > available
+                      ? 'Not enough coupons for sale'
+                      : loanAmount + maxInterest >
+                        maxLoanAmountExcludingCouponFee
+                      ? 'Not enough collateral'
+                      : 'Borrow'}
+                  </button>
                 </div>
-                <button
-                  disabled={
-                    epochs === 0 ||
-                    collateralAmount === 0n ||
-                    loanAmount === 0n ||
-                    collateralAmount > collateralBalance ||
-                    loanAmount > available ||
-                    loanAmount + maxInterest > maxLoanAmountExcludingCouponFee
-                  }
-                  className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
-                  onClick={async () => {
-                    if (!collateral) {
-                      return
-                    }
-                    const hash = await borrow(
-                      collateral,
-                      collateralAmount,
-                      asset,
-                      loanAmount,
-                      epochs,
-                      expectedInterest,
-                    )
-                    if (hash) {
-                      await router.replace('/?mode=borrow')
-                    }
-                  }}
-                >
-                  {epochs === 0
-                    ? 'Select expiration date'
-                    : collateralAmount === 0n
-                    ? 'Enter collateral amount'
-                    : loanAmount === 0n
-                    ? 'Enter loan amount'
-                    : collateralAmount > collateralBalance
-                    ? `Insufficient ${collateral?.underlying.symbol} balance`
-                    : loanAmount > available
-                    ? 'Not enough coupons for sale'
-                    : loanAmount + maxInterest > maxLoanAmountExcludingCouponFee
-                    ? 'Not enough collateral'
-                    : 'Borrow'}
-                </button>
               </div>
-            </div>
-          )}
-        </div>
-      </main>
+            )}
+          </div>
+        </main>
+      ) : (
+        <></>
+      )}
     </div>
   )
 }
