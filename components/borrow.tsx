@@ -1,4 +1,4 @@
-import React, { SVGProps, useMemo, useState } from 'react'
+import React, { SVGProps, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import BigNumber from 'bignumber.js'
 import { isAddressEqual, parseUnits } from 'viem'
@@ -290,7 +290,12 @@ const Borrow = ({
     useState<LoanPosition | null>(null)
   const [editExpiryPosition, setEditExpiryPosition] =
     useState<LoanPosition | null>(null)
-  const [epoch, setEpoch] = useState(epochs[0])
+  const [epoch, setEpoch] = useState<Epoch | undefined>(undefined)
+  useEffect(() => {
+    if (epochs.length > 0) {
+      setEpoch(epochs[0])
+    }
+  }, [epochs])
   return (
     <div className="flex flex-1 flex-col w-full sm:w-fit">
       <h1 className="flex justify-center text-center font-bold text-lg sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-12 mb-8 sm:mb-16">
@@ -362,73 +367,83 @@ const Borrow = ({
       ) : (
         <></>
       )}
-      <div className="flex flex-col gap-6 sm:gap-8 px-4 sm:p-0">
-        <div className="flex items-center gap-6 justify-between">
-          <h2 className="font-bold text-base sm:text-2xl">Assets to borrow</h2>
-          <div className="flex items-center gap-6">
-            <label htmlFor="epoch" className="hidden sm:flex">
-              How long are you going to borrow?
-            </label>
-            <EpochSelect
-              epochs={epochs}
-              value={epoch}
-              onValueChange={setEpoch}
-            />
+      {epoch ? (
+        <div className="flex flex-col gap-6 sm:gap-8 px-4 sm:p-0">
+          <div className="flex items-center gap-6 justify-between">
+            <h2 className="font-bold text-base sm:text-2xl">
+              Assets to borrow
+            </h2>
+            <div className="flex items-center gap-6">
+              <label htmlFor="epoch" className="hidden sm:flex">
+                How long are you going to borrow?
+              </label>
+              <EpochSelect
+                epochs={epochs}
+                value={epoch}
+                onValueChange={setEpoch}
+              />
+            </div>
           </div>
-        </div>
-        <div className="flex flex-col mb-12 gap-4">
-          <div className="hidden sm:flex gap-4 text-gray-500 text-xs">
-            <div className="w-[156px]">Asset</div>
-            <div className="w-[80px]">APR</div>
-            <div className="w-[120px]">Available</div>
-            <div className="w-[120px]">Total Borrowed</div>
-          </div>
-          <div className="flex flex-col gap-4 sm:gap-3">
-            {assetStatuses
-              .filter((assetStatus) => assetStatus.epoch.id === epoch.id)
-              .filter((assetStatus) => assetStatus.totalBorrowAvailable !== '0')
-              .map((assetStatus, i) => {
-                const validAssetStatuses = assetStatuses.filter(
-                  ({ underlying, epoch }) =>
-                    isAddressEqual(
-                      underlying.address,
-                      assetStatus.underlying.address,
-                    ) && epoch.id <= assetStatus.epoch.id,
+          <div className="flex flex-col mb-12 gap-4">
+            <div className="hidden sm:flex gap-4 text-gray-500 text-xs">
+              <div className="w-[156px]">Asset</div>
+              <div className="w-[80px]">APR</div>
+              <div className="w-[120px]">Available</div>
+              <div className="w-[120px]">Total Borrowed</div>
+            </div>
+            <div className="flex flex-col gap-4 sm:gap-3">
+              {assetStatuses
+                .filter((assetStatus) => assetStatus.epoch.id === epoch.id)
+                .filter(
+                  (assetStatus) => assetStatus.totalBorrowAvailable !== '0',
                 )
-                const interest = validAssetStatuses.reduce(
-                  (acc, { bestCouponAskPrice }) => acc + bestCouponAskPrice,
-                  0,
-                )
-                const currentTimestamp = Math.floor(new Date().getTime() / 1000)
-                const apr = calculateApr(
-                  interest,
-                  assetStatus.epoch.endTimestamp - currentTimestamp,
-                )
-                const available = validAssetStatuses
-                  .map(({ totalBorrowAvailable }) =>
-                    parseUnits(
-                      totalBorrowAvailable,
-                      assetStatus.underlying.decimals,
-                    ),
+                .map((assetStatus, i) => {
+                  const validAssetStatuses = assetStatuses.filter(
+                    ({ underlying, epoch }) =>
+                      isAddressEqual(
+                        underlying.address,
+                        assetStatus.underlying.address,
+                      ) && epoch.id <= assetStatus.epoch.id,
                   )
-                  .reduce((acc, val) => (acc > val ? acc : val), 0n)
-                return (
-                  <Asset
-                    key={i}
-                    currency={assetStatus.underlying}
-                    apr={apr}
-                    available={available}
-                    borrowed={parseUnits(
-                      assetStatus.totalBorrowed,
-                      assetStatus.underlying.decimals,
-                    )}
-                    price={prices[assetStatus.underlying.address]}
-                  />
-                )
-              })}
+                  const interest = validAssetStatuses.reduce(
+                    (acc, { bestCouponAskPrice }) => acc + bestCouponAskPrice,
+                    0,
+                  )
+                  const currentTimestamp = Math.floor(
+                    new Date().getTime() / 1000,
+                  )
+                  const apr = calculateApr(
+                    interest,
+                    assetStatus.epoch.endTimestamp - currentTimestamp,
+                  )
+                  const available = validAssetStatuses
+                    .map(({ totalBorrowAvailable }) =>
+                      parseUnits(
+                        totalBorrowAvailable,
+                        assetStatus.underlying.decimals,
+                      ),
+                    )
+                    .reduce((acc, val) => (acc > val ? acc : val), 0n)
+                  return (
+                    <Asset
+                      key={i}
+                      currency={assetStatus.underlying}
+                      apr={apr}
+                      available={available}
+                      borrowed={parseUnits(
+                        assetStatus.totalBorrowed,
+                        assetStatus.underlying.decimals,
+                      )}
+                      price={prices[assetStatus.underlying.address]}
+                    />
+                  )
+                })}
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <></>
+      )}
       {repayPosition ? (
         <RepayModal
           position={repayPosition}
