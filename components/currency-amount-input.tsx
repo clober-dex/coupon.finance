@@ -7,7 +7,6 @@ import { BigDecimal, formatDollarValue, formatUnits } from '../utils/numbers'
 
 import NumberInput from './number-input'
 import DownSvg from './svg/down-svg'
-import { ClientComponent } from './client-component'
 
 const CurrencyAmountInput = ({
   currency,
@@ -81,15 +80,13 @@ const CurrencyAmountInput = ({
         )}
       </div>
       <div className="flex items-end justify-between">
-        <ClientComponent className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm">
+        <div className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm">
           ~{formatDollarValue(parseUnits(value, decimals), decimals, price)}
-        </ClientComponent>
+        </div>
         {!props.disabled && currency ? (
           <div className="flex text-xs sm:text-sm gap-1 sm:gap-2">
             <div className="text-gray-500">Available</div>
-            <ClientComponent>
-              {formatUnits(balance, currency.decimals, price)}
-            </ClientComponent>
+            <div>{formatUnits(balance, currency.decimals, price)}</div>
             <button className="text-green-500" onClick={onMaxClick}>
               MAX
             </button>

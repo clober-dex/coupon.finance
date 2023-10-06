@@ -10,8 +10,6 @@ import { createPublicClient, http } from 'viem'
 import { arbitrumGoerli } from 'wagmi/chains'
 import Image from 'next/image'
 
-import { ClientComponent } from '../../components/client-component'
-
 export const FAUCET_AMOUNTS: {
   symbol: string
   name: string
@@ -191,9 +189,9 @@ const Faucet: NextPage = () => {
         <main className="flex flex-1 flex-col justify-center items-center">
           <div className="flex flex-1 flex-col w-full">
             <div className="flex flex-col flex-1 items-center justify-center p-4 sm:p-0 gap-4">
-              <ClientComponent className="flex flex-col sm:shadow bg-gray-50 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 w-full sm:w-[480px] gap-8">
+              <div className="flex flex-col sm:shadow bg-gray-50 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 w-full sm:w-[480px] gap-8">
                 <FaucetForm />
-              </ClientComponent>
+              </div>
             </div>
           </div>
         </main>
