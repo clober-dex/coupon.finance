@@ -23,7 +23,6 @@ import BorrowMoreModal from './modal/borrow-more-modal'
 import EditCollateralModal from './modal/edit-collateral-modal'
 import EditExpiryModal from './modal/edit-expiry-modal'
 import EpochSelect from './epoch-select'
-import { ClientComponent } from './client-component'
 
 const EditSvg = (props: SVGProps<any>) => (
   <svg
@@ -231,13 +230,11 @@ const Asset = ({
               <div className="text-gray-500 text-xs">{currency.name}</div>
             </div>
           </div>
-          <ClientComponent className="text-sm font-bold sm:w-[80px]">
-            {apr.toFixed(2)}%
-          </ClientComponent>
+          <div className="text-sm font-bold sm:w-[80px]">{apr.toFixed(2)}%</div>
         </div>
         <div className="flex flex-row sm:flex-col w-full sm:w-[120px] justify-between px-4 sm:p-0">
           <div className="sm:hidden text-gray-500 text-xs">Available</div>
-          <ClientComponent className="flex flex-row sm:flex-col items-center sm:items-start gap-1 sm:gap-0">
+          <div className="flex flex-row sm:flex-col items-center sm:items-start gap-1 sm:gap-0">
             <div className="text-xs sm:text-sm">
               {formatUnits(available, currency.decimals, price)}{' '}
               {currency.symbol}
@@ -247,11 +244,11 @@ const Asset = ({
               {formatDollarValue(available, currency.decimals, price)}
               <span className="sm:hidden">)</span>
             </div>
-          </ClientComponent>
+          </div>
         </div>
         <div className="flex flex-row sm:flex-col w-full sm:w-[120px] justify-between px-4 sm:p-0">
           <div className="sm:hidden text-gray-500 text-xs">Total Borrowed</div>
-          <ClientComponent className="flex flex-row sm:flex-col sm:w-[120px] gap-1 sm:gap-0">
+          <div className="flex flex-row sm:flex-col sm:w-[120px] gap-1 sm:gap-0">
             <div className="text-xs sm:text-sm">
               {formatUnits(borrowed, currency.decimals, price)}{' '}
               {currency.symbol}
@@ -261,7 +258,7 @@ const Asset = ({
               {formatDollarValue(borrowed, currency.decimals, price)}
               <span className="sm:hidden">)</span>
             </div>
-          </ClientComponent>
+          </div>
         </div>
       </div>
       <Link
@@ -302,7 +299,7 @@ const Borrow = ({
         The Best Fixed-Rate <br className="flex sm:hidden" /> Borrowing in DeFi
       </h1>
       {positions.length > 0 ? (
-        <ClientComponent className="flex flex-col gap-6 mb-12 sm:mb-20 px-4 sm:p-0">
+        <div className="flex flex-col gap-6 mb-12 sm:mb-20 px-4 sm:p-0">
           <div className="flex gap-2 sm:gap-3 items-center">
             <h2 className="font-bold text-base sm:text-2xl">My Positions</h2>
             <div className="font-bold text-sm bg-gray-200 dark:bg-gray-700 rounded-full px-2.5 sm:px-3 py-0.5 sm:py-1">
@@ -367,7 +364,7 @@ const Borrow = ({
                 />
               ))}
           </div>
-        </ClientComponent>
+        </div>
       ) : (
         <></>
       )}

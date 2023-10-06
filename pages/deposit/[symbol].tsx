@@ -12,7 +12,6 @@ import BackSvg from '../../components/svg/back-svg'
 import { getLogo } from '../../model/currency'
 import { useDepositContext } from '../../contexts/deposit-context'
 import { useCurrencyContext } from '../../contexts/currency-context'
-import { ClientComponent } from '../../components/client-component'
 import { fetchDepositApyByEpochsDeposited } from '../../apis/market'
 import CurrencyAmountInput from '../../components/currency-amount-input'
 import { formatUnits } from '../../utils/numbers'
@@ -128,25 +127,25 @@ const Deposit = () => {
                   </div>
                   <div className="flex flex-row-reverse justify-between sm:flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4 sm:h-[116px]">
                     {proceedsByEpochsDeposited === undefined ? (
-                      <ClientComponent className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                         <div
                           className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-green-500 border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]"
                           role="status"
                         />
-                      </ClientComponent>
+                      </div>
                     ) : (
                       <></>
                     )}
                     <div className="sm:px-6 sm:mb-2">
-                      <ClientComponent>
+                      <div>
                         <Slider
                           length={proceedsByEpochsDeposited?.length ?? 0}
                           value={epochs}
                           onValueChange={setEpochs}
                         />
-                      </ClientComponent>
+                      </div>
                     </div>
-                    <ClientComponent className="flex flex-col sm:flex-row justify-between">
+                    <div className="flex flex-col sm:flex-row justify-between">
                       {(proceedsByEpochsDeposited ?? []).map(
                         ({ date, proceeds }, i) => (
                           <button
@@ -173,7 +172,7 @@ const Deposit = () => {
                           </button>
                         ),
                       )}
-                    </ClientComponent>
+                    </div>
                   </div>
                 </div>
                 <div className="flex p-4 border-solid border-[1.5px] border-gray-200 dark:border-gray-700 rounded-lg gap-2 sm:gap-3">

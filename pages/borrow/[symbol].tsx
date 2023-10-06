@@ -13,7 +13,6 @@ import { useCurrencyContext } from '../../contexts/currency-context'
 import CurrencyAmountInput from '../../components/currency-amount-input'
 import { fetchBorrowAprByEpochsBorrowed } from '../../apis/market'
 import { dollarValue, formatUnits } from '../../utils/numbers'
-import { ClientComponent } from '../../components/client-component'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import { LIQUIDATION_TARGET_LTV_PRECISION, min } from '../../utils/bigint'
 import { Collateral } from '../../model/collateral'
@@ -267,15 +266,15 @@ const Borrow = () => {
                     </div>
                     <div className="flex flex-row-reverse justify-between sm:flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4">
                       <div className="sm:px-6 sm:mb-2">
-                        <ClientComponent>
+                        <div>
                           <Slider
                             length={interestsByEpochsBorrowed?.length ?? 0}
                             value={epochs}
                             onValueChange={setEpochs}
                           />
-                        </ClientComponent>
+                        </div>
                       </div>
-                      <ClientComponent className="flex flex-col sm:flex-row justify-between">
+                      <div className="flex flex-col sm:flex-row justify-between">
                         {(interestsByEpochsBorrowed || []).map(
                           ({ date }, i) => (
                             <button
@@ -287,7 +286,7 @@ const Borrow = () => {
                             </button>
                           ),
                         )}
-                      </ClientComponent>
+                      </div>
                     </div>
                     <div className="flex flex-col gap-2">
                       <div className="flex w-full sm:w-fit text-sm gap-2 justify-between">

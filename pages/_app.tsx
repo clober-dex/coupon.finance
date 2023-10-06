@@ -15,6 +15,7 @@ import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { identify } from '@web3analytic/funnel-sdk'
 import Head from 'next/head'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 
 import Header from '../components/header'
 import { ThemeProvider, useThemeContext } from '../contexts/theme-context'
@@ -127,4 +128,6 @@ function MyApp({ Component, pageProps }: AppProps) {
   )
 }
 
-export default MyApp
+export default dynamic(() => Promise.resolve(MyApp), {
+  ssr: false,
+})
