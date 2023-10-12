@@ -38,12 +38,14 @@ type DepositContext = {
     amount: bigint,
     repurchaseFee: bigint,
   ) => Promise<void>
+  collect: (asset: Currency, tokenId: bigint, amount: bigint) => Promise<void>
 }
 
 const Context = React.createContext<DepositContext>({
   positions: [],
   deposit: () => Promise.resolve(undefined),
   withdraw: () => Promise.resolve(),
+  collect: () => Promise.resolve(),
 })
 
 const SLIPPAGE_PERCENTAGE = 0
@@ -205,12 +207,56 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
     [publicClient, setConfirmation, walletClient],
   )
 
+  const collect = useCallback(
+    async (asset: Currency, tokenId: bigint, amount: bigint) => {
+      if (!walletClient) {
+        // TODO: alert wallet connect
+        return
+      }
+
+      try {
+        const { deadline, r, s, v } = await permit721(
+          walletClient,
+          CONTRACT_ADDRESSES.BondPositionManager,
+          tokenId,
+          walletClient.account.address,
+          CONTRACT_ADDRESSES.DepositController,
+          BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
+        )
+        setConfirmation({
+          title: 'Collecting',
+          body: 'Please confirm in your wallet.',
+          fields: [
+            {
+              currency: asset,
+              label: asset.symbol,
+              value: formatUnits(amount, asset.decimals),
+            },
+          ],
+        })
+        await writeContract(publicClient, walletClient, {
+          address: CONTRACT_ADDRESSES.DepositController,
+          abi: DepositController__factory.abi,
+          functionName: 'collect',
+          args: [tokenId, { deadline, v, r, s }],
+          account: walletClient.account,
+        })
+      } catch (e) {
+        console.error(e)
+      } finally {
+        setConfirmation(undefined)
+      }
+    },
+    [publicClient, setConfirmation, walletClient],
+  )
+
   return (
     <Context.Provider
       value={{
         positions,
         deposit,
         withdraw,
+        collect,
       }}
     >
       {children}

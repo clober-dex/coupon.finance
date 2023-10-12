@@ -25,11 +25,13 @@ const Position = ({
   position,
   price,
   onWithdraw,
+  onCollect,
   ...props
 }: {
   position: BondPosition
   price?: BigDecimal
   onWithdraw: () => void
+  onCollect: () => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
   return (
     <div className="rounded-xl shadow bg-gray-50 dark:bg-gray-900" {...props}>
@@ -97,13 +99,21 @@ const Position = ({
             </div>
           </div>
         </div>
-        <button
-          className="bg-green-500 bg-opacity-10 text-green-500 font-bold px-3 py-2 rounded text-xs"
-          onClick={onWithdraw}
-        >
-          {/*TODO: Use Collect when expired*/}
-          Withdraw
-        </button>
+        {position.toEpoch.endTimestamp * 1000 < new Date().getTime() ? (
+          <button
+            className="bg-blue-500 bg-opacity-10 text-blue-500 font-bold px-3 py-2 rounded text-xs"
+            onClick={onCollect}
+          >
+            Collect
+          </button>
+        ) : (
+          <button
+            className="bg-green-500 bg-opacity-10 text-green-500 font-bold px-3 py-2 rounded text-xs"
+            onClick={onWithdraw}
+          >
+            Withdraw
+          </button>
+        )}
       </div>
     </div>
   )
@@ -190,7 +200,7 @@ const Deposit = ({
   epochs: Epoch[]
 }) => {
   const { prices } = useCurrencyContext()
-  const { positions } = useDepositContext()
+  const { positions, collect } = useDepositContext()
   const [withdrawPosition, setWithdrawPosition] = useState<BondPosition | null>(
     null,
   )
@@ -270,6 +280,13 @@ const Deposit = ({
                   position={position}
                   price={prices[position.underlying.address]}
                   onWithdraw={() => setWithdrawPosition(position)}
+                  onCollect={async () => {
+                    await collect(
+                      position.underlying,
+                      position.tokenId,
+                      position.amount,
+                    )
+                  }}
                 />
               ))}
           </div>
