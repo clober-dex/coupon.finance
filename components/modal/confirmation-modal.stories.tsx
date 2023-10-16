@@ -1,7 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react'
 
 import '../../styles/globals.css'
-import BigNumber from 'bignumber.js'
 
 import ConfirmationModal from './confirmation-modal'
 
