@@ -1,5 +1,4 @@
 import React from 'react'
-import BigNumber from 'bignumber.js'
 
 import { BigDecimal, formatUnits } from '../../utils/numbers'
 import { LoanPosition } from '../../model/loan-position'
@@ -30,7 +29,7 @@ const BorrowMoreModal = ({
   setValue: (value: string) => void
   prices: { [key in `0x${string}`]: BigDecimal }
   maxLoanAmount: bigint
-  currentLtv: BigNumber
+  currentLtv: number
   expectedLtv: number
   interest: bigint
   amount: bigint

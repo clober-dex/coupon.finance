@@ -94,7 +94,8 @@ const BorrowMoreModalContainer = ({
             position.collateral.underlying.decimals,
             prices[position.collateral.underlying.address],
           ),
-        ),
+        )
+        .toNumber(),
     [position, prices],
   )
 
