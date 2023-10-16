@@ -1,6 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react'
 import '../../styles/globals.css'
-import BigNumber from 'bignumber.js'
+
+import { dummyLoanPosition } from '../../.storybook/dummy-data/loan-position'
 
 import BorrowMoreModal from './borrow-more-modal'
 
@@ -16,67 +17,23 @@ type Story = StoryObj<typeof BorrowMoreModal>
 
 export const Default: Story = {
   args: {
-    position: {
-      id: 0n,
-      substitute: {
-        address: '0x0000000000000000000000000000000000000003',
-        name: 'ETH',
-        symbol: 'ETH',
-        decimals: 18,
-      },
-      underlying: {
-        address: '0x0000000000000000000000000000000000000003',
-        name: 'ETH',
-        symbol: 'ETH',
-        decimals: 18,
-      },
-      collateral: {
-        underlying: {
-          address: '0x0000000000000000000000000000000000000003',
-          name: 'ETH',
-          symbol: 'ETH',
-          decimals: 18,
-        },
-        substitute: {
-          address: '0x0000000000000000000000000000000000000003',
-          name: 'ETH',
-          symbol: 'ETH',
-          decimals: 18,
-        },
-        liquidationThreshold: '90',
-        liquidationTargetLtv: '80',
-      },
-      interest: 10n,
-      amount: 110n,
-      collateralAmount: 10n,
-      fromEpoch: {
-        id: 107,
-        startTimestamp: 1688169600,
-        endTimestamp: 1704067199,
-      },
-      toEpoch: {
-        id: 110,
-        startTimestamp: 1735689600,
-        endTimestamp: 1751327999,
-      },
-      createdAt: 0,
-    },
+    position: dummyLoanPosition,
     onClose: () => {},
-    value: '',
+    value: '0.01',
     setValue: () => {},
     prices: {
       '0x0000000000000000000000000000000000000003': {
-        value: 0n,
-        decimals: 18,
+        value: 2500000000000n,
+        decimals: 8,
       },
     },
-    maxLoanAmount: 0n,
-    currentLtv: BigNumber(0),
-    expectedLtv: 0,
-    interest: 0n,
-    amount: 0n,
+    maxLoanAmount: dummyLoanPosition.amount,
+    currentLtv: 60,
+    expectedLtv: 70,
+    interest: dummyLoanPosition.interest,
+    amount: dummyLoanPosition.amount,
     available: 0n,
-    maxInterest: 0n,
+    maxInterest: dummyLoanPosition.interest,
     maxLoanAmountExcludingCouponFee: 0n,
     borrowMore: async () => {},
   },
