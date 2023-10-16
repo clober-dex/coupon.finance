@@ -223,6 +223,8 @@ const Borrow = () => {
                   )
                   setShowCollateralSelect(false)
                 }}
+                prices={prices}
+                balances={balances}
               />
             ) : (
               <div className="flex flex-1 sm:items-center justify-center">
