@@ -17,7 +17,7 @@ import { Epoch } from '../model/epoch'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { LoanPosition } from '../model/loan-position'
 import { calculateApr } from '../utils/apr'
-import BorrowMoreModalContainer from '../containers/borrow-more-modal-container'
+import BorrowMoreModalContainer from '../containers/modal/borrow-more-modal-container'
 
 import RepayModal from './modal/repay-modal'
 import EditCollateralModal from './modal/edit-collateral-modal'

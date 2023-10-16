@@ -2,14 +2,14 @@ import React, { useMemo, useState } from 'react'
 import { useQuery } from 'wagmi'
 import { isAddressEqual, parseUnits } from 'viem'
 
-import { LoanPosition } from '../model/loan-position'
-import { useCurrencyContext } from '../contexts/currency-context'
-import { fetchMarkets } from '../apis/market'
-import { calculateCouponsToBorrow } from '../model/market'
-import { LIQUIDATION_TARGET_LTV_PRECISION, max, min } from '../utils/bigint'
-import { dollarValue } from '../utils/numbers'
-import { useBorrowContext } from '../contexts/borrow-context'
-import BorrowMoreModal from '../components/modal/borrow-more-modal'
+import { LoanPosition } from '../../model/loan-position'
+import { useCurrencyContext } from '../../contexts/currency-context'
+import { fetchMarkets } from '../../apis/market'
+import { calculateCouponsToBorrow } from '../../model/market'
+import { LIQUIDATION_TARGET_LTV_PRECISION, max, min } from '../../utils/bigint'
+import { dollarValue } from '../../utils/numbers'
+import { useBorrowContext } from '../../contexts/borrow-context'
+import BorrowMoreModal from '../../components/modal/borrow-more-modal'
 
 const BorrowMoreModalContainer = ({
   position,
