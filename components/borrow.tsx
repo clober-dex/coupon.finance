@@ -17,9 +17,9 @@ import { Epoch } from '../model/epoch'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { LoanPosition } from '../model/loan-position'
 import { calculateApr } from '../utils/apr'
+import BorrowMoreModalContainer from '../containers/modal/borrow-more-modal-container'
 
 import RepayModal from './modal/repay-modal'
-import BorrowMoreModal from './modal/borrow-more-modal'
 import EditCollateralModal from './modal/edit-collateral-modal'
 import EditExpiryModal from './modal/edit-expiry-modal'
 import EpochSelect from './epoch-select'
@@ -454,7 +454,7 @@ const Borrow = ({
         <></>
       )}
       {borrowMorePosition ? (
-        <BorrowMoreModal
+        <BorrowMoreModalContainer
           position={borrowMorePosition}
           onClose={() => setBorrowMorePosition(null)}
         />
