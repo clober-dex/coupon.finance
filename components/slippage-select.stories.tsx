@@ -12,7 +12,7 @@ export default {
   },
 } as Meta<typeof SlippageSelect>
 
-const SlippageSelecWithHooks = () => {
+const SlippageSelectWithHooks = () => {
   const [showSlippageSelect, setShowSlippageSelect] = useState(false)
   const [slippage, setSlippage] = useState('1')
 
@@ -27,5 +27,5 @@ const SlippageSelecWithHooks = () => {
 }
 
 export const Example: StoryObj<typeof SlippageSelect> = {
-  render: () => <SlippageSelecWithHooks />,
+  render: () => <SlippageSelectWithHooks />,
 }
