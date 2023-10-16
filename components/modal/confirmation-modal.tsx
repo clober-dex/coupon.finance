@@ -9,7 +9,7 @@ const ConfirmationModal = ({
   confirmation,
 }: {
   confirmation?: Confirmation
-} & React.PropsWithChildren) => {
+}) => {
   if (!confirmation) {
     return <></>
   }
