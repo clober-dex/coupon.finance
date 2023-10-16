@@ -9,5 +9,5 @@ export function getLogo(currency?: Currency): string {
   if (!currency) {
     return ''
   }
-  return `/assets/icons/icon-${currency.symbol.toLowerCase()}.svg`
+  return `https://assets.odos.xyz/tokens/${currency.symbol.toUpperCase()}.webp`
 }
