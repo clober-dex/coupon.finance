@@ -19,26 +19,26 @@ export const Default: Story = {
     position: {
       id: 0n,
       substitute: {
-        address: '0x000000',
+        address: '0x0000000000000000000000000000000000000003',
         name: 'ETH',
         symbol: 'ETH',
         decimals: 18,
       },
       underlying: {
-        address: '0x000000',
+        address: '0x0000000000000000000000000000000000000003',
         name: 'ETH',
         symbol: 'ETH',
         decimals: 18,
       },
       collateral: {
         underlying: {
-          address: '0x000000',
+          address: '0x0000000000000000000000000000000000000003',
           name: 'ETH',
           symbol: 'ETH',
           decimals: 18,
         },
         substitute: {
-          address: '0x000000',
+          address: '0x0000000000000000000000000000000000000003',
           name: 'ETH',
           symbol: 'ETH',
           decimals: 18,
@@ -50,14 +50,14 @@ export const Default: Story = {
       amount: 110n,
       collateralAmount: 10n,
       fromEpoch: {
-        id: 0,
-        startTimestamp: 0,
-        endTimestamp: 0,
+        id: 107,
+        startTimestamp: 1688169600,
+        endTimestamp: 1704067199,
       },
       toEpoch: {
-        id: 0,
-        startTimestamp: 0,
-        endTimestamp: 0,
+        id: 110,
+        startTimestamp: 1735689600,
+        endTimestamp: 1751327999,
       },
       createdAt: 0,
     },
@@ -65,7 +65,7 @@ export const Default: Story = {
     value: '',
     setValue: () => {},
     prices: {
-      '0x000000': {
+      '0x0000000000000000000000000000000000000003': {
         value: 0n,
         decimals: 18,
       },
