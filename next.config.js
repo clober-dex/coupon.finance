@@ -16,6 +16,9 @@ const nextConfig = {
     BUILD,
     SUBGRAPH_URL,
   },
+  images: {
+    domains: ['assets.odos.xyz'],
+  },
 }
 
 module.exports = nextConfig
