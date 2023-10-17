@@ -20,8 +20,8 @@ import { calculateApr } from '../utils/apr'
 import BorrowMoreModalContainer from '../containers/modal/borrow-more-modal-container'
 import RepayModalContainer from '../containers/modal/repay-modal-container'
 import EditCollateralModalContainer from '../containers/modal/edit-collateral-modal-container'
+import EditExpiryModalContainer from '../containers/modal/edit-expiry-modal-container'
 
-import EditExpiryModal from './modal/edit-expiry-modal'
 import EpochSelect from './epoch-select'
 
 const EditSvg = (props: SVGProps<any>) => (
@@ -470,7 +470,7 @@ const Borrow = ({
         <></>
       )}
       {editExpiryPosition ? (
-        <EditExpiryModal
+        <EditExpiryModalContainer
           position={editExpiryPosition}
           onClose={() => setEditExpiryPosition(null)}
         />
