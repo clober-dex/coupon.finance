@@ -3,7 +3,6 @@ import { Meta, StoryObj } from '@storybook/react'
 import '../../styles/globals.css'
 
 import { dummyLoanPosition } from '../../.storybook/dummy-data/loan-position'
-import { min } from '../../utils/bigint'
 
 import RepayModal from './repay-modal'
 
