@@ -1,67 +1,41 @@
-import React, { useMemo, useState } from 'react'
-import { formatUnits, isAddressEqual, parseUnits } from 'viem'
-import { useQuery } from 'wagmi'
+import React from 'react'
+import { formatUnits } from 'viem'
 import { min } from 'hardhat/internal/util/bigint'
 
 import { BondPosition } from '../../model/bond-position'
-import CurrencyAmountInput from '../currency-amount-input'
-import { useCurrencyContext } from '../../contexts/currency-context'
-import { fetchMarkets } from '../../apis/market'
-import { useDepositContext } from '../../contexts/deposit-context'
-import { calculateCouponsToWithdraw } from '../../model/market'
-
-import Modal from './modal'
+import CurrencyAmountInput from '../../components/currency-amount-input'
+import Modal from '../../components/modal/modal'
+import { BigDecimal } from '../../utils/numbers'
+import { Currency } from '../../model/currency'
 
 const WithdrawModal = ({
   position,
   onClose,
+  value,
+  setValue,
+  prices,
+  withdraw,
+  amount,
+  maxRepurchaseFee,
+  repurchaseFee,
+  available,
 }: {
   position: BondPosition | null
   onClose: () => void
+  value: string
+  setValue: (value: string) => void
+  prices: { [key in `0x${string}`]: BigDecimal }
+  withdraw: (
+    asset: Currency,
+    tokenId: bigint,
+    amount: bigint,
+    repurchaseFee: bigint,
+  ) => Promise<void>
+  amount: bigint
+  maxRepurchaseFee: bigint
+  repurchaseFee: bigint
+  available: bigint
 }) => {
-  const [value, setValue] = useState('')
-  const { prices } = useCurrencyContext()
-  const { withdraw } = useDepositContext()
-
-  const amount = useMemo(
-    () => (position ? parseUnits(value, position.underlying.decimals) : 0n),
-    [position, value],
-  )
-
-  const { data } = useQuery(
-    ['coupon-repurchase-fee-to-withdraw', position?.underlying.address, amount],
-    async () => {
-      if (!position) {
-        return {
-          maxRepurchaseFee: 0n,
-          repurchaseFee: 0n,
-          available: 0n,
-        }
-      }
-      const markets = (await fetchMarkets())
-        .filter((market) =>
-          isAddressEqual(
-            market.quoteToken.address,
-            position.substitute.address,
-          ),
-        )
-        .filter((market) => market.epoch <= position.toEpoch.id)
-      return calculateCouponsToWithdraw(
-        position.substitute,
-        markets,
-        position.amount,
-        amount,
-      )
-    },
-    {
-      keepPreviousData: true,
-    },
-  )
-
-  const maxRepurchaseFee = useMemo(() => data?.maxRepurchaseFee ?? 0n, [data])
-  const repurchaseFee = useMemo(() => data?.repurchaseFee ?? 0n, [data])
-  const available = useMemo(() => data?.available ?? 0n, [data])
-
   if (!position) {
     return <></>
   }

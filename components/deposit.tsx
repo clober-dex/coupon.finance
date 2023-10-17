@@ -17,8 +17,8 @@ import {
 } from '../utils/numbers'
 import { Epoch } from '../model/epoch'
 import { calculateApy } from '../utils/apy'
+import WithdrawModalContainer from '../containers/modal/withdraw-modal-container'
 
-import WithdrawModal from './modal/withdraw-modal'
 import EpochSelect from './epoch-select'
 
 const Position = ({
@@ -371,7 +371,7 @@ const Deposit = ({
       ) : (
         <></>
       )}
-      <WithdrawModal
+      <WithdrawModalContainer
         position={withdrawPosition}
         onClose={() => setWithdrawPosition(null)}
       />
