@@ -125,7 +125,6 @@ const RepayModal = ({
               value={value}
               onValueChange={setValue}
               price={prices[position.underlying.address]}
-              // TODO: fix error while using storybook
               balance={minBalance}
             />
           </>
