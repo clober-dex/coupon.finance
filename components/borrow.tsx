@@ -19,8 +19,8 @@ import { LoanPosition } from '../model/loan-position'
 import { calculateApr } from '../utils/apr'
 import BorrowMoreModalContainer from '../containers/modal/borrow-more-modal-container'
 import RepayModalContainer from '../containers/modal/repay-modal-container'
+import EditCollateralModalContainer from '../containers/modal/edit-collateral-modal-container'
 
-import EditCollateralModal from './modal/edit-collateral-modal'
 import EditExpiryModal from './modal/edit-expiry-modal'
 import EpochSelect from './epoch-select'
 
@@ -462,7 +462,7 @@ const Borrow = ({
         <></>
       )}
       {editCollateralPosition ? (
-        <EditCollateralModal
+        <EditCollateralModalContainer
           position={editCollateralPosition}
           onClose={() => setEditCollateralPosition(null)}
         />

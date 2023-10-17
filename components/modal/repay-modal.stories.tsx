@@ -17,8 +17,6 @@ export default {
 
 type Story = StoryObj<typeof RepayModal>
 
-console.log('min test')
-
 export const Default: Story = {
   args: {
     onClose: () => {},
