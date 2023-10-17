@@ -112,7 +112,7 @@ const Deposit = () => {
                     currency={asset.underlying}
                     value={value}
                     onValueChange={setValue}
-                    balance={balance}
+                    availableBalance={balance}
                     price={prices[asset.underlying.address]}
                   />
                 </div>

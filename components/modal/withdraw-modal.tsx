@@ -55,7 +55,7 @@ const WithdrawModal = ({
           currency={position.underlying}
           value={value}
           onValueChange={setValue}
-          balance={min(position.amount - maxRepurchaseFee, available)}
+          availableBalance={min(position.amount - maxRepurchaseFee, available)}
           price={prices[position.underlying.address]}
         />
       </div>

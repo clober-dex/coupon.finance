@@ -100,7 +100,7 @@ const RepayModal = ({
               value={value}
               onValueChange={setValue}
               price={prices[position.collateral.underlying.address]}
-              balance={position.collateralAmount}
+              availableBalance={position.collateralAmount}
             />
             <SwapSvg className="w-4 h-4 sm:w-6 sm:h-6 self-center my-3 sm:my-4" />
             <div className="mb-4 font-bold">
@@ -111,7 +111,7 @@ const RepayModal = ({
               value={formatUnits(repayAmount, position.underlying.decimals)}
               onValueChange={setValue}
               price={prices[position.underlying.address]}
-              balance={0n}
+              availableBalance={0n}
               disabled
             />
           </div>
@@ -125,7 +125,7 @@ const RepayModal = ({
               value={value}
               onValueChange={setValue}
               price={prices[position.underlying.address]}
-              balance={minBalance}
+              availableBalance={minBalance}
             />
           </>
         )}

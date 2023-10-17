@@ -28,7 +28,7 @@ export const Default: Story = {
     },
     value: '1',
     onValueChange: () => {},
-    balance: 1000000000000000000n,
+    availableBalance: 1000000000000000000n,
     price: {
       value: 176800000000n,
       decimals: 8,
@@ -40,7 +40,7 @@ export const SelectToken: Story = {
   args: {
     value: '0',
     onValueChange: () => {},
-    balance: 1000000000000000000n,
+    availableBalance: 1000000000000000000n,
     price: {
       value: 176800000000n,
       decimals: 8,
