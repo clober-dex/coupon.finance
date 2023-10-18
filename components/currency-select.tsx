@@ -2,7 +2,9 @@ import React from 'react'
 import Image from 'next/image'
 
 import { Currency, getLogo } from '../model/currency'
-import { BigDecimal, formatDollarValue, formatUnits } from '../utils/numbers'
+import { formatDollarValue, formatUnits } from '../utils/numbers'
+import { Balances } from '../model/balances'
+import { Prices } from '../model/prices'
 
 import LeftSvg from './svg/left-svg'
 import SearchSvg from './svg/search-svg'
@@ -17,8 +19,8 @@ const CurrencySelect = ({
   currencies: Currency[]
   onBack: () => void
   onCurrencySelect: (currency: Currency) => void
-  balances: { [key in `0x${string}`]: bigint }
-  prices: { [key in `0x${string}`]: BigDecimal }
+  balances: Balances
+  prices: Prices
 } & React.HTMLAttributes<HTMLDivElement>) => {
   return (
     <div className="flex flex-col flex-1 p-4 mt-2 sm:mt-0 items-center sm:justify-center">

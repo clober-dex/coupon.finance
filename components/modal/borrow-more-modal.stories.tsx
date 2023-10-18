@@ -19,19 +19,19 @@ export const Default: Story = {
   args: {
     position: dummyLoanPosition,
     onClose: () => {},
-    value: '0.01',
-    setValue: () => {},
+    currencyInputValue: '0.01',
+    setCurrencyInputValue: () => {},
     prices: {
       '0x0000000000000000000000000000000000000003': {
         value: 2500000000000n,
         decimals: 8,
       },
     },
-    maxLoanAmount: dummyLoanPosition.amount,
+    maxLoanableAmount: dummyLoanPosition.amount,
     currentLtv: 60,
     expectedLtv: 70,
     interest: dummyLoanPosition.interest,
-    amount: dummyLoanPosition.amount,
+    positionAmount: dummyLoanPosition.amount,
     available: 0n,
     maxInterest: dummyLoanPosition.interest,
     maxLoanAmountExcludingCouponFee: 0n,

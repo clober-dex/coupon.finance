@@ -2,8 +2,8 @@ import React from 'react'
 
 import { LoanPosition } from '../../model/loan-position'
 import CurrencyAmountInput from '../../components/currency-amount-input'
-import { BigDecimal } from '../../utils/numbers'
 import Modal from '../../components/modal/modal'
+import { Prices } from '../../model/prices'
 
 const EditCollateralModal = ({
   position,
@@ -23,7 +23,7 @@ const EditCollateralModal = ({
   onClose: () => void
   addCollateral: (position: LoanPosition, amount: bigint) => Promise<void>
   removeCollateral: (position: LoanPosition, amount: bigint) => Promise<void>
-  prices: { [key in `0x${string}`]: BigDecimal }
+  prices: Prices
   value: string
   setValue: (value: string) => void
   isWithdrawCollateral: boolean

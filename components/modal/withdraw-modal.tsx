@@ -5,8 +5,8 @@ import { min } from 'hardhat/internal/util/bigint'
 import { BondPosition } from '../../model/bond-position'
 import CurrencyAmountInput from '../../components/currency-amount-input'
 import Modal from '../../components/modal/modal'
-import { BigDecimal } from '../../utils/numbers'
 import { Currency } from '../../model/currency'
+import { Prices } from '../../model/prices'
 
 const WithdrawModal = ({
   position,
@@ -24,7 +24,7 @@ const WithdrawModal = ({
   onClose: () => void
   value: string
   setValue: (value: string) => void
-  prices: { [key in `0x${string}`]: BigDecimal }
+  prices: Prices
   withdraw: (
     asset: Currency,
     tokenId: bigint,

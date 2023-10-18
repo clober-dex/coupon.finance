@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { BigDecimal, formatUnits } from '../../utils/numbers'
+import { formatUnits } from '../../utils/numbers'
 import { LoanPosition } from '../../model/loan-position'
 import CurrencyAmountInput from '../currency-amount-input'
 import { Arrow } from '../svg/arrow'
@@ -8,6 +8,8 @@ import SwapSvg from '../svg/swap-svg'
 import SlippageSelect from '../slippage-select'
 import { fetchCallDataByOdos } from '../../apis/odos'
 import Modal from '../../components/modal/modal'
+import { Balances } from '../../model/balances'
+import { Prices } from '../../model/prices'
 
 const RepayModal = ({
   onClose,
@@ -41,10 +43,10 @@ const RepayModal = ({
   position: LoanPosition
   value: string
   setValue: (value: string) => void
-  prices: { [key in `0x${string}`]: BigDecimal }
+  prices: Prices
   repayAmount: bigint
   available: bigint
-  balances: { [key in `0x${string}`]: bigint }
+  balances: Balances
   showSlippageSelect: boolean
   slippage: string
   setSlippage: React.Dispatch<React.SetStateAction<string>>

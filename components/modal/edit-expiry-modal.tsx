@@ -4,6 +4,7 @@ import Slider from '../../components/slider'
 import { LoanPosition } from '../../model/loan-position'
 import Modal from '../../components/modal/modal'
 import { Currency } from '../../model/currency'
+import { Balances } from '../../model/balances'
 
 const EditExpiryModal = ({
   position,
@@ -22,7 +23,7 @@ const EditExpiryModal = ({
 }: {
   position: LoanPosition
   onClose: () => void
-  balances: { [key in `0x${string}`]: bigint }
+  balances: Balances
   extendLoanDuration: (
     underlying: Currency,
     positionId: bigint,
