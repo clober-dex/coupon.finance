@@ -18,10 +18,10 @@ import { useCurrencyContext } from '../contexts/currency-context'
 import { LoanPosition } from '../model/loan-position'
 import { calculateApr } from '../utils/apr'
 import BorrowMoreModalContainer from '../containers/modal/borrow-more-modal-container'
+import RepayModalContainer from '../containers/modal/repay-modal-container'
+import EditCollateralModalContainer from '../containers/modal/edit-collateral-modal-container'
+import EditExpiryModalContainer from '../containers/modal/edit-expiry-modal-container'
 
-import RepayModal from './modal/repay-modal'
-import EditCollateralModal from './modal/edit-collateral-modal'
-import EditExpiryModal from './modal/edit-expiry-modal'
 import EpochSelect from './epoch-select'
 
 const EditSvg = (props: SVGProps<any>) => (
@@ -446,7 +446,7 @@ const Borrow = ({
         <></>
       )}
       {repayPosition ? (
-        <RepayModal
+        <RepayModalContainer
           position={repayPosition}
           onClose={() => setRepayPosition(null)}
         />
@@ -462,7 +462,7 @@ const Borrow = ({
         <></>
       )}
       {editCollateralPosition ? (
-        <EditCollateralModal
+        <EditCollateralModalContainer
           position={editCollateralPosition}
           onClose={() => setEditCollateralPosition(null)}
         />
@@ -470,7 +470,7 @@ const Borrow = ({
         <></>
       )}
       {editExpiryPosition ? (
-        <EditExpiryModal
+        <EditExpiryModalContainer
           position={editExpiryPosition}
           onClose={() => setEditExpiryPosition(null)}
         />

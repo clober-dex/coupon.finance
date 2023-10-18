@@ -6,15 +6,16 @@ import { getAddress } from 'viem'
 import { IERC20__factory } from '../typechain'
 import { fetchCurrencies, fetchPrices } from '../apis/currency'
 import { Currency } from '../model/currency'
-import { BigDecimal } from '../utils/numbers'
 import { fetchAssets, fetchAssetStatuses } from '../apis/asset'
 import { fetchEpochs } from '../apis/epoch'
 import { Asset, AssetStatus } from '../model/asset'
 import { Epoch } from '../model/epoch'
+import { Balances } from '../model/balances'
+import { Prices } from '../model/prices'
 
 type CurrencyContext = {
-  balances: { [key in `0x${string}`]: bigint }
-  prices: { [key in `0x${string}`]: BigDecimal }
+  balances: Balances
+  prices: Prices
   assets: Asset[]
   assetStatuses: AssetStatus[]
   epochs: Epoch[]

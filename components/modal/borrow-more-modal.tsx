@@ -1,23 +1,24 @@
 import React from 'react'
 
-import { BigDecimal, formatUnits } from '../../utils/numbers'
+import { formatUnits } from '../../utils/numbers'
 import { LoanPosition } from '../../model/loan-position'
 import CurrencyAmountInput from '../currency-amount-input'
 import { Arrow } from '../svg/arrow'
+import { Prices } from '../../model/prices'
 
 import Modal from './modal'
 
 const BorrowMoreModal = ({
   position,
   onClose,
-  value,
-  setValue,
+  currencyInputValue,
+  setCurrencyInputValue,
   prices,
-  maxLoanAmount,
+  maxLoanableAmount,
   currentLtv,
   expectedLtv,
   interest,
-  amount,
+  positionAmount,
   available,
   maxInterest,
   maxLoanAmountExcludingCouponFee,
@@ -25,14 +26,14 @@ const BorrowMoreModal = ({
 }: {
   position: LoanPosition
   onClose: () => void
-  value: string
-  setValue: (value: string) => void
-  prices: { [key in `0x${string}`]: BigDecimal }
-  maxLoanAmount: bigint
+  currencyInputValue: string
+  setCurrencyInputValue: (value: string) => void
+  prices: Prices
+  maxLoanableAmount: bigint
   currentLtv: number
   expectedLtv: number
   interest: bigint
-  amount: bigint
+  positionAmount: bigint
   available: bigint
   maxInterest: bigint
   maxLoanAmountExcludingCouponFee: bigint
@@ -50,10 +51,10 @@ const BorrowMoreModal = ({
       <div className="mb-4">
         <CurrencyAmountInput
           currency={position.underlying}
-          value={value}
-          onValueChange={setValue}
+          value={currencyInputValue}
+          onValueChange={setCurrencyInputValue}
           price={prices[position.underlying.address]}
-          balance={maxLoanAmount}
+          balance={maxLoanableAmount}
         />
       </div>
       <div className="flex flex-col mb-6 sm:mb-8 gap-2 sm:gap-3 text-xs sm:text-sm">
@@ -61,7 +62,7 @@ const BorrowMoreModal = ({
           <div className="text-gray-500">LTV</div>
           <div className="flex items-center gap-1">
             <span className="text-green-500">{currentLtv.toFixed(2)}%</span>
-            {value ? (
+            {currencyInputValue ? (
               <>
                 <Arrow />
                 <span className="text-red-500">{expectedLtv.toFixed(2)}%</span>
@@ -85,23 +86,23 @@ const BorrowMoreModal = ({
       </div>
       <button
         disabled={
-          amount === 0n ||
-          amount + position.amount > available ||
-          amount + maxInterest + position.amount >
+          positionAmount === 0n ||
+          positionAmount + position.amount > available ||
+          positionAmount + maxInterest + position.amount >
             maxLoanAmountExcludingCouponFee
         }
         className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
         onClick={async () => {
-          await borrowMore(position, amount, interest)
-          setValue('')
+          await borrowMore(position, positionAmount, interest)
+          setCurrencyInputValue('')
           onClose()
         }}
       >
-        {amount === 0n
+        {positionAmount === 0n
           ? 'Enter loan amount'
-          : amount + position.amount > available
+          : positionAmount + position.amount > available
           ? 'Not enough coupons for sale'
-          : amount + maxInterest + position.amount >
+          : positionAmount + maxInterest + position.amount >
             maxLoanAmountExcludingCouponFee
           ? 'Not enough collateral'
           : 'Borrow'}

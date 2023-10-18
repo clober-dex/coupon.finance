@@ -1,73 +1,59 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { useQuery } from 'wagmi'
+import React from 'react'
 
-import Slider from '../slider'
+import Slider from '../../components/slider'
 import { LoanPosition } from '../../model/loan-position'
-import { fetchCouponAmountByEpochsBorrowed } from '../../apis/market'
-import { useBorrowContext } from '../../contexts/borrow-context'
-import { useCurrencyContext } from '../../contexts/currency-context'
-
-import Modal from './modal'
+import Modal from '../../components/modal/modal'
+import { Currency } from '../../model/currency'
+import { Balances } from '../../model/balances'
 
 const EditExpiryModal = ({
   position,
   onClose,
+  balances,
+  extendLoanDuration,
+  shortenLoanDuration,
+  epochs,
+  setEpochs,
+  data,
+  expiryEpochIndex,
+  interest,
+  payable,
+  refund,
+  refundable,
 }: {
   position: LoanPosition
   onClose: () => void
+  balances: Balances
+  extendLoanDuration: (
+    underlying: Currency,
+    positionId: bigint,
+    epochs: number,
+    expectedInterest: bigint,
+  ) => Promise<void>
+  shortenLoanDuration: (
+    underlying: Currency,
+    positionId: bigint,
+    epochs: number,
+    expectedProceeds: bigint,
+  ) => Promise<void>
+  epochs: number
+  setEpochs: (value: number) => void
+  data:
+    | {
+        date: string
+        interest: bigint
+        payable: boolean
+        refund: bigint
+        refundable: boolean
+        expiryEpoch: boolean
+      }[]
+    | undefined
+  expiryEpochIndex: number
+  interest: bigint
+  payable: boolean
+  refund: bigint
+  refundable: boolean
 }) => {
-  const { balances } = useCurrencyContext()
-  const { extendLoanDuration, shortenLoanDuration } = useBorrowContext()
-  const [epochs, _setEpochs] = useState(0)
-
-  const setEpochs = useCallback(
-    (value: number) => {
-      _setEpochs(value === epochs ? value - 1 : value)
-    },
-    [epochs],
-  )
-
-  const { data } = useQuery(['coupon-amount-to-edit-expiry', position], () =>
-    fetchCouponAmountByEpochsBorrowed(
-      position.substitute,
-      position.amount,
-      position.toEpoch.id,
-    ),
-  )
-
-  const expiryEpochIndex = useMemo(() => {
-    if (!data) {
-      return 0
-    }
-    return data.findIndex((item) => item.expiryEpoch) + 1
-  }, [data])
-
-  const [interest, payable, refund, refundable] = useMemo(() => {
-    if (!data) {
-      return [0n, false, 0n, false]
-    }
-    return [
-      data
-        .slice(expiryEpochIndex, epochs)
-        .reduce((acc, { interest }) => acc + interest, 0n),
-      data
-        .slice(expiryEpochIndex, epochs)
-        .reduce((acc, { payable }) => acc && payable, true),
-      data
-        .slice(epochs - 1, expiryEpochIndex - 1)
-        .reduce((acc, { refund }) => acc + refund, 0n),
-      data
-        .slice(epochs - 1, expiryEpochIndex - 1)
-        .reduce((acc, { refundable }) => acc && refundable, true),
-    ]
-  }, [data, expiryEpochIndex, epochs])
-
-  useEffect(() => {
-    if (expiryEpochIndex > 0) {
-      _setEpochs(expiryEpochIndex)
-    }
-  }, [expiryEpochIndex, position, _setEpochs])
-
   return (
     <Modal show onClose={onClose}>
       <h1 className="font-bold text-xl mb-3">Please select expiry date</h1>
