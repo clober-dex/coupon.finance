@@ -10,6 +10,7 @@ import { fetchCallDataByOdos } from '../../apis/odos'
 import Modal from '../../components/modal/modal'
 import { Balances } from '../../model/balances'
 import { Prices } from '../../model/prices'
+import { min } from '../../utils/bigint'
 
 const RepayModal = ({
   onClose,
@@ -21,7 +22,6 @@ const RepayModal = ({
   setValue,
   prices,
   repayAmount,
-  available,
   balances,
   showSlippageSelect,
   slippage,
@@ -34,7 +34,6 @@ const RepayModal = ({
   repay,
   amount,
   refund,
-  minBalance,
 }: {
   onClose: () => void
   setShowSlippageSelect: React.Dispatch<React.SetStateAction<boolean>>
@@ -45,7 +44,6 @@ const RepayModal = ({
   setValue: (value: string) => void
   prices: Prices
   repayAmount: bigint
-  available: bigint
   balances: Balances
   showSlippageSelect: boolean
   slippage: string
@@ -68,7 +66,6 @@ const RepayModal = ({
   ) => Promise<void>
   amount: bigint
   refund: bigint
-  minBalance: bigint
 }) => {
   return (
     <Modal
@@ -127,7 +124,10 @@ const RepayModal = ({
               value={value}
               onValueChange={setValue}
               price={prices[position.underlying.address]}
-              balance={minBalance}
+              balance={min(
+                position.amount,
+                balances[position.underlying.address],
+              )}
             />
           </>
         )}
@@ -192,7 +192,6 @@ const RepayModal = ({
       <button
         disabled={
           repayAmount === 0n ||
-          repayAmount > available ||
           (!isUseCollateral &&
             repayAmount > balances[position.underlying.address])
         }
@@ -225,8 +224,6 @@ const RepayModal = ({
       >
         {repayAmount === 0n
           ? 'Enter amount to repay'
-          : repayAmount > available
-          ? 'Not enough coupons for sale'
           : !isUseCollateral &&
             repayAmount > balances[position.underlying.address]
           ? `Insufficient ${position.underlying.symbol} balance`

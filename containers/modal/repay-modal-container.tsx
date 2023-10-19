@@ -7,7 +7,7 @@ import { useCurrencyContext } from '../../contexts/currency-context'
 import { dollarValue } from '../../utils/numbers'
 import { fetchMarkets } from '../../apis/market'
 import { calculateCouponsToRepay } from '../../model/market'
-import { max, min } from '../../utils/bigint'
+import { max } from '../../utils/bigint'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import { fetchAmountOutByOdos } from '../../apis/odos'
 import RepayModal from '../../components/modal/repay-modal'
@@ -100,7 +100,6 @@ const RepayModalContainer = ({
   )
 
   const refund = useMemo(() => data?.refund ?? 0n, [data?.refund])
-  const available = useMemo(() => data?.available ?? 0n, [data?.available])
 
   const currentLtv = useMemo(
     () =>
@@ -155,7 +154,6 @@ const RepayModalContainer = ({
       setValue={setValue}
       prices={prices}
       repayAmount={repayAmount}
-      available={available}
       balances={balances}
       showSlippageSelect={showSlippageSelect}
       slippage={slippage}
@@ -168,11 +166,6 @@ const RepayModalContainer = ({
       repay={repay}
       amount={amount}
       refund={refund}
-      minBalance={min(
-        position.amount,
-        available,
-        balances[position.underlying.address],
-      )}
     />
   )
 }
