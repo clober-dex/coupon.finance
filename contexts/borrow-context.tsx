@@ -257,7 +257,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           functionName: 'repay',
           args: [
             position.id,
-            amount,
+            amount + minimumInterestEarned,
             minimumInterestEarned,
             { ...positionPermitResult },
             { ...debtPermitResult },

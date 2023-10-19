@@ -92,7 +92,12 @@ const RepayModalContainer = ({
           ),
         )
         .filter((market) => market.epoch <= position.toEpoch.id)
-      return calculateCouponsToRepay(position.substitute, markets, repayAmount)
+      return calculateCouponsToRepay(
+        position.substitute,
+        markets,
+        position.amount,
+        repayAmount,
+      )
     },
     {
       keepPreviousData: true,
@@ -100,6 +105,7 @@ const RepayModalContainer = ({
   )
 
   const refund = useMemo(() => data?.refund ?? 0n, [data?.refund])
+  const maxRefund = useMemo(() => data?.maxRefund ?? 0n, [data?.maxRefund])
 
   const currentLtv = useMemo(
     () =>
@@ -165,6 +171,7 @@ const RepayModalContainer = ({
       repayWithCollateral={repayWithCollateral}
       repay={repay}
       amount={amount}
+      maxRefund={maxRefund}
       refund={refund}
     />
   )

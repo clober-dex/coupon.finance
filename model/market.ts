@@ -528,8 +528,10 @@ export function calculateCouponsToBorrow(
 export function calculateCouponsToRepay(
   substitute: Currency,
   markets: Market[],
+  positionAmount: bigint,
   repayAmount: bigint,
 ): {
+  maxRefund: bigint
   refund: bigint
 } {
   if (
@@ -545,6 +547,11 @@ export function calculateCouponsToRepay(
   }
 
   return {
+    maxRefund: markets.reduce(
+      (acc, market) =>
+        acc + market.spend(market.baseToken.address, positionAmount).amountOut,
+      0n,
+    ),
     refund: markets.reduce(
       (acc, market) =>
         acc + market.spend(market.baseToken.address, repayAmount).amountOut,

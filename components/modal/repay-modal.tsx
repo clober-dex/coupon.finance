@@ -33,6 +33,7 @@ const RepayModal = ({
   repayWithCollateral,
   repay,
   amount,
+  maxRefund,
   refund,
 }: {
   onClose: () => void
@@ -65,6 +66,7 @@ const RepayModal = ({
     expectedProceeds: bigint,
   ) => Promise<void>
   amount: bigint
+  maxRefund: bigint
   refund: bigint
 }) => {
   return (
@@ -125,7 +127,7 @@ const RepayModal = ({
               onValueChange={setValue}
               price={prices[position.underlying.address]}
               balance={min(
-                position.amount,
+                position.amount - maxRefund,
                 balances[position.underlying.address],
               )}
             />
