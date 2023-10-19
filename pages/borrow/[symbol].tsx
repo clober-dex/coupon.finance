@@ -259,7 +259,7 @@ const Borrow = () => {
                       value={loanValue}
                       onValueChange={setLoanValue}
                       price={prices[asset.underlying.address]}
-                      balance={maxLoanAmount}
+                      balance={min(maxLoanAmount, available)}
                     />
                   </div>
                   <div className="flex flex-col gap-4">

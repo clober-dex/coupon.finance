@@ -5,6 +5,7 @@ import { LoanPosition } from '../../model/loan-position'
 import CurrencyAmountInput from '../currency-amount-input'
 import { Arrow } from '../svg/arrow'
 import { Prices } from '../../model/prices'
+import { min } from '../../utils/bigint'
 
 import Modal from './modal'
 
@@ -54,7 +55,7 @@ const BorrowMoreModal = ({
           value={currencyInputValue}
           onValueChange={setCurrencyInputValue}
           price={prices[position.underlying.address]}
-          balance={maxLoanableAmount}
+          balance={min(maxLoanableAmount, available)}
         />
       </div>
       <div className="flex flex-col mb-6 sm:mb-8 gap-2 sm:gap-3 text-xs sm:text-sm">
