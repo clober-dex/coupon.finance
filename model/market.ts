@@ -306,15 +306,10 @@ export const calculateTotalDeposit = (
   initialDeposit: bigint,
 ): {
   totalDeposit: bigint
-  available: bigint
 } => {
   let totalDeposit = initialDeposit
   const amountOuts = [...Array(markets.length).keys()].map(
     () => 2n ** 256n - 1n,
-  )
-
-  const available = min(
-    ...markets.map((market) => market.totalBidsInBaseAfterFees()),
   )
 
   while (amountOuts.reduce((a, b) => a + b, 0n) > 0n) {
@@ -328,7 +323,7 @@ export const calculateTotalDeposit = (
     totalDeposit = totalDeposit + initialDeposit
   }
 
-  return { totalDeposit, available }
+  return { totalDeposit }
 }
 
 export const calculateDepositApy = (
@@ -339,7 +334,6 @@ export const calculateDepositApy = (
 ): {
   proceeds: bigint
   apy: number
-  available: bigint
 } => {
   if (
     markets.some(
@@ -354,10 +348,7 @@ export const calculateDepositApy = (
   }
 
   const endTimestamp = Math.max(...markets.map((market) => market.endTimestamp))
-  const { totalDeposit, available } = calculateTotalDeposit(
-    markets,
-    initialDeposit,
-  )
+  const { totalDeposit } = calculateTotalDeposit(markets, initialDeposit)
   const p =
     (Number(totalDeposit) - Number(initialDeposit)) / Number(initialDeposit)
   const d = Number(endTimestamp) - currentTimestamp
@@ -366,7 +357,6 @@ export const calculateDepositApy = (
   return {
     apy,
     proceeds: totalDeposit - initialDeposit,
-    available,
   }
 }
 
