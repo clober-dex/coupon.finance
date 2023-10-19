@@ -439,6 +439,19 @@ export function calculateCouponsToWithdraw(
     new Error('Substitute token is not supported')
   }
 
+  const availableCoupons = min(
+    ...markets.map((market) => market.totalAsksInBaseAfterFees()),
+  )
+  const available = max(
+    availableCoupons -
+      markets.reduce(
+        (acc, market) =>
+          acc + market.take(substitute.address, availableCoupons).amountIn,
+        0n,
+      ),
+    0n,
+  )
+
   const maxRepurchaseFee = markets.reduce(
     (acc, market) =>
       acc + market.take(substitute.address, positionAmount).amountIn,
@@ -457,18 +470,6 @@ export function calculateCouponsToWithdraw(
     )
   }
 
-  const availableCoupons = min(
-    ...markets.map((market) => market.totalAsksInBaseAfterFees()),
-  )
-  const available = max(
-    availableCoupons -
-      markets.reduce(
-        (acc, market) =>
-          acc + market.take(substitute.address, availableCoupons).amountIn,
-        0n,
-      ),
-    0n,
-  )
   return {
     maxRepurchaseFee,
     repurchaseFee,
