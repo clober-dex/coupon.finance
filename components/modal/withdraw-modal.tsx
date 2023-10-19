@@ -1,12 +1,12 @@
 import React from 'react'
 import { formatUnits } from 'viem'
-import { min } from 'hardhat/internal/util/bigint'
 
 import { BondPosition } from '../../model/bond-position'
 import CurrencyAmountInput from '../../components/currency-amount-input'
 import Modal from '../../components/modal/modal'
 import { Currency } from '../../model/currency'
 import { Prices } from '../../model/prices'
+import { min } from '../../utils/bigint'
 
 const WithdrawModal = ({
   position,
