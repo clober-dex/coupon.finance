@@ -236,7 +236,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           position.underlying,
           walletClient.account.address,
           CONTRACT_ADDRESSES.BorrowController,
-          amount,
+          amount + minimumInterestEarned,
           deadline,
         )
 
