@@ -84,15 +84,15 @@ const RepayModalContainer = ({
   const { data } = useQuery(
     ['coupon-refundable-amount-to-repay', position, repayAmount],
     async () => {
-      const market = (await fetchMarkets())
+      const markets = (await fetchMarkets())
         .filter((market) =>
           isAddressEqual(
             market.quoteToken.address,
             position.substitute.address,
           ),
         )
-        .filter((market) => market.epoch === position.toEpoch.id)[0]
-      return calculateCouponsToRepay(position.substitute, market, repayAmount)
+        .filter((market) => market.epoch <= position.toEpoch.id)
+      return calculateCouponsToRepay(position.substitute, markets, repayAmount)
     },
     {
       keepPreviousData: true,

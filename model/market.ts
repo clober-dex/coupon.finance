@@ -537,23 +537,28 @@ export function calculateCouponsToBorrow(
 
 export function calculateCouponsToRepay(
   substitute: Currency,
-  market: Market,
+  markets: Market[],
   repayAmount: bigint,
 ): {
   refund: bigint
-  available: bigint
 } {
   if (
-    !isAddressEqual(
-      market.quoteToken.address,
-      substitute.address as `0x${string}`,
+    markets.some(
+      (market) =>
+        !isAddressEqual(
+          market.quoteToken.address,
+          substitute.address as `0x${string}`,
+        ),
     )
   ) {
     new Error('Substitute token is not supported')
   }
 
   return {
-    refund: market.spend(market.baseToken.address, repayAmount).amountOut,
-    available: market.totalBidsInBaseAfterFees(),
+    refund: markets.reduce(
+      (acc, market) =>
+        acc + market.spend(market.baseToken.address, repayAmount).amountOut,
+      0n,
+    ),
   }
 }
