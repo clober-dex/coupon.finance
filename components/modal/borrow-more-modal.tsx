@@ -54,7 +54,7 @@ const BorrowMoreModal = ({
           value={currencyInputValue}
           onValueChange={setCurrencyInputValue}
           price={prices[position.underlying.address]}
-          balance={min(maxLoanableAmount - maxInterest, available)}
+          balance={maxLoanableAmount}
         />
       </div>
       <div className="flex flex-col mb-6 sm:mb-8 gap-2 sm:gap-3 text-xs sm:text-sm">
