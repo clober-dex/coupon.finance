@@ -83,11 +83,8 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const minimumInterestEarned = min(
-        BigInt(
-          Math.floor(Number(expectedProceeds) * (1 - SLIPPAGE_PERCENTAGE)),
-        ),
-        expectedProceeds,
+      const minimumInterestEarned = BigInt(
+        Math.floor(Number(expectedProceeds) * (1 - SLIPPAGE_PERCENTAGE)),
       )
       const wethBalance = isEthereum(asset.underlying)
         ? balances[asset.underlying.address] - (balance?.value || 0n)
