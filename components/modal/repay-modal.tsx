@@ -10,6 +10,7 @@ import { fetchCallDataByOdos } from '../../apis/odos'
 import Modal from '../../components/modal/modal'
 import { Balances } from '../../model/balances'
 import { Prices } from '../../model/prices'
+import { min } from '../../utils/bigint'
 
 const RepayModal = ({
   onClose,
@@ -21,7 +22,6 @@ const RepayModal = ({
   setValue,
   prices,
   repayAmount,
-  available,
   balances,
   showSlippageSelect,
   slippage,
@@ -33,8 +33,8 @@ const RepayModal = ({
   repayWithCollateral,
   repay,
   amount,
+  maxRefund,
   refund,
-  minBalance,
 }: {
   onClose: () => void
   setShowSlippageSelect: React.Dispatch<React.SetStateAction<boolean>>
@@ -45,7 +45,6 @@ const RepayModal = ({
   setValue: (value: string) => void
   prices: Prices
   repayAmount: bigint
-  available: bigint
   balances: Balances
   showSlippageSelect: boolean
   slippage: string
@@ -67,8 +66,8 @@ const RepayModal = ({
     expectedProceeds: bigint,
   ) => Promise<void>
   amount: bigint
+  maxRefund: bigint
   refund: bigint
-  minBalance: bigint
 }) => {
   return (
     <Modal
@@ -127,7 +126,10 @@ const RepayModal = ({
               value={value}
               onValueChange={setValue}
               price={prices[position.underlying.address]}
-              balance={minBalance}
+              balance={min(
+                position.amount - maxRefund,
+                balances[position.underlying.address],
+              )}
             />
           </>
         )}
@@ -151,7 +153,7 @@ const RepayModal = ({
           <div className="flex items-center gap-1">
             <span>
               {formatUnits(
-                position.amount,
+                position.amount - maxRefund,
                 position.underlying.decimals,
                 prices[position.underlying.address],
               )}{' '}
@@ -162,7 +164,7 @@ const RepayModal = ({
                 <Arrow />
                 <span className="text-green-500">
                   {formatUnits(
-                    position.amount - repayAmount,
+                    position.amount - maxRefund - repayAmount,
                     position.underlying.decimals,
                     prices[position.underlying.address],
                   )}{' '}
@@ -192,9 +194,9 @@ const RepayModal = ({
       <button
         disabled={
           repayAmount === 0n ||
-          repayAmount > available ||
           (!isUseCollateral &&
-            repayAmount > balances[position.underlying.address])
+            repayAmount > balances[position.underlying.address]) ||
+          repayAmount > position.amount - maxRefund
         }
         className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
         onClick={async () => {
@@ -225,11 +227,11 @@ const RepayModal = ({
       >
         {repayAmount === 0n
           ? 'Enter amount to repay'
-          : repayAmount > available
-          ? 'Not enough coupons for sale'
           : !isUseCollateral &&
             repayAmount > balances[position.underlying.address]
           ? `Insufficient ${position.underlying.symbol} balance`
+          : repayAmount > position.amount - maxRefund
+          ? `Cannot repay more than remaining debt`
           : isUseCollateral
           ? 'Repay with Collateral'
           : 'Repay'}

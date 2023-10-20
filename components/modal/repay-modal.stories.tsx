@@ -32,7 +32,6 @@ export const Default: Story = {
       },
     },
     repayAmount: dummyLoanPosition.amount,
-    available: 10n,
     balances: {
       '0x82af49447d8a07e3bd95bd0d56f35241523fbab1': 10n,
     },
@@ -47,7 +46,6 @@ export const Default: Story = {
     repay: async () => {},
     amount: dummyLoanPosition.amount,
     refund: 0n,
-    minBalance: dummyLoanPosition.amount,
   },
 }
 

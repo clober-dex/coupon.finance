@@ -209,11 +209,8 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const minimumInterestEarned = min(
-        BigInt(
-          Math.floor(Number(expectedProceeds) * (1 - SLIPPAGE_PERCENTAGE)),
-        ),
-        expectedProceeds,
+      const minimumInterestEarned = BigInt(
+        Math.floor(Number(expectedProceeds) * (1 - SLIPPAGE_PERCENTAGE)),
       )
       const wethBalance = isEthereum(position.underlying)
         ? balances[position.underlying.address] - (balance?.value || 0n)
@@ -236,7 +233,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           position.underlying,
           walletClient.account.address,
           CONTRACT_ADDRESSES.BorrowController,
-          amount,
+          amount + minimumInterestEarned,
           deadline,
         )
 
@@ -257,7 +254,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           functionName: 'repay',
           args: [
             position.id,
-            amount,
+            amount + minimumInterestEarned,
             minimumInterestEarned,
             { ...positionPermitResult },
             { ...debtPermitResult },
@@ -298,11 +295,8 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const minimumInterestEarned = min(
-        BigInt(
-          Math.floor(Number(expectedProceeds) * (1 - SLIPPAGE_PERCENTAGE)),
-        ),
-        expectedProceeds,
+      const minimumInterestEarned = BigInt(
+        Math.floor(Number(expectedProceeds) * (1 - SLIPPAGE_PERCENTAGE)),
       )
 
       try {
@@ -539,11 +533,8 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const minimumInterestEarned = min(
-        BigInt(
-          Math.floor(Number(expectedProceeds) * (1 - SLIPPAGE_PERCENTAGE)),
-        ),
-        expectedProceeds,
+      const minimumInterestEarned = BigInt(
+        Math.floor(Number(expectedProceeds) * (1 - SLIPPAGE_PERCENTAGE)),
       )
       try {
         const { deadline, s, r, v } = await permit721(

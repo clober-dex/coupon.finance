@@ -306,15 +306,10 @@ export const calculateTotalDeposit = (
   initialDeposit: bigint,
 ): {
   totalDeposit: bigint
-  available: bigint
 } => {
   let totalDeposit = initialDeposit
   const amountOuts = [...Array(markets.length).keys()].map(
     () => 2n ** 256n - 1n,
-  )
-
-  const available = min(
-    ...markets.map((market) => market.totalBidsInBaseAfterFees()),
   )
 
   while (amountOuts.reduce((a, b) => a + b, 0n) > 0n) {
@@ -328,7 +323,7 @@ export const calculateTotalDeposit = (
     totalDeposit = totalDeposit + initialDeposit
   }
 
-  return { totalDeposit, available }
+  return { totalDeposit }
 }
 
 export const calculateDepositApy = (
@@ -339,7 +334,6 @@ export const calculateDepositApy = (
 ): {
   proceeds: bigint
   apy: number
-  available: bigint
 } => {
   if (
     markets.some(
@@ -354,10 +348,7 @@ export const calculateDepositApy = (
   }
 
   const endTimestamp = Math.max(...markets.map((market) => market.endTimestamp))
-  const { totalDeposit, available } = calculateTotalDeposit(
-    markets,
-    initialDeposit,
-  )
+  const { totalDeposit } = calculateTotalDeposit(markets, initialDeposit)
   const p =
     (Number(totalDeposit) - Number(initialDeposit)) / Number(initialDeposit)
   const d = Number(endTimestamp) - currentTimestamp
@@ -366,7 +357,6 @@ export const calculateDepositApy = (
   return {
     apy,
     proceeds: totalDeposit - initialDeposit,
-    available,
   }
 }
 
@@ -439,6 +429,19 @@ export function calculateCouponsToWithdraw(
     new Error('Substitute token is not supported')
   }
 
+  const availableCoupons = min(
+    ...markets.map((market) => market.totalAsksInBaseAfterFees()),
+  )
+  const available = max(
+    availableCoupons -
+      markets.reduce(
+        (acc, market) =>
+          acc + market.take(substitute.address, availableCoupons).amountIn,
+        0n,
+      ),
+    0n,
+  )
+
   const maxRepurchaseFee = markets.reduce(
     (acc, market) =>
       acc + market.take(substitute.address, positionAmount).amountIn,
@@ -457,18 +460,6 @@ export function calculateCouponsToWithdraw(
     )
   }
 
-  const availableCoupons = min(
-    ...markets.map((market) => market.totalAsksInBaseAfterFees()),
-  )
-  const available = max(
-    availableCoupons -
-      markets.reduce(
-        (acc, market) =>
-          acc + market.take(substitute.address, availableCoupons).amountIn,
-        0n,
-      ),
-    0n,
-  )
   return {
     maxRepurchaseFee,
     repurchaseFee,
@@ -536,23 +527,45 @@ export function calculateCouponsToBorrow(
 
 export function calculateCouponsToRepay(
   substitute: Currency,
-  market: Market,
+  markets: Market[],
+  positionAmount: bigint,
   repayAmount: bigint,
 ): {
+  maxRefund: bigint
   refund: bigint
-  available: bigint
 } {
   if (
-    !isAddressEqual(
-      market.quoteToken.address,
-      substitute.address as `0x${string}`,
+    markets.some(
+      (market) =>
+        !isAddressEqual(
+          market.quoteToken.address,
+          substitute.address as `0x${string}`,
+        ),
     )
   ) {
     new Error('Substitute token is not supported')
   }
 
+  const maxRefund = markets.reduce(
+    (acc, market) =>
+      acc + market.spend(market.baseToken.address, positionAmount).amountOut,
+    0n,
+  )
+
+  let refund = 0n
+  const prevRefunds = new Set<bigint>()
+  while (!prevRefunds.has(refund)) {
+    prevRefunds.add(refund)
+    refund = markets.reduce(
+      (acc, market) =>
+        acc +
+        market.spend(market.baseToken.address, repayAmount + refund).amountOut,
+      0n,
+    )
+  }
+
   return {
-    refund: market.spend(market.baseToken.address, repayAmount).amountOut,
-    available: market.totalBidsInBaseAfterFees(),
+    maxRefund: maxRefund,
+    refund: refund,
   }
 }

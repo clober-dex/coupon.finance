@@ -7,7 +7,7 @@ import { useCurrencyContext } from '../../contexts/currency-context'
 import { dollarValue } from '../../utils/numbers'
 import { fetchMarkets } from '../../apis/market'
 import { calculateCouponsToRepay } from '../../model/market'
-import { max, min } from '../../utils/bigint'
+import { max } from '../../utils/bigint'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import { fetchAmountOutByOdos } from '../../apis/odos'
 import RepayModal from '../../components/modal/repay-modal'
@@ -84,15 +84,20 @@ const RepayModalContainer = ({
   const { data } = useQuery(
     ['coupon-refundable-amount-to-repay', position, repayAmount],
     async () => {
-      const market = (await fetchMarkets())
+      const markets = (await fetchMarkets())
         .filter((market) =>
           isAddressEqual(
             market.quoteToken.address,
             position.substitute.address,
           ),
         )
-        .filter((market) => market.epoch === position.toEpoch.id)[0]
-      return calculateCouponsToRepay(position.substitute, market, repayAmount)
+        .filter((market) => market.epoch <= position.toEpoch.id)
+      return calculateCouponsToRepay(
+        position.substitute,
+        markets,
+        position.amount,
+        repayAmount,
+      )
     },
     {
       keepPreviousData: true,
@@ -100,7 +105,7 @@ const RepayModalContainer = ({
   )
 
   const refund = useMemo(() => data?.refund ?? 0n, [data?.refund])
-  const available = useMemo(() => data?.available ?? 0n, [data?.available])
+  const maxRefund = useMemo(() => data?.maxRefund ?? 0n, [data?.maxRefund])
 
   const currentLtv = useMemo(
     () =>
@@ -122,7 +127,7 @@ const RepayModalContainer = ({
   )
 
   const expectedLtv = useMemo(() => {
-    const debtAmount = max(position.amount - repayAmount, 0n)
+    const debtAmount = max(position.amount - repayAmount - refund, 0n)
     const debtValue = dollarValue(
       debtAmount,
       position.underlying.decimals,
@@ -142,7 +147,7 @@ const RepayModalContainer = ({
       : collateralAmount === 0n
       ? '0'
       : debtValue.times(100).div(collateralValue).toFixed(2)
-  }, [repayAmount, isUseCollateral, amount, position, prices])
+  }, [repayAmount, refund, isUseCollateral, amount, position, prices])
 
   return (
     <RepayModal
@@ -155,7 +160,6 @@ const RepayModalContainer = ({
       setValue={setValue}
       prices={prices}
       repayAmount={repayAmount}
-      available={available}
       balances={balances}
       showSlippageSelect={showSlippageSelect}
       slippage={slippage}
@@ -167,12 +171,8 @@ const RepayModalContainer = ({
       repayWithCollateral={repayWithCollateral}
       repay={repay}
       amount={amount}
+      maxRefund={maxRefund}
       refund={refund}
-      minBalance={min(
-        position.amount,
-        available,
-        balances[position.underlying.address],
-      )}
     />
   )
 }

@@ -132,7 +132,7 @@ const Borrow = () => {
     return interestsByEpochsBorrowed[epochs - 1]?.maxInterest ?? 0n
   }, [epochs, interestsByEpochsBorrowed])
 
-  const maxLoanAmount = useMemo(() => {
+  const maxLoanableAmount = useMemo(() => {
     if (
       epochs === 0 ||
       !interestsByEpochsBorrowed ||
@@ -259,7 +259,7 @@ const Borrow = () => {
                       value={loanValue}
                       onValueChange={setLoanValue}
                       price={prices[asset.underlying.address]}
-                      balance={maxLoanAmount}
+                      balance={min(maxLoanableAmount - maxInterest, available)}
                     />
                   </div>
                   <div className="flex flex-col gap-4">
