@@ -153,7 +153,7 @@ const RepayModal = ({
           <div className="flex items-center gap-1">
             <span>
               {formatUnits(
-                position.amount,
+                position.amount - maxRefund,
                 position.underlying.decimals,
                 prices[position.underlying.address],
               )}{' '}
@@ -164,7 +164,7 @@ const RepayModal = ({
                 <Arrow />
                 <span className="text-green-500">
                   {formatUnits(
-                    position.amount - repayAmount,
+                    position.amount - maxRefund - repayAmount,
                     position.underlying.decimals,
                     prices[position.underlying.address],
                   )}{' '}
@@ -195,7 +195,8 @@ const RepayModal = ({
         disabled={
           repayAmount === 0n ||
           (!isUseCollateral &&
-            repayAmount > balances[position.underlying.address])
+            repayAmount > balances[position.underlying.address]) ||
+          (!isUseCollateral && repayAmount > position.amount - maxRefund)
         }
         className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
         onClick={async () => {
@@ -229,6 +230,8 @@ const RepayModal = ({
           : !isUseCollateral &&
             repayAmount > balances[position.underlying.address]
           ? `Insufficient ${position.underlying.symbol} balance`
+          : !isUseCollateral && repayAmount > position.amount - maxRefund
+          ? `Cannot repay more than remaining debt`
           : isUseCollateral
           ? 'Repay with Collateral'
           : 'Repay'}

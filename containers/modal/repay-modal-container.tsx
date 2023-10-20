@@ -127,7 +127,7 @@ const RepayModalContainer = ({
   )
 
   const expectedLtv = useMemo(() => {
-    const debtAmount = max(position.amount - repayAmount, 0n)
+    const debtAmount = max(position.amount - repayAmount - refund, 0n)
     const debtValue = dollarValue(
       debtAmount,
       position.underlying.decimals,
@@ -147,7 +147,7 @@ const RepayModalContainer = ({
       : collateralAmount === 0n
       ? '0'
       : debtValue.times(100).div(collateralValue).toFixed(2)
-  }, [repayAmount, isUseCollateral, amount, position, prices])
+  }, [repayAmount, refund, isUseCollateral, amount, position, prices])
 
   return (
     <RepayModal
