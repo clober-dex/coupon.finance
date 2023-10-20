@@ -352,7 +352,7 @@ const _abi = [
     ],
     name: "permit",
     outputs: [],
-    stateMutability: "payable",
+    stateMutability: "nonpayable",
     type: "function",
   },
   {

@@ -27,8 +27,46 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "ValueTransferFailed",
+    name: "NotExpired",
     type: "error",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "asset",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "Epoch",
+        name: "epoch",
+        type: "uint8",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "cloberMarket",
+        type: "address",
+      },
+    ],
+    name: "SetCouponMarket",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+    ],
+    name: "SetManagerAllowance",
+    type: "event",
   },
   {
     inputs: [
@@ -60,7 +98,7 @@ const _abi = [
             type: "bytes32",
           },
         ],
-        internalType: "struct IController.PermitParams",
+        internalType: "struct IController.PermitSignature",
         name: "positionPermitParams",
         type: "tuple",
       },
@@ -96,26 +134,38 @@ const _abi = [
         components: [
           {
             internalType: "uint256",
-            name: "deadline",
+            name: "permitAmount",
             type: "uint256",
           },
           {
-            internalType: "uint8",
-            name: "v",
-            type: "uint8",
-          },
-          {
-            internalType: "bytes32",
-            name: "r",
-            type: "bytes32",
-          },
-          {
-            internalType: "bytes32",
-            name: "s",
-            type: "bytes32",
+            components: [
+              {
+                internalType: "uint256",
+                name: "deadline",
+                type: "uint256",
+              },
+              {
+                internalType: "uint8",
+                name: "v",
+                type: "uint8",
+              },
+              {
+                internalType: "bytes32",
+                name: "r",
+                type: "bytes32",
+              },
+              {
+                internalType: "bytes32",
+                name: "s",
+                type: "bytes32",
+              },
+            ],
+            internalType: "struct IController.PermitSignature",
+            name: "signature",
+            type: "tuple",
           },
         ],
-        internalType: "struct IController.PermitParams",
+        internalType: "struct IController.ERC20PermitParams",
         name: "tokenPermitParams",
         type: "tuple",
       },
@@ -123,6 +173,19 @@ const _abi = [
     name: "deposit",
     outputs: [],
     stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+    ],
+    name: "giveManagerAllowance",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -165,7 +228,7 @@ const _abi = [
             type: "bytes32",
           },
         ],
-        internalType: "struct IController.PermitParams",
+        internalType: "struct IController.PermitSignature",
         name: "positionPermitParams",
         type: "tuple",
       },

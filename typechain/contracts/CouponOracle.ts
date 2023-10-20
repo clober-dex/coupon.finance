@@ -4,6 +4,7 @@
 import type {
   BaseContract,
   BigNumber,
+  BigNumberish,
   BytesLike,
   CallOverrides,
   ContractTransaction,
@@ -28,32 +29,54 @@ import type {
 
 export interface CouponOracleInterface extends utils.Interface {
   functions: {
+    "acceptOwnership()": FunctionFragment;
     "decimals()": FunctionFragment;
     "fallbackOracle()": FunctionFragment;
     "getAssetPrice(address)": FunctionFragment;
     "getAssetsPrices(address[])": FunctionFragment;
-    "getFeed(address)": FunctionFragment;
+    "getFeeds(address)": FunctionFragment;
+    "gracePeriod()": FunctionFragment;
+    "isSequencerValid()": FunctionFragment;
     "owner()": FunctionFragment;
+    "pendingOwner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
+    "sequencerOracle()": FunctionFragment;
     "setFallbackOracle(address)": FunctionFragment;
-    "setFeeds(address[],address[])": FunctionFragment;
+    "setFeeds(address[],address[][])": FunctionFragment;
+    "setGracePeriod(uint256)": FunctionFragment;
+    "setSequencerOracle(address)": FunctionFragment;
+    "setTimeout(uint256)": FunctionFragment;
+    "timeout()": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
   };
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "acceptOwnership"
       | "decimals"
       | "fallbackOracle"
       | "getAssetPrice"
       | "getAssetsPrices"
-      | "getFeed"
+      | "getFeeds"
+      | "gracePeriod"
+      | "isSequencerValid"
       | "owner"
+      | "pendingOwner"
       | "renounceOwnership"
+      | "sequencerOracle"
       | "setFallbackOracle"
       | "setFeeds"
+      | "setGracePeriod"
+      | "setSequencerOracle"
+      | "setTimeout"
+      | "timeout"
       | "transferOwnership"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "acceptOwnership",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "decimals", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "fallbackOracle",
@@ -68,12 +91,28 @@ export interface CouponOracleInterface extends utils.Interface {
     values: [PromiseOrValue<string>[]]
   ): string;
   encodeFunctionData(
-    functionFragment: "getFeed",
+    functionFragment: "getFeeds",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "gracePeriod",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "isSequencerValid",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "pendingOwner",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "sequencerOracle",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -82,13 +121,30 @@ export interface CouponOracleInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "setFeeds",
-    values: [PromiseOrValue<string>[], PromiseOrValue<string>[]]
+    values: [PromiseOrValue<string>[], PromiseOrValue<string>[][]]
   ): string;
+  encodeFunctionData(
+    functionFragment: "setGracePeriod",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setSequencerOracle",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "setTimeout",
+    values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(functionFragment: "timeout", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [PromiseOrValue<string>]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "acceptOwnership",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "decimals", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "fallbackOracle",
@@ -102,10 +158,26 @@ export interface CouponOracleInterface extends utils.Interface {
     functionFragment: "getAssetsPrices",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "getFeed", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "getFeeds", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "gracePeriod",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "isSequencerValid",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "pendingOwner",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "sequencerOracle",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -114,16 +186,50 @@ export interface CouponOracleInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "setFeeds", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "setGracePeriod",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setSequencerOracle",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "setTimeout", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "timeout", data: BytesLike): Result;
+  decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
 
   events: {
+    "OwnershipTransferStarted(address,address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "SetFallbackOracle(address)": EventFragment;
+    "SetFeed(address,address[])": EventFragment;
+    "SetGracePeriod(uint256)": EventFragment;
+    "SetSequencerOracle(address)": EventFragment;
+    "SetTimeout(uint256)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferStarted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SetFallbackOracle"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SetFeed"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SetGracePeriod"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SetSequencerOracle"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SetTimeout"): EventFragment;
 }
+
+export interface OwnershipTransferStartedEventObject {
+  previousOwner: string;
+  newOwner: string;
+}
+export type OwnershipTransferStartedEvent = TypedEvent<
+  [string, string],
+  OwnershipTransferStartedEventObject
+>;
+
+export type OwnershipTransferStartedEventFilter =
+  TypedEventFilter<OwnershipTransferStartedEvent>;
 
 export interface OwnershipTransferredEventObject {
   previousOwner: string;
@@ -136,6 +242,53 @@ export type OwnershipTransferredEvent = TypedEvent<
 
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
+
+export interface SetFallbackOracleEventObject {
+  newFallbackOracle: string;
+}
+export type SetFallbackOracleEvent = TypedEvent<
+  [string],
+  SetFallbackOracleEventObject
+>;
+
+export type SetFallbackOracleEventFilter =
+  TypedEventFilter<SetFallbackOracleEvent>;
+
+export interface SetFeedEventObject {
+  asset: string;
+  feeds: string[];
+}
+export type SetFeedEvent = TypedEvent<[string, string[]], SetFeedEventObject>;
+
+export type SetFeedEventFilter = TypedEventFilter<SetFeedEvent>;
+
+export interface SetGracePeriodEventObject {
+  newGracePeriod: BigNumber;
+}
+export type SetGracePeriodEvent = TypedEvent<
+  [BigNumber],
+  SetGracePeriodEventObject
+>;
+
+export type SetGracePeriodEventFilter = TypedEventFilter<SetGracePeriodEvent>;
+
+export interface SetSequencerOracleEventObject {
+  newSequencerOracle: string;
+}
+export type SetSequencerOracleEvent = TypedEvent<
+  [string],
+  SetSequencerOracleEventObject
+>;
+
+export type SetSequencerOracleEventFilter =
+  TypedEventFilter<SetSequencerOracleEvent>;
+
+export interface SetTimeoutEventObject {
+  newTimeout: BigNumber;
+}
+export type SetTimeoutEvent = TypedEvent<[BigNumber], SetTimeoutEventObject>;
+
+export type SetTimeoutEventFilter = TypedEventFilter<SetTimeoutEvent>;
 
 export interface CouponOracle extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -164,6 +317,10 @@ export interface CouponOracle extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    acceptOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     decimals(overrides?: CallOverrides): Promise<[number]>;
 
     fallbackOracle(overrides?: CallOverrides): Promise<[string]>;
@@ -178,16 +335,24 @@ export interface CouponOracle extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber[]] & { prices: BigNumber[] }>;
 
-    getFeed(
-      arg0: PromiseOrValue<string>,
+    getFeeds(
+      asset: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<[string]>;
+    ): Promise<[string[]]>;
+
+    gracePeriod(overrides?: CallOverrides): Promise<[BigNumber]>;
+
+    isSequencerValid(overrides?: CallOverrides): Promise<[boolean]>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
+
+    pendingOwner(overrides?: CallOverrides): Promise<[string]>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    sequencerOracle(overrides?: CallOverrides): Promise<[string]>;
 
     setFallbackOracle(
       newFallbackOracle: PromiseOrValue<string>,
@@ -196,15 +361,36 @@ export interface CouponOracle extends BaseContract {
 
     setFeeds(
       assets: PromiseOrValue<string>[],
-      feeds: PromiseOrValue<string>[],
+      feeds: PromiseOrValue<string>[][],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    setGracePeriod(
+      newGracePeriod: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setSequencerOracle(
+      newSequencerOracle: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setTimeout(
+      newTimeout: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    timeout(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
+
+  acceptOwnership(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   decimals(overrides?: CallOverrides): Promise<number>;
 
@@ -220,16 +406,24 @@ export interface CouponOracle extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber[]>;
 
-  getFeed(
-    arg0: PromiseOrValue<string>,
+  getFeeds(
+    asset: PromiseOrValue<string>,
     overrides?: CallOverrides
-  ): Promise<string>;
+  ): Promise<string[]>;
+
+  gracePeriod(overrides?: CallOverrides): Promise<BigNumber>;
+
+  isSequencerValid(overrides?: CallOverrides): Promise<boolean>;
 
   owner(overrides?: CallOverrides): Promise<string>;
+
+  pendingOwner(overrides?: CallOverrides): Promise<string>;
 
   renounceOwnership(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  sequencerOracle(overrides?: CallOverrides): Promise<string>;
 
   setFallbackOracle(
     newFallbackOracle: PromiseOrValue<string>,
@@ -238,9 +432,26 @@ export interface CouponOracle extends BaseContract {
 
   setFeeds(
     assets: PromiseOrValue<string>[],
-    feeds: PromiseOrValue<string>[],
+    feeds: PromiseOrValue<string>[][],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  setGracePeriod(
+    newGracePeriod: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setSequencerOracle(
+    newSequencerOracle: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setTimeout(
+    newTimeout: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  timeout(overrides?: CallOverrides): Promise<BigNumber>;
 
   transferOwnership(
     newOwner: PromiseOrValue<string>,
@@ -248,6 +459,8 @@ export interface CouponOracle extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    acceptOwnership(overrides?: CallOverrides): Promise<void>;
+
     decimals(overrides?: CallOverrides): Promise<number>;
 
     fallbackOracle(overrides?: CallOverrides): Promise<string>;
@@ -262,14 +475,22 @@ export interface CouponOracle extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber[]>;
 
-    getFeed(
-      arg0: PromiseOrValue<string>,
+    getFeeds(
+      asset: PromiseOrValue<string>,
       overrides?: CallOverrides
-    ): Promise<string>;
+    ): Promise<string[]>;
+
+    gracePeriod(overrides?: CallOverrides): Promise<BigNumber>;
+
+    isSequencerValid(overrides?: CallOverrides): Promise<boolean>;
 
     owner(overrides?: CallOverrides): Promise<string>;
 
+    pendingOwner(overrides?: CallOverrides): Promise<string>;
+
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
+
+    sequencerOracle(overrides?: CallOverrides): Promise<string>;
 
     setFallbackOracle(
       newFallbackOracle: PromiseOrValue<string>,
@@ -278,9 +499,26 @@ export interface CouponOracle extends BaseContract {
 
     setFeeds(
       assets: PromiseOrValue<string>[],
-      feeds: PromiseOrValue<string>[],
+      feeds: PromiseOrValue<string>[][],
       overrides?: CallOverrides
     ): Promise<void>;
+
+    setGracePeriod(
+      newGracePeriod: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setSequencerOracle(
+      newSequencerOracle: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setTimeout(
+      newTimeout: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    timeout(overrides?: CallOverrides): Promise<BigNumber>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
@@ -289,6 +527,15 @@ export interface CouponOracle extends BaseContract {
   };
 
   filters: {
+    "OwnershipTransferStarted(address,address)"(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferStartedEventFilter;
+    OwnershipTransferStarted(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferStartedEventFilter;
+
     "OwnershipTransferred(address,address)"(
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
@@ -297,9 +544,42 @@ export interface CouponOracle extends BaseContract {
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
+
+    "SetFallbackOracle(address)"(
+      newFallbackOracle?: PromiseOrValue<string> | null
+    ): SetFallbackOracleEventFilter;
+    SetFallbackOracle(
+      newFallbackOracle?: PromiseOrValue<string> | null
+    ): SetFallbackOracleEventFilter;
+
+    "SetFeed(address,address[])"(
+      asset?: PromiseOrValue<string> | null,
+      feeds?: null
+    ): SetFeedEventFilter;
+    SetFeed(
+      asset?: PromiseOrValue<string> | null,
+      feeds?: null
+    ): SetFeedEventFilter;
+
+    "SetGracePeriod(uint256)"(newGracePeriod?: null): SetGracePeriodEventFilter;
+    SetGracePeriod(newGracePeriod?: null): SetGracePeriodEventFilter;
+
+    "SetSequencerOracle(address)"(
+      newSequencerOracle?: PromiseOrValue<string> | null
+    ): SetSequencerOracleEventFilter;
+    SetSequencerOracle(
+      newSequencerOracle?: PromiseOrValue<string> | null
+    ): SetSequencerOracleEventFilter;
+
+    "SetTimeout(uint256)"(newTimeout?: null): SetTimeoutEventFilter;
+    SetTimeout(newTimeout?: null): SetTimeoutEventFilter;
   };
 
   estimateGas: {
+    acceptOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     decimals(overrides?: CallOverrides): Promise<BigNumber>;
 
     fallbackOracle(overrides?: CallOverrides): Promise<BigNumber>;
@@ -314,16 +594,24 @@ export interface CouponOracle extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    getFeed(
-      arg0: PromiseOrValue<string>,
+    getFeeds(
+      asset: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    gracePeriod(overrides?: CallOverrides): Promise<BigNumber>;
+
+    isSequencerValid(overrides?: CallOverrides): Promise<BigNumber>;
+
     owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    pendingOwner(overrides?: CallOverrides): Promise<BigNumber>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    sequencerOracle(overrides?: CallOverrides): Promise<BigNumber>;
 
     setFallbackOracle(
       newFallbackOracle: PromiseOrValue<string>,
@@ -332,9 +620,26 @@ export interface CouponOracle extends BaseContract {
 
     setFeeds(
       assets: PromiseOrValue<string>[],
-      feeds: PromiseOrValue<string>[],
+      feeds: PromiseOrValue<string>[][],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    setGracePeriod(
+      newGracePeriod: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setSequencerOracle(
+      newSequencerOracle: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setTimeout(
+      newTimeout: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    timeout(overrides?: CallOverrides): Promise<BigNumber>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,
@@ -343,6 +648,10 @@ export interface CouponOracle extends BaseContract {
   };
 
   populateTransaction: {
+    acceptOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     decimals(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     fallbackOracle(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -357,16 +666,24 @@ export interface CouponOracle extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    getFeed(
-      arg0: PromiseOrValue<string>,
+    getFeeds(
+      asset: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    gracePeriod(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    isSequencerValid(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    pendingOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    sequencerOracle(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     setFallbackOracle(
       newFallbackOracle: PromiseOrValue<string>,
@@ -375,9 +692,26 @@ export interface CouponOracle extends BaseContract {
 
     setFeeds(
       assets: PromiseOrValue<string>[],
-      feeds: PromiseOrValue<string>[],
+      feeds: PromiseOrValue<string>[][],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    setGracePeriod(
+      newGracePeriod: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setSequencerOracle(
+      newSequencerOracle: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setTimeout(
+      newTimeout: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    timeout(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     transferOwnership(
       newOwner: PromiseOrValue<string>,

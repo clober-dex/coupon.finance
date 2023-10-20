@@ -2,6 +2,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as iBondPositionManagerSol from "./IBondPositionManager.sol";
+export * as iCouponOracleSol from "./ICouponOracle.sol";
 export * as iLoanPositionManagerSol from "./ILoanPositionManager.sol";
 export * as iPositionManagerSol from "./IPositionManager.sol";
 export { IAaveTokenSubstitute__factory } from "./IAaveTokenSubstitute__factory";
@@ -9,11 +10,11 @@ export { IAssetPool__factory } from "./IAssetPool__factory";
 export { IBorrowController__factory } from "./IBorrowController__factory";
 export { IController__factory } from "./IController__factory";
 export { ICouponManager__factory } from "./ICouponManager__factory";
-export { ICouponOracle__factory } from "./ICouponOracle__factory";
 export { IDepositController__factory } from "./IDepositController__factory";
 export { IERC1155Permit__factory } from "./IERC1155Permit__factory";
 export { IERC721Permit__factory } from "./IERC721Permit__factory";
 export { IFallbackOracle__factory } from "./IFallbackOracle__factory";
+export { ILeverageAdapter__factory } from "./ILeverageAdapter__factory";
 export { IPositionLocker__factory } from "./IPositionLocker__factory";
 export { IRepayAdapter__factory } from "./IRepayAdapter__factory";
 export { ISubstitute__factory } from "./ISubstitute__factory";

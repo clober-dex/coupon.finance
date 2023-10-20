@@ -9,7 +9,6 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
-  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -75,6 +74,7 @@ export interface BondPositionManagerInterface extends utils.Interface {
     "DOMAIN_SEPARATOR()": FunctionFragment;
     "MAX_EPOCH()": FunctionFragment;
     "PERMIT_TYPEHASH()": FunctionFragment;
+    "acceptOwnership()": FunctionFragment;
     "adjustPosition(uint256,uint256,uint8)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "assetDelta(address,uint256)": FunctionFragment;
@@ -82,6 +82,7 @@ export interface BondPositionManagerInterface extends utils.Interface {
     "balanceOf(address)": FunctionFragment;
     "baseURI()": FunctionFragment;
     "burnCoupons(((address,uint8),uint256)[])": FunctionFragment;
+    "contractURI()": FunctionFragment;
     "depositToken(address,uint256)": FunctionFragment;
     "eip712Domain()": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
@@ -97,6 +98,7 @@ export interface BondPositionManagerInterface extends utils.Interface {
     "nonces(uint256)": FunctionFragment;
     "owner()": FunctionFragment;
     "ownerOf(uint256)": FunctionFragment;
+    "pendingOwner()": FunctionFragment;
     "permit(address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
     "registerAsset(address)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
@@ -117,6 +119,7 @@ export interface BondPositionManagerInterface extends utils.Interface {
       | "DOMAIN_SEPARATOR"
       | "MAX_EPOCH"
       | "PERMIT_TYPEHASH"
+      | "acceptOwnership"
       | "adjustPosition"
       | "approve"
       | "assetDelta"
@@ -124,6 +127,7 @@ export interface BondPositionManagerInterface extends utils.Interface {
       | "balanceOf"
       | "baseURI"
       | "burnCoupons"
+      | "contractURI"
       | "depositToken"
       | "eip712Domain"
       | "getApproved"
@@ -139,6 +143,7 @@ export interface BondPositionManagerInterface extends utils.Interface {
       | "nonces"
       | "owner"
       | "ownerOf"
+      | "pendingOwner"
       | "permit"
       | "registerAsset"
       | "renounceOwnership"
@@ -161,6 +166,10 @@ export interface BondPositionManagerInterface extends utils.Interface {
   encodeFunctionData(functionFragment: "MAX_EPOCH", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "PERMIT_TYPEHASH",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "acceptOwnership",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -188,6 +197,10 @@ export interface BondPositionManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "burnCoupons",
     values: [CouponStruct[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "contractURI",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "depositToken",
@@ -236,6 +249,10 @@ export interface BondPositionManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "ownerOf",
     values: [PromiseOrValue<BigNumberish>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "pendingOwner",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "permit",
@@ -321,6 +338,10 @@ export interface BondPositionManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "acceptOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "adjustPosition",
     data: BytesLike
   ): Result;
@@ -331,6 +352,10 @@ export interface BondPositionManagerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "baseURI", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "burnCoupons",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "contractURI",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -369,6 +394,10 @@ export interface BondPositionManagerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ownerOf", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "pendingOwner",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "permit", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "registerAsset",
@@ -417,6 +446,7 @@ export interface BondPositionManagerInterface extends utils.Interface {
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
     "EIP712DomainChanged()": EventFragment;
+    "OwnershipTransferStarted(address,address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "RegisterAsset(address)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
@@ -426,6 +456,7 @@ export interface BondPositionManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "EIP712DomainChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferStarted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "RegisterAsset"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
@@ -464,6 +495,18 @@ export type EIP712DomainChangedEvent = TypedEvent<
 
 export type EIP712DomainChangedEventFilter =
   TypedEventFilter<EIP712DomainChangedEvent>;
+
+export interface OwnershipTransferStartedEventObject {
+  previousOwner: string;
+  newOwner: string;
+}
+export type OwnershipTransferStartedEvent = TypedEvent<
+  [string, string],
+  OwnershipTransferStartedEventObject
+>;
+
+export type OwnershipTransferStartedEventFilter =
+  TypedEventFilter<OwnershipTransferStartedEvent>;
 
 export interface OwnershipTransferredEventObject {
   previousOwner: string;
@@ -541,6 +584,10 @@ export interface BondPositionManager extends BaseContract {
 
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
 
+    acceptOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     adjustPosition(
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
@@ -573,6 +620,8 @@ export interface BondPositionManager extends BaseContract {
       coupons: CouponStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    contractURI(overrides?: CallOverrides): Promise<[string]>;
 
     depositToken(
       token: PromiseOrValue<string>,
@@ -650,6 +699,8 @@ export interface BondPositionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    pendingOwner(overrides?: CallOverrides): Promise<[string]>;
+
     permit(
       spender: PromiseOrValue<string>,
       tokenId: PromiseOrValue<BigNumberish>,
@@ -657,7 +708,7 @@ export interface BondPositionManager extends BaseContract {
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     registerAsset(
@@ -733,6 +784,10 @@ export interface BondPositionManager extends BaseContract {
 
   PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
+  acceptOwnership(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   adjustPosition(
     positionId: PromiseOrValue<BigNumberish>,
     amount: PromiseOrValue<BigNumberish>,
@@ -765,6 +820,8 @@ export interface BondPositionManager extends BaseContract {
     coupons: CouponStruct[],
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  contractURI(overrides?: CallOverrides): Promise<string>;
 
   depositToken(
     token: PromiseOrValue<string>,
@@ -842,6 +899,8 @@ export interface BondPositionManager extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  pendingOwner(overrides?: CallOverrides): Promise<string>;
+
   permit(
     spender: PromiseOrValue<string>,
     tokenId: PromiseOrValue<BigNumberish>,
@@ -849,7 +908,7 @@ export interface BondPositionManager extends BaseContract {
     v: PromiseOrValue<BigNumberish>,
     r: PromiseOrValue<BytesLike>,
     s: PromiseOrValue<BytesLike>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   registerAsset(
@@ -925,6 +984,8 @@ export interface BondPositionManager extends BaseContract {
 
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
+    acceptOwnership(overrides?: CallOverrides): Promise<void>;
+
     adjustPosition(
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
@@ -963,6 +1024,8 @@ export interface BondPositionManager extends BaseContract {
       coupons: CouponStruct[],
       overrides?: CallOverrides
     ): Promise<void>;
+
+    contractURI(overrides?: CallOverrides): Promise<string>;
 
     depositToken(
       token: PromiseOrValue<string>,
@@ -1039,6 +1102,8 @@ export interface BondPositionManager extends BaseContract {
       tokenId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    pendingOwner(overrides?: CallOverrides): Promise<string>;
 
     permit(
       spender: PromiseOrValue<string>,
@@ -1141,6 +1206,15 @@ export interface BondPositionManager extends BaseContract {
     "EIP712DomainChanged()"(): EIP712DomainChangedEventFilter;
     EIP712DomainChanged(): EIP712DomainChangedEventFilter;
 
+    "OwnershipTransferStarted(address,address)"(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferStartedEventFilter;
+    OwnershipTransferStarted(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferStartedEventFilter;
+
     "OwnershipTransferred(address,address)"(
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
@@ -1187,6 +1261,10 @@ export interface BondPositionManager extends BaseContract {
 
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
 
+    acceptOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     adjustPosition(
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
@@ -1219,6 +1297,8 @@ export interface BondPositionManager extends BaseContract {
       coupons: CouponStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    contractURI(overrides?: CallOverrides): Promise<BigNumber>;
 
     depositToken(
       token: PromiseOrValue<string>,
@@ -1284,6 +1364,8 @@ export interface BondPositionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    pendingOwner(overrides?: CallOverrides): Promise<BigNumber>;
+
     permit(
       spender: PromiseOrValue<string>,
       tokenId: PromiseOrValue<BigNumberish>,
@@ -1291,7 +1373,7 @@ export interface BondPositionManager extends BaseContract {
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     registerAsset(
@@ -1368,6 +1450,10 @@ export interface BondPositionManager extends BaseContract {
 
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    acceptOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     adjustPosition(
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
@@ -1400,6 +1486,8 @@ export interface BondPositionManager extends BaseContract {
       coupons: CouponStruct[],
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    contractURI(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     depositToken(
       token: PromiseOrValue<string>,
@@ -1465,6 +1553,8 @@ export interface BondPositionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    pendingOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     permit(
       spender: PromiseOrValue<string>,
       tokenId: PromiseOrValue<BigNumberish>,
@@ -1472,7 +1562,7 @@ export interface BondPositionManager extends BaseContract {
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     registerAsset(

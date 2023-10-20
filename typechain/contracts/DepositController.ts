@@ -39,30 +39,47 @@ export type CouponKeyStructOutput = [string, number] & {
 };
 
 export declare namespace IController {
-  export type PermitParamsStruct = {
+  export type PermitSignatureStruct = {
     deadline: PromiseOrValue<BigNumberish>;
     v: PromiseOrValue<BigNumberish>;
     r: PromiseOrValue<BytesLike>;
     s: PromiseOrValue<BytesLike>;
   };
 
-  export type PermitParamsStructOutput = [BigNumber, number, string, string] & {
-    deadline: BigNumber;
-    v: number;
-    r: string;
-    s: string;
+  export type PermitSignatureStructOutput = [
+    BigNumber,
+    number,
+    string,
+    string
+  ] & { deadline: BigNumber; v: number; r: string; s: string };
+
+  export type ERC20PermitParamsStruct = {
+    permitAmount: PromiseOrValue<BigNumberish>;
+    signature: IController.PermitSignatureStruct;
+  };
+
+  export type ERC20PermitParamsStructOutput = [
+    BigNumber,
+    IController.PermitSignatureStructOutput
+  ] & {
+    permitAmount: BigNumber;
+    signature: IController.PermitSignatureStructOutput;
   };
 }
 
 export interface DepositControllerInterface extends utils.Interface {
   functions: {
+    "acceptOwnership()": FunctionFragment;
     "cloberMarketSwapCallback(address,address,uint256,uint256,bytes)": FunctionFragment;
     "collect(uint256,(uint256,uint8,bytes32,bytes32))": FunctionFragment;
-    "deposit(address,uint256,uint8,uint256,(uint256,uint8,bytes32,bytes32))": FunctionFragment;
+    "deposit(address,uint256,uint8,uint256,(uint256,(uint256,uint8,bytes32,bytes32)))": FunctionFragment;
     "getCouponMarket((address,uint8))": FunctionFragment;
+    "giveManagerAllowance(address)": FunctionFragment;
+    "manager()": FunctionFragment;
     "onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)": FunctionFragment;
     "onERC1155Received(address,address,uint256,uint256,bytes)": FunctionFragment;
     "owner()": FunctionFragment;
+    "pendingOwner()": FunctionFragment;
     "positionLockAcquired(bytes)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "setCouponMarket((address,uint8),address)": FunctionFragment;
@@ -73,13 +90,17 @@ export interface DepositControllerInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "acceptOwnership"
       | "cloberMarketSwapCallback"
       | "collect"
       | "deposit"
       | "getCouponMarket"
+      | "giveManagerAllowance"
+      | "manager"
       | "onERC1155BatchReceived"
       | "onERC1155Received"
       | "owner"
+      | "pendingOwner"
       | "positionLockAcquired"
       | "renounceOwnership"
       | "setCouponMarket"
@@ -88,6 +109,10 @@ export interface DepositControllerInterface extends utils.Interface {
       | "withdraw"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "acceptOwnership",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "cloberMarketSwapCallback",
     values: [
@@ -100,7 +125,7 @@ export interface DepositControllerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "collect",
-    values: [PromiseOrValue<BigNumberish>, IController.PermitParamsStruct]
+    values: [PromiseOrValue<BigNumberish>, IController.PermitSignatureStruct]
   ): string;
   encodeFunctionData(
     functionFragment: "deposit",
@@ -109,13 +134,18 @@ export interface DepositControllerInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      IController.PermitParamsStruct
+      IController.ERC20PermitParamsStruct
     ]
   ): string;
   encodeFunctionData(
     functionFragment: "getCouponMarket",
     values: [CouponKeyStruct]
   ): string;
+  encodeFunctionData(
+    functionFragment: "giveManagerAllowance",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(functionFragment: "manager", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "onERC1155BatchReceived",
     values: [
@@ -137,6 +167,10 @@ export interface DepositControllerInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "pendingOwner",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "positionLockAcquired",
     values: [PromiseOrValue<BytesLike>]
@@ -163,10 +197,14 @@ export interface DepositControllerInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      IController.PermitParamsStruct
+      IController.PermitSignatureStruct
     ]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "acceptOwnership",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "cloberMarketSwapCallback",
     data: BytesLike
@@ -178,6 +216,11 @@ export interface DepositControllerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "giveManagerAllowance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "manager", data: BytesLike): Result;
+  decodeFunctionResult(
     functionFragment: "onERC1155BatchReceived",
     data: BytesLike
   ): Result;
@@ -186,6 +229,10 @@ export interface DepositControllerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "pendingOwner",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "positionLockAcquired",
     data: BytesLike
@@ -209,11 +256,29 @@ export interface DepositControllerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 
   events: {
+    "OwnershipTransferStarted(address,address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "SetCouponMarket(address,uint8,address)": EventFragment;
+    "SetManagerAllowance(address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferStarted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SetCouponMarket"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SetManagerAllowance"): EventFragment;
 }
+
+export interface OwnershipTransferStartedEventObject {
+  previousOwner: string;
+  newOwner: string;
+}
+export type OwnershipTransferStartedEvent = TypedEvent<
+  [string, string],
+  OwnershipTransferStartedEventObject
+>;
+
+export type OwnershipTransferStartedEventFilter =
+  TypedEventFilter<OwnershipTransferStartedEvent>;
 
 export interface OwnershipTransferredEventObject {
   previousOwner: string;
@@ -226,6 +291,29 @@ export type OwnershipTransferredEvent = TypedEvent<
 
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
+
+export interface SetCouponMarketEventObject {
+  asset: string;
+  epoch: number;
+  cloberMarket: string;
+}
+export type SetCouponMarketEvent = TypedEvent<
+  [string, number, string],
+  SetCouponMarketEventObject
+>;
+
+export type SetCouponMarketEventFilter = TypedEventFilter<SetCouponMarketEvent>;
+
+export interface SetManagerAllowanceEventObject {
+  token: string;
+}
+export type SetManagerAllowanceEvent = TypedEvent<
+  [string],
+  SetManagerAllowanceEventObject
+>;
+
+export type SetManagerAllowanceEventFilter =
+  TypedEventFilter<SetManagerAllowanceEvent>;
 
 export interface DepositController extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -254,6 +342,10 @@ export interface DepositController extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    acceptOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     cloberMarketSwapCallback(
       inputToken: PromiseOrValue<string>,
       arg1: PromiseOrValue<string>,
@@ -265,7 +357,7 @@ export interface DepositController extends BaseContract {
 
     collect(
       positionId: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -274,7 +366,7 @@ export interface DepositController extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       lockEpochs: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      tokenPermitParams: IController.PermitParamsStruct,
+      tokenPermitParams: IController.ERC20PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -282,6 +374,13 @@ export interface DepositController extends BaseContract {
       couponKey: CouponKeyStruct,
       overrides?: CallOverrides
     ): Promise<[string]>;
+
+    giveManagerAllowance(
+      token: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    manager(overrides?: CallOverrides): Promise<[string]>;
 
     onERC1155BatchReceived(
       arg0: PromiseOrValue<string>,
@@ -302,6 +401,8 @@ export interface DepositController extends BaseContract {
     ): Promise<ContractTransaction>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
+
+    pendingOwner(overrides?: CallOverrides): Promise<[string]>;
 
     positionLockAcquired(
       data: PromiseOrValue<BytesLike>,
@@ -332,10 +433,14 @@ export interface DepositController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       withdrawAmount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
+
+  acceptOwnership(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   cloberMarketSwapCallback(
     inputToken: PromiseOrValue<string>,
@@ -348,7 +453,7 @@ export interface DepositController extends BaseContract {
 
   collect(
     positionId: PromiseOrValue<BigNumberish>,
-    positionPermitParams: IController.PermitParamsStruct,
+    positionPermitParams: IController.PermitSignatureStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -357,7 +462,7 @@ export interface DepositController extends BaseContract {
     amount: PromiseOrValue<BigNumberish>,
     lockEpochs: PromiseOrValue<BigNumberish>,
     minEarnInterest: PromiseOrValue<BigNumberish>,
-    tokenPermitParams: IController.PermitParamsStruct,
+    tokenPermitParams: IController.ERC20PermitParamsStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -365,6 +470,13 @@ export interface DepositController extends BaseContract {
     couponKey: CouponKeyStruct,
     overrides?: CallOverrides
   ): Promise<string>;
+
+  giveManagerAllowance(
+    token: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  manager(overrides?: CallOverrides): Promise<string>;
 
   onERC1155BatchReceived(
     arg0: PromiseOrValue<string>,
@@ -385,6 +497,8 @@ export interface DepositController extends BaseContract {
   ): Promise<ContractTransaction>;
 
   owner(overrides?: CallOverrides): Promise<string>;
+
+  pendingOwner(overrides?: CallOverrides): Promise<string>;
 
   positionLockAcquired(
     data: PromiseOrValue<BytesLike>,
@@ -415,11 +529,13 @@ export interface DepositController extends BaseContract {
     positionId: PromiseOrValue<BigNumberish>,
     withdrawAmount: PromiseOrValue<BigNumberish>,
     maxPayInterest: PromiseOrValue<BigNumberish>,
-    positionPermitParams: IController.PermitParamsStruct,
+    positionPermitParams: IController.PermitSignatureStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    acceptOwnership(overrides?: CallOverrides): Promise<void>;
+
     cloberMarketSwapCallback(
       inputToken: PromiseOrValue<string>,
       arg1: PromiseOrValue<string>,
@@ -431,7 +547,7 @@ export interface DepositController extends BaseContract {
 
     collect(
       positionId: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -440,7 +556,7 @@ export interface DepositController extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       lockEpochs: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      tokenPermitParams: IController.PermitParamsStruct,
+      tokenPermitParams: IController.ERC20PermitParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -448,6 +564,13 @@ export interface DepositController extends BaseContract {
       couponKey: CouponKeyStruct,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    giveManagerAllowance(
+      token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    manager(overrides?: CallOverrides): Promise<string>;
 
     onERC1155BatchReceived(
       arg0: PromiseOrValue<string>,
@@ -468,6 +591,8 @@ export interface DepositController extends BaseContract {
     ): Promise<string>;
 
     owner(overrides?: CallOverrides): Promise<string>;
+
+    pendingOwner(overrides?: CallOverrides): Promise<string>;
 
     positionLockAcquired(
       data: PromiseOrValue<BytesLike>,
@@ -496,12 +621,21 @@ export interface DepositController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       withdrawAmount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
       overrides?: CallOverrides
     ): Promise<void>;
   };
 
   filters: {
+    "OwnershipTransferStarted(address,address)"(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferStartedEventFilter;
+    OwnershipTransferStarted(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferStartedEventFilter;
+
     "OwnershipTransferred(address,address)"(
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
@@ -510,9 +644,31 @@ export interface DepositController extends BaseContract {
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
+
+    "SetCouponMarket(address,uint8,address)"(
+      asset?: PromiseOrValue<string> | null,
+      epoch?: PromiseOrValue<BigNumberish> | null,
+      cloberMarket?: PromiseOrValue<string> | null
+    ): SetCouponMarketEventFilter;
+    SetCouponMarket(
+      asset?: PromiseOrValue<string> | null,
+      epoch?: PromiseOrValue<BigNumberish> | null,
+      cloberMarket?: PromiseOrValue<string> | null
+    ): SetCouponMarketEventFilter;
+
+    "SetManagerAllowance(address)"(
+      token?: PromiseOrValue<string> | null
+    ): SetManagerAllowanceEventFilter;
+    SetManagerAllowance(
+      token?: PromiseOrValue<string> | null
+    ): SetManagerAllowanceEventFilter;
   };
 
   estimateGas: {
+    acceptOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     cloberMarketSwapCallback(
       inputToken: PromiseOrValue<string>,
       arg1: PromiseOrValue<string>,
@@ -524,7 +680,7 @@ export interface DepositController extends BaseContract {
 
     collect(
       positionId: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -533,7 +689,7 @@ export interface DepositController extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       lockEpochs: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      tokenPermitParams: IController.PermitParamsStruct,
+      tokenPermitParams: IController.ERC20PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -541,6 +697,13 @@ export interface DepositController extends BaseContract {
       couponKey: CouponKeyStruct,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    giveManagerAllowance(
+      token: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    manager(overrides?: CallOverrides): Promise<BigNumber>;
 
     onERC1155BatchReceived(
       arg0: PromiseOrValue<string>,
@@ -562,6 +725,8 @@ export interface DepositController extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
+    pendingOwner(overrides?: CallOverrides): Promise<BigNumber>;
+
     positionLockAcquired(
       data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -591,12 +756,16 @@ export interface DepositController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       withdrawAmount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    acceptOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     cloberMarketSwapCallback(
       inputToken: PromiseOrValue<string>,
       arg1: PromiseOrValue<string>,
@@ -608,7 +777,7 @@ export interface DepositController extends BaseContract {
 
     collect(
       positionId: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -617,7 +786,7 @@ export interface DepositController extends BaseContract {
       amount: PromiseOrValue<BigNumberish>,
       lockEpochs: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      tokenPermitParams: IController.PermitParamsStruct,
+      tokenPermitParams: IController.ERC20PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -625,6 +794,13 @@ export interface DepositController extends BaseContract {
       couponKey: CouponKeyStruct,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    giveManagerAllowance(
+      token: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    manager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     onERC1155BatchReceived(
       arg0: PromiseOrValue<string>,
@@ -646,6 +822,8 @@ export interface DepositController extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    pendingOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     positionLockAcquired(
       data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -675,7 +853,7 @@ export interface DepositController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       withdrawAmount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

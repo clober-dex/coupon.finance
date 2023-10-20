@@ -9,7 +9,6 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
-  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -107,6 +106,7 @@ export interface LoanPositionManagerInterface extends utils.Interface {
   functions: {
     "DOMAIN_SEPARATOR()": FunctionFragment;
     "PERMIT_TYPEHASH()": FunctionFragment;
+    "acceptOwnership()": FunctionFragment;
     "adjustPosition(uint256,uint256,uint256,uint8)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "assetDelta(address,uint256)": FunctionFragment;
@@ -115,6 +115,7 @@ export interface LoanPositionManagerInterface extends utils.Interface {
     "baseURI()": FunctionFragment;
     "burnCoupons(((address,uint8),uint256)[])": FunctionFragment;
     "claimOwedCoupons((address,uint8)[],bytes)": FunctionFragment;
+    "contractURI()": FunctionFragment;
     "depositToken(address,uint256)": FunctionFragment;
     "eip712Domain()": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
@@ -136,12 +137,14 @@ export interface LoanPositionManagerInterface extends utils.Interface {
     "oracle()": FunctionFragment;
     "owner()": FunctionFragment;
     "ownerOf(uint256)": FunctionFragment;
+    "pendingOwner()": FunctionFragment;
     "permit(address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "safeTransferFrom(address,address,uint256)": FunctionFragment;
     "safeTransferFrom(address,address,uint256,bytes)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
     "setLoanConfiguration(address,address,uint32,uint32,uint32,uint32)": FunctionFragment;
+    "setTreasury(address)": FunctionFragment;
     "settlePosition(uint256)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "symbol()": FunctionFragment;
@@ -156,6 +159,7 @@ export interface LoanPositionManagerInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "DOMAIN_SEPARATOR"
       | "PERMIT_TYPEHASH"
+      | "acceptOwnership"
       | "adjustPosition"
       | "approve"
       | "assetDelta"
@@ -164,6 +168,7 @@ export interface LoanPositionManagerInterface extends utils.Interface {
       | "baseURI"
       | "burnCoupons"
       | "claimOwedCoupons"
+      | "contractURI"
       | "depositToken"
       | "eip712Domain"
       | "getApproved"
@@ -185,12 +190,14 @@ export interface LoanPositionManagerInterface extends utils.Interface {
       | "oracle"
       | "owner"
       | "ownerOf"
+      | "pendingOwner"
       | "permit"
       | "renounceOwnership"
       | "safeTransferFrom(address,address,uint256)"
       | "safeTransferFrom(address,address,uint256,bytes)"
       | "setApprovalForAll"
       | "setLoanConfiguration"
+      | "setTreasury"
       | "settlePosition"
       | "supportsInterface"
       | "symbol"
@@ -207,6 +214,10 @@ export interface LoanPositionManagerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "PERMIT_TYPEHASH",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "acceptOwnership",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -239,6 +250,10 @@ export interface LoanPositionManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "claimOwedCoupons",
     values: [CouponKeyStruct[], PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "contractURI",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "depositToken",
@@ -310,6 +325,10 @@ export interface LoanPositionManagerInterface extends utils.Interface {
     values: [PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
+    functionFragment: "pendingOwner",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "permit",
     values: [
       PromiseOrValue<string>,
@@ -357,6 +376,10 @@ export interface LoanPositionManagerInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "setTreasury",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "settlePosition",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
@@ -400,6 +423,10 @@ export interface LoanPositionManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "acceptOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "adjustPosition",
     data: BytesLike
   ): Result;
@@ -414,6 +441,10 @@ export interface LoanPositionManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "claimOwedCoupons",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "contractURI",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -470,6 +501,10 @@ export interface LoanPositionManagerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "oracle", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ownerOf", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "pendingOwner",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "permit", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
@@ -489,6 +524,10 @@ export interface LoanPositionManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "setLoanConfiguration",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "setTreasury",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -520,8 +559,10 @@ export interface LoanPositionManagerInterface extends utils.Interface {
     "ApprovalForAll(address,address,bool)": EventFragment;
     "EIP712DomainChanged()": EventFragment;
     "LiquidatePosition(uint256,address,uint256,uint256,uint256)": EventFragment;
+    "OwnershipTransferStarted(address,address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
     "SetLoanConfiguration(address,address,uint32,uint32,uint32,uint32)": EventFragment;
+    "SetTreasury(address)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
     "UpdatePosition(uint256,uint256,uint256,uint8)": EventFragment;
   };
@@ -530,8 +571,10 @@ export interface LoanPositionManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "EIP712DomainChanged"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "LiquidatePosition"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferStarted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SetLoanConfiguration"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SetTreasury"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UpdatePosition"): EventFragment;
 }
@@ -584,6 +627,18 @@ export type LiquidatePositionEvent = TypedEvent<
 export type LiquidatePositionEventFilter =
   TypedEventFilter<LiquidatePositionEvent>;
 
+export interface OwnershipTransferStartedEventObject {
+  previousOwner: string;
+  newOwner: string;
+}
+export type OwnershipTransferStartedEvent = TypedEvent<
+  [string, string],
+  OwnershipTransferStartedEventObject
+>;
+
+export type OwnershipTransferStartedEventFilter =
+  TypedEventFilter<OwnershipTransferStartedEvent>;
+
 export interface OwnershipTransferredEventObject {
   previousOwner: string;
   newOwner: string;
@@ -611,6 +666,13 @@ export type SetLoanConfigurationEvent = TypedEvent<
 
 export type SetLoanConfigurationEventFilter =
   TypedEventFilter<SetLoanConfigurationEvent>;
+
+export interface SetTreasuryEventObject {
+  newTreasury: string;
+}
+export type SetTreasuryEvent = TypedEvent<[string], SetTreasuryEventObject>;
+
+export type SetTreasuryEventFilter = TypedEventFilter<SetTreasuryEvent>;
 
 export interface TransferEventObject {
   from: string;
@@ -668,6 +730,10 @@ export interface LoanPositionManager extends BaseContract {
 
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<[string]>;
 
+    acceptOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     adjustPosition(
       positionId: PromiseOrValue<BigNumberish>,
       collateralAmount: PromiseOrValue<BigNumberish>,
@@ -707,6 +773,8 @@ export interface LoanPositionManager extends BaseContract {
       data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    contractURI(overrides?: CallOverrides): Promise<[string]>;
 
     depositToken(
       token: PromiseOrValue<string>,
@@ -814,6 +882,8 @@ export interface LoanPositionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[string]>;
 
+    pendingOwner(overrides?: CallOverrides): Promise<[string]>;
+
     permit(
       spender: PromiseOrValue<string>,
       tokenId: PromiseOrValue<BigNumberish>,
@@ -821,7 +891,7 @@ export interface LoanPositionManager extends BaseContract {
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     renounceOwnership(
@@ -856,6 +926,11 @@ export interface LoanPositionManager extends BaseContract {
       liquidationFee: PromiseOrValue<BigNumberish>,
       liquidationProtocolFee: PromiseOrValue<BigNumberish>,
       liquidationTargetLtv: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setTreasury(
+      newTreasury: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -902,6 +977,10 @@ export interface LoanPositionManager extends BaseContract {
 
   PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
+  acceptOwnership(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   adjustPosition(
     positionId: PromiseOrValue<BigNumberish>,
     collateralAmount: PromiseOrValue<BigNumberish>,
@@ -941,6 +1020,8 @@ export interface LoanPositionManager extends BaseContract {
     data: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  contractURI(overrides?: CallOverrides): Promise<string>;
 
   depositToken(
     token: PromiseOrValue<string>,
@@ -1048,6 +1129,8 @@ export interface LoanPositionManager extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
+  pendingOwner(overrides?: CallOverrides): Promise<string>;
+
   permit(
     spender: PromiseOrValue<string>,
     tokenId: PromiseOrValue<BigNumberish>,
@@ -1055,7 +1138,7 @@ export interface LoanPositionManager extends BaseContract {
     v: PromiseOrValue<BigNumberish>,
     r: PromiseOrValue<BytesLike>,
     s: PromiseOrValue<BytesLike>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   renounceOwnership(
@@ -1090,6 +1173,11 @@ export interface LoanPositionManager extends BaseContract {
     liquidationFee: PromiseOrValue<BigNumberish>,
     liquidationProtocolFee: PromiseOrValue<BigNumberish>,
     liquidationTargetLtv: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setTreasury(
+    newTreasury: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1136,6 +1224,8 @@ export interface LoanPositionManager extends BaseContract {
 
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<string>;
 
+    acceptOwnership(overrides?: CallOverrides): Promise<void>;
+
     adjustPosition(
       positionId: PromiseOrValue<BigNumberish>,
       collateralAmount: PromiseOrValue<BigNumberish>,
@@ -1144,8 +1234,8 @@ export interface LoanPositionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<
       [CouponStructOutput[], CouponStructOutput[], BigNumber, BigNumber] & {
-        couponsToBurn: CouponStructOutput[];
         couponsToMint: CouponStructOutput[];
+        couponsToBurn: CouponStructOutput[];
         collateralDelta: BigNumber;
         debtDelta: BigNumber;
       }
@@ -1182,6 +1272,8 @@ export interface LoanPositionManager extends BaseContract {
       data: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    contractURI(overrides?: CallOverrides): Promise<string>;
 
     depositToken(
       token: PromiseOrValue<string>,
@@ -1295,6 +1387,8 @@ export interface LoanPositionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<string>;
 
+    pendingOwner(overrides?: CallOverrides): Promise<string>;
+
     permit(
       spender: PromiseOrValue<string>,
       tokenId: PromiseOrValue<BigNumberish>,
@@ -1335,6 +1429,11 @@ export interface LoanPositionManager extends BaseContract {
       liquidationFee: PromiseOrValue<BigNumberish>,
       liquidationProtocolFee: PromiseOrValue<BigNumberish>,
       liquidationTargetLtv: PromiseOrValue<BigNumberish>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    setTreasury(
+      newTreasury: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1418,6 +1517,15 @@ export interface LoanPositionManager extends BaseContract {
       protocolFeeAmount?: null
     ): LiquidatePositionEventFilter;
 
+    "OwnershipTransferStarted(address,address)"(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferStartedEventFilter;
+    OwnershipTransferStarted(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferStartedEventFilter;
+
     "OwnershipTransferred(address,address)"(
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
@@ -1443,6 +1551,13 @@ export interface LoanPositionManager extends BaseContract {
       liquidationProtocolFee?: null,
       liquidationTargetLtv?: null
     ): SetLoanConfigurationEventFilter;
+
+    "SetTreasury(address)"(
+      newTreasury?: PromiseOrValue<string> | null
+    ): SetTreasuryEventFilter;
+    SetTreasury(
+      newTreasury?: PromiseOrValue<string> | null
+    ): SetTreasuryEventFilter;
 
     "Transfer(address,address,uint256)"(
       from?: PromiseOrValue<string> | null,
@@ -1473,6 +1588,10 @@ export interface LoanPositionManager extends BaseContract {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<BigNumber>;
+
+    acceptOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     adjustPosition(
       positionId: PromiseOrValue<BigNumberish>,
@@ -1513,6 +1632,8 @@ export interface LoanPositionManager extends BaseContract {
       data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    contractURI(overrides?: CallOverrides): Promise<BigNumber>;
 
     depositToken(
       token: PromiseOrValue<string>,
@@ -1608,6 +1729,8 @@ export interface LoanPositionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    pendingOwner(overrides?: CallOverrides): Promise<BigNumber>;
+
     permit(
       spender: PromiseOrValue<string>,
       tokenId: PromiseOrValue<BigNumberish>,
@@ -1615,7 +1738,7 @@ export interface LoanPositionManager extends BaseContract {
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     renounceOwnership(
@@ -1650,6 +1773,11 @@ export interface LoanPositionManager extends BaseContract {
       liquidationFee: PromiseOrValue<BigNumberish>,
       liquidationProtocolFee: PromiseOrValue<BigNumberish>,
       liquidationTargetLtv: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setTreasury(
+      newTreasury: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1697,6 +1825,10 @@ export interface LoanPositionManager extends BaseContract {
 
     PERMIT_TYPEHASH(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    acceptOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     adjustPosition(
       positionId: PromiseOrValue<BigNumberish>,
       collateralAmount: PromiseOrValue<BigNumberish>,
@@ -1736,6 +1868,8 @@ export interface LoanPositionManager extends BaseContract {
       data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    contractURI(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     depositToken(
       token: PromiseOrValue<string>,
@@ -1831,6 +1965,8 @@ export interface LoanPositionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    pendingOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     permit(
       spender: PromiseOrValue<string>,
       tokenId: PromiseOrValue<BigNumberish>,
@@ -1838,7 +1974,7 @@ export interface LoanPositionManager extends BaseContract {
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     renounceOwnership(
@@ -1873,6 +2009,11 @@ export interface LoanPositionManager extends BaseContract {
       liquidationFee: PromiseOrValue<BigNumberish>,
       liquidationProtocolFee: PromiseOrValue<BigNumberish>,
       liquidationTargetLtv: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setTreasury(
+      newTreasury: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

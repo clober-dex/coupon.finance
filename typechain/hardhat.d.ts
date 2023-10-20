@@ -17,6 +17,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Ownable__factory>;
     getContractFactory(
+      name: "Ownable2Step",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.Ownable2Step__factory>;
+    getContractFactory(
       name: "IERC1271",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC1271__factory>;
@@ -149,6 +153,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IPoolAddressesProvider__factory>;
     getContractFactory(
+      name: "IScaledBalanceToken",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IScaledBalanceToken__factory>;
+    getContractFactory(
       name: "ReserveConfiguration",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ReserveConfiguration__factory>;
@@ -168,10 +176,6 @@ declare module "hardhat/types/runtime" {
       name: "CloberOrderBook",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.CloberOrderBook__factory>;
-    getContractFactory(
-      name: "CloberRouter",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.CloberRouter__factory>;
     getContractFactory(
       name: "ISingletonFactory",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -225,6 +229,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ICouponOracle__factory>;
     getContractFactory(
+      name: "ICouponOracleTypes",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ICouponOracleTypes__factory>;
+    getContractFactory(
       name: "IDepositController",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IDepositController__factory>;
@@ -240,6 +248,10 @@ declare module "hardhat/types/runtime" {
       name: "IFallbackOracle",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IFallbackOracle__factory>;
+    getContractFactory(
+      name: "ILeverageAdapter",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ILeverageAdapter__factory>;
     getContractFactory(
       name: "ILoanPositionManager",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -268,6 +280,10 @@ declare module "hardhat/types/runtime" {
       name: "ISubstitute",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ISubstitute__factory>;
+    getContractFactory(
+      name: "LeverageAdapter",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.LeverageAdapter__factory>;
     getContractFactory(
       name: "BondPositionLibrary",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -308,12 +324,21 @@ declare module "hardhat/types/runtime" {
       name: "OdosRepayAdapter",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.OdosRepayAdapter__factory>;
+    getContractFactory(
+      name: "RepayAdapter",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.RepayAdapter__factory>;
 
     getContractAt(
       name: "Ownable",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.Ownable>;
+    getContractAt(
+      name: "Ownable2Step",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.Ownable2Step>;
     getContractAt(
       name: "IERC1271",
       address: string,
@@ -480,6 +505,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IPoolAddressesProvider>;
     getContractAt(
+      name: "IScaledBalanceToken",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IScaledBalanceToken>;
+    getContractAt(
       name: "ReserveConfiguration",
       address: string,
       signer?: ethers.Signer
@@ -504,11 +534,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.CloberOrderBook>;
-    getContractAt(
-      name: "CloberRouter",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.CloberRouter>;
     getContractAt(
       name: "ISingletonFactory",
       address: string,
@@ -575,6 +600,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.ICouponOracle>;
     getContractAt(
+      name: "ICouponOracleTypes",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ICouponOracleTypes>;
+    getContractAt(
       name: "IDepositController",
       address: string,
       signer?: ethers.Signer
@@ -594,6 +624,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.IFallbackOracle>;
+    getContractAt(
+      name: "ILeverageAdapter",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ILeverageAdapter>;
     getContractAt(
       name: "ILoanPositionManager",
       address: string,
@@ -629,6 +664,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ISubstitute>;
+    getContractAt(
+      name: "LeverageAdapter",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.LeverageAdapter>;
     getContractAt(
       name: "BondPositionLibrary",
       address: string,
@@ -679,6 +719,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.OdosRepayAdapter>;
+    getContractAt(
+      name: "RepayAdapter",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.RepayAdapter>;
 
     // default types
     getContractFactory(

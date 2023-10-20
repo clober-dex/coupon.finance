@@ -14,7 +14,11 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -25,29 +29,43 @@ import type {
 } from "../../common";
 
 export declare namespace IController {
-  export type PermitParamsStruct = {
+  export type PermitSignatureStruct = {
     deadline: PromiseOrValue<BigNumberish>;
     v: PromiseOrValue<BigNumberish>;
     r: PromiseOrValue<BytesLike>;
     s: PromiseOrValue<BytesLike>;
   };
 
-  export type PermitParamsStructOutput = [BigNumber, number, string, string] & {
-    deadline: BigNumber;
-    v: number;
-    r: string;
-    s: string;
+  export type PermitSignatureStructOutput = [
+    BigNumber,
+    number,
+    string,
+    string
+  ] & { deadline: BigNumber; v: number; r: string; s: string };
+
+  export type ERC20PermitParamsStruct = {
+    permitAmount: PromiseOrValue<BigNumberish>;
+    signature: IController.PermitSignatureStruct;
+  };
+
+  export type ERC20PermitParamsStructOutput = [
+    BigNumber,
+    IController.PermitSignatureStructOutput
+  ] & {
+    permitAmount: BigNumber;
+    signature: IController.PermitSignatureStructOutput;
   };
 }
 
 export interface IBorrowControllerInterface extends utils.Interface {
   functions: {
-    "addCollateral(uint256,uint256,(uint256,uint8,bytes32,bytes32),(uint256,uint8,bytes32,bytes32))": FunctionFragment;
-    "borrow(address,address,uint256,uint256,uint256,uint8,(uint256,uint8,bytes32,bytes32))": FunctionFragment;
+    "addCollateral(uint256,uint256,(uint256,uint8,bytes32,bytes32),(uint256,(uint256,uint8,bytes32,bytes32)))": FunctionFragment;
+    "borrow(address,address,uint256,uint256,uint256,uint8,(uint256,(uint256,uint8,bytes32,bytes32)))": FunctionFragment;
     "borrowMore(uint256,uint256,uint256,(uint256,uint8,bytes32,bytes32))": FunctionFragment;
-    "extendLoanDuration(uint256,uint8,uint256,(uint256,uint8,bytes32,bytes32),(uint256,uint8,bytes32,bytes32))": FunctionFragment;
+    "extendLoanDuration(uint256,uint8,uint256,(uint256,uint8,bytes32,bytes32),(uint256,(uint256,uint8,bytes32,bytes32)))": FunctionFragment;
+    "giveManagerAllowance(address)": FunctionFragment;
     "removeCollateral(uint256,uint256,(uint256,uint8,bytes32,bytes32))": FunctionFragment;
-    "repay(uint256,uint256,uint256,(uint256,uint8,bytes32,bytes32),(uint256,uint8,bytes32,bytes32))": FunctionFragment;
+    "repay(uint256,uint256,uint256,(uint256,uint8,bytes32,bytes32),(uint256,(uint256,uint8,bytes32,bytes32)))": FunctionFragment;
     "shortenLoanDuration(uint256,uint8,uint256,(uint256,uint8,bytes32,bytes32))": FunctionFragment;
   };
 
@@ -57,6 +75,7 @@ export interface IBorrowControllerInterface extends utils.Interface {
       | "borrow"
       | "borrowMore"
       | "extendLoanDuration"
+      | "giveManagerAllowance"
       | "removeCollateral"
       | "repay"
       | "shortenLoanDuration"
@@ -67,8 +86,8 @@ export interface IBorrowControllerInterface extends utils.Interface {
     values: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      IController.PermitParamsStruct,
-      IController.PermitParamsStruct
+      IController.PermitSignatureStruct,
+      IController.ERC20PermitParamsStruct
     ]
   ): string;
   encodeFunctionData(
@@ -80,7 +99,7 @@ export interface IBorrowControllerInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      IController.PermitParamsStruct
+      IController.ERC20PermitParamsStruct
     ]
   ): string;
   encodeFunctionData(
@@ -89,7 +108,7 @@ export interface IBorrowControllerInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      IController.PermitParamsStruct
+      IController.PermitSignatureStruct
     ]
   ): string;
   encodeFunctionData(
@@ -98,16 +117,20 @@ export interface IBorrowControllerInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      IController.PermitParamsStruct,
-      IController.PermitParamsStruct
+      IController.PermitSignatureStruct,
+      IController.ERC20PermitParamsStruct
     ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "giveManagerAllowance",
+    values: [PromiseOrValue<string>]
   ): string;
   encodeFunctionData(
     functionFragment: "removeCollateral",
     values: [
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      IController.PermitParamsStruct
+      IController.PermitSignatureStruct
     ]
   ): string;
   encodeFunctionData(
@@ -116,8 +139,8 @@ export interface IBorrowControllerInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      IController.PermitParamsStruct,
-      IController.PermitParamsStruct
+      IController.PermitSignatureStruct,
+      IController.ERC20PermitParamsStruct
     ]
   ): string;
   encodeFunctionData(
@@ -126,7 +149,7 @@ export interface IBorrowControllerInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      IController.PermitParamsStruct
+      IController.PermitSignatureStruct
     ]
   ): string;
 
@@ -141,6 +164,10 @@ export interface IBorrowControllerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "giveManagerAllowance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "removeCollateral",
     data: BytesLike
   ): Result;
@@ -150,8 +177,37 @@ export interface IBorrowControllerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
 
-  events: {};
+  events: {
+    "SetCouponMarket(address,uint8,address)": EventFragment;
+    "SetManagerAllowance(address)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "SetCouponMarket"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SetManagerAllowance"): EventFragment;
 }
+
+export interface SetCouponMarketEventObject {
+  asset: string;
+  epoch: number;
+  cloberMarket: string;
+}
+export type SetCouponMarketEvent = TypedEvent<
+  [string, number, string],
+  SetCouponMarketEventObject
+>;
+
+export type SetCouponMarketEventFilter = TypedEventFilter<SetCouponMarketEvent>;
+
+export interface SetManagerAllowanceEventObject {
+  token: string;
+}
+export type SetManagerAllowanceEvent = TypedEvent<
+  [string],
+  SetManagerAllowanceEventObject
+>;
+
+export type SetManagerAllowanceEventFilter =
+  TypedEventFilter<SetManagerAllowanceEvent>;
 
 export interface IBorrowController extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -183,8 +239,8 @@ export interface IBorrowController extends BaseContract {
     addCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
-      collateralPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
+      collateralPermitParams: IController.ERC20PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -195,7 +251,7 @@ export interface IBorrowController extends BaseContract {
       borrowAmount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
       loanEpochs: PromiseOrValue<BigNumberish>,
-      collateralPermitParams: IController.PermitParamsStruct,
+      collateralPermitParams: IController.ERC20PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -203,7 +259,7 @@ export interface IBorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -211,15 +267,20 @@ export interface IBorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       epochs: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
-      debtPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
+      debtPermitParams: IController.ERC20PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    giveManagerAllowance(
+      token: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     removeCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -227,8 +288,8 @@ export interface IBorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
-      debtPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
+      debtPermitParams: IController.ERC20PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -236,7 +297,7 @@ export interface IBorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       epochs: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
@@ -244,8 +305,8 @@ export interface IBorrowController extends BaseContract {
   addCollateral(
     positionId: PromiseOrValue<BigNumberish>,
     amount: PromiseOrValue<BigNumberish>,
-    positionPermitParams: IController.PermitParamsStruct,
-    collateralPermitParams: IController.PermitParamsStruct,
+    positionPermitParams: IController.PermitSignatureStruct,
+    collateralPermitParams: IController.ERC20PermitParamsStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -256,7 +317,7 @@ export interface IBorrowController extends BaseContract {
     borrowAmount: PromiseOrValue<BigNumberish>,
     maxPayInterest: PromiseOrValue<BigNumberish>,
     loanEpochs: PromiseOrValue<BigNumberish>,
-    collateralPermitParams: IController.PermitParamsStruct,
+    collateralPermitParams: IController.ERC20PermitParamsStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -264,7 +325,7 @@ export interface IBorrowController extends BaseContract {
     positionId: PromiseOrValue<BigNumberish>,
     amount: PromiseOrValue<BigNumberish>,
     maxPayInterest: PromiseOrValue<BigNumberish>,
-    positionPermitParams: IController.PermitParamsStruct,
+    positionPermitParams: IController.PermitSignatureStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -272,15 +333,20 @@ export interface IBorrowController extends BaseContract {
     positionId: PromiseOrValue<BigNumberish>,
     epochs: PromiseOrValue<BigNumberish>,
     maxPayInterest: PromiseOrValue<BigNumberish>,
-    positionPermitParams: IController.PermitParamsStruct,
-    debtPermitParams: IController.PermitParamsStruct,
+    positionPermitParams: IController.PermitSignatureStruct,
+    debtPermitParams: IController.ERC20PermitParamsStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  giveManagerAllowance(
+    token: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   removeCollateral(
     positionId: PromiseOrValue<BigNumberish>,
     amount: PromiseOrValue<BigNumberish>,
-    positionPermitParams: IController.PermitParamsStruct,
+    positionPermitParams: IController.PermitSignatureStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -288,8 +354,8 @@ export interface IBorrowController extends BaseContract {
     positionId: PromiseOrValue<BigNumberish>,
     amount: PromiseOrValue<BigNumberish>,
     minEarnInterest: PromiseOrValue<BigNumberish>,
-    positionPermitParams: IController.PermitParamsStruct,
-    debtPermitParams: IController.PermitParamsStruct,
+    positionPermitParams: IController.PermitSignatureStruct,
+    debtPermitParams: IController.ERC20PermitParamsStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -297,7 +363,7 @@ export interface IBorrowController extends BaseContract {
     positionId: PromiseOrValue<BigNumberish>,
     epochs: PromiseOrValue<BigNumberish>,
     minEarnInterest: PromiseOrValue<BigNumberish>,
-    positionPermitParams: IController.PermitParamsStruct,
+    positionPermitParams: IController.PermitSignatureStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -305,8 +371,8 @@ export interface IBorrowController extends BaseContract {
     addCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
-      collateralPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
+      collateralPermitParams: IController.ERC20PermitParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -317,7 +383,7 @@ export interface IBorrowController extends BaseContract {
       borrowAmount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
       loanEpochs: PromiseOrValue<BigNumberish>,
-      collateralPermitParams: IController.PermitParamsStruct,
+      collateralPermitParams: IController.ERC20PermitParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -325,7 +391,7 @@ export interface IBorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -333,15 +399,20 @@ export interface IBorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       epochs: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
-      debtPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
+      debtPermitParams: IController.ERC20PermitParamsStruct,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    giveManagerAllowance(
+      token: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
     removeCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -349,8 +420,8 @@ export interface IBorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
-      debtPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
+      debtPermitParams: IController.ERC20PermitParamsStruct,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -358,19 +429,37 @@ export interface IBorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       epochs: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
       overrides?: CallOverrides
     ): Promise<void>;
   };
 
-  filters: {};
+  filters: {
+    "SetCouponMarket(address,uint8,address)"(
+      asset?: PromiseOrValue<string> | null,
+      epoch?: PromiseOrValue<BigNumberish> | null,
+      cloberMarket?: PromiseOrValue<string> | null
+    ): SetCouponMarketEventFilter;
+    SetCouponMarket(
+      asset?: PromiseOrValue<string> | null,
+      epoch?: PromiseOrValue<BigNumberish> | null,
+      cloberMarket?: PromiseOrValue<string> | null
+    ): SetCouponMarketEventFilter;
+
+    "SetManagerAllowance(address)"(
+      token?: PromiseOrValue<string> | null
+    ): SetManagerAllowanceEventFilter;
+    SetManagerAllowance(
+      token?: PromiseOrValue<string> | null
+    ): SetManagerAllowanceEventFilter;
+  };
 
   estimateGas: {
     addCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
-      collateralPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
+      collateralPermitParams: IController.ERC20PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -381,7 +470,7 @@ export interface IBorrowController extends BaseContract {
       borrowAmount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
       loanEpochs: PromiseOrValue<BigNumberish>,
-      collateralPermitParams: IController.PermitParamsStruct,
+      collateralPermitParams: IController.ERC20PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -389,7 +478,7 @@ export interface IBorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -397,15 +486,20 @@ export interface IBorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       epochs: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
-      debtPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
+      debtPermitParams: IController.ERC20PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    giveManagerAllowance(
+      token: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     removeCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -413,8 +507,8 @@ export interface IBorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
-      debtPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
+      debtPermitParams: IController.ERC20PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -422,7 +516,7 @@ export interface IBorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       epochs: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
@@ -431,8 +525,8 @@ export interface IBorrowController extends BaseContract {
     addCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
-      collateralPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
+      collateralPermitParams: IController.ERC20PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -443,7 +537,7 @@ export interface IBorrowController extends BaseContract {
       borrowAmount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
       loanEpochs: PromiseOrValue<BigNumberish>,
-      collateralPermitParams: IController.PermitParamsStruct,
+      collateralPermitParams: IController.ERC20PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -451,7 +545,7 @@ export interface IBorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -459,15 +553,20 @@ export interface IBorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       epochs: PromiseOrValue<BigNumberish>,
       maxPayInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
-      debtPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
+      debtPermitParams: IController.ERC20PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    giveManagerAllowance(
+      token: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     removeCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -475,8 +574,8 @@ export interface IBorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
-      debtPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
+      debtPermitParams: IController.ERC20PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -484,7 +583,7 @@ export interface IBorrowController extends BaseContract {
       positionId: PromiseOrValue<BigNumberish>,
       epochs: PromiseOrValue<BigNumberish>,
       minEarnInterest: PromiseOrValue<BigNumberish>,
-      positionPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

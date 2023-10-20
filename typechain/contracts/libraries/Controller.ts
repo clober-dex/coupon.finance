@@ -40,11 +40,15 @@ export type CouponKeyStructOutput = [string, number] & {
 
 export interface ControllerInterface extends utils.Interface {
   functions: {
+    "acceptOwnership()": FunctionFragment;
     "cloberMarketSwapCallback(address,address,uint256,uint256,bytes)": FunctionFragment;
     "getCouponMarket((address,uint8))": FunctionFragment;
+    "giveManagerAllowance(address)": FunctionFragment;
+    "manager()": FunctionFragment;
     "onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)": FunctionFragment;
     "onERC1155Received(address,address,uint256,uint256,bytes)": FunctionFragment;
     "owner()": FunctionFragment;
+    "pendingOwner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "setCouponMarket((address,uint8),address)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
@@ -53,17 +57,25 @@ export interface ControllerInterface extends utils.Interface {
 
   getFunction(
     nameOrSignatureOrTopic:
+      | "acceptOwnership"
       | "cloberMarketSwapCallback"
       | "getCouponMarket"
+      | "giveManagerAllowance"
+      | "manager"
       | "onERC1155BatchReceived"
       | "onERC1155Received"
       | "owner"
+      | "pendingOwner"
       | "renounceOwnership"
       | "setCouponMarket"
       | "supportsInterface"
       | "transferOwnership"
   ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "acceptOwnership",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "cloberMarketSwapCallback",
     values: [
@@ -78,6 +90,11 @@ export interface ControllerInterface extends utils.Interface {
     functionFragment: "getCouponMarket",
     values: [CouponKeyStruct]
   ): string;
+  encodeFunctionData(
+    functionFragment: "giveManagerAllowance",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(functionFragment: "manager", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "onERC1155BatchReceived",
     values: [
@@ -100,6 +117,10 @@ export interface ControllerInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "pendingOwner",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
   ): string;
@@ -117,6 +138,10 @@ export interface ControllerInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(
+    functionFragment: "acceptOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "cloberMarketSwapCallback",
     data: BytesLike
   ): Result;
@@ -124,6 +149,11 @@ export interface ControllerInterface extends utils.Interface {
     functionFragment: "getCouponMarket",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "giveManagerAllowance",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "manager", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "onERC1155BatchReceived",
     data: BytesLike
@@ -133,6 +163,10 @@ export interface ControllerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "pendingOwner",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
@@ -151,11 +185,29 @@ export interface ControllerInterface extends utils.Interface {
   ): Result;
 
   events: {
+    "OwnershipTransferStarted(address,address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "SetCouponMarket(address,uint8,address)": EventFragment;
+    "SetManagerAllowance(address)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferStarted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SetCouponMarket"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SetManagerAllowance"): EventFragment;
 }
+
+export interface OwnershipTransferStartedEventObject {
+  previousOwner: string;
+  newOwner: string;
+}
+export type OwnershipTransferStartedEvent = TypedEvent<
+  [string, string],
+  OwnershipTransferStartedEventObject
+>;
+
+export type OwnershipTransferStartedEventFilter =
+  TypedEventFilter<OwnershipTransferStartedEvent>;
 
 export interface OwnershipTransferredEventObject {
   previousOwner: string;
@@ -168,6 +220,29 @@ export type OwnershipTransferredEvent = TypedEvent<
 
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
+
+export interface SetCouponMarketEventObject {
+  asset: string;
+  epoch: number;
+  cloberMarket: string;
+}
+export type SetCouponMarketEvent = TypedEvent<
+  [string, number, string],
+  SetCouponMarketEventObject
+>;
+
+export type SetCouponMarketEventFilter = TypedEventFilter<SetCouponMarketEvent>;
+
+export interface SetManagerAllowanceEventObject {
+  token: string;
+}
+export type SetManagerAllowanceEvent = TypedEvent<
+  [string],
+  SetManagerAllowanceEventObject
+>;
+
+export type SetManagerAllowanceEventFilter =
+  TypedEventFilter<SetManagerAllowanceEvent>;
 
 export interface Controller extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -196,6 +271,10 @@ export interface Controller extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    acceptOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     cloberMarketSwapCallback(
       inputToken: PromiseOrValue<string>,
       arg1: PromiseOrValue<string>,
@@ -209,6 +288,13 @@ export interface Controller extends BaseContract {
       couponKey: CouponKeyStruct,
       overrides?: CallOverrides
     ): Promise<[string]>;
+
+    giveManagerAllowance(
+      token: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    manager(overrides?: CallOverrides): Promise<[string]>;
 
     onERC1155BatchReceived(
       arg0: PromiseOrValue<string>,
@@ -229,6 +315,8 @@ export interface Controller extends BaseContract {
     ): Promise<ContractTransaction>;
 
     owner(overrides?: CallOverrides): Promise<[string]>;
+
+    pendingOwner(overrides?: CallOverrides): Promise<[string]>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -251,6 +339,10 @@ export interface Controller extends BaseContract {
     ): Promise<ContractTransaction>;
   };
 
+  acceptOwnership(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
   cloberMarketSwapCallback(
     inputToken: PromiseOrValue<string>,
     arg1: PromiseOrValue<string>,
@@ -264,6 +356,13 @@ export interface Controller extends BaseContract {
     couponKey: CouponKeyStruct,
     overrides?: CallOverrides
   ): Promise<string>;
+
+  giveManagerAllowance(
+    token: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  manager(overrides?: CallOverrides): Promise<string>;
 
   onERC1155BatchReceived(
     arg0: PromiseOrValue<string>,
@@ -284,6 +383,8 @@ export interface Controller extends BaseContract {
   ): Promise<ContractTransaction>;
 
   owner(overrides?: CallOverrides): Promise<string>;
+
+  pendingOwner(overrides?: CallOverrides): Promise<string>;
 
   renounceOwnership(
     overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -306,6 +407,8 @@ export interface Controller extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    acceptOwnership(overrides?: CallOverrides): Promise<void>;
+
     cloberMarketSwapCallback(
       inputToken: PromiseOrValue<string>,
       arg1: PromiseOrValue<string>,
@@ -319,6 +422,13 @@ export interface Controller extends BaseContract {
       couponKey: CouponKeyStruct,
       overrides?: CallOverrides
     ): Promise<string>;
+
+    giveManagerAllowance(
+      token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    manager(overrides?: CallOverrides): Promise<string>;
 
     onERC1155BatchReceived(
       arg0: PromiseOrValue<string>,
@@ -340,6 +450,8 @@ export interface Controller extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<string>;
 
+    pendingOwner(overrides?: CallOverrides): Promise<string>;
+
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     setCouponMarket(
@@ -360,6 +472,15 @@ export interface Controller extends BaseContract {
   };
 
   filters: {
+    "OwnershipTransferStarted(address,address)"(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferStartedEventFilter;
+    OwnershipTransferStarted(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferStartedEventFilter;
+
     "OwnershipTransferred(address,address)"(
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
@@ -368,9 +489,31 @@ export interface Controller extends BaseContract {
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
+
+    "SetCouponMarket(address,uint8,address)"(
+      asset?: PromiseOrValue<string> | null,
+      epoch?: PromiseOrValue<BigNumberish> | null,
+      cloberMarket?: PromiseOrValue<string> | null
+    ): SetCouponMarketEventFilter;
+    SetCouponMarket(
+      asset?: PromiseOrValue<string> | null,
+      epoch?: PromiseOrValue<BigNumberish> | null,
+      cloberMarket?: PromiseOrValue<string> | null
+    ): SetCouponMarketEventFilter;
+
+    "SetManagerAllowance(address)"(
+      token?: PromiseOrValue<string> | null
+    ): SetManagerAllowanceEventFilter;
+    SetManagerAllowance(
+      token?: PromiseOrValue<string> | null
+    ): SetManagerAllowanceEventFilter;
   };
 
   estimateGas: {
+    acceptOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     cloberMarketSwapCallback(
       inputToken: PromiseOrValue<string>,
       arg1: PromiseOrValue<string>,
@@ -384,6 +527,13 @@ export interface Controller extends BaseContract {
       couponKey: CouponKeyStruct,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    giveManagerAllowance(
+      token: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    manager(overrides?: CallOverrides): Promise<BigNumber>;
 
     onERC1155BatchReceived(
       arg0: PromiseOrValue<string>,
@@ -404,6 +554,8 @@ export interface Controller extends BaseContract {
     ): Promise<BigNumber>;
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
+
+    pendingOwner(overrides?: CallOverrides): Promise<BigNumber>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }
@@ -427,6 +579,10 @@ export interface Controller extends BaseContract {
   };
 
   populateTransaction: {
+    acceptOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     cloberMarketSwapCallback(
       inputToken: PromiseOrValue<string>,
       arg1: PromiseOrValue<string>,
@@ -440,6 +596,13 @@ export interface Controller extends BaseContract {
       couponKey: CouponKeyStruct,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    giveManagerAllowance(
+      token: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    manager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     onERC1155BatchReceived(
       arg0: PromiseOrValue<string>,
@@ -460,6 +623,8 @@ export interface Controller extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    pendingOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     renounceOwnership(
       overrides?: Overrides & { from?: PromiseOrValue<string> }

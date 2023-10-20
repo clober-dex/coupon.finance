@@ -30,7 +30,9 @@ import type {
 export interface AaveTokenSubstituteInterface extends utils.Interface {
   functions: {
     "DOMAIN_SEPARATOR()": FunctionFragment;
+    "SUPPLY_BUFFER()": FunctionFragment;
     "aToken()": FunctionFragment;
+    "acceptOwnership()": FunctionFragment;
     "allowance(address,address)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
@@ -48,6 +50,7 @@ export interface AaveTokenSubstituteInterface extends utils.Interface {
     "name()": FunctionFragment;
     "nonces(address)": FunctionFragment;
     "owner()": FunctionFragment;
+    "pendingOwner()": FunctionFragment;
     "permit(address,address,uint256,uint256,uint8,bytes32,bytes32)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "setTreasury(address)": FunctionFragment;
@@ -63,7 +66,9 @@ export interface AaveTokenSubstituteInterface extends utils.Interface {
   getFunction(
     nameOrSignatureOrTopic:
       | "DOMAIN_SEPARATOR"
+      | "SUPPLY_BUFFER"
       | "aToken"
+      | "acceptOwnership"
       | "allowance"
       | "approve"
       | "balanceOf"
@@ -81,6 +86,7 @@ export interface AaveTokenSubstituteInterface extends utils.Interface {
       | "name"
       | "nonces"
       | "owner"
+      | "pendingOwner"
       | "permit"
       | "renounceOwnership"
       | "setTreasury"
@@ -97,7 +103,15 @@ export interface AaveTokenSubstituteInterface extends utils.Interface {
     functionFragment: "DOMAIN_SEPARATOR",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "SUPPLY_BUFFER",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "aToken", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "acceptOwnership",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "allowance",
     values: [PromiseOrValue<string>, PromiseOrValue<string>]
@@ -155,6 +169,10 @@ export interface AaveTokenSubstituteInterface extends utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "pendingOwner",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "permit",
     values: [
       PromiseOrValue<string>,
@@ -205,7 +223,15 @@ export interface AaveTokenSubstituteInterface extends utils.Interface {
     functionFragment: "DOMAIN_SEPARATOR",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "SUPPLY_BUFFER",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "aToken", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "acceptOwnership",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "allowance", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
@@ -244,6 +270,10 @@ export interface AaveTokenSubstituteInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "pendingOwner",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "permit", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
@@ -275,14 +305,20 @@ export interface AaveTokenSubstituteInterface extends utils.Interface {
 
   events: {
     "Approval(address,address,uint256)": EventFragment;
+    "Claim(address,uint256)": EventFragment;
     "EIP712DomainChanged()": EventFragment;
+    "OwnershipTransferStarted(address,address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
+    "SetTreasury(address)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Claim"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "EIP712DomainChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "OwnershipTransferStarted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SetTreasury"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
 
@@ -298,6 +334,14 @@ export type ApprovalEvent = TypedEvent<
 
 export type ApprovalEventFilter = TypedEventFilter<ApprovalEvent>;
 
+export interface ClaimEventObject {
+  treasury: string;
+  adminYield: BigNumber;
+}
+export type ClaimEvent = TypedEvent<[string, BigNumber], ClaimEventObject>;
+
+export type ClaimEventFilter = TypedEventFilter<ClaimEvent>;
+
 export interface EIP712DomainChangedEventObject {}
 export type EIP712DomainChangedEvent = TypedEvent<
   [],
@@ -306,6 +350,18 @@ export type EIP712DomainChangedEvent = TypedEvent<
 
 export type EIP712DomainChangedEventFilter =
   TypedEventFilter<EIP712DomainChangedEvent>;
+
+export interface OwnershipTransferStartedEventObject {
+  previousOwner: string;
+  newOwner: string;
+}
+export type OwnershipTransferStartedEvent = TypedEvent<
+  [string, string],
+  OwnershipTransferStartedEventObject
+>;
+
+export type OwnershipTransferStartedEventFilter =
+  TypedEventFilter<OwnershipTransferStartedEvent>;
 
 export interface OwnershipTransferredEventObject {
   previousOwner: string;
@@ -318,6 +374,13 @@ export type OwnershipTransferredEvent = TypedEvent<
 
 export type OwnershipTransferredEventFilter =
   TypedEventFilter<OwnershipTransferredEvent>;
+
+export interface SetTreasuryEventObject {
+  newTreasury: string;
+}
+export type SetTreasuryEvent = TypedEvent<[string], SetTreasuryEventObject>;
+
+export type SetTreasuryEventFilter = TypedEventFilter<SetTreasuryEvent>;
 
 export interface TransferEventObject {
   from: string;
@@ -360,7 +423,13 @@ export interface AaveTokenSubstitute extends BaseContract {
   functions: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<[string]>;
 
+    SUPPLY_BUFFER(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     aToken(overrides?: CallOverrides): Promise<[string]>;
+
+    acceptOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
 
     allowance(
       owner: PromiseOrValue<string>,
@@ -448,6 +517,8 @@ export interface AaveTokenSubstitute extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<[string]>;
 
+    pendingOwner(overrides?: CallOverrides): Promise<[string]>;
+
     permit(
       owner: PromiseOrValue<string>,
       spender: PromiseOrValue<string>,
@@ -497,7 +568,13 @@ export interface AaveTokenSubstitute extends BaseContract {
 
   DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<string>;
 
+  SUPPLY_BUFFER(overrides?: CallOverrides): Promise<BigNumber>;
+
   aToken(overrides?: CallOverrides): Promise<string>;
+
+  acceptOwnership(
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   allowance(
     owner: PromiseOrValue<string>,
@@ -585,6 +662,8 @@ export interface AaveTokenSubstitute extends BaseContract {
 
   owner(overrides?: CallOverrides): Promise<string>;
 
+  pendingOwner(overrides?: CallOverrides): Promise<string>;
+
   permit(
     owner: PromiseOrValue<string>,
     spender: PromiseOrValue<string>,
@@ -634,7 +713,11 @@ export interface AaveTokenSubstitute extends BaseContract {
   callStatic: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<string>;
 
+    SUPPLY_BUFFER(overrides?: CallOverrides): Promise<BigNumber>;
+
     aToken(overrides?: CallOverrides): Promise<string>;
+
+    acceptOwnership(overrides?: CallOverrides): Promise<void>;
 
     allowance(
       owner: PromiseOrValue<string>,
@@ -720,6 +803,8 @@ export interface AaveTokenSubstitute extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<string>;
 
+    pendingOwner(overrides?: CallOverrides): Promise<string>;
+
     permit(
       owner: PromiseOrValue<string>,
       spender: PromiseOrValue<string>,
@@ -777,8 +862,26 @@ export interface AaveTokenSubstitute extends BaseContract {
       value?: null
     ): ApprovalEventFilter;
 
+    "Claim(address,uint256)"(
+      treasury?: PromiseOrValue<string> | null,
+      adminYield?: null
+    ): ClaimEventFilter;
+    Claim(
+      treasury?: PromiseOrValue<string> | null,
+      adminYield?: null
+    ): ClaimEventFilter;
+
     "EIP712DomainChanged()"(): EIP712DomainChangedEventFilter;
     EIP712DomainChanged(): EIP712DomainChangedEventFilter;
+
+    "OwnershipTransferStarted(address,address)"(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferStartedEventFilter;
+    OwnershipTransferStarted(
+      previousOwner?: PromiseOrValue<string> | null,
+      newOwner?: PromiseOrValue<string> | null
+    ): OwnershipTransferStartedEventFilter;
 
     "OwnershipTransferred(address,address)"(
       previousOwner?: PromiseOrValue<string> | null,
@@ -788,6 +891,13 @@ export interface AaveTokenSubstitute extends BaseContract {
       previousOwner?: PromiseOrValue<string> | null,
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
+
+    "SetTreasury(address)"(
+      newTreasury?: PromiseOrValue<string> | null
+    ): SetTreasuryEventFilter;
+    SetTreasury(
+      newTreasury?: PromiseOrValue<string> | null
+    ): SetTreasuryEventFilter;
 
     "Transfer(address,address,uint256)"(
       from?: PromiseOrValue<string> | null,
@@ -804,7 +914,13 @@ export interface AaveTokenSubstitute extends BaseContract {
   estimateGas: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<BigNumber>;
 
+    SUPPLY_BUFFER(overrides?: CallOverrides): Promise<BigNumber>;
+
     aToken(overrides?: CallOverrides): Promise<BigNumber>;
+
+    acceptOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
 
     allowance(
       owner: PromiseOrValue<string>,
@@ -880,6 +996,8 @@ export interface AaveTokenSubstitute extends BaseContract {
 
     owner(overrides?: CallOverrides): Promise<BigNumber>;
 
+    pendingOwner(overrides?: CallOverrides): Promise<BigNumber>;
+
     permit(
       owner: PromiseOrValue<string>,
       spender: PromiseOrValue<string>,
@@ -930,7 +1048,13 @@ export interface AaveTokenSubstitute extends BaseContract {
   populateTransaction: {
     DOMAIN_SEPARATOR(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
+    SUPPLY_BUFFER(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     aToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    acceptOwnership(
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
 
     allowance(
       owner: PromiseOrValue<string>,
@@ -1005,6 +1129,8 @@ export interface AaveTokenSubstitute extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    pendingOwner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     permit(
       owner: PromiseOrValue<string>,

@@ -12,12 +12,17 @@ import type {
 const _abi = [
   {
     inputs: [],
-    name: "AlreadyExpired",
+    name: "FullRepaymentRequired",
     type: "error",
   },
   {
     inputs: [],
     name: "InvalidAccess",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidConfiguration",
     type: "error",
   },
   {
@@ -58,17 +63,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "TooSmallDebt",
+    name: "TooSmallDebtLeft",
     type: "error",
   },
   {
     inputs: [],
     name: "UnableToLiquidate",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "UnpaidDebt",
     type: "error",
   },
   {
@@ -207,6 +207,19 @@ const _abi = [
       {
         indexed: true,
         internalType: "address",
+        name: "newTreasury",
+        type: "address",
+      },
+    ],
+    name: "SetTreasury",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
         name: "from",
         type: "address",
       },
@@ -334,7 +347,7 @@ const _abi = [
           },
         ],
         internalType: "struct Coupon[]",
-        name: "couponsToPay",
+        name: "couponsToMint",
         type: "tuple[]",
       },
       {
@@ -363,7 +376,7 @@ const _abi = [
           },
         ],
         internalType: "struct Coupon[]",
-        name: "couponsToRefund",
+        name: "couponsToBurn",
         type: "tuple[]",
       },
       {
@@ -532,6 +545,19 @@ const _abi = [
     name: "claimOwedCoupons",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "contractURI",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -1056,7 +1082,7 @@ const _abi = [
     ],
     name: "permit",
     outputs: [],
-    stateMutability: "payable",
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -1162,6 +1188,19 @@ const _abi = [
       },
     ],
     name: "setLoanConfiguration",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "newTreasury",
+        type: "address",
+      },
+    ],
+    name: "setTreasury",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",

@@ -33,6 +33,10 @@ export interface IATokenInterface extends utils.Interface {
     "allowance(address,address)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
+    "getPreviousIndex(address)": FunctionFragment;
+    "getScaledUserBalanceAndSupply(address)": FunctionFragment;
+    "scaledBalanceOf(address)": FunctionFragment;
+    "scaledTotalSupply()": FunctionFragment;
     "totalSupply()": FunctionFragment;
     "transfer(address,uint256)": FunctionFragment;
     "transferFrom(address,address,uint256)": FunctionFragment;
@@ -44,6 +48,10 @@ export interface IATokenInterface extends utils.Interface {
       | "allowance"
       | "approve"
       | "balanceOf"
+      | "getPreviousIndex"
+      | "getScaledUserBalanceAndSupply"
+      | "scaledBalanceOf"
+      | "scaledTotalSupply"
       | "totalSupply"
       | "transfer"
       | "transferFrom"
@@ -64,6 +72,22 @@ export interface IATokenInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "balanceOf",
     values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getPreviousIndex",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getScaledUserBalanceAndSupply",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "scaledBalanceOf",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "scaledTotalSupply",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "totalSupply",
@@ -90,6 +114,22 @@ export interface IATokenInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "approve", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
   decodeFunctionResult(
+    functionFragment: "getPreviousIndex",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getScaledUserBalanceAndSupply",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "scaledBalanceOf",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "scaledTotalSupply",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "totalSupply",
     data: BytesLike
   ): Result;
@@ -101,10 +141,14 @@ export interface IATokenInterface extends utils.Interface {
 
   events: {
     "Approval(address,address,uint256)": EventFragment;
+    "Burn(address,address,uint256,uint256,uint256)": EventFragment;
+    "Mint(address,address,uint256,uint256,uint256)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Burn"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "Mint"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
 }
 
@@ -119,6 +163,34 @@ export type ApprovalEvent = TypedEvent<
 >;
 
 export type ApprovalEventFilter = TypedEventFilter<ApprovalEvent>;
+
+export interface BurnEventObject {
+  from: string;
+  target: string;
+  value: BigNumber;
+  balanceIncrease: BigNumber;
+  index: BigNumber;
+}
+export type BurnEvent = TypedEvent<
+  [string, string, BigNumber, BigNumber, BigNumber],
+  BurnEventObject
+>;
+
+export type BurnEventFilter = TypedEventFilter<BurnEvent>;
+
+export interface MintEventObject {
+  caller: string;
+  onBehalfOf: string;
+  value: BigNumber;
+  balanceIncrease: BigNumber;
+  index: BigNumber;
+}
+export type MintEvent = TypedEvent<
+  [string, string, BigNumber, BigNumber, BigNumber],
+  MintEventObject
+>;
+
+export type MintEventFilter = TypedEventFilter<MintEvent>;
 
 export interface TransferEventObject {
   from: string;
@@ -178,6 +250,23 @@ export interface IAToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber]>;
 
+    getPreviousIndex(
+      user: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    getScaledUserBalanceAndSupply(
+      user: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber, BigNumber]>;
+
+    scaledBalanceOf(
+      user: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber]>;
+
+    scaledTotalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
+
     totalSupply(overrides?: CallOverrides): Promise<[BigNumber]>;
 
     transfer(
@@ -212,6 +301,23 @@ export interface IAToken extends BaseContract {
     account: PromiseOrValue<string>,
     overrides?: CallOverrides
   ): Promise<BigNumber>;
+
+  getPreviousIndex(
+    user: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  getScaledUserBalanceAndSupply(
+    user: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<[BigNumber, BigNumber]>;
+
+  scaledBalanceOf(
+    user: PromiseOrValue<string>,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  scaledTotalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
   totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -248,6 +354,23 @@ export interface IAToken extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getPreviousIndex(
+      user: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getScaledUserBalanceAndSupply(
+      user: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<[BigNumber, BigNumber]>;
+
+    scaledBalanceOf(
+      user: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    scaledTotalSupply(overrides?: CallOverrides): Promise<BigNumber>;
+
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     transfer(
@@ -275,6 +398,36 @@ export interface IAToken extends BaseContract {
       spender?: PromiseOrValue<string> | null,
       value?: null
     ): ApprovalEventFilter;
+
+    "Burn(address,address,uint256,uint256,uint256)"(
+      from?: PromiseOrValue<string> | null,
+      target?: PromiseOrValue<string> | null,
+      value?: null,
+      balanceIncrease?: null,
+      index?: null
+    ): BurnEventFilter;
+    Burn(
+      from?: PromiseOrValue<string> | null,
+      target?: PromiseOrValue<string> | null,
+      value?: null,
+      balanceIncrease?: null,
+      index?: null
+    ): BurnEventFilter;
+
+    "Mint(address,address,uint256,uint256,uint256)"(
+      caller?: PromiseOrValue<string> | null,
+      onBehalfOf?: PromiseOrValue<string> | null,
+      value?: null,
+      balanceIncrease?: null,
+      index?: null
+    ): MintEventFilter;
+    Mint(
+      caller?: PromiseOrValue<string> | null,
+      onBehalfOf?: PromiseOrValue<string> | null,
+      value?: null,
+      balanceIncrease?: null,
+      index?: null
+    ): MintEventFilter;
 
     "Transfer(address,address,uint256)"(
       from?: PromiseOrValue<string> | null,
@@ -307,6 +460,23 @@ export interface IAToken extends BaseContract {
       account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
+
+    getPreviousIndex(
+      user: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getScaledUserBalanceAndSupply(
+      user: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    scaledBalanceOf(
+      user: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    scaledTotalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
     totalSupply(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -345,6 +515,23 @@ export interface IAToken extends BaseContract {
       account: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
+
+    getPreviousIndex(
+      user: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getScaledUserBalanceAndSupply(
+      user: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    scaledBalanceOf(
+      user: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    scaledTotalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     totalSupply(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 

@@ -9,7 +9,6 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
-  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -58,6 +57,7 @@ export interface IPositionManagerInterface extends utils.Interface {
     "balanceOf(address)": FunctionFragment;
     "baseURI()": FunctionFragment;
     "burnCoupons(((address,uint8),uint256)[])": FunctionFragment;
+    "contractURI()": FunctionFragment;
     "depositToken(address,uint256)": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
@@ -90,6 +90,7 @@ export interface IPositionManagerInterface extends utils.Interface {
       | "balanceOf"
       | "baseURI"
       | "burnCoupons"
+      | "contractURI"
       | "depositToken"
       | "getApproved"
       | "isApprovedForAll"
@@ -137,6 +138,10 @@ export interface IPositionManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "burnCoupons",
     values: [CouponStruct[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "contractURI",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "depositToken",
@@ -246,6 +251,10 @@ export interface IPositionManagerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "baseURI", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "burnCoupons",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "contractURI",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -406,6 +415,8 @@ export interface IPositionManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
+    contractURI(overrides?: CallOverrides): Promise<[string]>;
+
     depositToken(
       token: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -458,7 +469,7 @@ export interface IPositionManager extends BaseContract {
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "safeTransferFrom(address,address,uint256)"(
@@ -544,6 +555,8 @@ export interface IPositionManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
+  contractURI(overrides?: CallOverrides): Promise<string>;
+
   depositToken(
     token: PromiseOrValue<string>,
     amount: PromiseOrValue<BigNumberish>,
@@ -596,7 +609,7 @@ export interface IPositionManager extends BaseContract {
     v: PromiseOrValue<BigNumberish>,
     r: PromiseOrValue<BytesLike>,
     s: PromiseOrValue<BytesLike>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "safeTransferFrom(address,address,uint256)"(
@@ -681,6 +694,8 @@ export interface IPositionManager extends BaseContract {
       coupons: CouponStruct[],
       overrides?: CallOverrides
     ): Promise<void>;
+
+    contractURI(overrides?: CallOverrides): Promise<string>;
 
     depositToken(
       token: PromiseOrValue<string>,
@@ -856,6 +871,8 @@ export interface IPositionManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
+    contractURI(overrides?: CallOverrides): Promise<BigNumber>;
+
     depositToken(
       token: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -908,7 +925,7 @@ export interface IPositionManager extends BaseContract {
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "safeTransferFrom(address,address,uint256)"(
@@ -995,6 +1012,8 @@ export interface IPositionManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
+    contractURI(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
     depositToken(
       token: PromiseOrValue<string>,
       amount: PromiseOrValue<BigNumberish>,
@@ -1047,7 +1066,7 @@ export interface IPositionManager extends BaseContract {
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "safeTransferFrom(address,address,uint256)"(
