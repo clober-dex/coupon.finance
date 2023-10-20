@@ -85,7 +85,7 @@ const Context = React.createContext<BorrowContext>({
   removeCollateral: () => Promise.resolve(),
 })
 
-const SLIPPAGE_PERCENTAGE = 0
+const SLIPPAGE_PERCENTAGE = 0.001
 
 export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient()

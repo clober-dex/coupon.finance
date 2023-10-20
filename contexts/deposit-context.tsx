@@ -48,7 +48,7 @@ const Context = React.createContext<DepositContext>({
   collect: () => Promise.resolve(),
 })
 
-const SLIPPAGE_PERCENTAGE = 0
+const SLIPPAGE_PERCENTAGE = 0.001
 
 export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient()
