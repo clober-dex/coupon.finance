@@ -5,7 +5,6 @@ import { LoanPosition } from '../../model/loan-position'
 import CurrencyAmountInput from '../currency-amount-input'
 import { Arrow } from '../svg/arrow'
 import { Prices } from '../../model/prices'
-import { min } from '../../utils/bigint'
 
 import Modal from './modal'
 

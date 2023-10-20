@@ -17,7 +17,7 @@ import {
   BorrowController__factory,
   OdosRepayAdapter__factory,
 } from '../typechain'
-import { max, min } from '../utils/bigint'
+import { max } from '../utils/bigint'
 import { fetchLoanPositions } from '../apis/loan-position'
 import { Collateral } from '../model/collateral'
 import { LoanPosition } from '../model/loan-position'
