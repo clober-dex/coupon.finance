@@ -546,16 +546,26 @@ export function calculateCouponsToRepay(
     new Error('Substitute token is not supported')
   }
 
+  const maxRefund = markets.reduce(
+    (acc, market) =>
+      acc + market.spend(market.baseToken.address, positionAmount).amountOut,
+    0n,
+  )
+
+  let refund = 0n
+  const prevRefunds = new Set<bigint>()
+  while (!prevRefunds.has(refund)) {
+    prevRefunds.add(refund)
+    refund = markets.reduce(
+      (acc, market) =>
+        acc +
+        market.spend(market.baseToken.address, repayAmount + refund).amountOut,
+      0n,
+    )
+  }
+
   return {
-    maxRefund: markets.reduce(
-      (acc, market) =>
-        acc + market.spend(market.baseToken.address, positionAmount).amountOut,
-      0n,
-    ),
-    refund: markets.reduce(
-      (acc, market) =>
-        acc + market.spend(market.baseToken.address, repayAmount).amountOut,
-      0n,
-    ),
+    maxRefund: maxRefund,
+    refund: refund,
   }
 }
