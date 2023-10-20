@@ -34,6 +34,6 @@ export const CONTRACT_ADDRESSES: {
     LoanPositionManager:
       '0xE0dBCB42CCAc63C949cE3EF879A647DDb662916d' as `0x${string}`,
     OdosRepayAdapter:
-      '0x2A783C61080fF2b97B6F4D7fbD63B5E5f6874b10' as `0x${string}`,
+      '0x06ad1569cc3f430D16f906D21Cd2D1DA6eCA8e48' as `0x${string}`,
   },
 }[BUILD]
