@@ -12,16 +12,24 @@ import CurrencySelect from '../../components/currency-select'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import CurrencyAmountInput from '../../components/currency-amount-input'
 import { fetchBorrowAprByEpochsBorrowed } from '../../apis/market'
-import { dollarValue, formatUnits } from '../../utils/numbers'
+import { formatUnits } from '../../utils/numbers'
 import { useBorrowContext } from '../../contexts/borrow-context'
-import { LIQUIDATION_TARGET_LTV_PRECISION, min } from '../../utils/bigint'
 import { Collateral } from '../../model/collateral'
+import { calculateLtv, calculateMaxLoanableAmount } from '../../utils/ltv'
+import { max, min } from '../../utils/bigint'
 
 const Borrow = () => {
   const { balances, prices, assets } = useCurrencyContext()
   const { borrow } = useBorrowContext()
 
   const [epochs, _setEpochs] = useState(0)
+  const setEpochs = useCallback(
+    (value: number) => {
+      _setEpochs(value === epochs ? value - 1 : value)
+    },
+    [epochs],
+  )
+
   const [collateralValue, setCollateralValue] = useState('')
   const [loanValue, setLoanValue] = useState('')
   const [collateral, setCollateral] = useState<Collateral | undefined>(
@@ -36,66 +44,40 @@ const Borrow = () => {
     )
   }, [assets, router.query.symbol])
 
-  const setEpochs = useCallback(
-    (value: number) => {
-      _setEpochs(value === epochs ? value - 1 : value)
-    },
-    [epochs],
+  const [collateralAmount, loanAmount, collateralUserBalance] = useMemo(
+    () => [
+      parseUnits(
+        collateralValue,
+        collateral ? collateral.underlying.decimals : 18,
+      ),
+      parseUnits(loanValue, asset ? asset.underlying.decimals : 18),
+      collateral ? balances[collateral.underlying.address] ?? 0n : 0n,
+    ],
+    [collateralValue, collateral, loanValue, asset, balances],
   )
 
-  const collateralAmount = useMemo(
-    () => parseUnits(collateralValue, collateral?.underlying.decimals ?? 18),
-    [collateralValue, collateral?.underlying.decimals],
+  const maxLoanableAmountExcludingCouponFee = useMemo(
+    () =>
+      epochs && collateral && asset
+        ? calculateMaxLoanableAmount(
+            asset,
+            prices[asset.underlying.address],
+            collateral,
+            prices[collateral.underlying.address],
+            collateralAmount,
+          )
+        : 0n,
+    [asset, collateral, collateralAmount, epochs, prices],
   )
-  const collateralBalance = useMemo(
-    () => (collateral ? balances[collateral.underlying.address] ?? 0n : 0n),
-    [balances, collateral],
-  )
-
-  const loanAmount = useMemo(
-    () => parseUnits(loanValue, asset?.underlying.decimals ?? 18),
-    [loanValue, asset?.underlying.decimals],
-  )
-
-  const liquidationTargetLtv = useMemo(
-    () => BigInt(collateral?.liquidationTargetLtv ?? '0'),
-    [collateral],
-  )
-
-  const maxLoanAmountExcludingCouponFee = useMemo(() => {
-    if (epochs === 0 || !collateral || !asset) {
-      return 0n
-    }
-    const collateralPrice = prices[collateral.underlying.address]?.value ?? 0n
-    const collateralComplement =
-      10n ** BigInt(18 - collateral.underlying.decimals)
-    const loanPrice = prices[asset.underlying.address]?.value ?? 0n
-    const loanComplement = 10n ** BigInt(18 - asset.underlying.decimals)
-
-    return loanPrice && collateralPrice
-      ? (collateralAmount *
-          liquidationTargetLtv *
-          collateralPrice *
-          collateralComplement) /
-          (LIQUIDATION_TARGET_LTV_PRECISION * loanPrice * loanComplement)
-      : 0n
-  }, [
-    asset,
-    collateral,
-    collateralAmount,
-    epochs,
-    liquidationTargetLtv,
-    prices,
-  ])
 
   const { data: interestsByEpochsBorrowed } = useQuery(
-    ['borrow-apr', asset, loanAmount, maxLoanAmountExcludingCouponFee], // TODO: useDebounce
+    ['borrow-apr', asset, loanAmount, maxLoanableAmountExcludingCouponFee], // TODO: useDebounce
     () =>
       asset
         ? fetchBorrowAprByEpochsBorrowed(
             asset,
             loanAmount,
-            maxLoanAmountExcludingCouponFee,
+            maxLoanableAmountExcludingCouponFee,
           )
         : [],
     {
@@ -104,76 +86,18 @@ const Borrow = () => {
     },
   )
 
-  const available = useMemo(() => {
-    if (epochs === 0 || !interestsByEpochsBorrowed) {
-      return 0n
-    }
-    return interestsByEpochsBorrowed[epochs - 1]?.available ?? 0n
-  }, [epochs, interestsByEpochsBorrowed])
-
-  const borrowApr = useMemo(() => {
-    if (epochs === 0 || !interestsByEpochsBorrowed) {
-      return 0
-    }
-    return interestsByEpochsBorrowed[epochs - 1]?.apr ?? 0
-  }, [epochs, interestsByEpochsBorrowed])
-
-  const expectedInterest = useMemo(() => {
-    if (epochs === 0 || !interestsByEpochsBorrowed) {
-      return 0n
-    }
-    return interestsByEpochsBorrowed[epochs - 1]?.interest ?? 0n
-  }, [epochs, interestsByEpochsBorrowed])
-
-  const maxInterest = useMemo(() => {
-    if (epochs === 0 || !interestsByEpochsBorrowed) {
-      return 0n
-    }
-    return interestsByEpochsBorrowed[epochs - 1]?.maxInterest ?? 0n
-  }, [epochs, interestsByEpochsBorrowed])
-
-  const maxLoanableAmount = useMemo(() => {
-    if (
-      epochs === 0 ||
-      !interestsByEpochsBorrowed ||
-      !maxLoanAmountExcludingCouponFee
-    ) {
-      return 0n
-    }
-    return min(
-      maxLoanAmountExcludingCouponFee -
-        interestsByEpochsBorrowed[epochs - 1]?.maxInterest ?? 0n,
-      interestsByEpochsBorrowed[epochs - 1]?.available ?? 0n,
-    )
-  }, [epochs, interestsByEpochsBorrowed, maxLoanAmountExcludingCouponFee])
-
-  const currentLtv = useMemo(() => {
-    if (epochs === 0 || !interestsByEpochsBorrowed || !asset) {
-      return 0
-    }
-    const collateralDollarValue = collateral
-      ? dollarValue(
-          collateralAmount,
-          collateral.underlying.decimals,
-          prices[collateral.underlying.address],
-        )
-      : 0
-    const loanDollarValue = dollarValue(
-      loanAmount + expectedInterest,
-      asset.underlying.decimals,
-      prices[asset.underlying.address],
-    )
-    return loanDollarValue.times(100).div(collateralDollarValue).toNumber()
-  }, [
-    asset,
-    collateral,
-    collateralAmount,
-    epochs,
-    expectedInterest,
-    interestsByEpochsBorrowed,
-    loanAmount,
-    prices,
-  ])
+  const [apr, available, interest, maxInterest] = useMemo(
+    () =>
+      epochs && interestsByEpochsBorrowed
+        ? [
+            interestsByEpochsBorrowed[epochs - 1].apr ?? 0,
+            interestsByEpochsBorrowed[epochs - 1].available ?? 0n,
+            interestsByEpochsBorrowed[epochs - 1].interest ?? 0n,
+            interestsByEpochsBorrowed[epochs - 1].maxInterest ?? 0n,
+          ]
+        : [0, 0n, 0n, 0n],
+    [epochs, interestsByEpochsBorrowed],
+  )
 
   return (
     <div className="flex flex-1">
@@ -259,7 +183,13 @@ const Borrow = () => {
                       value={loanValue}
                       onValueChange={setLoanValue}
                       price={prices[asset.underlying.address]}
-                      availableAmount={maxLoanableAmount}
+                      availableAmount={max(
+                        min(
+                          maxLoanableAmountExcludingCouponFee - maxInterest,
+                          available,
+                        ),
+                        0n,
+                      )}
                     />
                   </div>
                   <div className="flex flex-col gap-4">
@@ -295,12 +225,12 @@ const Borrow = () => {
                         <span className="text-gray-500">APR</span>
                         <div className="flex gap-1">
                           <div className="text-gray-800 dark:text-white">
-                            {borrowApr.toFixed(2)}%
+                            {apr.toFixed(2)}%
                           </div>
                           <div className="text-gray-400">
                             (
                             {formatUnits(
-                              expectedInterest,
+                              interest,
                               asset.underlying.decimals,
                               prices[asset.underlying.address],
                             )}{' '}
@@ -311,7 +241,17 @@ const Borrow = () => {
                       <div className="flex w-full sm:w-fit text-sm gap-2 justify-between">
                         <span className="text-gray-500">LTV</span>
                         <div className="text-yellow-500">
-                          {currentLtv.toFixed(2)}%
+                          {collateral
+                            ? calculateLtv(
+                                asset,
+                                prices[asset.underlying.address],
+                                loanAmount + interest,
+                                collateral,
+                                prices[collateral?.underlying.address],
+                                collateralAmount,
+                              ).toFixed(2)
+                            : 0}
+                          %
                         </div>
                       </div>
                     </div>
@@ -321,9 +261,10 @@ const Borrow = () => {
                       epochs === 0 ||
                       collateralAmount === 0n ||
                       loanAmount === 0n ||
-                      collateralAmount > collateralBalance ||
+                      collateralAmount > collateralUserBalance ||
                       loanAmount > available ||
-                      loanAmount + maxInterest > maxLoanAmountExcludingCouponFee
+                      loanAmount + maxInterest >
+                        maxLoanableAmountExcludingCouponFee
                     }
                     className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
                     onClick={async () => {
@@ -336,7 +277,7 @@ const Borrow = () => {
                         asset,
                         loanAmount,
                         epochs,
-                        expectedInterest,
+                        interest,
                       )
                       if (hash) {
                         await router.replace('/?mode=borrow')
@@ -349,12 +290,12 @@ const Borrow = () => {
                       ? 'Enter collateral amount'
                       : loanAmount === 0n
                       ? 'Enter loan amount'
-                      : collateralAmount > collateralBalance
+                      : collateralAmount > collateralUserBalance
                       ? `Insufficient ${collateral?.underlying.symbol} balance`
                       : loanAmount > available
                       ? 'Not enough coupons for sale'
                       : loanAmount + maxInterest >
-                        maxLoanAmountExcludingCouponFee
+                        maxLoanableAmountExcludingCouponFee
                       ? 'Not enough collateral'
                       : 'Borrow'}
                   </button>
