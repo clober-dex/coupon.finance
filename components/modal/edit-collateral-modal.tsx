@@ -57,7 +57,7 @@ const EditCollateralModal = ({
           value={value}
           onValueChange={setValue}
           price={prices[position.collateral.underlying.address]}
-          balance={availableCollateralAmount}
+          availableAmount={availableCollateralAmount}
         />
       </div>
       <div className="flex text-sm gap-3 mb-8">

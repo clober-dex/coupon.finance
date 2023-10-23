@@ -237,7 +237,7 @@ const Borrow = () => {
                       currency={collateral?.underlying}
                       value={collateralValue}
                       onValueChange={setCollateralValue}
-                      balance={
+                      availableAmount={
                         collateral
                           ? balances[collateral?.underlying.address] ?? 0n
                           : 0n
@@ -259,7 +259,7 @@ const Borrow = () => {
                       value={loanValue}
                       onValueChange={setLoanValue}
                       price={prices[asset.underlying.address]}
-                      balance={maxLoanableAmount}
+                      availableAmount={maxLoanableAmount}
                     />
                   </div>
                   <div className="flex flex-col gap-4">

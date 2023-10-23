@@ -12,7 +12,7 @@ const CurrencyAmountInput = ({
   currency,
   value,
   onValueChange,
-  balance,
+  availableAmount,
   price,
   onCurrencyClick,
   ...props
@@ -20,7 +20,7 @@ const CurrencyAmountInput = ({
   currency?: Currency
   value: string
   onValueChange: (value: string) => void
-  balance: bigint
+  availableAmount: bigint
   price?: BigDecimal
   onCurrencyClick?: () => void
 } & React.DetailedHTMLProps<
@@ -35,8 +35,12 @@ const CurrencyAmountInput = ({
   }, [decimals, onValueChange, value])
 
   const onMaxClick = useCallback(() => {
-    onValueChange(balance ? formatUnits(balance, currency?.decimals ?? 18) : '')
-  }, [balance, currency?.decimals, onValueChange])
+    onValueChange(
+      availableAmount
+        ? formatUnits(availableAmount, currency?.decimals ?? 18)
+        : '',
+    )
+  }, [availableAmount, currency?.decimals, onValueChange])
 
   return (
     <div className="flex flex-col bg-white dark:bg-gray-800 rounded-lg p-3 gap-2">
@@ -86,7 +90,7 @@ const CurrencyAmountInput = ({
         {!props.disabled && currency ? (
           <div className="flex text-xs sm:text-sm gap-1 sm:gap-2">
             <div className="text-gray-500">Available</div>
-            <div>{formatUnits(balance, currency.decimals, price)}</div>
+            <div>{formatUnits(availableAmount, currency.decimals, price)}</div>
             <button className="text-green-500" onClick={onMaxClick}>
               MAX
             </button>
