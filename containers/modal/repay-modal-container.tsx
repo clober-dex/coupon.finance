@@ -4,7 +4,6 @@ import { isAddressEqual, parseUnits } from 'viem'
 
 import { LoanPosition } from '../../model/loan-position'
 import { useCurrencyContext } from '../../contexts/currency-context'
-import { dollarValue } from '../../utils/numbers'
 import { fetchMarkets } from '../../apis/market'
 import { calculateCouponsToRepay } from '../../model/market'
 import { max } from '../../utils/bigint'
