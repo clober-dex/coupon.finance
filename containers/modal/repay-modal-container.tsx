@@ -11,6 +11,7 @@ import { max } from '../../utils/bigint'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import { fetchAmountOutByOdos } from '../../apis/odos'
 import RepayModal from '../../components/modal/repay-modal'
+import { calculateLtv } from '../../utils/ltv'
 
 const RepayModalContainer = ({
   position,
@@ -24,6 +25,7 @@ const RepayModalContainer = ({
   const { chain: connectedChain } = useNetwork()
   const { repay, repayWithCollateral } = useBorrowContext()
   const { prices, balances } = useCurrencyContext()
+
   const [isUseCollateral, setIsUseCollateral] = useState(false)
   const [value, setValue] = useState('')
   const [slippage, setSlippage] = useState('1')
@@ -43,7 +45,7 @@ const RepayModalContainer = ({
   const {
     data: { repayAmount, pathId },
   } = useQuery(
-    ['calculate-repay-amount', position, amount, isUseCollateral],
+    ['repay-with-collateral-simulate', position, amount, isUseCollateral],
     async () => {
       if (!isUseCollateral) {
         return {
@@ -82,7 +84,7 @@ const RepayModalContainer = ({
   )
 
   const { data } = useQuery(
-    ['coupon-refundable-amount-to-repay', position, repayAmount],
+    ['repay-simulate', position, repayAmount],
     async () => {
       const markets = (await fetchMarkets())
         .filter((market) =>
@@ -104,50 +106,10 @@ const RepayModalContainer = ({
     },
   )
 
-  const refund = useMemo(() => data?.refund ?? 0n, [data?.refund])
-  const maxRefund = useMemo(() => data?.maxRefund ?? 0n, [data?.maxRefund])
-
-  const currentLtv = useMemo(
-    () =>
-      dollarValue(
-        position.amount,
-        position.underlying.decimals,
-        prices[position.underlying.address],
-      )
-        .times(100)
-        .div(
-          dollarValue(
-            position.collateralAmount,
-            position.collateral.underlying.decimals,
-            prices[position.collateral.underlying.address],
-          ),
-        )
-        .toFixed(2),
-    [position, prices],
+  const [refund, maxRefund] = useMemo(
+    () => (data ? [data.refund, data.maxRefund] : [0n, 0n]),
+    [data],
   )
-
-  const expectedLtv = useMemo(() => {
-    const debtAmount = max(position.amount - repayAmount - refund, 0n)
-    const debtValue = dollarValue(
-      debtAmount,
-      position.underlying.decimals,
-      prices[position.underlying.address],
-    )
-    const collateralAmount = max(
-      position.collateralAmount - (isUseCollateral ? amount : 0n),
-      0n,
-    )
-    const collateralValue = dollarValue(
-      collateralAmount,
-      position.collateral.underlying.decimals,
-      prices[position.collateral.underlying.address],
-    )
-    return debtAmount > 0n && collateralAmount === 0n
-      ? 'Infinity'
-      : collateralAmount === 0n
-      ? '0'
-      : debtValue.times(100).div(collateralValue).toFixed(2)
-  }, [repayAmount, refund, isUseCollateral, amount, position, prices])
 
   return (
     <RepayModal
@@ -164,8 +126,32 @@ const RepayModalContainer = ({
       showSlippageSelect={showSlippageSelect}
       slippage={slippage}
       setSlippage={setSlippage}
-      currentLtv={currentLtv}
-      expectedLtv={expectedLtv}
+      currentLtv={
+        prices[position.underlying.address] &&
+        prices[position.collateral.underlying.address]
+          ? calculateLtv(
+              position.underlying,
+              prices[position.underlying.address],
+              position.amount,
+              position.collateral,
+              prices[position.collateral.underlying.address],
+              position.collateralAmount,
+            )
+          : 0
+      }
+      expectedLtv={
+        prices[position.underlying.address] &&
+        prices[position.collateral.underlying.address]
+          ? calculateLtv(
+              position.underlying,
+              prices[position.underlying.address],
+              max(position.amount - repayAmount - refund, 0n),
+              position.collateral,
+              prices[position.collateral.underlying.address],
+              position.collateralAmount,
+            )
+          : 0
+      }
       userAddress={userAddress}
       pathId={pathId}
       repayWithCollateral={repayWithCollateral}

@@ -5,24 +5,32 @@ import { BigDecimal, dollarValue } from './numbers'
 
 export const LIQUIDATION_TARGET_LTV_PRECISION = 1000000n
 
+// TODO: unit test
 export const calculateLtv = (
-  loanCurrency: Currency,
-  loanAssetPrice: BigDecimal,
-  loanAmount: bigint,
+  debtCurrency: Currency,
+  debtCurrencyPrice: BigDecimal,
+  debtAmount: bigint,
   collateral: Collateral,
   collateralPrice: BigDecimal,
   collateralAmount: bigint,
 ): number => {
-  return dollarValue(loanAmount, loanCurrency.decimals, loanAssetPrice)
-    .times(100)
-    .div(
-      dollarValue(
-        collateralAmount,
-        collateral.underlying.decimals,
-        collateralPrice,
-      ),
-    )
-    .toNumber()
+  return debtAmount > 0n && collateralAmount <= 0n
+    ? Infinity
+    : collateralAmount === 0n
+    ? 0
+    : Math.max(
+        dollarValue(debtAmount, debtCurrency.decimals, debtCurrencyPrice)
+          .times(100)
+          .div(
+            dollarValue(
+              collateralAmount,
+              collateral.underlying.decimals,
+              collateralPrice,
+            ),
+          )
+          .toNumber(),
+        0,
+      )
 }
 
 export const calculateMaxLoanableAmount = (

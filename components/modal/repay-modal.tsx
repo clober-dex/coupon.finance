@@ -49,8 +49,8 @@ const RepayModal = ({
   showSlippageSelect: boolean
   slippage: string
   setSlippage: React.Dispatch<React.SetStateAction<string>>
-  currentLtv: string
-  expectedLtv: string
+  currentLtv: number
+  expectedLtv: number
   userAddress: `0x${string}` | undefined
   pathId: string | undefined
   repayWithCollateral: (
@@ -179,11 +179,13 @@ const RepayModal = ({
         <div className="flex gap-3 justify-between sm:justify-start">
           <div className="text-gray-500">LTV</div>
           <div className="flex items-center gap-1">
-            <span className="text-green-500">{currentLtv}%</span>
+            <span className="text-green-500">{currentLtv.toFixed(2)}%</span>
             {value ? (
               <>
                 <Arrow />
-                <span className="text-green-500">{expectedLtv}%</span>
+                <span className="text-green-500">
+                  {expectedLtv.toFixed(2)}%
+                </span>
               </>
             ) : (
               <></>
@@ -215,9 +217,6 @@ const RepayModal = ({
               refund,
               swapData,
             )
-          } else if (isUseCollateral && !pathId) {
-            //TODO: support debt asset and collateral asset are the same
-            console.error('not supported same asset')
           } else if (!isUseCollateral) {
             await repay(position, amount, refund)
           }
