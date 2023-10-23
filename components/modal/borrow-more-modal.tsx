@@ -18,10 +18,10 @@ const BorrowMoreModal = ({
   currentLtv,
   expectedLtv,
   interest,
-  positionAmount,
+  borrowMoreAmount,
   available,
   maxInterest,
-  maxLoanAmountExcludingCouponFee,
+  maxLoanableAmountExcludingCouponFee,
   borrowMore,
 }: {
   position: LoanPosition
@@ -33,10 +33,10 @@ const BorrowMoreModal = ({
   currentLtv: number
   expectedLtv: number
   interest: bigint
-  positionAmount: bigint
+  borrowMoreAmount: bigint
   available: bigint
   maxInterest: bigint
-  maxLoanAmountExcludingCouponFee: bigint
+  maxLoanableAmountExcludingCouponFee: bigint
   borrowMore: (
     position: LoanPosition,
     amount: bigint,
@@ -86,24 +86,29 @@ const BorrowMoreModal = ({
       </div>
       <button
         disabled={
-          positionAmount === 0n ||
-          positionAmount + position.amount > available ||
-          positionAmount + maxInterest + position.amount >
-            maxLoanAmountExcludingCouponFee
+          borrowMoreAmount === 0n ||
+          borrowMoreAmount + (position.amount - position.interest) >
+            available ||
+          borrowMoreAmount +
+            (position.amount - position.interest) +
+            maxInterest >
+            maxLoanableAmountExcludingCouponFee
         }
         className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
         onClick={async () => {
-          await borrowMore(position, positionAmount, interest)
+          await borrowMore(position, borrowMoreAmount, interest)
           setCurrencyInputValue('')
           onClose()
         }}
       >
-        {positionAmount === 0n
+        {borrowMoreAmount === 0n
           ? 'Enter loan amount'
-          : positionAmount + position.amount > available
+          : borrowMoreAmount + (position.amount - position.interest) > available
           ? 'Not enough coupons for sale'
-          : positionAmount + maxInterest + position.amount >
-            maxLoanAmountExcludingCouponFee
+          : borrowMoreAmount +
+              (position.amount - position.interest) +
+              maxInterest >
+            maxLoanableAmountExcludingCouponFee
           ? 'Not enough collateral'
           : 'Borrow'}
       </button>
