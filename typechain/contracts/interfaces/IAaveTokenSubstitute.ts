@@ -13,7 +13,11 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -119,8 +123,29 @@ export interface IAaveTokenSubstituteInterface extends utils.Interface {
     data: BytesLike
   ): Result;
 
-  events: {};
+  events: {
+    "Claim(address,uint256)": EventFragment;
+    "SetTreasury(address)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "Claim"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SetTreasury"): EventFragment;
 }
+
+export interface ClaimEventObject {
+  treasury: string;
+  adminYield: BigNumber;
+}
+export type ClaimEvent = TypedEvent<[string, BigNumber], ClaimEventObject>;
+
+export type ClaimEventFilter = TypedEventFilter<ClaimEvent>;
+
+export interface SetTreasuryEventObject {
+  newTreasury: string;
+}
+export type SetTreasuryEvent = TypedEvent<[string], SetTreasuryEventObject>;
+
+export type SetTreasuryEventFilter = TypedEventFilter<SetTreasuryEvent>;
 
 export interface IAaveTokenSubstitute extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -279,7 +304,23 @@ export interface IAaveTokenSubstitute extends BaseContract {
     underlyingToken(overrides?: CallOverrides): Promise<string>;
   };
 
-  filters: {};
+  filters: {
+    "Claim(address,uint256)"(
+      treasury?: PromiseOrValue<string> | null,
+      adminYield?: null
+    ): ClaimEventFilter;
+    Claim(
+      treasury?: PromiseOrValue<string> | null,
+      adminYield?: null
+    ): ClaimEventFilter;
+
+    "SetTreasury(address)"(
+      newTreasury?: PromiseOrValue<string> | null
+    ): SetTreasuryEventFilter;
+    SetTreasury(
+      newTreasury?: PromiseOrValue<string> | null
+    ): SetTreasuryEventFilter;
+  };
 
   estimateGas: {
     aToken(overrides?: CallOverrides): Promise<BigNumber>;

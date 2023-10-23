@@ -24,11 +24,13 @@ export interface ILoanPositionManagerTypesInterface extends utils.Interface {
   events: {
     "LiquidatePosition(uint256,address,uint256,uint256,uint256)": EventFragment;
     "SetLoanConfiguration(address,address,uint32,uint32,uint32,uint32)": EventFragment;
+    "SetTreasury(address)": EventFragment;
     "UpdatePosition(uint256,uint256,uint256,uint8)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "LiquidatePosition"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SetLoanConfiguration"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SetTreasury"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UpdatePosition"): EventFragment;
 }
 
@@ -62,6 +64,13 @@ export type SetLoanConfigurationEvent = TypedEvent<
 
 export type SetLoanConfigurationEventFilter =
   TypedEventFilter<SetLoanConfigurationEvent>;
+
+export interface SetTreasuryEventObject {
+  newTreasury: string;
+}
+export type SetTreasuryEvent = TypedEvent<[string], SetTreasuryEventObject>;
+
+export type SetTreasuryEventFilter = TypedEventFilter<SetTreasuryEvent>;
 
 export interface UpdatePositionEventObject {
   positionId: BigNumber;
@@ -138,6 +147,13 @@ export interface ILoanPositionManagerTypes extends BaseContract {
       liquidationProtocolFee?: null,
       liquidationTargetLtv?: null
     ): SetLoanConfigurationEventFilter;
+
+    "SetTreasury(address)"(
+      newTreasury?: PromiseOrValue<string> | null
+    ): SetTreasuryEventFilter;
+    SetTreasury(
+      newTreasury?: PromiseOrValue<string> | null
+    ): SetTreasuryEventFilter;
 
     "UpdatePosition(uint256,uint256,uint256,uint8)"(
       positionId?: PromiseOrValue<BigNumberish> | null,

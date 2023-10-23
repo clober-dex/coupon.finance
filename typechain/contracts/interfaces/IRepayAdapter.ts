@@ -13,7 +13,11 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
+import type {
+  FunctionFragment,
+  Result,
+  EventFragment,
+} from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -24,28 +28,35 @@ import type {
 } from "../../common";
 
 export declare namespace IController {
-  export type PermitParamsStruct = {
+  export type PermitSignatureStruct = {
     deadline: PromiseOrValue<BigNumberish>;
     v: PromiseOrValue<BigNumberish>;
     r: PromiseOrValue<BytesLike>;
     s: PromiseOrValue<BytesLike>;
   };
 
-  export type PermitParamsStructOutput = [BigNumber, number, string, string] & {
-    deadline: BigNumber;
-    v: number;
-    r: string;
-    s: string;
-  };
+  export type PermitSignatureStructOutput = [
+    BigNumber,
+    number,
+    string,
+    string
+  ] & { deadline: BigNumber; v: number; r: string; s: string };
 }
 
 export interface IRepayAdapterInterface extends utils.Interface {
   functions: {
+    "giveManagerAllowance(address)": FunctionFragment;
     "repayWithCollateral(uint256,uint256,uint256,bytes,(uint256,uint8,bytes32,bytes32))": FunctionFragment;
   };
 
-  getFunction(nameOrSignatureOrTopic: "repayWithCollateral"): FunctionFragment;
+  getFunction(
+    nameOrSignatureOrTopic: "giveManagerAllowance" | "repayWithCollateral"
+  ): FunctionFragment;
 
+  encodeFunctionData(
+    functionFragment: "giveManagerAllowance",
+    values: [PromiseOrValue<string>]
+  ): string;
   encodeFunctionData(
     functionFragment: "repayWithCollateral",
     values: [
@@ -53,17 +64,50 @@ export interface IRepayAdapterInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BytesLike>,
-      IController.PermitParamsStruct
+      IController.PermitSignatureStruct
     ]
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "giveManagerAllowance",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "repayWithCollateral",
     data: BytesLike
   ): Result;
 
-  events: {};
+  events: {
+    "SetCouponMarket(address,uint8,address)": EventFragment;
+    "SetManagerAllowance(address)": EventFragment;
+  };
+
+  getEvent(nameOrSignatureOrTopic: "SetCouponMarket"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SetManagerAllowance"): EventFragment;
 }
+
+export interface SetCouponMarketEventObject {
+  asset: string;
+  epoch: number;
+  cloberMarket: string;
+}
+export type SetCouponMarketEvent = TypedEvent<
+  [string, number, string],
+  SetCouponMarketEventObject
+>;
+
+export type SetCouponMarketEventFilter = TypedEventFilter<SetCouponMarketEvent>;
+
+export interface SetManagerAllowanceEventObject {
+  token: string;
+}
+export type SetManagerAllowanceEvent = TypedEvent<
+  [string],
+  SetManagerAllowanceEventObject
+>;
+
+export type SetManagerAllowanceEventFilter =
+  TypedEventFilter<SetManagerAllowanceEvent>;
 
 export interface IRepayAdapter extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -92,56 +136,99 @@ export interface IRepayAdapter extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
+    giveManagerAllowance(
+      token: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
     repayWithCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       sellCollateralAmount: PromiseOrValue<BigNumberish>,
       minRepayAmount: PromiseOrValue<BigNumberish>,
       swapData: PromiseOrValue<BytesLike>,
-      positionPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
+
+  giveManagerAllowance(
+    token: PromiseOrValue<string>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
 
   repayWithCollateral(
     positionId: PromiseOrValue<BigNumberish>,
     sellCollateralAmount: PromiseOrValue<BigNumberish>,
     minRepayAmount: PromiseOrValue<BigNumberish>,
     swapData: PromiseOrValue<BytesLike>,
-    positionPermitParams: IController.PermitParamsStruct,
+    positionPermitParams: IController.PermitSignatureStruct,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   callStatic: {
+    giveManagerAllowance(
+      token: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     repayWithCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       sellCollateralAmount: PromiseOrValue<BigNumberish>,
       minRepayAmount: PromiseOrValue<BigNumberish>,
       swapData: PromiseOrValue<BytesLike>,
-      positionPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
       overrides?: CallOverrides
     ): Promise<void>;
   };
 
-  filters: {};
+  filters: {
+    "SetCouponMarket(address,uint8,address)"(
+      asset?: PromiseOrValue<string> | null,
+      epoch?: PromiseOrValue<BigNumberish> | null,
+      cloberMarket?: PromiseOrValue<string> | null
+    ): SetCouponMarketEventFilter;
+    SetCouponMarket(
+      asset?: PromiseOrValue<string> | null,
+      epoch?: PromiseOrValue<BigNumberish> | null,
+      cloberMarket?: PromiseOrValue<string> | null
+    ): SetCouponMarketEventFilter;
+
+    "SetManagerAllowance(address)"(
+      token?: PromiseOrValue<string> | null
+    ): SetManagerAllowanceEventFilter;
+    SetManagerAllowance(
+      token?: PromiseOrValue<string> | null
+    ): SetManagerAllowanceEventFilter;
+  };
 
   estimateGas: {
+    giveManagerAllowance(
+      token: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
     repayWithCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       sellCollateralAmount: PromiseOrValue<BigNumberish>,
       minRepayAmount: PromiseOrValue<BigNumberish>,
       swapData: PromiseOrValue<BytesLike>,
-      positionPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
   };
 
   populateTransaction: {
+    giveManagerAllowance(
+      token: PromiseOrValue<string>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
     repayWithCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       sellCollateralAmount: PromiseOrValue<BigNumberish>,
       minRepayAmount: PromiseOrValue<BigNumberish>,
       swapData: PromiseOrValue<BytesLike>,
-      positionPermitParams: IController.PermitParamsStruct,
+      positionPermitParams: IController.PermitSignatureStruct,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
   };

@@ -17,7 +17,7 @@ import {
   BorrowController__factory,
   OdosRepayAdapter__factory,
 } from '../typechain'
-import { max, min } from '../utils/bigint'
+import { max } from '../utils/bigint'
 import { fetchLoanPositions } from '../apis/loan-position'
 import { Collateral } from '../model/collateral'
 import { LoanPosition } from '../model/loan-position'
@@ -85,7 +85,7 @@ const Context = React.createContext<BorrowContext>({
   removeCollateral: () => Promise.resolve(),
 })
 
-const SLIPPAGE_PERCENTAGE = 0
+const SLIPPAGE_PERCENTAGE = 0.001
 
 export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient()
@@ -172,7 +172,10 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             loanAmount + maximumInterestPaid,
             maximumInterestPaid,
             epochs,
-            { deadline, v, r, s },
+            {
+              permitAmount: collateralAmount,
+              signature: { deadline, v, r, s },
+            },
           ],
           value: isEthereum(collateral.underlying)
             ? max(collateralAmount - wethBalance, 0n)
@@ -209,9 +212,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const minimumInterestEarned = BigInt(
-        Math.floor(Number(expectedProceeds) * (1 - SLIPPAGE_PERCENTAGE)),
-      )
+      const minimumInterestEarned = expectedProceeds
       const wethBalance = isEthereum(position.underlying)
         ? balances[position.underlying.address] - (balance?.value || 0n)
         : 0n
@@ -233,7 +234,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           position.underlying,
           walletClient.account.address,
           CONTRACT_ADDRESSES.BorrowController,
-          amount + minimumInterestEarned,
+          amount,
           deadline,
         )
 
@@ -257,7 +258,15 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             amount + minimumInterestEarned,
             minimumInterestEarned,
             { ...positionPermitResult },
-            { ...debtPermitResult },
+            {
+              permitAmount: amount,
+              signature: {
+                deadline: debtPermitResult.deadline,
+                v: debtPermitResult.v,
+                r: debtPermitResult.r,
+                s: debtPermitResult.s,
+              },
+            },
           ],
           value: isEthereum(position.underlying)
             ? max(amount - wethBalance, 0n)
@@ -452,21 +461,13 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           deadline,
         )
 
-        // TODO: check tx when contract is updated
-        // const debtPermitResult = await permit20(
-        //   walletClient,
-        //   underlying,
-        //   walletClient.account.address,
-        //   CONTRACT_ADDRESSES.BorrowController,
-        //   maximumInterestPaid,
-        //   deadline,
-        // )
-        await approve20(
+        const debtPermitResult = await permit20(
           walletClient,
           underlying,
           walletClient.account.address,
           CONTRACT_ADDRESSES.BorrowController,
           maximumInterestPaid,
+          deadline,
         )
 
         setConfirmation({
@@ -481,7 +482,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           ],
         })
 
-        // TODO: check tx when contract is updated
         await writeContract(publicClient, walletClient, {
           address: CONTRACT_ADDRESSES.BorrowController,
           abi: BorrowController__factory.abi,
@@ -492,10 +492,13 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             maximumInterestPaid,
             { ...positionPermitResult },
             {
-              r: zeroBytes32 as `0x${string}`,
-              s: zeroBytes32 as `0x${string}`,
-              v: 0,
-              deadline: 0n,
+              permitAmount: maximumInterestPaid,
+              signature: {
+                deadline: debtPermitResult.deadline,
+                r: debtPermitResult.r,
+                s: debtPermitResult.s,
+                v: debtPermitResult.v,
+              },
             },
           ],
           value: isEthereum(underlying)
@@ -634,7 +637,15 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             position.id,
             amount,
             { ...positionPermitResult },
-            { ...debtPermitResult },
+            {
+              permitAmount: amount,
+              signature: {
+                deadline: debtPermitResult.deadline,
+                r: debtPermitResult.r,
+                s: debtPermitResult.s,
+                v: debtPermitResult.v,
+              },
+            },
           ],
           value: isEthereum(position.collateral.underlying)
             ? max(amount - wethBalance, 0n)

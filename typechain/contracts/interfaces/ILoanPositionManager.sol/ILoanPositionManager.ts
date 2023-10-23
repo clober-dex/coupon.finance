@@ -9,7 +9,6 @@ import type {
   CallOverrides,
   ContractTransaction,
   Overrides,
-  PayableOverrides,
   PopulatedTransaction,
   Signer,
   utils,
@@ -115,6 +114,7 @@ export interface ILoanPositionManagerInterface extends utils.Interface {
     "baseURI()": FunctionFragment;
     "burnCoupons(((address,uint8),uint256)[])": FunctionFragment;
     "claimOwedCoupons((address,uint8)[],bytes)": FunctionFragment;
+    "contractURI()": FunctionFragment;
     "depositToken(address,uint256)": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
     "getLiquidationStatus(uint256,uint256)": FunctionFragment;
@@ -139,6 +139,7 @@ export interface ILoanPositionManagerInterface extends utils.Interface {
     "safeTransferFrom(address,address,uint256,bytes)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
     "setLoanConfiguration(address,address,uint32,uint32,uint32,uint32)": FunctionFragment;
+    "setTreasury(address)": FunctionFragment;
     "settlePosition(uint256)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "symbol()": FunctionFragment;
@@ -160,6 +161,7 @@ export interface ILoanPositionManagerInterface extends utils.Interface {
       | "baseURI"
       | "burnCoupons"
       | "claimOwedCoupons"
+      | "contractURI"
       | "depositToken"
       | "getApproved"
       | "getLiquidationStatus"
@@ -184,6 +186,7 @@ export interface ILoanPositionManagerInterface extends utils.Interface {
       | "safeTransferFrom(address,address,uint256,bytes)"
       | "setApprovalForAll"
       | "setLoanConfiguration"
+      | "setTreasury"
       | "settlePosition"
       | "supportsInterface"
       | "symbol"
@@ -231,6 +234,10 @@ export interface ILoanPositionManagerInterface extends utils.Interface {
   encodeFunctionData(
     functionFragment: "claimOwedCoupons",
     values: [CouponKeyStruct[], PromiseOrValue<BytesLike>]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "contractURI",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "depositToken",
@@ -340,6 +347,10 @@ export interface ILoanPositionManagerInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
+    functionFragment: "setTreasury",
+    values: [PromiseOrValue<string>]
+  ): string;
+  encodeFunctionData(
     functionFragment: "settlePosition",
     values: [PromiseOrValue<BigNumberish>]
   ): string;
@@ -393,6 +404,10 @@ export interface ILoanPositionManagerInterface extends utils.Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "claimOwedCoupons",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "contractURI",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -462,6 +477,10 @@ export interface ILoanPositionManagerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "setTreasury",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "settlePosition",
     data: BytesLike
   ): Result;
@@ -486,6 +505,7 @@ export interface ILoanPositionManagerInterface extends utils.Interface {
     "ApprovalForAll(address,address,bool)": EventFragment;
     "LiquidatePosition(uint256,address,uint256,uint256,uint256)": EventFragment;
     "SetLoanConfiguration(address,address,uint32,uint32,uint32,uint32)": EventFragment;
+    "SetTreasury(address)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
     "UpdatePosition(uint256,uint256,uint256,uint8)": EventFragment;
   };
@@ -494,6 +514,7 @@ export interface ILoanPositionManagerInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "ApprovalForAll"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "LiquidatePosition"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SetLoanConfiguration"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "SetTreasury"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "Transfer"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "UpdatePosition"): EventFragment;
 }
@@ -552,6 +573,13 @@ export type SetLoanConfigurationEvent = TypedEvent<
 
 export type SetLoanConfigurationEventFilter =
   TypedEventFilter<SetLoanConfigurationEvent>;
+
+export interface SetTreasuryEventObject {
+  newTreasury: string;
+}
+export type SetTreasuryEvent = TypedEvent<[string], SetTreasuryEventObject>;
+
+export type SetTreasuryEventFilter = TypedEventFilter<SetTreasuryEvent>;
 
 export interface TransferEventObject {
   from: string;
@@ -648,6 +676,8 @@ export interface ILoanPositionManager extends BaseContract {
       data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
+
+    contractURI(overrides?: CallOverrides): Promise<[string]>;
 
     depositToken(
       token: PromiseOrValue<string>,
@@ -752,7 +782,7 @@ export interface ILoanPositionManager extends BaseContract {
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
     "safeTransferFrom(address,address,uint256)"(
@@ -783,6 +813,11 @@ export interface ILoanPositionManager extends BaseContract {
       liquidationFee: PromiseOrValue<BigNumberish>,
       liquidationProtocolFee: PromiseOrValue<BigNumberish>,
       liquidationTargetLtv: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    setTreasury(
+      newTreasury: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -863,6 +898,8 @@ export interface ILoanPositionManager extends BaseContract {
     data: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
+
+  contractURI(overrides?: CallOverrides): Promise<string>;
 
   depositToken(
     token: PromiseOrValue<string>,
@@ -967,7 +1004,7 @@ export interface ILoanPositionManager extends BaseContract {
     v: PromiseOrValue<BigNumberish>,
     r: PromiseOrValue<BytesLike>,
     s: PromiseOrValue<BytesLike>,
-    overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   "safeTransferFrom(address,address,uint256)"(
@@ -998,6 +1035,11 @@ export interface ILoanPositionManager extends BaseContract {
     liquidationFee: PromiseOrValue<BigNumberish>,
     liquidationProtocolFee: PromiseOrValue<BigNumberish>,
     liquidationTargetLtv: PromiseOrValue<BigNumberish>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  setTreasury(
+    newTreasury: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1047,8 +1089,8 @@ export interface ILoanPositionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<
       [CouponStructOutput[], CouponStructOutput[], BigNumber, BigNumber] & {
-        couponsToPay: CouponStructOutput[];
-        couponsToRefund: CouponStructOutput[];
+        couponsToMint: CouponStructOutput[];
+        couponsToBurn: CouponStructOutput[];
         collateralDelta: BigNumber;
         debtDelta: BigNumber;
       }
@@ -1085,6 +1127,8 @@ export interface ILoanPositionManager extends BaseContract {
       data: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    contractURI(overrides?: CallOverrides): Promise<string>;
 
     depositToken(
       token: PromiseOrValue<string>,
@@ -1229,6 +1273,11 @@ export interface ILoanPositionManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    setTreasury(
+      newTreasury: PromiseOrValue<string>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     settlePosition(
       positionId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
@@ -1318,6 +1367,13 @@ export interface ILoanPositionManager extends BaseContract {
       liquidationTargetLtv?: null
     ): SetLoanConfigurationEventFilter;
 
+    "SetTreasury(address)"(
+      newTreasury?: PromiseOrValue<string> | null
+    ): SetTreasuryEventFilter;
+    SetTreasury(
+      newTreasury?: PromiseOrValue<string> | null
+    ): SetTreasuryEventFilter;
+
     "Transfer(address,address,uint256)"(
       from?: PromiseOrValue<string> | null,
       to?: PromiseOrValue<string> | null,
@@ -1387,6 +1443,8 @@ export interface ILoanPositionManager extends BaseContract {
       data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
+
+    contractURI(overrides?: CallOverrides): Promise<BigNumber>;
 
     depositToken(
       token: PromiseOrValue<string>,
@@ -1485,7 +1543,7 @@ export interface ILoanPositionManager extends BaseContract {
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     "safeTransferFrom(address,address,uint256)"(
@@ -1516,6 +1574,11 @@ export interface ILoanPositionManager extends BaseContract {
       liquidationFee: PromiseOrValue<BigNumberish>,
       liquidationProtocolFee: PromiseOrValue<BigNumberish>,
       liquidationTargetLtv: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    setTreasury(
+      newTreasury: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1597,6 +1660,8 @@ export interface ILoanPositionManager extends BaseContract {
       data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
+
+    contractURI(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     depositToken(
       token: PromiseOrValue<string>,
@@ -1695,7 +1760,7 @@ export interface ILoanPositionManager extends BaseContract {
       v: PromiseOrValue<BigNumberish>,
       r: PromiseOrValue<BytesLike>,
       s: PromiseOrValue<BytesLike>,
-      overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     "safeTransferFrom(address,address,uint256)"(
@@ -1726,6 +1791,11 @@ export interface ILoanPositionManager extends BaseContract {
       liquidationFee: PromiseOrValue<BigNumberish>,
       liquidationProtocolFee: PromiseOrValue<BigNumberish>,
       liquidationTargetLtv: PromiseOrValue<BigNumberish>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    setTreasury(
+      newTreasury: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

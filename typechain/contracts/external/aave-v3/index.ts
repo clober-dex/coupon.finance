@@ -5,4 +5,5 @@ export type { Errors } from "./Errors";
 export type { IAToken } from "./IAToken";
 export type { IPool } from "./IPool";
 export type { IPoolAddressesProvider } from "./IPoolAddressesProvider";
+export type { IScaledBalanceToken } from "./IScaledBalanceToken";
 export type { ReserveConfiguration } from "./ReserveConfiguration";

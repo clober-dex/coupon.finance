@@ -12,6 +12,43 @@ import type {
 const _abi = [
   {
     inputs: [],
+    name: "ValueTransferFailed",
+    type: "error",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "treasury",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "adminYield",
+        type: "uint256",
+      },
+    ],
+    name: "Claim",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newTreasury",
+        type: "address",
+      },
+    ],
+    name: "SetTreasury",
+    type: "event",
+  },
+  {
+    inputs: [],
     name: "aToken",
     outputs: [
       {

@@ -25,15 +25,15 @@ export const CONTRACT_ADDRESSES: {
   },
   dev: {
     BondPositionManager:
-      '0x00644a534bDea310ee2FCCF1c2821Df769A0b12F' as `0x${string}`,
+      '0xA0D476c6A39beA239749C566a02343e5584Ec200' as `0x${string}`,
     BorrowController:
-      '0x242552D7AF567c2Ce1c403D13908d7dC1e0eEfB9' as `0x${string}`,
-    CouponOracle: '0x8831c769874fF23ED5DF0daacfD84Cc147335506' as `0x${string}`,
+      '0x929075bdc8cf2e43cA7FB4BF1a189130b6014Cc1' as `0x${string}`,
+    CouponOracle: '0xb523dFFc24220A18eB035A50b17Da69E4daea480' as `0x${string}`,
     DepositController:
-      '0xDbAb42F029333BF720814732Bb3e3D74c074B558' as `0x${string}`,
+      '0x92bb5C37868C5B34B163FeFAb4e20b1179853eB9' as `0x${string}`,
     LoanPositionManager:
-      '0xE0dBCB42CCAc63C949cE3EF879A647DDb662916d' as `0x${string}`,
+      '0x8831c769874fF23ED5DF0daacfD84Cc147335506' as `0x${string}`,
     OdosRepayAdapter:
-      '0x2A783C61080fF2b97B6F4D7fbD63B5E5f6874b10' as `0x${string}`,
+      '0x00644a534bDea310ee2FCCF1c2821Df769A0b12F' as `0x${string}`,
   },
 }[BUILD]

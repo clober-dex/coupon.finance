@@ -12,12 +12,17 @@ import type {
 const _abi = [
   {
     inputs: [],
-    name: "AlreadyExpired",
+    name: "FullRepaymentRequired",
     type: "error",
   },
   {
     inputs: [],
     name: "InvalidAccess",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "InvalidConfiguration",
     type: "error",
   },
   {
@@ -48,17 +53,12 @@ const _abi = [
   },
   {
     inputs: [],
-    name: "TooSmallDebt",
+    name: "TooSmallDebtLeft",
     type: "error",
   },
   {
     inputs: [],
     name: "UnableToLiquidate",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "UnpaidDebt",
     type: "error",
   },
   {
@@ -139,6 +139,19 @@ const _abi = [
       },
     ],
     name: "SetLoanConfiguration",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "newTreasury",
+        type: "address",
+      },
+    ],
+    name: "SetTreasury",
     type: "event",
   },
   {

@@ -26,9 +26,55 @@ const _abi = [
     type: "error",
   },
   {
-    inputs: [],
-    name: "ValueTransferFailed",
-    type: "error",
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "asset",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "Epoch",
+        name: "epoch",
+        type: "uint8",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "cloberMarket",
+        type: "address",
+      },
+    ],
+    name: "SetCouponMarket",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+    ],
+    name: "SetManagerAllowance",
+    type: "event",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+    ],
+    name: "giveManagerAllowance",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
 ] as const;
 

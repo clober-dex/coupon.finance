@@ -48,7 +48,7 @@ const Context = React.createContext<DepositContext>({
   collect: () => Promise.resolve(),
 })
 
-const SLIPPAGE_PERCENTAGE = 0
+const SLIPPAGE_PERCENTAGE = 0.001
 
 export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient()
@@ -83,9 +83,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const minimumInterestEarned = BigInt(
-        Math.floor(Number(expectedProceeds) * (1 - SLIPPAGE_PERCENTAGE)),
-      )
+      const minimumInterestEarned = expectedProceeds
       const wethBalance = isEthereum(asset.underlying)
         ? balances[asset.underlying.address] - (balance?.value || 0n)
         : 0n
@@ -97,7 +95,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           asset.underlying,
           walletClient.account.address,
           CONTRACT_ADDRESSES.DepositController,
-          amount + minimumInterestEarned, // TODO: change after contract change
+          amount,
           BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
         )
         setConfirmation({
@@ -120,7 +118,15 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
             amount + minimumInterestEarned,
             epochs,
             minimumInterestEarned,
-            { deadline, v, r, s },
+            {
+              permitAmount: amount,
+              signature: {
+                deadline,
+                v,
+                r,
+                s,
+              },
+            },
           ],
           value: isEthereum(asset.underlying)
             ? max(amount - wethBalance, 0n)

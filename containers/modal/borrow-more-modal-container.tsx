@@ -70,7 +70,7 @@ const BorrowMoreModalContainer = ({
   const maxInterest = useMemo(() => data?.maxInterest ?? 0n, [data])
   const interest = useMemo(() => data?.interest ?? 0n, [data])
   const available = useMemo(() => data?.available ?? 0n, [data])
-  const maxLoanAmount = useMemo(() => {
+  const maxLoanableAmount = useMemo(() => {
     return max(
       min(
         maxLoanAmountExcludingCouponFee - (data?.maxInterest ?? 0n),
@@ -120,7 +120,7 @@ const BorrowMoreModalContainer = ({
       currencyInputValue={value}
       setCurrencyInputValue={setValue}
       prices={prices}
-      maxLoanableAmount={maxLoanAmount}
+      maxLoanableAmount={maxLoanableAmount}
       currentLtv={currentLtv}
       expectedLtv={expectedLtv}
       interest={interest}
