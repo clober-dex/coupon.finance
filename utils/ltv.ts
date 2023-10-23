@@ -1,4 +1,3 @@
-import { Asset } from '../model/asset'
 import { Collateral } from '../model/collateral'
 import { Currency } from '../model/currency'
 
