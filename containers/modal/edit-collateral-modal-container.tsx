@@ -3,10 +3,10 @@ import { parseUnits } from 'viem'
 
 import { LoanPosition } from '../../model/loan-position'
 import { useCurrencyContext } from '../../contexts/currency-context'
-import { LIQUIDATION_TARGET_LTV_PRECISION, max } from '../../utils/bigint'
-import { dollarValue } from '../../utils/numbers'
+import { max } from '../../utils/bigint'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import EditCollateralModal from '../../components/modal/edit-collateral-modal'
+import { calculateLtv, calculateMinCollateralAmount } from '../../utils/ltv'
 
 const EditCollateralModalContainer = ({
   position,
@@ -20,57 +20,22 @@ const EditCollateralModalContainer = ({
   const [value, setValue] = useState('')
   const [isWithdrawCollateral, setIsWithdrawCollateral] = useState(false)
 
-  const amount = useMemo(
-    () =>
-      position
-        ? parseUnits(value, position.collateral.underlying.decimals)
+  const [amount, minCollateralAmount] = useMemo(
+    () => [
+      parseUnits(value, position.collateral.underlying.decimals),
+      prices[position.underlying.address] &&
+      prices[position.collateral.underlying.address]
+        ? calculateMinCollateralAmount(
+            position.underlying,
+            prices[position.underlying.address],
+            position.collateral,
+            prices[position.collateral.underlying.address],
+            position.amount,
+          )
         : 0n,
-    [position, value],
+    ],
+    [position.amount, position.collateral, position.underlying, prices, value],
   )
-
-  const minCollateralAmount = useMemo(() => {
-    const collateralPrice =
-      prices[position.collateral.underlying.address]?.value ?? 0n
-    const collateralComplement =
-      10n ** BigInt(18 - position.collateral.underlying.decimals)
-    const loanPrice = prices[position.underlying.address]?.value ?? 0n
-    const loanComplement = 10n ** BigInt(18 - position.underlying.decimals)
-
-    return loanPrice && collateralPrice
-      ? (position.amount *
-          LIQUIDATION_TARGET_LTV_PRECISION *
-          loanPrice *
-          loanComplement) /
-          (collateralPrice *
-            collateralComplement *
-            BigInt(position.collateral.liquidationTargetLtv))
-      : 0n
-  }, [position, prices])
-
-  const availableCollateralAmount = useMemo(
-    () =>
-      isWithdrawCollateral
-        ? max(position.collateralAmount - minCollateralAmount, 0n)
-        : balances[position.collateral.underlying.address],
-    [balances, isWithdrawCollateral, minCollateralAmount, position],
-  )
-
-  const currentLtv = useMemo(() => {
-    const collateralDollarValue = Math.max(
-      dollarValue(
-        position.collateralAmount + (isWithdrawCollateral ? -amount : amount),
-        position.collateral.underlying.decimals,
-        prices[position.collateral.underlying.address],
-      ).toNumber(),
-      0,
-    )
-    const loanDollarValue = dollarValue(
-      position.amount,
-      position.underlying.decimals,
-      prices[position.underlying.address],
-    )
-    return loanDollarValue.times(100).div(collateralDollarValue).toNumber()
-  }, [amount, isWithdrawCollateral, position, prices])
 
   return (
     <EditCollateralModal
@@ -84,8 +49,25 @@ const EditCollateralModalContainer = ({
       isWithdrawCollateral={isWithdrawCollateral}
       setIsWithdrawCollateral={setIsWithdrawCollateral}
       amount={amount}
-      availableCollateralAmount={availableCollateralAmount}
-      currentLtv={currentLtv}
+      availableCollateralAmount={
+        isWithdrawCollateral
+          ? max(position.collateralAmount - minCollateralAmount, 0n)
+          : balances[position.collateral.underlying.address] ?? 0n
+      }
+      currentLtv={
+        prices[position.underlying.address] &&
+        prices[position.collateral.underlying.address]
+          ? calculateLtv(
+              position.underlying,
+              prices[position.underlying.address],
+              position.amount,
+              position.collateral,
+              prices[position.collateral.underlying.address],
+              position.collateralAmount +
+                (isWithdrawCollateral ? -amount : amount),
+            )
+          : 0
+      }
     />
   )
 }
