@@ -59,7 +59,10 @@ const Borrow = () => {
 
   const maxLoanableAmountExcludingCouponFee = useMemo(
     () =>
-      epochs && collateral
+      epochs &&
+      collateral &&
+      prices[asset.underlying.address] &&
+      prices[collateral.underlying.address]
         ? calculateMaxLoanableAmount(
             asset,
             prices[asset.underlying.address],
@@ -235,7 +238,9 @@ const Borrow = () => {
                     <div className="flex w-full sm:w-fit text-sm gap-2 justify-between">
                       <span className="text-gray-500">LTV</span>
                       <div className="text-yellow-500">
-                        {collateral
+                        {collateral &&
+                        prices[asset.underlying.address] &&
+                        prices[collateral?.underlying.address]
                           ? calculateLtv(
                               asset,
                               prices[asset.underlying.address],
