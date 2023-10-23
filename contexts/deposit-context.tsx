@@ -95,7 +95,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           asset.underlying,
           walletClient.account.address,
           CONTRACT_ADDRESSES.DepositController,
-          amount + minimumInterestEarned, // TODO: change after contract change
+          amount,
           BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
         )
         setConfirmation({
@@ -119,7 +119,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
             epochs,
             minimumInterestEarned,
             {
-              permitAmount: amount + minimumInterestEarned,
+              permitAmount: amount,
               signature: {
                 deadline,
                 v,
