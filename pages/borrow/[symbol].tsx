@@ -75,7 +75,12 @@ const Borrow = () => {
   )
 
   const { data: interestsByEpochsBorrowed } = useQuery(
-    ['borrow-apr', asset, borrowAmount, maxLoanableAmountExcludingCouponFee], // TODO: useDebounce
+    [
+      'borrow-simulate',
+      asset,
+      borrowAmount,
+      maxLoanableAmountExcludingCouponFee,
+    ], // TODO: useDebounce
     () =>
       fetchBorrowAprByEpochsBorrowed(
         asset,
