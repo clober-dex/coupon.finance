@@ -64,7 +64,7 @@ const Borrow = () => {
       prices[asset.underlying.address] &&
       prices[collateral.underlying.address]
         ? calculateMaxLoanableAmount(
-            asset,
+            asset.underlying,
             prices[asset.underlying.address],
             collateral,
             prices[collateral.underlying.address],
@@ -242,7 +242,7 @@ const Borrow = () => {
                         prices[asset.underlying.address] &&
                         prices[collateral?.underlying.address]
                           ? calculateLtv(
-                              asset,
+                              asset.underlying,
                               prices[asset.underlying.address],
                               loanAmount + interest,
                               collateral,

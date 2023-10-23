@@ -1,19 +1,20 @@
 import { Asset } from '../model/asset'
 import { Collateral } from '../model/collateral'
+import { Currency } from '../model/currency'
 
 import { BigDecimal, dollarValue } from './numbers'
 
 export const LIQUIDATION_TARGET_LTV_PRECISION = 1000000n
 
 export const calculateLtv = (
-  loanAsset: Asset,
+  loanCurrency: Currency,
   loanAssetPrice: BigDecimal,
   loanAmount: bigint,
   collateral: Collateral,
   collateralPrice: BigDecimal,
   collateralAmount: bigint,
 ): number => {
-  return dollarValue(loanAmount, loanAsset.underlying.decimals, loanAssetPrice)
+  return dollarValue(loanAmount, loanCurrency.decimals, loanAssetPrice)
     .times(100)
     .div(
       dollarValue(
@@ -26,7 +27,7 @@ export const calculateLtv = (
 }
 
 export const calculateMaxLoanableAmount = (
-  loanAsset: Asset,
+  loanCurrency: Currency,
   loanAssetPrice: BigDecimal,
   collateral: Collateral,
   collateralPrice: BigDecimal,
@@ -39,6 +40,6 @@ export const calculateMaxLoanableAmount = (
         10n ** BigInt(18 - collateral.underlying.decimals)) /
         (collateral.ltvPrecision *
           loanAssetPrice.value *
-          10n ** BigInt(18 - loanAsset.underlying.decimals))
+          10n ** BigInt(18 - loanCurrency.decimals))
     : 0n
 }
