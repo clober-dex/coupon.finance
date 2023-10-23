@@ -1,5 +1,6 @@
 import { LoanPosition } from '../model/loan-position'
 import { getBuiltGraphSDK } from '../.graphclient'
+import { LIQUIDATION_TARGET_LTV_PRECISION } from '../utils/ltv'
 
 import { toCurrency } from './asset'
 
@@ -23,8 +24,13 @@ export async function fetchLoanPositions(
     collateral: {
       underlying: toCurrency(loanPosition.collateral.underlying),
       substitute: toCurrency(loanPosition.collateral.substitute),
-      liquidationThreshold: loanPosition.collateral.liquidationThreshold,
-      liquidationTargetLtv: loanPosition.collateral.liquidationTargetLtv,
+      liquidationThreshold: BigInt(
+        loanPosition.collateral.liquidationThreshold,
+      ),
+      liquidationTargetLtv: BigInt(
+        loanPosition.collateral.liquidationTargetLtv,
+      ),
+      ltvPrecision: LIQUIDATION_TARGET_LTV_PRECISION,
     },
     interest: BigInt(loanPosition.amount) - BigInt(loanPosition.principal),
     amount: BigInt(loanPosition.amount),
