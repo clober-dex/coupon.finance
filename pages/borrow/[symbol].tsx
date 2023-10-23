@@ -31,7 +31,7 @@ const Borrow = () => {
   )
 
   const [collateralValue, setCollateralValue] = useState('')
-  const [loanValue, setLoanValue] = useState('')
+  const [borrowValue, setBorrowValue] = useState('')
   const [collateral, setCollateral] = useState<Collateral | undefined>(
     undefined,
   )
@@ -45,16 +45,16 @@ const Borrow = () => {
     )
   }, [assets, router.query.symbol])
 
-  const [collateralAmount, loanAmount, collateralUserBalance] = useMemo(
+  const [collateralAmount, borrowAmount, collateralUserBalance] = useMemo(
     () => [
       parseUnits(
         collateralValue,
         collateral ? collateral.underlying.decimals : 18,
       ),
-      parseUnits(loanValue, asset.underlying.decimals),
+      parseUnits(borrowValue, asset.underlying.decimals),
       collateral ? balances[collateral.underlying.address] ?? 0n : 0n,
     ],
-    [collateralValue, collateral, loanValue, asset, balances],
+    [collateralValue, collateral, borrowValue, asset, balances],
   )
 
   const maxLoanableAmountExcludingCouponFee = useMemo(
@@ -75,11 +75,11 @@ const Borrow = () => {
   )
 
   const { data: interestsByEpochsBorrowed } = useQuery(
-    ['borrow-apr', asset, loanAmount, maxLoanableAmountExcludingCouponFee], // TODO: useDebounce
+    ['borrow-apr', asset, borrowAmount, maxLoanableAmountExcludingCouponFee], // TODO: useDebounce
     () =>
       fetchBorrowAprByEpochsBorrowed(
         asset,
-        loanAmount,
+        borrowAmount,
         maxLoanableAmountExcludingCouponFee,
       ),
     {
@@ -179,8 +179,8 @@ const Borrow = () => {
                   </div>
                   <CurrencyAmountInput
                     currency={asset.underlying}
-                    value={loanValue}
-                    onValueChange={setLoanValue}
+                    value={borrowValue}
+                    onValueChange={setBorrowValue}
                     price={prices[asset.underlying.address]}
                     availableAmount={max(
                       min(
@@ -244,7 +244,7 @@ const Borrow = () => {
                           ? calculateLtv(
                               asset.underlying,
                               prices[asset.underlying.address],
-                              loanAmount + interest,
+                              borrowAmount + interest,
                               collateral,
                               prices[collateral?.underlying.address],
                               collateralAmount,
@@ -259,10 +259,10 @@ const Borrow = () => {
                   disabled={
                     epochs === 0 ||
                     collateralAmount === 0n ||
-                    loanAmount === 0n ||
+                    borrowAmount === 0n ||
                     collateralAmount > collateralUserBalance ||
-                    loanAmount > available ||
-                    loanAmount + maxInterest >
+                    borrowAmount > available ||
+                    borrowAmount + maxInterest >
                       maxLoanableAmountExcludingCouponFee
                   }
                   className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
@@ -274,7 +274,7 @@ const Borrow = () => {
                       collateral,
                       collateralAmount,
                       asset,
-                      loanAmount,
+                      borrowAmount,
                       epochs,
                       interest,
                     )
@@ -287,13 +287,13 @@ const Borrow = () => {
                     ? 'Select expiration date'
                     : collateralAmount === 0n
                     ? 'Enter collateral amount'
-                    : loanAmount === 0n
+                    : borrowAmount === 0n
                     ? 'Enter loan amount'
                     : collateralAmount > collateralUserBalance
                     ? `Insufficient ${collateral?.underlying.symbol} balance`
-                    : loanAmount > available
+                    : borrowAmount > available
                     ? 'Not enough coupons for sale'
-                    : loanAmount + maxInterest >
+                    : borrowAmount + maxInterest >
                       maxLoanableAmountExcludingCouponFee
                     ? 'Not enough collateral'
                     : 'Borrow'}
