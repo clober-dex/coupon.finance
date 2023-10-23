@@ -31,7 +31,7 @@ export const Default: Story = {
     currentLtv: 60,
     expectedLtv: 70,
     interest: dummyLoanPosition.interest,
-    borrowMoreAmount: dummyLoanPosition.amount,
+    amount: dummyLoanPosition.amount,
     available: 0n,
     maxInterest: dummyLoanPosition.interest,
     maxLoanableAmountExcludingCouponFee: 0n,

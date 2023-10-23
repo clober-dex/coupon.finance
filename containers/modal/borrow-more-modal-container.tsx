@@ -22,7 +22,7 @@ const BorrowMoreModalContainer = ({
   const { prices } = useCurrencyContext()
   const [value, setValue] = useState('')
 
-  const borrowMoreAmount = useMemo(
+  const amount = useMemo(
     () => (position ? parseUnits(value, position.underlying.decimals) : 0n),
     [position, value],
   )
@@ -48,11 +48,7 @@ const BorrowMoreModalContainer = ({
   )
 
   const { data } = useQuery(
-    [
-      'coupon-repurchase-fee-to-borrow',
-      position.underlying.address,
-      borrowMoreAmount,
-    ],
+    ['borrow-more-simulate', position.underlying.address, amount],
     async () => {
       const markets = (await fetchMarkets())
         .filter((market) =>
@@ -66,7 +62,7 @@ const BorrowMoreModalContainer = ({
         position.substitute,
         markets,
         maxLoanableAmountExcludingCouponFee,
-        borrowMoreAmount,
+        amount,
       )
     },
     {
@@ -117,7 +113,7 @@ const BorrowMoreModalContainer = ({
           ? calculateLtv(
               position.underlying,
               prices[position.underlying.address],
-              position.amount + borrowMoreAmount + interest,
+              position.amount + amount + interest,
               position.collateral,
               prices[position.collateral.underlying.address],
               position.collateralAmount,
@@ -125,7 +121,7 @@ const BorrowMoreModalContainer = ({
           : 0
       }
       interest={interest}
-      borrowMoreAmount={borrowMoreAmount}
+      amount={amount}
       available={available}
       maxInterest={maxInterest}
       maxLoanableAmountExcludingCouponFee={maxLoanableAmountExcludingCouponFee}

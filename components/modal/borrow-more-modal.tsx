@@ -18,7 +18,7 @@ const BorrowMoreModal = ({
   currentLtv,
   expectedLtv,
   interest,
-  borrowMoreAmount,
+  amount,
   available,
   maxInterest,
   maxLoanableAmountExcludingCouponFee,
@@ -33,7 +33,7 @@ const BorrowMoreModal = ({
   currentLtv: number
   expectedLtv: number
   interest: bigint
-  borrowMoreAmount: bigint
+  amount: bigint
   available: bigint
   maxInterest: bigint
   maxLoanableAmountExcludingCouponFee: bigint
@@ -86,28 +86,23 @@ const BorrowMoreModal = ({
       </div>
       <button
         disabled={
-          borrowMoreAmount === 0n ||
-          borrowMoreAmount + (position.amount - position.interest) >
-            available ||
-          borrowMoreAmount +
-            (position.amount - position.interest) +
-            maxInterest >
+          amount === 0n ||
+          amount + (position.amount - position.interest) > available ||
+          amount + (position.amount - position.interest) + maxInterest >
             maxLoanableAmountExcludingCouponFee
         }
         className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
         onClick={async () => {
-          await borrowMore(position, borrowMoreAmount, interest)
+          await borrowMore(position, amount, interest)
           setCurrencyInputValue('')
           onClose()
         }}
       >
-        {borrowMoreAmount === 0n
+        {amount === 0n
           ? 'Enter loan amount'
-          : borrowMoreAmount + (position.amount - position.interest) > available
+          : amount + (position.amount - position.interest) > available
           ? 'Not enough coupons for sale'
-          : borrowMoreAmount +
-              (position.amount - position.interest) +
-              maxInterest >
+          : amount + (position.amount - position.interest) + maxInterest >
             maxLoanableAmountExcludingCouponFee
           ? 'Not enough collateral'
           : 'Borrow'}
