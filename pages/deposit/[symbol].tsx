@@ -28,7 +28,7 @@ const Deposit = () => {
     [epochs],
   )
 
-  const [value, setValue] = useState('')
+  const [depositValue, setDepositValue] = useState('')
 
   const router = useRouter()
   const asset = useMemo(() => {
@@ -38,17 +38,22 @@ const Deposit = () => {
     )
   }, [assets, router.query.symbol])
 
-  const [amount, userBalance] = useMemo(
+  const [depositAmount, userBalance] = useMemo(
     () => [
-      parseUnits(value, asset.underlying.decimals ?? 18),
+      parseUnits(depositValue, asset.underlying.decimals ?? 18),
       balances[asset.underlying.address] ?? 0n,
     ],
-    [asset.underlying.address, asset.underlying.decimals, balances, value],
+    [
+      asset.underlying.address,
+      asset.underlying.decimals,
+      balances,
+      depositValue,
+    ],
   )
 
   const { data: proceedsByEpochsDeposited } = useQuery(
-    ['deposit-apy', asset, amount], // TODO: useDebounce
-    () => (asset ? fetchDepositApyByEpochsDeposited(asset, amount) : []),
+    ['deposit-simulate', asset, depositAmount], // TODO: useDebounce
+    () => (asset ? fetchDepositApyByEpochsDeposited(asset, depositAmount) : []),
     {
       refetchOnWindowFocus: true,
       keepPreviousData: true,
@@ -98,8 +103,8 @@ const Deposit = () => {
                   </div>
                   <CurrencyAmountInput
                     currency={asset.underlying}
-                    value={value}
-                    onValueChange={setValue}
+                    value={depositValue}
+                    onValueChange={setDepositValue}
                     availableAmount={userBalance}
                     price={prices[asset.underlying.address]}
                   />
@@ -193,17 +198,24 @@ const Deposit = () => {
                 </div>
                 <button
                   disabled={
-                    amount === 0n || epochs === 0 || amount > userBalance
+                    depositAmount === 0n ||
+                    epochs === 0 ||
+                    depositAmount > userBalance
                   }
                   className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
                   onClick={async () => {
-                    const hash = await deposit(asset, amount, epochs, proceed)
+                    const hash = await deposit(
+                      asset,
+                      depositAmount,
+                      epochs,
+                      proceed,
+                    )
                     if (hash) {
                       await router.replace('/?mode=deposit')
                     }
                   }}
                 >
-                  {amount > userBalance
+                  {depositAmount > userBalance
                     ? `Insufficient ${asset.underlying.symbol} balance`
                     : 'Confirm'}
                 </button>
