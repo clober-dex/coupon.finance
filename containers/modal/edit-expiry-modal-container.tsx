@@ -16,8 +16,8 @@ const EditExpiryModalContainer = ({
 }) => {
   const { balances } = useCurrencyContext()
   const { extendLoanDuration, shortenLoanDuration } = useBorrowContext()
-  const [epochs, _setEpochs] = useState(0)
 
+  const [epochs, _setEpochs] = useState(0)
   const setEpochs = useCallback(
     (value: number) => {
       _setEpochs(value === epochs ? value - 1 : value)
@@ -25,7 +25,7 @@ const EditExpiryModalContainer = ({
     [epochs],
   )
 
-  const { data } = useQuery(['coupon-amount-to-edit-expiry', position], () =>
+  const { data } = useQuery(['edit-expiry-simulate', position], () =>
     fetchCouponAmountByEpochsBorrowed(
       position.substitute,
       position.amount,
@@ -33,32 +33,28 @@ const EditExpiryModalContainer = ({
     ),
   )
 
-  const expiryEpochIndex = useMemo(() => {
-    if (!data) {
-      return 0
-    }
-    return data.findIndex((item) => item.expiryEpoch) + 1
-  }, [data])
-
-  const [interest, payable, refund, refundable] = useMemo(() => {
-    if (!data) {
-      return [0n, false, 0n, false]
-    }
-    return [
-      data
-        .slice(expiryEpochIndex, epochs)
-        .reduce((acc, { interest }) => acc + interest, 0n),
-      data
-        .slice(expiryEpochIndex, epochs)
-        .reduce((acc, { payable }) => acc && payable, true),
-      data
-        .slice(epochs - 1, expiryEpochIndex - 1)
-        .reduce((acc, { refund }) => acc + refund, 0n),
-      data
-        .slice(epochs - 1, expiryEpochIndex - 1)
-        .reduce((acc, { refundable }) => acc && refundable, true),
-    ]
-  }, [data, expiryEpochIndex, epochs])
+  const [expiryEpochIndex, interest, payable, refund, refundable] =
+    useMemo(() => {
+      if (!data) {
+        return [0, 0n, false, 0n, false]
+      }
+      const expiryEpochIndex = data.findIndex((item) => item.expiryEpoch) + 1
+      return [
+        expiryEpochIndex,
+        data
+          .slice(expiryEpochIndex, epochs)
+          .reduce((acc, { interest }) => acc + interest, 0n),
+        data
+          .slice(expiryEpochIndex, epochs)
+          .reduce((acc, { payable }) => acc && payable, true),
+        data
+          .slice(epochs - 1, expiryEpochIndex - 1)
+          .reduce((acc, { refund }) => acc + refund, 0n),
+        data
+          .slice(epochs - 1, expiryEpochIndex - 1)
+          .reduce((acc, { refundable }) => acc && refundable, true),
+      ]
+    }, [data, epochs])
 
   useEffect(() => {
     if (expiryEpochIndex > 0) {
