@@ -31,10 +31,10 @@ export const Default: Story = {
     currentLtv: 60,
     expectedLtv: 70,
     interest: dummyLoanPosition.interest,
-    positionAmount: dummyLoanPosition.amount,
+    borrowMoreAmount: dummyLoanPosition.amount,
     available: 0n,
     maxInterest: dummyLoanPosition.interest,
-    maxLoanAmountExcludingCouponFee: 0n,
+    maxLoanableAmountExcludingCouponFee: 0n,
     borrowMore: async () => {},
   },
 }

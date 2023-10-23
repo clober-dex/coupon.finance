@@ -6,10 +6,10 @@ import { LoanPosition } from '../../model/loan-position'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { fetchMarkets } from '../../apis/market'
 import { calculateCouponsToBorrow } from '../../model/market'
-import { LIQUIDATION_TARGET_LTV_PRECISION, max, min } from '../../utils/bigint'
-import { dollarValue } from '../../utils/numbers'
+import { max, min } from '../../utils/bigint'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import BorrowMoreModal from '../../components/modal/borrow-more-modal'
+import { calculateLtv, calculateMaxLoanableAmount } from '../../utils/ltv'
 
 const BorrowMoreModalContainer = ({
   position,
@@ -22,30 +22,37 @@ const BorrowMoreModalContainer = ({
   const { prices } = useCurrencyContext()
   const [value, setValue] = useState('')
 
-  const amount = useMemo(
+  const borrowMoreAmount = useMemo(
     () => (position ? parseUnits(value, position.underlying.decimals) : 0n),
     [position, value],
   )
 
-  const maxLoanAmountExcludingCouponFee = useMemo(() => {
-    const collateralPrice =
-      prices[position.collateral.underlying.address]?.value ?? 0n
-    const collateralComplement =
-      10n ** BigInt(18 - position.collateral.underlying.decimals)
-    const loanPrice = prices[position.underlying.address]?.value ?? 0n
-    const loanComplement = 10n ** BigInt(18 - position.underlying.decimals)
-
-    return loanPrice && collateralPrice
-      ? (position.collateralAmount *
-          BigInt(position.collateral.liquidationTargetLtv) *
-          collateralPrice *
-          collateralComplement) /
-          (LIQUIDATION_TARGET_LTV_PRECISION * loanPrice * loanComplement)
-      : 0n
-  }, [position, prices])
+  const maxLoanableAmountExcludingCouponFee = useMemo(
+    () =>
+      prices[position.underlying.address] &&
+      prices[position.collateral.underlying.address]
+        ? calculateMaxLoanableAmount(
+            position.underlying,
+            prices[position.underlying.address],
+            position.collateral,
+            prices[position.collateral.underlying.address],
+            position.collateralAmount,
+          )
+        : 0n,
+    [
+      position.collateral,
+      position.collateralAmount,
+      position.underlying,
+      prices,
+    ],
+  )
 
   const { data } = useQuery(
-    ['coupon-repurchase-fee-to-borrow', position.underlying.address, amount],
+    [
+      'coupon-repurchase-fee-to-borrow',
+      position.underlying.address,
+      borrowMoreAmount,
+    ],
     async () => {
       const markets = (await fetchMarkets())
         .filter((market) =>
@@ -58,8 +65,8 @@ const BorrowMoreModalContainer = ({
       return calculateCouponsToBorrow(
         position.substitute,
         markets,
-        maxLoanAmountExcludingCouponFee,
-        amount,
+        maxLoanableAmountExcludingCouponFee,
+        borrowMoreAmount,
       )
     },
     {
@@ -67,51 +74,13 @@ const BorrowMoreModalContainer = ({
     },
   )
 
-  const maxInterest = useMemo(() => data?.maxInterest ?? 0n, [data])
-  const interest = useMemo(() => data?.interest ?? 0n, [data])
-  const available = useMemo(() => data?.available ?? 0n, [data])
-  const maxLoanableAmount = useMemo(() => {
-    return max(
-      min(
-        maxLoanAmountExcludingCouponFee - (data?.maxInterest ?? 0n),
-        data?.available ?? 0n,
-      ) - position.amount,
-      0n,
-    )
-  }, [data, maxLoanAmountExcludingCouponFee, position.amount])
-
-  const currentLtv = useMemo(
-    () =>
-      dollarValue(
-        position.amount,
-        position.underlying.decimals,
-        prices[position.underlying.address],
-      )
-        .times(100)
-        .div(
-          dollarValue(
-            position.collateralAmount,
-            position.collateral.underlying.decimals,
-            prices[position.collateral.underlying.address],
-          ),
-        )
-        .toNumber(),
-    [position, prices],
-  )
-
-  const expectedLtv = useMemo(() => {
-    const collateralDollarValue = dollarValue(
-      position.collateralAmount,
-      position.collateral.underlying.decimals,
-      prices[position.collateral.underlying.address],
-    )
-    const loanDollarValue = dollarValue(
-      position.amount + amount + interest,
-      position.underlying.decimals,
-      prices[position.underlying.address],
-    )
-    return loanDollarValue.times(100).div(collateralDollarValue).toNumber()
-  }, [position, amount, interest, prices])
+  const [available, interest, maxInterest] = useMemo(() => {
+    return [
+      data?.available ?? 0n,
+      data?.interest ?? 0n,
+      data?.maxInterest ?? 0n,
+    ]
+  }, [data])
 
   return (
     <BorrowMoreModal
@@ -120,14 +89,46 @@ const BorrowMoreModalContainer = ({
       currencyInputValue={value}
       setCurrencyInputValue={setValue}
       prices={prices}
-      maxLoanableAmount={maxLoanableAmount}
-      currentLtv={currentLtv}
-      expectedLtv={expectedLtv}
+      maxLoanableAmount={max(
+        min(
+          maxLoanableAmountExcludingCouponFee -
+            maxInterest -
+            (position.amount - position.interest),
+          available,
+        ),
+        0n,
+      )}
+      currentLtv={
+        prices[position.underlying.address] &&
+        prices[position.collateral.underlying.address]
+          ? calculateLtv(
+              position.underlying,
+              prices[position.underlying.address],
+              position.amount,
+              position.collateral,
+              prices[position.collateral.underlying.address],
+              position.collateralAmount,
+            )
+          : 0
+      }
+      expectedLtv={
+        prices[position.underlying.address] &&
+        prices[position.collateral.underlying.address]
+          ? calculateLtv(
+              position.underlying,
+              prices[position.underlying.address],
+              position.amount + borrowMoreAmount + interest,
+              position.collateral,
+              prices[position.collateral.underlying.address],
+              position.collateralAmount,
+            )
+          : 0
+      }
       interest={interest}
-      positionAmount={amount}
+      borrowMoreAmount={borrowMoreAmount}
       available={available}
       maxInterest={maxInterest}
-      maxLoanAmountExcludingCouponFee={maxLoanAmountExcludingCouponFee}
+      maxLoanableAmountExcludingCouponFee={maxLoanableAmountExcludingCouponFee}
       borrowMore={borrowMore}
     />
   )
