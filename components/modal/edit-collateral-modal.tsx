@@ -3,34 +3,30 @@ import React from 'react'
 import { LoanPosition } from '../../model/loan-position'
 import CurrencyAmountInput from '../../components/currency-amount-input'
 import Modal from '../../components/modal/modal'
-import { Prices } from '../../model/prices'
+import { BigDecimal } from '../../utils/numbers'
 
 const EditCollateralModal = ({
   position,
   onClose,
-  addCollateral,
-  removeCollateral,
-  prices,
   value,
   setValue,
   isWithdrawCollateral,
   setIsWithdrawCollateral,
-  amount,
   availableCollateralAmount,
   currentLtv,
+  actionButton,
+  collateralPrice,
 }: {
   position: LoanPosition
   onClose: () => void
-  addCollateral: (position: LoanPosition, amount: bigint) => Promise<void>
-  removeCollateral: (position: LoanPosition, amount: bigint) => Promise<void>
-  prices: Prices
   value: string
   setValue: (value: string) => void
   isWithdrawCollateral: boolean
   setIsWithdrawCollateral: (value: boolean) => void
-  amount: bigint
   availableCollateralAmount: bigint
   currentLtv: number
+  actionButton: React.ReactNode
+  collateralPrice?: BigDecimal
 }) => {
   return (
     <Modal show onClose={onClose}>
@@ -56,7 +52,7 @@ const EditCollateralModal = ({
           currency={position.collateral.underlying}
           value={value}
           onValueChange={setValue}
-          price={prices[position.collateral.underlying.address]}
+          price={collateralPrice}
           availableAmount={availableCollateralAmount}
         />
       </div>
@@ -64,25 +60,7 @@ const EditCollateralModal = ({
         <span className="text-gray-500">LTV</span>
         {currentLtv.toFixed(2)}%
       </div>
-      <button
-        disabled={amount === 0n || amount > availableCollateralAmount}
-        className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
-        onClick={async () => {
-          isWithdrawCollateral
-            ? await removeCollateral(position, amount)
-            : await addCollateral(position, amount)
-          setValue('')
-          onClose()
-        }}
-      >
-        {amount === 0n
-          ? 'Enter collateral amount'
-          : !isWithdrawCollateral && amount > availableCollateralAmount
-          ? `Insufficient ${position.collateral.underlying.symbol} balance`
-          : isWithdrawCollateral && amount > position.collateralAmount
-          ? 'Not enough collateral'
-          : 'Confirm'}
-      </button>
+      {actionButton}
     </Modal>
   )
 }

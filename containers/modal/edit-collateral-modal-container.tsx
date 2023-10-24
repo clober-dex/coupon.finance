@@ -37,18 +37,28 @@ const EditCollateralModalContainer = ({
     [position.amount, position.collateral, position.underlying, prices, value],
   )
 
+  const availableCollateralAmount = useMemo(
+    () =>
+      isWithdrawCollateral
+        ? max(position.collateralAmount - minCollateralAmount, 0n)
+        : balances[position.collateral.underlying.address] ?? 0n,
+    [
+      balances,
+      isWithdrawCollateral,
+      minCollateralAmount,
+      position.collateral.underlying.address,
+      position.collateralAmount,
+    ],
+  )
+
   return (
     <EditCollateralModal
       position={position}
       onClose={onClose}
-      addCollateral={addCollateral}
-      removeCollateral={removeCollateral}
-      prices={prices}
       value={value}
       setValue={setValue}
       isWithdrawCollateral={isWithdrawCollateral}
       setIsWithdrawCollateral={setIsWithdrawCollateral}
-      amount={amount}
       availableCollateralAmount={
         isWithdrawCollateral
           ? max(position.collateralAmount - minCollateralAmount, 0n)
@@ -68,6 +78,28 @@ const EditCollateralModalContainer = ({
             )
           : 0
       }
+      actionButton={
+        <button
+          disabled={amount === 0n || amount > availableCollateralAmount}
+          className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
+          onClick={async () => {
+            isWithdrawCollateral
+              ? await removeCollateral(position, amount)
+              : await addCollateral(position, amount)
+            setValue('')
+            onClose()
+          }}
+        >
+          {amount === 0n
+            ? 'Enter collateral amount'
+            : !isWithdrawCollateral && amount > availableCollateralAmount
+            ? `Insufficient ${position.collateral.underlying.symbol} balance`
+            : isWithdrawCollateral && amount > position.collateralAmount
+            ? 'Not enough collateral'
+            : 'Confirm'}
+        </button>
+      }
+      collateralPrice={prices[position.collateral.underlying.address]}
     />
   )
 }

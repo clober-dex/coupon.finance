@@ -1,8 +1,10 @@
+import React from 'react'
 import { Meta, StoryObj } from '@storybook/react'
 
 import '../../styles/globals.css'
 
 import { dummyLoanPosition } from '../../.storybook/dummy-data/loan-position'
+import { ActionButton } from '../action-button'
 
 import EditCollateralModal from './edit-collateral-modal'
 
@@ -20,21 +22,23 @@ export const Default: Story = {
   args: {
     position: dummyLoanPosition,
     onClose: () => {},
-    addCollateral: async () => {},
-    removeCollateral: async () => {},
-    prices: {
-      '0x82af49447d8a07e3bd95bd0d56f35241523fbab1': {
-        value: 2500000000000n,
-        decimals: 8,
-      },
-    },
     value: '0.01',
     setValue: () => {},
     isWithdrawCollateral: true,
     setIsWithdrawCollateral: () => {},
-    amount: dummyLoanPosition.amount,
-    availableCollateralAmount: 10n,
+    availableCollateralAmount: 100000000n,
     currentLtv: 60,
+    collateralPrice: {
+      value: 2500000000000n,
+      decimals: 8,
+    },
+    actionButton: (
+      <ActionButton
+        disabled={false}
+        onClick={() => {}}
+        text={'Edit Collateral'}
+      />
+    ),
   },
 }
 
