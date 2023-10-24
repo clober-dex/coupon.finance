@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import BigNumber from 'bignumber.js'
-import { isAddressEqual, parseUnits } from 'viem'
+import { isAddressEqual } from 'viem'
 import Image from 'next/image'
 
 import { useBorrowContext } from '../contexts/borrow-context'
@@ -120,6 +120,7 @@ const BorrowContainer = ({
       setEpoch(epochs[0])
     }
   }, [epochs])
+  const currentTimestamp = Math.floor(new Date().getTime() / 1000)
   return (
     <div className="flex flex-1 flex-col w-full sm:w-fit">
       <h1 className="flex justify-center text-center font-bold text-lg sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-12 mb-8 sm:mb-16">
@@ -223,7 +224,7 @@ const BorrowContainer = ({
               {assetStatuses
                 .filter((assetStatus) => assetStatus.epoch.id === epoch.id)
                 .filter(
-                  (assetStatus) => assetStatus.totalBorrowAvailable !== '0',
+                  (assetStatus) => assetStatus.totalBorrowAvailable !== 0n,
                 )
                 .map((assetStatus, index) => {
                   const validAssetStatuses = assetStatuses.filter(
@@ -233,35 +234,22 @@ const BorrowContainer = ({
                         assetStatus.underlying.address,
                       ) && epoch.id <= assetStatus.epoch.id,
                   )
-                  const interest = validAssetStatuses.reduce(
-                    (acc, { bestCouponAskPrice }) => acc + bestCouponAskPrice,
-                    0,
-                  )
-                  const currentTimestamp = Math.floor(
-                    new Date().getTime() / 1000,
-                  )
-                  const apy = calculateApy(
-                    interest,
-                    assetStatus.epoch.endTimestamp - currentTimestamp,
-                  )
-                  const available = validAssetStatuses
-                    .map(({ totalBorrowAvailable }) =>
-                      parseUnits(
-                        totalBorrowAvailable,
-                        assetStatus.underlying.decimals,
-                      ),
-                    )
-                    .reduce((acc, val) => (acc > val ? acc : val), 0n)
                   return (
                     <Asset
                       key={index}
                       currency={assetStatus.underlying}
-                      apy={apy}
-                      available={available}
-                      borrowed={parseUnits(
-                        assetStatus.totalBorrowed,
-                        assetStatus.underlying.decimals,
+                      apy={calculateApy(
+                        validAssetStatuses.reduce(
+                          (acc, { bestCouponAskPrice }) =>
+                            acc + bestCouponAskPrice,
+                          0,
+                        ),
+                        assetStatus.epoch.endTimestamp - currentTimestamp,
                       )}
+                      available={validAssetStatuses
+                        .map(({ totalBorrowAvailable }) => totalBorrowAvailable)
+                        .reduce((acc, val) => (acc > val ? acc : val), 0n)}
+                      borrowed={assetStatus.totalBorrowed}
                       price={prices[assetStatus.underlying.address]}
                     />
                   )

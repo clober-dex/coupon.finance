@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { isAddressEqual, parseUnits } from 'viem'
+import { isAddressEqual } from 'viem'
 import BigNumber from 'bignumber.js'
 import Image from 'next/image'
 
@@ -113,6 +113,7 @@ const DepositContainer = ({
       setEpoch(epochs[0])
     }
   }, [epochs])
+  const currentTimestamp = Math.floor(new Date().getTime() / 1000)
   return (
     <div className="flex flex-1 flex-col w-full sm:w-fit">
       <h1 className="flex justify-center text-center font-bold text-lg sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-12 mb-8 sm:mb-16">
@@ -225,7 +226,7 @@ const DepositContainer = ({
               {assetStatuses
                 .filter((assetStatus) => assetStatus.epoch.id === epoch.id)
                 .filter(
-                  (assetStatus) => assetStatus.totalDepositAvailable !== '0',
+                  (assetStatus) => assetStatus.totalDepositAvailable !== 0n,
                 )
                 .map((assetStatus, index) => {
                   const validAssetStatuses = assetStatuses.filter(
@@ -235,35 +236,24 @@ const DepositContainer = ({
                         assetStatus.underlying.address,
                       ) && epoch.id <= assetStatus.epoch.id,
                   )
-                  const proceeds = validAssetStatuses.reduce(
-                    (acc, { bestCouponBidPrice }) => acc + bestCouponBidPrice,
-                    0,
-                  )
-                  const currentTimestamp = Math.floor(
-                    new Date().getTime() / 1000,
-                  )
-                  const apy = calculateApy(
-                    proceeds,
-                    assetStatus.epoch.endTimestamp - currentTimestamp,
-                  )
-                  const available = validAssetStatuses
-                    .map(({ totalDepositAvailable }) =>
-                      parseUnits(
-                        totalDepositAvailable,
-                        assetStatus.underlying.decimals,
-                      ),
-                    )
-                    .reduce((acc, val) => (acc > val ? acc : val), 0n)
                   return (
                     <Asset
                       key={index}
                       currency={assetStatus.underlying}
-                      apy={apy}
-                      available={available}
-                      deposited={parseUnits(
-                        assetStatus.totalDeposited,
-                        assetStatus.underlying.decimals,
+                      apy={calculateApy(
+                        validAssetStatuses.reduce(
+                          (acc, { bestCouponBidPrice }) =>
+                            acc + bestCouponBidPrice,
+                          0,
+                        ),
+                        assetStatus.epoch.endTimestamp - currentTimestamp,
                       )}
+                      available={validAssetStatuses
+                        .map(
+                          ({ totalDepositAvailable }) => totalDepositAvailable,
+                        )
+                        .reduce((acc, val) => (acc > val ? acc : val), 0n)}
+                      deposited={assetStatus.totalDeposited}
                       price={prices[assetStatus.underlying.address]}
                     />
                   )
