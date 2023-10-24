@@ -18,23 +18,23 @@ type Story = StoryObj<typeof EditCollateralModal>
 
 export const Default: Story = {
   args: {
-    position: dummyLoanPosition,
+    collateral: dummyLoanPosition.collateral,
     onClose: () => {},
-    addCollateral: async () => {},
-    removeCollateral: async () => {},
-    prices: {
-      '0x82af49447d8a07e3bd95bd0d56f35241523fbab1': {
-        value: 2500000000000n,
-        decimals: 8,
-      },
-    },
     value: '0.01',
     setValue: () => {},
     isWithdrawCollateral: true,
     setIsWithdrawCollateral: () => {},
-    amount: dummyLoanPosition.amount,
-    availableCollateralAmount: 10n,
+    availableCollateralAmount: 100000000n,
     currentLtv: 60,
+    collateralPrice: {
+      value: 2500000000000n,
+      decimals: 8,
+    },
+    actionButtonProps: {
+      disabled: false,
+      onClick: () => {},
+      text: 'Edit Collateral',
+    },
   },
 }
 

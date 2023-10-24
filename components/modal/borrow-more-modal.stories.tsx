@@ -17,25 +17,23 @@ type Story = StoryObj<typeof BorrowMoreModal>
 
 export const Default: Story = {
   args: {
-    position: dummyLoanPosition,
+    debtCurrency: dummyLoanPosition.underlying,
     onClose: () => {},
-    currencyInputValue: '0.01',
-    setCurrencyInputValue: () => {},
-    prices: {
-      '0x0000000000000000000000000000000000000003': {
-        value: 2500000000000n,
-        decimals: 8,
-      },
-    },
+    value: '0.01',
+    setValue: () => {},
     maxLoanableAmount: dummyLoanPosition.amount,
     currentLtv: 60,
     expectedLtv: 70,
     interest: dummyLoanPosition.interest,
-    positionAmount: dummyLoanPosition.amount,
-    available: 0n,
-    maxInterest: dummyLoanPosition.interest,
-    maxLoanAmountExcludingCouponFee: 0n,
-    borrowMore: async () => {},
+    debtAssetPrice: {
+      value: 2500000000000n,
+      decimals: 8,
+    },
+    actionButtonProps: {
+      disabled: false,
+      onClick: () => {},
+      text: 'Borrow More',
+    },
   },
 }
 

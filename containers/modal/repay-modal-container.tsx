@@ -4,13 +4,13 @@ import { isAddressEqual, parseUnits } from 'viem'
 
 import { LoanPosition } from '../../model/loan-position'
 import { useCurrencyContext } from '../../contexts/currency-context'
-import { dollarValue } from '../../utils/numbers'
 import { fetchMarkets } from '../../apis/market'
 import { calculateCouponsToRepay } from '../../model/market'
-import { max } from '../../utils/bigint'
+import { max, min } from '../../utils/bigint'
 import { useBorrowContext } from '../../contexts/borrow-context'
-import { fetchAmountOutByOdos } from '../../apis/odos'
+import { fetchAmountOutByOdos, fetchCallDataByOdos } from '../../apis/odos'
 import RepayModal from '../../components/modal/repay-modal'
+import { calculateLtv } from '../../utils/ltv'
 
 const RepayModalContainer = ({
   position,
@@ -24,6 +24,7 @@ const RepayModalContainer = ({
   const { chain: connectedChain } = useNetwork()
   const { repay, repayWithCollateral } = useBorrowContext()
   const { prices, balances } = useCurrencyContext()
+
   const [isUseCollateral, setIsUseCollateral] = useState(false)
   const [value, setValue] = useState('')
   const [slippage, setSlippage] = useState('1')
@@ -43,7 +44,7 @@ const RepayModalContainer = ({
   const {
     data: { repayAmount, pathId },
   } = useQuery(
-    ['calculate-repay-amount', position, amount, isUseCollateral],
+    ['repay-with-collateral-simulate', position, amount, isUseCollateral],
     async () => {
       if (!isUseCollateral) {
         return {
@@ -82,7 +83,7 @@ const RepayModalContainer = ({
   )
 
   const { data } = useQuery(
-    ['coupon-refundable-amount-to-repay', position, repayAmount],
+    ['repay-simulate', position, repayAmount],
     async () => {
       const markets = (await fetchMarkets())
         .filter((market) =>
@@ -104,75 +105,99 @@ const RepayModalContainer = ({
     },
   )
 
-  const refund = useMemo(() => data?.refund ?? 0n, [data?.refund])
-  const maxRefund = useMemo(() => data?.maxRefund ?? 0n, [data?.maxRefund])
-
-  const currentLtv = useMemo(
-    () =>
-      dollarValue(
-        position.amount,
-        position.underlying.decimals,
-        prices[position.underlying.address],
-      )
-        .times(100)
-        .div(
-          dollarValue(
-            position.collateralAmount,
-            position.collateral.underlying.decimals,
-            prices[position.collateral.underlying.address],
-          ),
-        )
-        .toFixed(2),
-    [position, prices],
+  const [refund, maxRefund] = useMemo(
+    () => (data ? [data.refund, data.maxRefund] : [0n, 0n]),
+    [data],
   )
-
-  const expectedLtv = useMemo(() => {
-    const debtAmount = max(position.amount - repayAmount - refund, 0n)
-    const debtValue = dollarValue(
-      debtAmount,
-      position.underlying.decimals,
-      prices[position.underlying.address],
-    )
-    const collateralAmount = max(
-      position.collateralAmount - (isUseCollateral ? amount : 0n),
-      0n,
-    )
-    const collateralValue = dollarValue(
-      collateralAmount,
-      position.collateral.underlying.decimals,
-      prices[position.collateral.underlying.address],
-    )
-    return debtAmount > 0n && collateralAmount === 0n
-      ? 'Infinity'
-      : collateralAmount === 0n
-      ? '0'
-      : debtValue.times(100).div(collateralValue).toFixed(2)
-  }, [repayAmount, refund, isUseCollateral, amount, position, prices])
 
   return (
     <RepayModal
+      debtCurrency={position.underlying}
+      collateral={position.collateral}
+      collateralAmount={position.collateralAmount}
       onClose={onClose}
       setShowSlippageSelect={setShowSlippageSelect}
       isUseCollateral={isUseCollateral}
       setIsUseCollateral={setIsUseCollateral}
-      position={position}
       value={value}
       setValue={setValue}
-      prices={prices}
       repayAmount={repayAmount}
-      balances={balances}
+      maxRepayableAmount={min(
+        position.amount - maxRefund,
+        balances[position.underlying.address],
+      )}
       showSlippageSelect={showSlippageSelect}
       slippage={slippage}
       setSlippage={setSlippage}
-      currentLtv={currentLtv}
-      expectedLtv={expectedLtv}
-      userAddress={userAddress}
-      pathId={pathId}
-      repayWithCollateral={repayWithCollateral}
-      repay={repay}
-      amount={amount}
-      maxRefund={maxRefund}
-      refund={refund}
+      currentLtv={
+        prices[position.underlying.address] &&
+        prices[position.collateral.underlying.address]
+          ? calculateLtv(
+              position.underlying,
+              prices[position.underlying.address],
+              position.amount,
+              position.collateral,
+              prices[position.collateral.underlying.address],
+              position.collateralAmount,
+            )
+          : 0
+      }
+      expectedLtv={
+        prices[position.underlying.address] &&
+        prices[position.collateral.underlying.address]
+          ? calculateLtv(
+              position.underlying,
+              prices[position.underlying.address],
+              max(position.amount - repayAmount - refund, 0n),
+              position.collateral,
+              prices[position.collateral.underlying.address],
+              position.collateralAmount,
+            )
+          : 0
+      }
+      remainingDebt={position.amount - maxRefund}
+      actionButtonProps={{
+        disabled:
+          repayAmount === 0n ||
+          (!isUseCollateral &&
+            repayAmount > balances[position.underlying.address]) ||
+          repayAmount > position.amount - maxRefund,
+        onClick: async () => {
+          if (!userAddress) {
+            return
+          }
+          if (isUseCollateral && pathId) {
+            const swapData = await fetchCallDataByOdos({
+              pathId,
+              userAddress,
+            })
+            await repayWithCollateral(
+              position,
+              amount,
+              repayAmount,
+              refund,
+              swapData,
+            )
+          } else if (!isUseCollateral) {
+            await repay(position, amount, refund)
+          }
+          setValue('')
+          onClose()
+        },
+        text:
+          repayAmount === 0n
+            ? 'Enter amount to repay'
+            : !isUseCollateral &&
+              repayAmount > balances[position.underlying.address]
+            ? `Insufficient ${position.underlying.symbol} balance`
+            : repayAmount > position.amount - maxRefund
+            ? `Cannot repay more than remaining debt`
+            : isUseCollateral
+            ? 'Repay with Collateral'
+            : 'Repay',
+      }}
+      debtAssetPrice={prices[position.underlying.address]}
+      collateralPrice={prices[position.collateral.underlying.address]}
     />
   )
 }

@@ -15,21 +15,13 @@ import { useCurrencyContext } from '../../contexts/currency-context'
 import { fetchDepositApyByEpochsDeposited } from '../../apis/market'
 import CurrencyAmountInput from '../../components/currency-amount-input'
 import { formatUnits } from '../../utils/numbers'
+import { ActionButton } from '../../components/action-button'
 
 const Deposit = () => {
   const { balances, prices, assets } = useCurrencyContext()
   const { deposit } = useDepositContext()
 
   const [epochs, _setEpochs] = useState(0)
-  const [value, setValue] = useState('')
-
-  const router = useRouter()
-  const asset = useMemo(() => {
-    return assets.find(
-      (asset) => asset.underlying.symbol === router.query.symbol,
-    )
-  }, [assets, router.query.symbol])
-
   const setEpochs = useCallback(
     (value: number) => {
       _setEpochs(value === epochs ? value - 1 : value)
@@ -37,13 +29,26 @@ const Deposit = () => {
     [epochs],
   )
 
-  const amount = useMemo(
-    () => parseUnits(value, asset?.underlying.decimals ?? 18),
-    [asset?.underlying.decimals, value],
+  const [value, setValue] = useState('')
+
+  const router = useRouter()
+  const asset = useMemo(() => {
+    return (
+      assets.find((asset) => asset.underlying.symbol === router.query.symbol) ||
+      assets[0]
+    )
+  }, [assets, router.query.symbol])
+
+  const [amount, userBalance] = useMemo(
+    () => [
+      parseUnits(value, asset.underlying.decimals ?? 18),
+      balances[asset.underlying.address] ?? 0n,
+    ],
+    [asset.underlying.address, asset.underlying.decimals, balances, value],
   )
 
   const { data: proceedsByEpochsDeposited } = useQuery(
-    ['deposit-apy', asset, amount], // TODO: useDebounce
+    ['deposit-simulate', asset, amount], // TODO: useDebounce
     () => (asset ? fetchDepositApyByEpochsDeposited(asset, amount) : []),
     {
       refetchOnWindowFocus: true,
@@ -51,23 +56,14 @@ const Deposit = () => {
     },
   )
 
-  const balance = useMemo(() => {
-    return asset ? balances[asset?.underlying.address] ?? 0n : 0n
-  }, [asset, balances])
-
-  const depositApy = useMemo(() => {
-    if (epochs === 0 || !proceedsByEpochsDeposited) {
-      return 0
-    }
-    return proceedsByEpochsDeposited[epochs - 1]?.apy ?? 0
-  }, [proceedsByEpochsDeposited, epochs])
-
-  const expectedProceeds = useMemo(() => {
-    if (epochs === 0 || !proceedsByEpochsDeposited) {
-      return 0n
-    }
-    return proceedsByEpochsDeposited[epochs - 1]?.proceeds ?? 0n
-  }, [proceedsByEpochsDeposited, epochs])
+  const [apy, proceed] = useMemo(() => {
+    return epochs && proceedsByEpochsDeposited
+      ? [
+          proceedsByEpochsDeposited[epochs - 1].apy ?? 0,
+          proceedsByEpochsDeposited[epochs - 1].proceeds ?? 0n,
+        ]
+      : [0, 0n]
+  }, [epochs, proceedsByEpochsDeposited])
 
   return (
     <div className="flex flex-1">
@@ -105,7 +101,7 @@ const Deposit = () => {
                     currency={asset.underlying}
                     value={value}
                     onValueChange={setValue}
-                    balance={balance}
+                    availableAmount={userBalance}
                     price={prices[asset.underlying.address]}
                   />
                 </div>
@@ -174,7 +170,7 @@ const Deposit = () => {
                       Your interest payout will be
                     </label>
                     <CountUp
-                      end={Number(expectedProceeds)}
+                      end={Number(proceed)}
                       suffix={` ${asset.underlying.symbol}`}
                       className={`flex gap-2 ${
                         epochs === 0 ? 'text-gray-400' : ''
@@ -192,29 +188,26 @@ const Deposit = () => {
                   <div className="flex px-2 sm:px-3 py-1.5 bg-gray-100 dark:bg-gray-800 w-fit h-fit rounded font-bold text-xs sm:text-sm gap-1 sm:gap-2">
                     <span className="text-gray-400">APY</span>
                     <div className="text-gray-800 dark:text-white">
-                      {depositApy.toFixed(2)}%
+                      {apy.toFixed(2)}%
                     </div>
                   </div>
                 </div>
-                <button
-                  disabled={amount === 0n || epochs === 0 || amount > balance}
-                  className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
+                <ActionButton
+                  disabled={
+                    amount === 0n || epochs === 0 || amount > userBalance
+                  }
                   onClick={async () => {
-                    const hash = await deposit(
-                      asset,
-                      amount,
-                      epochs,
-                      expectedProceeds,
-                    )
+                    const hash = await deposit(asset, amount, epochs, proceed)
                     if (hash) {
                       await router.replace('/?mode=deposit')
                     }
                   }}
-                >
-                  {amount > balance
-                    ? `Insufficient ${asset.underlying.symbol} balance`
-                    : 'Confirm'}
-                </button>
+                  text={
+                    amount > userBalance
+                      ? `Insufficient ${asset.underlying.symbol} balance`
+                      : 'Deposit'
+                  }
+                />
               </div>
             </div>
           </div>

@@ -22,8 +22,6 @@ import { fetchLoanPositions } from '../apis/loan-position'
 import { Collateral } from '../model/collateral'
 import { LoanPosition } from '../model/loan-position'
 import { Currency } from '../model/currency'
-import { zeroBytes32 } from '../utils/bytes'
-import { approve20 } from '../utils/approve20'
 import { permit721 } from '../utils/permit721'
 import { writeContract } from '../utils/wallet'
 

@@ -5,6 +5,7 @@ import { Asset, AssetStatus } from '../model/asset'
 import { Market } from '../model/market'
 import { formatUnits } from '../utils/numbers'
 import { isEthereum } from '../contexts/currency-context'
+import { LIQUIDATION_TARGET_LTV_PRECISION } from '../utils/ltv'
 
 const { getAssets, getAssetStatuses } = getBuiltGraphSDK()
 
@@ -46,8 +47,9 @@ export async function fetchAssets(): Promise<Asset[]> {
     collaterals: asset.collaterals.map((collateral) => ({
       underlying: toCurrency(collateral.underlying),
       substitute: toCurrency(collateral.substitute),
-      liquidationThreshold: collateral.liquidationThreshold,
-      liquidationTargetLtv: collateral.liquidationTargetLtv,
+      liquidationThreshold: BigInt(collateral.liquidationThreshold),
+      liquidationTargetLtv: BigInt(collateral.liquidationTargetLtv),
+      ltvPrecision: LIQUIDATION_TARGET_LTV_PRECISION,
     })),
     substitutes: asset.substitutes.map((substitute) => toCurrency(substitute)),
   }))
