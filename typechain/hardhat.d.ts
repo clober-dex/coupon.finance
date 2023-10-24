@@ -177,6 +177,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.CloberOrderBook__factory>;
     getContractFactory(
+      name: "CloberRouter",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.CloberRouter__factory>;
+    getContractFactory(
       name: "ISingletonFactory",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ISingletonFactory__factory>;
@@ -320,10 +324,6 @@ declare module "hardhat/types/runtime" {
       name: "LoanPositionManager",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.LoanPositionManager__factory>;
-    getContractFactory(
-      name: "OdosRepayAdapter",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.OdosRepayAdapter__factory>;
     getContractFactory(
       name: "RepayAdapter",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -535,6 +535,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.CloberOrderBook>;
     getContractAt(
+      name: "CloberRouter",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.CloberRouter>;
+    getContractAt(
       name: "ISingletonFactory",
       address: string,
       signer?: ethers.Signer
@@ -714,11 +719,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.LoanPositionManager>;
-    getContractAt(
-      name: "OdosRepayAdapter",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.OdosRepayAdapter>;
     getContractAt(
       name: "RepayAdapter",
       address: string,
