@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useAccount, useFeeData, useNetwork, useQuery } from 'wagmi'
 import { isAddressEqual, parseUnits } from 'viem'
 
@@ -25,10 +25,15 @@ const RepayModalContainer = ({
   const { repay, repayWithCollateral } = useBorrowContext()
   const { prices, balances } = useCurrencyContext()
 
-  const [isUseCollateral, setIsUseCollateral] = useState(false)
+  const [isUseCollateral, _setIsUseCollateral] = useState(false)
   const [value, setValue] = useState('')
   const [slippage, setSlippage] = useState('1')
   const [showSlippageSelect, setShowSlippageSelect] = useState(false)
+
+  const setIsUseCollateral = useCallback((value: boolean) => {
+    _setIsUseCollateral(value)
+    setValue('')
+  }, [])
 
   const amount = useMemo(
     () =>
