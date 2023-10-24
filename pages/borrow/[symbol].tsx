@@ -157,7 +157,7 @@ const Borrow = () => {
             />
           ) : (
             <div className="flex flex-1 sm:items-center justify-center">
-              <div className="flex flex-col sm:shadow bg-gray-50 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 w-full sm:w-[480px] gap-8">
+              <div className="flex flex-col sm:shadow bg-gray-50 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-5 w-full sm:w-[480px] gap-8">
                 <div className="flex flex-col gap-4">
                   <div className="font-bold text-sm sm:text-lg">
                     How much collateral would you like to add?
