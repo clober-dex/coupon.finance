@@ -56,12 +56,21 @@ export const BondPositionCard = ({
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
             <div className="text-gray-500 text-xs">Interest</div>
-            <div className="text-xs sm:text-sm">
-              {formatDollarValue(
+            <div className="flex gap-1 text-xs sm:text-sm">
+              {formatUnits(
                 position.interest,
                 position.underlying.decimals,
                 price,
               )}
+              <span className="text-gray-500">
+                (
+                {formatDollarValue(
+                  position.interest,
+                  position.underlying.decimals,
+                  price,
+                )}
+                )
+              </span>
             </div>
           </div>
           <div className="flex items-center justify-between text-xs">
