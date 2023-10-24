@@ -37,18 +37,28 @@ const EditCollateralModalContainer = ({
     [position.amount, position.collateral, position.underlying, prices, value],
   )
 
+  const availableCollateralAmount = useMemo(
+    () =>
+      isWithdrawCollateral
+        ? max(position.collateralAmount - minCollateralAmount, 0n)
+        : balances[position.collateral.underlying.address] ?? 0n,
+    [
+      balances,
+      isWithdrawCollateral,
+      minCollateralAmount,
+      position.collateral.underlying.address,
+      position.collateralAmount,
+    ],
+  )
+
   return (
     <EditCollateralModal
-      position={position}
+      collateral={position.collateral}
       onClose={onClose}
-      addCollateral={addCollateral}
-      removeCollateral={removeCollateral}
-      prices={prices}
       value={value}
       setValue={setValue}
       isWithdrawCollateral={isWithdrawCollateral}
       setIsWithdrawCollateral={setIsWithdrawCollateral}
-      amount={amount}
       availableCollateralAmount={
         isWithdrawCollateral
           ? max(position.collateralAmount - minCollateralAmount, 0n)
@@ -68,6 +78,25 @@ const EditCollateralModalContainer = ({
             )
           : 0
       }
+      actionButtonProps={{
+        disabled: amount === 0n || amount > availableCollateralAmount,
+        onClick: async () => {
+          isWithdrawCollateral
+            ? await removeCollateral(position, amount)
+            : await addCollateral(position, amount)
+          setValue('')
+          onClose()
+        },
+        text:
+          amount === 0n
+            ? 'Enter collateral amount'
+            : !isWithdrawCollateral && amount > availableCollateralAmount
+            ? `Insufficient ${position.collateral.underlying.symbol} balance`
+            : isWithdrawCollateral && amount > position.collateralAmount
+            ? 'Not enough collateral'
+            : 'Edit Collateral',
+      }}
+      collateralPrice={prices[position.collateral.underlying.address]}
     />
   )
 }

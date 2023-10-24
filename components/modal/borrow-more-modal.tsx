@@ -1,47 +1,35 @@
 import React from 'react'
 
-import { formatUnits } from '../../utils/numbers'
-import { LoanPosition } from '../../model/loan-position'
+import { BigDecimal, formatUnits } from '../../utils/numbers'
 import CurrencyAmountInput from '../currency-amount-input'
 import { Arrow } from '../svg/arrow'
-import { Prices } from '../../model/prices'
+import { ActionButton, ActionButtonProps } from '../action-button'
+import { Currency } from '../../model/currency'
 
 import Modal from './modal'
 
 const BorrowMoreModal = ({
-  position,
+  debtCurrency,
   onClose,
-  currencyInputValue,
-  setCurrencyInputValue,
-  prices,
+  value,
+  setValue,
   maxLoanableAmount,
   currentLtv,
   expectedLtv,
   interest,
-  amount,
-  available,
-  maxInterest,
-  maxLoanableAmountExcludingCouponFee,
-  borrowMore,
+  actionButtonProps,
+  debtAssetPrice,
 }: {
-  position: LoanPosition
+  debtCurrency: Currency
   onClose: () => void
-  currencyInputValue: string
-  setCurrencyInputValue: (value: string) => void
-  prices: Prices
+  value: string
+  setValue: (value: string) => void
   maxLoanableAmount: bigint
   currentLtv: number
   expectedLtv: number
   interest: bigint
-  amount: bigint
-  available: bigint
-  maxInterest: bigint
-  maxLoanableAmountExcludingCouponFee: bigint
-  borrowMore: (
-    position: LoanPosition,
-    amount: bigint,
-    expectedInterest: bigint,
-  ) => Promise<void>
+  actionButtonProps: ActionButtonProps
+  debtAssetPrice?: BigDecimal
 }) => {
   return (
     <Modal show onClose={onClose}>
@@ -50,10 +38,10 @@ const BorrowMoreModal = ({
       </h1>
       <div className="mb-4">
         <CurrencyAmountInput
-          currency={position.underlying}
-          value={currencyInputValue}
-          onValueChange={setCurrencyInputValue}
-          price={prices[position.underlying.address]}
+          currency={debtCurrency}
+          value={value}
+          onValueChange={setValue}
+          price={debtAssetPrice}
           availableAmount={maxLoanableAmount}
         />
       </div>
@@ -62,7 +50,7 @@ const BorrowMoreModal = ({
           <div className="text-gray-500">LTV</div>
           <div className="flex items-center gap-1">
             <span className="text-green-500">{currentLtv.toFixed(2)}%</span>
-            {currencyInputValue ? (
+            {value ? (
               <>
                 <Arrow />
                 <span className="text-red-500">{expectedLtv.toFixed(2)}%</span>
@@ -75,38 +63,12 @@ const BorrowMoreModal = ({
         <div className="flex gap-3 justify-between sm:justify-start">
           <div className="text-gray-500">Coupon Purchase Fee</div>
           <div>
-            {formatUnits(
-              interest,
-              position.underlying.decimals,
-              prices[position.underlying.address],
-            )}{' '}
-            {position.underlying.symbol}
+            {formatUnits(interest, debtCurrency.decimals, debtAssetPrice)}{' '}
+            {debtCurrency.symbol}
           </div>
         </div>
       </div>
-      <button
-        disabled={
-          amount === 0n ||
-          amount + (position.amount - position.interest) > available ||
-          amount + (position.amount - position.interest) + maxInterest >
-            maxLoanableAmountExcludingCouponFee
-        }
-        className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
-        onClick={async () => {
-          await borrowMore(position, amount, interest)
-          setCurrencyInputValue('')
-          onClose()
-        }}
-      >
-        {amount === 0n
-          ? 'Enter loan amount'
-          : amount + (position.amount - position.interest) > available
-          ? 'Not enough coupons for sale'
-          : amount + (position.amount - position.interest) + maxInterest >
-            maxLoanableAmountExcludingCouponFee
-          ? 'Not enough collateral'
-          : 'Borrow'}
-      </button>
+      <ActionButton {...actionButtonProps} />
     </Modal>
   )
 }

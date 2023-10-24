@@ -1,44 +1,33 @@
 import React from 'react'
 import { formatUnits } from 'viem'
 
-import { BondPosition } from '../../model/bond-position'
 import CurrencyAmountInput from '../../components/currency-amount-input'
 import Modal from '../../components/modal/modal'
+import { BigDecimal } from '../../utils/numbers'
+import { ActionButton, ActionButtonProps } from '../action-button'
 import { Currency } from '../../model/currency'
-import { Prices } from '../../model/prices'
-import { min } from '../../utils/bigint'
 
 const WithdrawModal = ({
-  position,
+  depositCurrency,
+  depositAmount,
   onClose,
   value,
   setValue,
-  prices,
-  withdraw,
-  amount,
-  maxRepurchaseFee,
+  maxWithdrawAmount,
   repurchaseFee,
-  available,
+  actionButtonProps,
+  depositAssetPrice,
 }: {
-  position: BondPosition | null
+  depositCurrency: Currency
+  depositAmount: bigint
   onClose: () => void
   value: string
   setValue: (value: string) => void
-  prices: Prices
-  withdraw: (
-    asset: Currency,
-    tokenId: bigint,
-    amount: bigint,
-    repurchaseFee: bigint,
-  ) => Promise<void>
-  amount: bigint
-  maxRepurchaseFee: bigint
+  maxWithdrawAmount: bigint
   repurchaseFee: bigint
-  available: bigint
+  actionButtonProps: ActionButtonProps
+  depositAssetPrice?: BigDecimal
 }) => {
-  if (!position) {
-    return <></>
-  }
   return (
     <Modal
       show
@@ -52,48 +41,24 @@ const WithdrawModal = ({
       </h1>
       <div className="mb-4">
         <CurrencyAmountInput
-          currency={position.underlying}
+          currency={depositCurrency}
           value={value}
           onValueChange={setValue}
-          availableAmount={min(position.amount - maxRepurchaseFee, available)}
-          price={prices[position.underlying.address]}
+          availableAmount={maxWithdrawAmount}
+          price={depositAssetPrice}
         />
       </div>
       <div className="flex text-xs sm:text-sm gap-3 mb-2 sm:mb-3 justify-between sm:justify-start">
         <span className="text-gray-500">Your deposit amount</span>
-        {formatUnits(position.amount, position.underlying.decimals)}{' '}
-        {position.underlying.symbol}
+        {formatUnits(depositAmount, depositCurrency.decimals)}{' '}
+        {depositCurrency.symbol}
       </div>
       <div className="flex text-xs sm:text-sm gap-3 mb-6 sm:mb-8 justify-between sm:justify-start">
         <span className="text-gray-500">Coupon repurchase fee</span>
-        {formatUnits(repurchaseFee, position.underlying.decimals)}{' '}
-        {position.underlying.symbol}
+        {formatUnits(repurchaseFee, depositCurrency.decimals)}{' '}
+        {depositCurrency.symbol}
       </div>
-      <button
-        disabled={
-          amount === 0n ||
-          amount > min(position.amount - maxRepurchaseFee, available)
-        }
-        className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
-        onClick={async () => {
-          await withdraw(
-            position.underlying,
-            position.tokenId,
-            amount,
-            repurchaseFee,
-          )
-          setValue('')
-          onClose()
-        }}
-      >
-        {amount > available
-          ? 'Not enough coupons for sale'
-          : amount > position.amount
-          ? 'Not enough deposited'
-          : amount + maxRepurchaseFee > position.amount
-          ? 'Cannot cover repurchase fee'
-          : 'Confirm'}
-      </button>
+      <ActionButton {...actionButtonProps} />
     </Modal>
   )
 }

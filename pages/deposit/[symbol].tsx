@@ -15,6 +15,7 @@ import { useCurrencyContext } from '../../contexts/currency-context'
 import { fetchDepositApyByEpochsDeposited } from '../../apis/market'
 import CurrencyAmountInput from '../../components/currency-amount-input'
 import { formatUnits } from '../../utils/numbers'
+import { ActionButton } from '../../components/action-button'
 
 const Deposit = () => {
   const { balances, prices, assets } = useCurrencyContext()
@@ -191,22 +192,22 @@ const Deposit = () => {
                     </div>
                   </div>
                 </div>
-                <button
+                <ActionButton
                   disabled={
                     amount === 0n || epochs === 0 || amount > userBalance
                   }
-                  className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
                   onClick={async () => {
                     const hash = await deposit(asset, amount, epochs, proceed)
                     if (hash) {
                       await router.replace('/?mode=deposit')
                     }
                   }}
-                >
-                  {amount > userBalance
-                    ? `Insufficient ${asset.underlying.symbol} balance`
-                    : 'Confirm'}
-                </button>
+                  text={
+                    amount > userBalance
+                      ? `Insufficient ${asset.underlying.symbol} balance`
+                      : 'Deposit'
+                  }
+                />
               </div>
             </div>
           </div>

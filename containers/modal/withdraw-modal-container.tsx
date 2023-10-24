@@ -8,6 +8,7 @@ import { fetchMarkets } from '../../apis/market'
 import { useDepositContext } from '../../contexts/deposit-context'
 import { calculateCouponsToWithdraw } from '../../model/market'
 import WithdrawModal from '../../components/modal/withdraw-modal'
+import { min } from '../../utils/bigint'
 
 const WithdrawModalContainer = ({
   position,
@@ -55,23 +56,50 @@ const WithdrawModalContainer = ({
     },
   )
 
-  const maxRepurchaseFee = useMemo(() => data?.maxRepurchaseFee ?? 0n, [data])
-  const repurchaseFee = useMemo(() => data?.repurchaseFee ?? 0n, [data])
-  const available = useMemo(() => data?.available ?? 0n, [data])
+  const [maxRepurchaseFee, repurchaseFee, available] = useMemo(
+    () =>
+      data
+        ? [data.maxRepurchaseFee, data.repurchaseFee, data.available]
+        : [0n, 0n, 0n],
+    [data],
+  )
 
-  return (
+  return position ? (
     <WithdrawModal
-      position={position}
+      depositCurrency={position.underlying}
+      depositAmount={position.amount}
       onClose={onClose}
       value={value}
       setValue={setValue}
-      prices={prices}
-      withdraw={withdraw}
-      amount={amount}
-      maxRepurchaseFee={maxRepurchaseFee}
       repurchaseFee={repurchaseFee}
-      available={available}
+      maxWithdrawAmount={min(position.amount - maxRepurchaseFee, available)}
+      actionButtonProps={{
+        disabled:
+          amount === 0n ||
+          amount > min(position.amount - maxRepurchaseFee, available),
+        onClick: async () => {
+          await withdraw(
+            position.underlying,
+            position.tokenId,
+            amount,
+            repurchaseFee,
+          )
+          setValue('')
+          onClose()
+        },
+        text:
+          amount > available
+            ? 'Not enough coupons for sale'
+            : amount > position.amount
+            ? 'Not enough deposited'
+            : amount + maxRepurchaseFee > position.amount
+            ? 'Cannot cover repurchase fee'
+            : 'Withdraw',
+      }}
+      depositAssetPrice={prices[position.underlying.address]}
     />
+  ) : (
+    <></>
   )
 }
 

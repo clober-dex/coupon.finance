@@ -64,19 +64,50 @@ const EditExpiryModalContainer = ({
 
   return (
     <EditExpiryModal
-      position={position}
       onClose={onClose}
-      balances={balances}
-      extendLoanDuration={extendLoanDuration}
-      shortenLoanDuration={shortenLoanDuration}
       epochs={epochs}
       setEpochs={setEpochs}
-      data={data}
-      expiryEpochIndex={expiryEpochIndex}
-      interest={interest}
-      payable={payable}
-      refund={refund}
-      refundable={refundable}
+      dateList={data || []}
+      actionButtonProps={{
+        disabled:
+          epochs === 0 ||
+          expiryEpochIndex === epochs ||
+          (refund === 0n && interest === 0n) ||
+          interest > balances[position.underlying.address] ||
+          !payable ||
+          !refundable,
+        onClick: async () => {
+          if (epochs > expiryEpochIndex) {
+            await extendLoanDuration(
+              position.underlying,
+              position.id,
+              epochs - expiryEpochIndex,
+              interest,
+            )
+          } else if (epochs < expiryEpochIndex) {
+            await shortenLoanDuration(
+              position.underlying,
+              position.id,
+              expiryEpochIndex - epochs,
+              refund,
+            )
+          }
+          setEpochs(0)
+          onClose()
+        },
+        text:
+          epochs === 0
+            ? 'Select expiry date'
+            : expiryEpochIndex === epochs
+            ? 'Select new expiry date'
+            : epochs > expiryEpochIndex && !payable
+            ? 'Not enough coupons for pay'
+            : epochs < expiryEpochIndex && !refundable
+            ? 'Not enough coupons for refund'
+            : interest > balances[position.underlying.address]
+            ? `Insufficient ${position.underlying.symbol} balance`
+            : 'Edit expiry date',
+      }}
     />
   )
 }
