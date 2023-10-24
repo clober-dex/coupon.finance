@@ -10,6 +10,7 @@ import { max, min } from '../../utils/bigint'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import BorrowMoreModal from '../../components/modal/borrow-more-modal'
 import { calculateLtv, calculateMaxLoanableAmount } from '../../utils/ltv'
+import { ActionButton } from '../../components/action-button'
 
 const BorrowMoreModalContainer = ({
   position,
@@ -82,9 +83,8 @@ const BorrowMoreModalContainer = ({
     <BorrowMoreModal
       position={position}
       onClose={onClose}
-      currencyInputValue={value}
-      setCurrencyInputValue={setValue}
-      prices={prices}
+      value={value}
+      setValue={setValue}
       maxLoanableAmount={max(
         min(
           maxLoanableAmountExcludingCouponFee -
@@ -121,11 +121,32 @@ const BorrowMoreModalContainer = ({
           : 0
       }
       interest={interest}
-      amount={amount}
-      available={available}
-      maxInterest={maxInterest}
-      maxLoanableAmountExcludingCouponFee={maxLoanableAmountExcludingCouponFee}
-      borrowMore={borrowMore}
+      actionButton={
+        <ActionButton
+          disabled={
+            amount === 0n ||
+            amount + (position.amount - position.interest) > available ||
+            amount + (position.amount - position.interest) + maxInterest >
+              maxLoanableAmountExcludingCouponFee
+          }
+          onClick={async () => {
+            await borrowMore(position, amount, interest)
+            setValue('')
+            onClose()
+          }}
+          text={
+            amount === 0n
+              ? 'Enter loan amount'
+              : amount + (position.amount - position.interest) > available
+              ? 'Not enough coupons for sale'
+              : amount + (position.amount - position.interest) + maxInterest >
+                maxLoanableAmountExcludingCouponFee
+              ? 'Not enough collateral'
+              : 'Borrow More'
+          }
+        />
+      }
+      debtAssetPrice={prices[position.underlying.address]}
     />
   )
 }
