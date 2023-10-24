@@ -162,7 +162,6 @@ const RepayModalContainer = ({
               repayAmount > balances[position.underlying.address]) ||
             repayAmount > position.amount - maxRefund
           }
-          className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
           onClick={async () => {
             if (!userAddress) {
               return
