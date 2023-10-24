@@ -9,7 +9,7 @@ import {
   formatUnits,
 } from '../utils/numbers'
 import { getLogo } from '../model/currency'
-import { calculateApr } from '../utils/apr'
+import { calculateApy } from '../utils/apy'
 
 import { EditSvg } from './svg/edit-svg'
 
@@ -65,7 +65,7 @@ export const LoanPositionCard = ({
         </div>
         <div className="flex flex-col items-end">
           <div className="font-bold">
-            {calculateApr(
+            {calculateApy(
               Number(position.interest) / Number(position.amount),
               position.toEpoch.endTimestamp - position.createdAt,
             ).toFixed(2)}

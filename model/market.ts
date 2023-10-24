@@ -2,7 +2,6 @@ import { isAddressEqual } from 'viem'
 
 import { MarketDto } from '../apis/market'
 import { calculateApy } from '../utils/apy'
-import { calculateApr } from '../utils/apr'
 import { max, min } from '../utils/bigint'
 
 import { Currency } from './currency'
@@ -360,7 +359,7 @@ export const calculateDepositApy = (
   }
 }
 
-export const calculateBorrowApr = (
+export const calculateBorrowApy = (
   substitute: Currency,
   markets: Market[],
   initialBorrow: bigint,
@@ -369,7 +368,7 @@ export const calculateBorrowApr = (
 ): {
   interest: bigint
   maxInterest: bigint
-  apr: number
+  apy: number
   totalBorrow: bigint
   available: bigint
 } => {
@@ -396,10 +395,10 @@ export const calculateBorrowApr = (
   const totalBorrow = initialBorrow - interest
   const p = Number(interest) / Number(totalBorrow)
   const d = Number(endTimestamp) - currentTimestamp
-  const apr = calculateApr(p, d)
+  const apy = calculateApy(p, d)
 
   return {
-    apr,
+    apy: apy,
     interest,
     maxInterest,
     totalBorrow,

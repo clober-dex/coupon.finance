@@ -11,7 +11,7 @@ import { getLogo } from '../../model/currency'
 import CurrencySelect from '../../components/currency-select'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import CurrencyAmountInput from '../../components/currency-amount-input'
-import { fetchBorrowAprByEpochsBorrowed } from '../../apis/market'
+import { fetchBorrowApyByEpochsBorrowed } from '../../apis/market'
 import { formatUnits } from '../../utils/numbers'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import { Collateral } from '../../model/collateral'
@@ -83,7 +83,7 @@ const Borrow = () => {
       maxLoanableAmountExcludingCouponFee,
     ], // TODO: useDebounce
     () =>
-      fetchBorrowAprByEpochsBorrowed(
+      fetchBorrowApyByEpochsBorrowed(
         asset,
         borrowAmount,
         maxLoanableAmountExcludingCouponFee,
@@ -94,11 +94,11 @@ const Borrow = () => {
     },
   )
 
-  const [apr, available, interest, maxInterest] = useMemo(
+  const [apy, available, interest, maxInterest] = useMemo(
     () =>
       epochs && interestsByEpochsBorrowed
         ? [
-            interestsByEpochsBorrowed[epochs - 1].apr ?? 0,
+            interestsByEpochsBorrowed[epochs - 1].apy ?? 0,
             interestsByEpochsBorrowed[epochs - 1].available ?? 0n,
             interestsByEpochsBorrowed[epochs - 1].interest ?? 0n,
             interestsByEpochsBorrowed[epochs - 1].maxInterest ?? 0n,
@@ -227,10 +227,10 @@ const Borrow = () => {
                   </div>
                   <div className="flex flex-col gap-2">
                     <div className="flex w-full sm:w-fit text-sm gap-2 justify-between">
-                      <span className="text-gray-500">APR</span>
+                      <span className="text-gray-500">APY</span>
                       <div className="flex gap-1">
                         <div className="text-gray-800 dark:text-white">
-                          {apr.toFixed(2)}%
+                          {apy.toFixed(2)}%
                         </div>
                         <div className="text-gray-400">
                           (
