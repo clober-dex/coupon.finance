@@ -4,3 +4,4 @@
 export type { CloberMarketFactory } from "./CloberMarketFactory";
 export type { CloberMarketSwapCallbackReceiver } from "./CloberMarketSwapCallbackReceiver";
 export type { CloberOrderBook } from "./CloberOrderBook";
+export type { CloberRouter } from "./CloberRouter";
