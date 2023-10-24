@@ -12,7 +12,7 @@ import {
 import { Asset } from '../model/asset'
 import { permit20 } from '../utils/permit20'
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
-import { formatUnits } from '../utils/numbers'
+import { formatUnits, NUMERIC_EPSILON } from '../utils/numbers'
 import { BorrowController__factory, RepayAdapter__factory } from '../typechain'
 import { max } from '../utils/bigint'
 import { fetchLoanPositions } from '../apis/loan-position'
@@ -80,8 +80,6 @@ const Context = React.createContext<BorrowContext>({
   removeCollateral: () => Promise.resolve(),
 })
 
-const SLIPPAGE_PERCENTAGE = 0.001
-
 export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient()
 
@@ -118,9 +116,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
 
       const maximumInterestPaid = max(
-        BigInt(
-          Math.floor(Number(expectedInterest) * (1 + SLIPPAGE_PERCENTAGE)),
-        ),
+        BigInt(Math.floor(Number(expectedInterest) * (1 + NUMERIC_EPSILON))),
         expectedInterest,
       )
       const wethBalance = isEthereum(collateral.underlying)
@@ -299,10 +295,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const minimumInterestEarned = BigInt(
-        Math.floor(Number(expectedProceeds) * (1 - SLIPPAGE_PERCENTAGE)),
-      )
-
+      const minimumInterestEarned = expectedProceeds
       try {
         const { deadline, r, s, v } = await permit721(
           walletClient,
@@ -372,9 +365,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
 
       const maximumInterestPaid = max(
-        BigInt(
-          Math.floor(Number(expectedInterest) * (1 + SLIPPAGE_PERCENTAGE)),
-        ),
+        BigInt(Math.floor(Number(expectedInterest) * (1 + NUMERIC_EPSILON))),
         expectedInterest,
       )
 
@@ -434,9 +425,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
 
       const maximumInterestPaid = max(
-        BigInt(
-          Math.floor(Number(expectedInterest) * (1 + SLIPPAGE_PERCENTAGE)),
-        ),
+        BigInt(Math.floor(Number(expectedInterest) * (1 + NUMERIC_EPSILON))),
         expectedInterest,
       )
       const wethBalance = isEthereum(underlying)
@@ -531,9 +520,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const minimumInterestEarned = BigInt(
-        Math.floor(Number(expectedProceeds) * (1 - SLIPPAGE_PERCENTAGE)),
-      )
+      const minimumInterestEarned = expectedProceeds
       try {
         const { deadline, s, r, v } = await permit721(
           walletClient,

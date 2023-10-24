@@ -16,7 +16,7 @@ import { max } from '../utils/bigint'
 import { permit20 } from '../utils/permit20'
 import { fetchBondPositions } from '../apis/bond-position'
 import { BondPosition } from '../model/bond-position'
-import { formatUnits } from '../utils/numbers'
+import { formatUnits, NUMERIC_EPSILON } from '../utils/numbers'
 import { permit721 } from '../utils/permit721'
 import { Currency } from '../model/currency'
 import { writeContract } from '../utils/wallet'
@@ -47,8 +47,6 @@ const Context = React.createContext<DepositContext>({
   withdraw: () => Promise.resolve(),
   collect: () => Promise.resolve(),
 })
-
-const SLIPPAGE_PERCENTAGE = 0.001
 
 export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient()
@@ -165,7 +163,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
 
       const maximumInterestPaid = max(
-        BigInt(Math.floor(Number(repurchaseFee) * (1 + SLIPPAGE_PERCENTAGE))),
+        BigInt(Math.floor(Number(repurchaseFee) * (1 + NUMERIC_EPSILON))),
         repurchaseFee,
       )
 

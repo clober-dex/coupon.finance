@@ -6,6 +6,8 @@ export type BigDecimal = {
   decimals: number
 }
 
+export const NUMERIC_EPSILON = 0.0001
+
 export const dollarValue = (
   value: bigint,
   decimals: number,
