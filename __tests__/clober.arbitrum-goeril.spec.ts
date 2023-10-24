@@ -107,7 +107,7 @@ describe('Market Orders', () => {
       params: [
         {
           forking: {
-            jsonRpcUrl: 'https://goerli-rollup.arbitrum.io/rpc',
+            jsonRpcUrl: 'https://arbitrum-goerli-archive.allthatnode.com',
             blockNumber,
           },
         },
