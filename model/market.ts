@@ -3,6 +3,7 @@ import { isAddressEqual } from 'viem'
 import { MarketDto } from '../apis/market'
 import { calculateApy } from '../utils/apy'
 import { max, min } from '../utils/bigint'
+import { NUMERIC_EPSILON } from '../utils/numbers'
 
 import { Currency } from './currency'
 
@@ -462,7 +463,7 @@ export function calculateCouponsToWithdraw(
   return {
     maxRepurchaseFee,
     repurchaseFee,
-    available,
+    available: BigInt(Math.floor(Number(available) * (1 - NUMERIC_EPSILON))),
   }
 }
 
@@ -520,7 +521,7 @@ export function calculateCouponsToBorrow(
   return {
     interest,
     maxInterest,
-    available,
+    available: BigInt(Math.floor(Number(available) * (1 - NUMERIC_EPSILON))),
   }
 }
 
