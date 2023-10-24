@@ -14,7 +14,7 @@ const WithdrawModalContainer = ({
   position,
   onClose,
 }: {
-  position: BondPosition
+  position: BondPosition | null
   onClose: () => void
 }) => {
   const [value, setValue] = useState('')
@@ -64,7 +64,7 @@ const WithdrawModalContainer = ({
     [data],
   )
 
-  return (
+  return position ? (
     <WithdrawModal
       position={position}
       onClose={onClose}
@@ -101,6 +101,8 @@ const WithdrawModalContainer = ({
       }
       depositAssetPrice={prices[position.underlying.address]}
     />
+  ) : (
+    <></>
   )
 }
 
