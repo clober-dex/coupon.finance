@@ -1,12 +1,13 @@
 import React from 'react'
 
-import { useThemeContext } from '../contexts/theme-context'
-
 import LightSvg from './svg/light-svg'
 import DarkSvg from './svg/dark-svg'
 
-const ThemeToggle = () => {
-  const { setTheme } = useThemeContext()
+const ThemeToggle = ({
+  setTheme,
+}: {
+  setTheme: (theme: 'light' | 'dark') => void
+}) => {
   return (
     <div className="flex rounded bg-gray-100 dark:bg-gray-800 w-16 h-8">
       <button

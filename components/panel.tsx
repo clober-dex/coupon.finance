@@ -7,9 +7,11 @@ import ThemeToggle from './theme-toggle'
 const Panel = ({
   open,
   setOpen,
+  setTheme,
 }: {
   open: boolean
   setOpen: (open: boolean) => void
+  setTheme: (theme: 'light' | 'dark') => void
 }) => {
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -68,7 +70,7 @@ const Panel = ({
                       >
                         Docs
                       </a>
-                      <ThemeToggle />
+                      <ThemeToggle setTheme={setTheme} />
                     </div>
                   </div>
                 </Dialog.Panel>

@@ -17,7 +17,7 @@ import Head from 'next/head'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
 
-import Header from '../components/header'
+import HeaderContainer from '../containers/header-container'
 import { ThemeProvider, useThemeContext } from '../contexts/theme-context'
 import { DepositProvider } from '../contexts/deposit-context'
 import { BorrowProvider } from '../contexts/borrow-context'
@@ -83,8 +83,18 @@ const Web3AnalyticWrapper = ({ children }: React.PropsWithChildren) => {
   return <>{children}</>
 }
 
-function MyApp({ Component, pageProps }: AppProps) {
+const HeaderWrapper = () => {
   const [open, setOpen] = useState(false)
+  const { setTheme } = useThemeContext()
+  return (
+    <>
+      <Panel open={open} setOpen={setOpen} setTheme={setTheme} />
+      <HeaderContainer onMenuClick={() => setOpen(true)} setTheme={setTheme} />
+    </>
+  )
+}
+
+function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
       <Head>
@@ -102,8 +112,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                 <DepositProvider>
                   <BorrowProvider>
                     <div className="flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white">
-                      <Panel open={open} setOpen={setOpen} />
-                      <Header onMenuClick={() => setOpen(true)} />
+                      <HeaderWrapper />
                       <Component {...pageProps} />
                       <Link
                         target="_blank"
