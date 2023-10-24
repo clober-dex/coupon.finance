@@ -67,39 +67,36 @@ const EditExpiryModalContainer = ({
       onClose={onClose}
       epochs={epochs}
       setEpochs={setEpochs}
-      data={data || []}
-      actionButton={
-        <button
-          disabled={
-            epochs === 0 ||
-            expiryEpochIndex === epochs ||
-            (refund === 0n && interest === 0n) ||
-            interest > balances[position.underlying.address] ||
-            !payable ||
-            !refundable
+      dateList={data || []}
+      actionButtonProps={{
+        disabled:
+          epochs === 0 ||
+          expiryEpochIndex === epochs ||
+          (refund === 0n && interest === 0n) ||
+          interest > balances[position.underlying.address] ||
+          !payable ||
+          !refundable,
+        onClick: async () => {
+          if (epochs > expiryEpochIndex) {
+            await extendLoanDuration(
+              position.underlying,
+              position.id,
+              epochs - expiryEpochIndex,
+              interest,
+            )
+          } else if (epochs < expiryEpochIndex) {
+            await shortenLoanDuration(
+              position.underlying,
+              position.id,
+              expiryEpochIndex - epochs,
+              refund,
+            )
           }
-          className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
-          onClick={async () => {
-            if (epochs > expiryEpochIndex) {
-              await extendLoanDuration(
-                position.underlying,
-                position.id,
-                epochs - expiryEpochIndex,
-                interest,
-              )
-            } else if (epochs < expiryEpochIndex) {
-              await shortenLoanDuration(
-                position.underlying,
-                position.id,
-                expiryEpochIndex - epochs,
-                refund,
-              )
-            }
-            setEpochs(0)
-            onClose()
-          }}
-        >
-          {epochs === 0
+          setEpochs(0)
+          onClose()
+        },
+        text:
+          epochs === 0
             ? 'Select expiry date'
             : expiryEpochIndex === epochs
             ? 'Select new expiry date'
@@ -109,9 +106,8 @@ const EditExpiryModalContainer = ({
             ? 'Not enough coupons for refund'
             : interest > balances[position.underlying.address]
             ? `Insufficient ${position.underlying.symbol} balance`
-            : 'Confirm'}
-        </button>
-      }
+            : 'Edit expiry date',
+      }}
     />
   )
 }

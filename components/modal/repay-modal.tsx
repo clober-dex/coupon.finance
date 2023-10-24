@@ -8,6 +8,7 @@ import SwapSvg from '../svg/swap-svg'
 import SlippageSelect from '../slippage-select'
 import Modal from '../../components/modal/modal'
 import { max } from '../../utils/bigint'
+import { ActionButton, ActionButtonProps } from '../action-button'
 
 const RepayModal = ({
   position,
@@ -25,7 +26,7 @@ const RepayModal = ({
   currentLtv,
   expectedLtv,
   remainingDebt,
-  actionButton,
+  actionButtonProps,
   debtAssetPrice,
   collateralPrice,
 }: {
@@ -44,7 +45,7 @@ const RepayModal = ({
   currentLtv: number
   expectedLtv: number
   remainingDebt: bigint
-  actionButton: React.ReactNode
+  actionButtonProps: ActionButtonProps
   debtAssetPrice?: BigDecimal
   collateralPrice?: BigDecimal
 }) => {
@@ -169,7 +170,7 @@ const RepayModal = ({
           </div>
         </div>
       </div>
-      {actionButton}
+      <ActionButton {...actionButtonProps} />
     </Modal>
   )
 }

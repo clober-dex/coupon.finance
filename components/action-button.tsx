@@ -1,18 +1,21 @@
 import React from 'react'
 
+export type ActionButtonProps = {
+  disabled: boolean
+  onClick: () => void
+  text: string
+}
+
 export const ActionButton = ({
   disabled,
   onClick,
   text,
   ...props
-}: {
-  disabled: boolean
-  onClick: () => void
-  text: string
-} & React.DetailedHTMLProps<
-  React.ButtonHTMLAttributes<HTMLButtonElement>,
-  HTMLButtonElement
->) => {
+}: ActionButtonProps &
+  React.DetailedHTMLProps<
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
+    HTMLButtonElement
+  >) => {
   return (
     <button
       disabled={disabled}

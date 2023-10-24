@@ -2,21 +2,22 @@ import React from 'react'
 
 import Slider from '../../components/slider'
 import Modal from '../../components/modal/modal'
+import { ActionButton, ActionButtonProps } from '../action-button'
 
 const EditExpiryModal = ({
   onClose,
   epochs,
   setEpochs,
-  data,
-  actionButton,
+  dateList,
+  actionButtonProps,
 }: {
   onClose: () => void
   epochs: number
   setEpochs: (value: number) => void
-  data: {
+  dateList: {
     date: string
   }[]
-  actionButton: React.ReactNode
+  actionButtonProps: ActionButtonProps
 }) => {
   return (
     <Modal show onClose={onClose}>
@@ -29,13 +30,13 @@ const EditExpiryModal = ({
       <div className="flex flex-col relative bg-white dark:bg-gray-900 rounded-lg p-4 mb-8">
         <div className="px-6 mb-2">
           <Slider
-            length={data?.length ?? 0}
+            length={dateList?.length ?? 0}
             value={epochs}
             onValueChange={setEpochs}
           />
         </div>
         <div className="flex justify-between">
-          {(data ?? []).map(({ date }, index) => (
+          {(dateList ?? []).map(({ date }, index) => (
             <button
               key={index}
               className="flex flex-col items-center gap-2 w-[72px]"
@@ -46,7 +47,7 @@ const EditExpiryModal = ({
           ))}
         </div>
       </div>
-      {actionButton}
+      <ActionButton {...actionButtonProps} />
     </Modal>
   )
 }

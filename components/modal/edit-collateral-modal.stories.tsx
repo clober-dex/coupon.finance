@@ -1,10 +1,8 @@
-import React from 'react'
 import { Meta, StoryObj } from '@storybook/react'
 
 import '../../styles/globals.css'
 
 import { dummyLoanPosition } from '../../.storybook/dummy-data/loan-position'
-import { ActionButton } from '../action-button'
 
 import EditCollateralModal from './edit-collateral-modal'
 
@@ -32,13 +30,11 @@ export const Default: Story = {
       value: 2500000000000n,
       decimals: 8,
     },
-    actionButton: (
-      <ActionButton
-        disabled={false}
-        onClick={() => {}}
-        text={'Edit Collateral'}
-      />
-    ),
+    actionButtonProps: {
+      disabled: false,
+      onClick: () => {},
+      text: 'Edit Collateral',
+    },
   },
 }
 

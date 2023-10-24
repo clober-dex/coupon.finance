@@ -1,9 +1,6 @@
-import React from 'react'
 import { Meta, StoryObj } from '@storybook/react'
 
 import '../../styles/globals.css'
-
-import { ActionButton } from '../action-button'
 
 import EditExpiryModal from './edit-expiry-modal'
 
@@ -22,7 +19,7 @@ export const Default: Story = {
     onClose: () => {},
     epochs: 0,
     setEpochs: () => {},
-    data: [
+    dateList: [
       {
         date: '2023-12-31',
       },
@@ -36,9 +33,11 @@ export const Default: Story = {
         date: '2025-06-30',
       },
     ],
-    actionButton: (
-      <ActionButton disabled={false} onClick={() => {}} text={'Edit expiry'} />
-    ),
+    actionButtonProps: {
+      disabled: false,
+      onClick: () => {},
+      text: 'Select expiry date',
+    },
   },
 }
 
@@ -47,7 +46,7 @@ export const Half: Story = {
     onClose: () => {},
     epochs: 2,
     setEpochs: () => {},
-    data: [
+    dateList: [
       {
         date: '2023-12-31',
       },
@@ -61,9 +60,11 @@ export const Half: Story = {
         date: '2025-06-30',
       },
     ],
-    actionButton: (
-      <ActionButton disabled={false} onClick={() => {}} text={'Edit expiry'} />
-    ),
+    actionButtonProps: {
+      disabled: false,
+      onClick: () => {},
+      text: 'Select expiry date',
+    },
   },
 }
 
@@ -72,7 +73,7 @@ export const Full: Story = {
     onClose: () => {},
     epochs: 4,
     setEpochs: () => {},
-    data: [
+    dateList: [
       {
         date: '2023-12-31',
       },
@@ -86,9 +87,11 @@ export const Full: Story = {
         date: '2025-06-30',
       },
     ],
-    actionButton: (
-      <ActionButton disabled={false} onClick={() => {}} text={'Edit expiry'} />
-    ),
+    actionButtonProps: {
+      disabled: false,
+      onClick: () => {},
+      text: 'Select expiry date',
+    },
   },
 }
 

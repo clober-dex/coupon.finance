@@ -4,6 +4,7 @@ import { BigDecimal, formatUnits } from '../../utils/numbers'
 import { LoanPosition } from '../../model/loan-position'
 import CurrencyAmountInput from '../currency-amount-input'
 import { Arrow } from '../svg/arrow'
+import { ActionButton, ActionButtonProps } from '../action-button'
 
 import Modal from './modal'
 
@@ -16,7 +17,7 @@ const BorrowMoreModal = ({
   currentLtv,
   expectedLtv,
   interest,
-  actionButton,
+  actionButtonProps,
   debtAssetPrice,
 }: {
   position: LoanPosition
@@ -27,7 +28,7 @@ const BorrowMoreModal = ({
   currentLtv: number
   expectedLtv: number
   interest: bigint
-  actionButton: React.ReactNode
+  actionButtonProps: ActionButtonProps
   debtAssetPrice?: BigDecimal
 }) => {
   return (
@@ -71,7 +72,7 @@ const BorrowMoreModal = ({
           </div>
         </div>
       </div>
-      {actionButton}
+      <ActionButton {...actionButtonProps} />
     </Modal>
   )
 }

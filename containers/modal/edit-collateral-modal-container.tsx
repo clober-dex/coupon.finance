@@ -78,26 +78,24 @@ const EditCollateralModalContainer = ({
             )
           : 0
       }
-      actionButton={
-        <button
-          disabled={amount === 0n || amount > availableCollateralAmount}
-          onClick={async () => {
-            isWithdrawCollateral
-              ? await removeCollateral(position, amount)
-              : await addCollateral(position, amount)
-            setValue('')
-            onClose()
-          }}
-        >
-          {amount === 0n
+      actionButtonProps={{
+        disabled: amount === 0n || amount > availableCollateralAmount,
+        onClick: async () => {
+          isWithdrawCollateral
+            ? await removeCollateral(position, amount)
+            : await addCollateral(position, amount)
+          setValue('')
+          onClose()
+        },
+        text:
+          amount === 0n
             ? 'Enter collateral amount'
             : !isWithdrawCollateral && amount > availableCollateralAmount
             ? `Insufficient ${position.collateral.underlying.symbol} balance`
             : isWithdrawCollateral && amount > position.collateralAmount
             ? 'Not enough collateral'
-            : 'Confirm'}
-        </button>
-      }
+            : 'Edit Collateral',
+      }}
       collateralPrice={prices[position.collateral.underlying.address]}
     />
   )

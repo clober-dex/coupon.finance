@@ -4,6 +4,7 @@ import { LoanPosition } from '../../model/loan-position'
 import CurrencyAmountInput from '../../components/currency-amount-input'
 import Modal from '../../components/modal/modal'
 import { BigDecimal } from '../../utils/numbers'
+import { ActionButton, ActionButtonProps } from '../action-button'
 
 const EditCollateralModal = ({
   position,
@@ -14,7 +15,7 @@ const EditCollateralModal = ({
   setIsWithdrawCollateral,
   availableCollateralAmount,
   currentLtv,
-  actionButton,
+  actionButtonProps,
   collateralPrice,
 }: {
   position: LoanPosition
@@ -25,7 +26,7 @@ const EditCollateralModal = ({
   setIsWithdrawCollateral: (value: boolean) => void
   availableCollateralAmount: bigint
   currentLtv: number
-  actionButton: React.ReactNode
+  actionButtonProps: ActionButtonProps
   collateralPrice?: BigDecimal
 }) => {
   return (
@@ -60,7 +61,7 @@ const EditCollateralModal = ({
         <span className="text-gray-500">LTV</span>
         {currentLtv.toFixed(2)}%
       </div>
-      {actionButton}
+      <ActionButton {...actionButtonProps} />
     </Modal>
   )
 }

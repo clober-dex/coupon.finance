@@ -17,6 +17,7 @@ import { useBorrowContext } from '../../contexts/borrow-context'
 import { Collateral } from '../../model/collateral'
 import { calculateLtv, calculateMaxLoanableAmount } from '../../utils/ltv'
 import { max, min } from '../../utils/bigint'
+import { ActionButton } from '../../components/action-button'
 
 const Borrow = () => {
   const { balances, prices, assets } = useCurrencyContext()
@@ -260,7 +261,7 @@ const Borrow = () => {
                     </div>
                   </div>
                 </div>
-                <button
+                <ActionButton
                   disabled={
                     epochs === 0 ||
                     collateralAmount === 0n ||
@@ -286,22 +287,23 @@ const Borrow = () => {
                       await router.replace('/?mode=borrow')
                     }
                   }}
-                >
-                  {epochs === 0
-                    ? 'Select expiration date'
-                    : collateralAmount === 0n
-                    ? 'Enter collateral amount'
-                    : borrowAmount === 0n
-                    ? 'Enter loan amount'
-                    : collateralAmount > collateralUserBalance
-                    ? `Insufficient ${collateral?.underlying.symbol} balance`
-                    : borrowAmount > available
-                    ? 'Not enough coupons for sale'
-                    : borrowAmount + maxInterest >
-                      maxLoanableAmountExcludingCouponFee
-                    ? 'Not enough collateral'
-                    : 'Borrow'}
-                </button>
+                  text={
+                    epochs === 0
+                      ? 'Select expiration date'
+                      : collateralAmount === 0n
+                      ? 'Enter collateral amount'
+                      : borrowAmount === 0n
+                      ? 'Enter loan amount'
+                      : collateralAmount > collateralUserBalance
+                      ? `Insufficient ${collateral?.underlying.symbol} balance`
+                      : borrowAmount > available
+                      ? 'Not enough coupons for sale'
+                      : borrowAmount + maxInterest >
+                        maxLoanableAmountExcludingCouponFee
+                      ? 'Not enough collateral'
+                      : 'Borrow'
+                  }
+                />
               </div>
             </div>
           )}

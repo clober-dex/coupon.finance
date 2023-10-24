@@ -72,32 +72,29 @@ const WithdrawModalContainer = ({
       setValue={setValue}
       repurchaseFee={repurchaseFee}
       maxWithdrawAmount={min(position.amount - maxRepurchaseFee, available)}
-      actionButton={
-        <button
-          disabled={
-            amount === 0n ||
-            amount > min(position.amount - maxRepurchaseFee, available)
-          }
-          onClick={async () => {
-            await withdraw(
-              position.underlying,
-              position.tokenId,
-              amount,
-              repurchaseFee,
-            )
-            setValue('')
-            onClose()
-          }}
-        >
-          {amount > available
+      actionButtonProps={{
+        disabled:
+          amount === 0n ||
+          amount > min(position.amount - maxRepurchaseFee, available),
+        onClick: async () => {
+          await withdraw(
+            position.underlying,
+            position.tokenId,
+            amount,
+            repurchaseFee,
+          )
+          setValue('')
+          onClose()
+        },
+        text:
+          amount > available
             ? 'Not enough coupons for sale'
             : amount > position.amount
             ? 'Not enough deposited'
             : amount + maxRepurchaseFee > position.amount
             ? 'Cannot cover repurchase fee'
-            : 'Confirm'}
-        </button>
-      }
+            : 'Withdraw',
+      }}
       depositAssetPrice={prices[position.underlying.address]}
     />
   ) : (

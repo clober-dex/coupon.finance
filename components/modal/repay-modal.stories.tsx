@@ -1,10 +1,8 @@
-import React from 'react'
 import { Meta, StoryObj } from '@storybook/react'
 
 import '../../styles/globals.css'
 
 import { dummyLoanPosition } from '../../.storybook/dummy-data/loan-position'
-import { ActionButton } from '../action-button'
 
 import RepayModal from './repay-modal'
 
@@ -43,9 +41,11 @@ export const Default: Story = {
       value: 2500000000000n,
       decimals: 8,
     },
-    actionButton: (
-      <ActionButton disabled={false} onClick={() => {}} text={'Repay'} />
-    ),
+    actionButtonProps: {
+      disabled: false,
+      onClick: () => {},
+      text: 'Repay',
+    },
   },
 }
 
@@ -74,13 +74,11 @@ export const RepayWithCollateral: Story = {
       value: 2500000000000n,
       decimals: 8,
     },
-    actionButton: (
-      <ActionButton
-        disabled={false}
-        onClick={() => {}}
-        text={'Repay With Collateral'}
-      />
-    ),
+    actionButtonProps: {
+      disabled: false,
+      onClick: () => {},
+      text: 'Repay With Collateral',
+    },
   },
 }
 

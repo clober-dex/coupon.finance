@@ -1,9 +1,7 @@
-import React from 'react'
 import { Meta, StoryObj } from '@storybook/react'
 
 import '../../styles/globals.css'
 import { dummyBondPosition } from '../../.storybook/dummy-data/bond-position'
-import { ActionButton } from '../action-button'
 
 import WithdrawModal from './withdraw-modal'
 
@@ -29,9 +27,11 @@ export const Default: Story = {
       value: 99970000n,
       decimals: 8,
     },
-    actionButton: (
-      <ActionButton disabled={false} onClick={() => {}} text={'Withdraw'} />
-    ),
+    actionButtonProps: {
+      disabled: false,
+      onClick: () => {},
+      text: 'Withdraw',
+    },
   },
 }
 

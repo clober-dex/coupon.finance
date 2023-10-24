@@ -154,38 +154,36 @@ const RepayModalContainer = ({
           : 0
       }
       remainingDebt={position.amount - maxRefund}
-      actionButton={
-        <button
-          disabled={
-            repayAmount === 0n ||
-            (!isUseCollateral &&
-              repayAmount > balances[position.underlying.address]) ||
-            repayAmount > position.amount - maxRefund
+      actionButtonProps={{
+        disabled:
+          repayAmount === 0n ||
+          (!isUseCollateral &&
+            repayAmount > balances[position.underlying.address]) ||
+          repayAmount > position.amount - maxRefund,
+        onClick: async () => {
+          if (!userAddress) {
+            return
           }
-          onClick={async () => {
-            if (!userAddress) {
-              return
-            }
-            if (isUseCollateral && pathId) {
-              const swapData = await fetchCallDataByOdos({
-                pathId,
-                userAddress,
-              })
-              await repayWithCollateral(
-                position,
-                amount,
-                repayAmount,
-                refund,
-                swapData,
-              )
-            } else if (!isUseCollateral) {
-              await repay(position, amount, refund)
-            }
-            setValue('')
-            onClose()
-          }}
-        >
-          {repayAmount === 0n
+          if (isUseCollateral && pathId) {
+            const swapData = await fetchCallDataByOdos({
+              pathId,
+              userAddress,
+            })
+            await repayWithCollateral(
+              position,
+              amount,
+              repayAmount,
+              refund,
+              swapData,
+            )
+          } else if (!isUseCollateral) {
+            await repay(position, amount, refund)
+          }
+          setValue('')
+          onClose()
+        },
+        text:
+          repayAmount === 0n
             ? 'Enter amount to repay'
             : !isUseCollateral &&
               repayAmount > balances[position.underlying.address]
@@ -194,9 +192,8 @@ const RepayModalContainer = ({
             ? `Cannot repay more than remaining debt`
             : isUseCollateral
             ? 'Repay with Collateral'
-            : 'Repay'}
-        </button>
-      }
+            : 'Repay',
+      }}
       debtAssetPrice={prices[position.underlying.address]}
       collateralPrice={prices[position.collateral.underlying.address]}
     />

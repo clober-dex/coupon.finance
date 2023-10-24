@@ -5,6 +5,7 @@ import { BondPosition } from '../../model/bond-position'
 import CurrencyAmountInput from '../../components/currency-amount-input'
 import Modal from '../../components/modal/modal'
 import { BigDecimal } from '../../utils/numbers'
+import { ActionButton, ActionButtonProps } from '../action-button'
 
 const WithdrawModal = ({
   position,
@@ -13,7 +14,7 @@ const WithdrawModal = ({
   setValue,
   maxWithdrawAmount,
   repurchaseFee,
-  actionButton,
+  actionButtonProps,
   depositAssetPrice,
 }: {
   position: BondPosition | null
@@ -22,7 +23,7 @@ const WithdrawModal = ({
   setValue: (value: string) => void
   maxWithdrawAmount: bigint
   repurchaseFee: bigint
-  actionButton: React.ReactNode
+  actionButtonProps: ActionButtonProps
   depositAssetPrice?: BigDecimal
 }) => {
   if (!position) {
@@ -58,7 +59,7 @@ const WithdrawModal = ({
         {formatUnits(repurchaseFee, position.underlying.decimals)}{' '}
         {position.underlying.symbol}
       </div>
-      {actionButton}
+      <ActionButton {...actionButtonProps} />
     </Modal>
   )
 }
