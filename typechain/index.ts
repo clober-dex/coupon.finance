@@ -88,6 +88,8 @@ export type { CloberMarketSwapCallbackReceiver } from "./contracts/external/clob
 export { CloberMarketSwapCallbackReceiver__factory } from "./factories/contracts/external/clober/CloberMarketSwapCallbackReceiver__factory";
 export type { CloberOrderBook } from "./contracts/external/clober/CloberOrderBook";
 export { CloberOrderBook__factory } from "./factories/contracts/external/clober/CloberOrderBook__factory";
+export type { CloberRouter } from "./contracts/external/clober/CloberRouter";
+export { CloberRouter__factory } from "./factories/contracts/external/clober/CloberRouter__factory";
 export type { ISingletonFactory } from "./contracts/external/eip2470/ISingletonFactory";
 export { ISingletonFactory__factory } from "./factories/contracts/external/eip2470/ISingletonFactory__factory";
 export type { ISwapRouter } from "./contracts/external/uniswap-v3/ISwapRouter";
@@ -160,7 +162,5 @@ export type { ReentrancyGuard } from "./contracts/libraries/ReentrancyGuard";
 export { ReentrancyGuard__factory } from "./factories/contracts/libraries/ReentrancyGuard__factory";
 export type { LoanPositionManager } from "./contracts/LoanPositionManager";
 export { LoanPositionManager__factory } from "./factories/contracts/LoanPositionManager__factory";
-export type { OdosRepayAdapter } from "./contracts/OdosRepayAdapter";
-export { OdosRepayAdapter__factory } from "./factories/contracts/OdosRepayAdapter__factory";
 export type { RepayAdapter } from "./contracts/RepayAdapter";
 export { RepayAdapter__factory } from "./factories/contracts/RepayAdapter__factory";

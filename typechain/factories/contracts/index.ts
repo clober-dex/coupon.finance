@@ -13,5 +13,4 @@ export { CouponOracle__factory } from "./CouponOracle__factory";
 export { DepositController__factory } from "./DepositController__factory";
 export { LeverageAdapter__factory } from "./LeverageAdapter__factory";
 export { LoanPositionManager__factory } from "./LoanPositionManager__factory";
-export { OdosRepayAdapter__factory } from "./OdosRepayAdapter__factory";
 export { RepayAdapter__factory } from "./RepayAdapter__factory";

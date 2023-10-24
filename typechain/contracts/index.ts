@@ -16,5 +16,4 @@ export type { CouponOracle } from "./CouponOracle";
 export type { DepositController } from "./DepositController";
 export type { LeverageAdapter } from "./LeverageAdapter";
 export type { LoanPositionManager } from "./LoanPositionManager";
-export type { OdosRepayAdapter } from "./OdosRepayAdapter";
 export type { RepayAdapter } from "./RepayAdapter";
