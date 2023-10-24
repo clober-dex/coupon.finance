@@ -13,10 +13,7 @@ import { Asset } from '../model/asset'
 import { permit20 } from '../utils/permit20'
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { formatUnits } from '../utils/numbers'
-import {
-  BorrowController__factory,
-  OdosRepayAdapter__factory,
-} from '../typechain'
+import { BorrowController__factory, RepayAdapter__factory } from '../typechain'
 import { max } from '../utils/bigint'
 import { fetchLoanPositions } from '../apis/loan-position'
 import { Collateral } from '../model/collateral'
@@ -341,7 +338,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
         await writeContract(publicClient, walletClient, {
           address: CONTRACT_ADDRESSES.OdosRepayAdapter,
-          abi: OdosRepayAdapter__factory.abi,
+          abi: RepayAdapter__factory.abi,
           functionName: 'repayWithCollateral',
           args: [
             position.id,
