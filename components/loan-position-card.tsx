@@ -90,7 +90,7 @@ export const LoanPositionCard = ({
             <div className="text-gray-500">Borrow Amount</div>
             <div className="flex gap-1 text-xs sm:text-sm">
               {formatUnits(
-                position.amount,
+                position.amount - position.interest,
                 position.underlying.decimals,
                 price,
               )}
