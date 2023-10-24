@@ -44,9 +44,9 @@ const CurrencyAmountInput = ({
 
   return (
     <div className="flex flex-col bg-white dark:bg-gray-800 rounded-lg p-3 gap-2">
-      <div className="flex flex-1 justify-between gap-2">
+      <div className="flex justify-between gap-2">
         <NumberInput
-          className="flex-1 text-xl sm:text-2xl placeholder-gray-400 outline-none bg-transparent"
+          className="text-xl sm:text-2xl placeholder-gray-400 outline-none bg-transparent"
           value={value}
           onValueChange={onValueChange}
           onBlur={onBlur}
@@ -66,7 +66,7 @@ const CurrencyAmountInput = ({
             </button>
           ) : (
             <button
-              className="flex items-center rounded-full bg-green-500 text-white pl-3 pr-2 py-1 gap-2 text-sm sm:text-base"
+              className="flex w-[500px] items-center rounded-full bg-green-500 text-white pl-3 pr-2 py-1 gap-2 text-sm sm:text-base"
               onClick={onCurrencyClick}
             >
               Select token <DownSvg />
