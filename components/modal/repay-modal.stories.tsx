@@ -1,8 +1,10 @@
+import React from 'react'
 import { Meta, StoryObj } from '@storybook/react'
 
 import '../../styles/globals.css'
 
 import { dummyLoanPosition } from '../../.storybook/dummy-data/loan-position'
+import { ActionButton } from '../action-button'
 
 import RepayModal from './repay-modal'
 
@@ -18,34 +20,67 @@ type Story = StoryObj<typeof RepayModal>
 
 export const Default: Story = {
   args: {
+    position: dummyLoanPosition,
     onClose: () => {},
+    value: '0.01',
+    setValue: () => {},
+    showSlippageSelect: false,
+    setShowSlippageSelect: () => {},
+    isUseCollateral: false,
+    setIsUseCollateral: () => {},
+    slippage: '0.5',
+    setSlippage: () => {},
+    repayAmount: dummyLoanPosition.amount,
+    maxRepayableAmount: dummyLoanPosition.amount - 500000n,
+    currentLtv: 60,
+    expectedLtv: 10,
+    remainingDebt: dummyLoanPosition.amount - 1000000n,
+    debtAssetPrice: {
+      value: 170000000000n,
+      decimals: 8,
+    },
+    collateralPrice: {
+      value: 2500000000000n,
+      decimals: 8,
+    },
+    actionButton: (
+      <ActionButton disabled={false} onClick={() => {}} text={'Repay'} />
+    ),
+  },
+}
+
+export const RepayWithCollateral: Story = {
+  args: {
+    position: dummyLoanPosition,
+    onClose: () => {},
+    value: '0.01',
+    setValue: () => {},
+    showSlippageSelect: false,
     setShowSlippageSelect: () => {},
     isUseCollateral: true,
     setIsUseCollateral: () => {},
-    position: dummyLoanPosition,
-    value: '0.01',
-    setValue: () => {},
-    prices: {
-      '0x82af49447d8a07e3bd95bd0d56f35241523fbab1': {
-        value: 2500000000000n,
-        decimals: 8,
-      },
-    },
-    repayAmount: dummyLoanPosition.amount,
-    balances: {
-      '0x82af49447d8a07e3bd95bd0d56f35241523fbab1': 10n,
-    },
-    showSlippageSelect: false,
     slippage: '0.5',
     setSlippage: () => {},
+    repayAmount: dummyLoanPosition.amount,
+    maxRepayableAmount: dummyLoanPosition.amount - 500000n,
     currentLtv: 60,
-    expectedLtv: 70,
-    userAddress: '0x0000000000000000000000000000000000000003',
-    pathId: '0x0000000000000000000000000000000000000003',
-    repayWithCollateral: async () => {},
-    repay: async () => {},
-    amount: dummyLoanPosition.amount,
-    refund: 0n,
+    expectedLtv: 10,
+    remainingDebt: dummyLoanPosition.amount - 1000000n,
+    debtAssetPrice: {
+      value: 170000000000n,
+      decimals: 8,
+    },
+    collateralPrice: {
+      value: 2500000000000n,
+      decimals: 8,
+    },
+    actionButton: (
+      <ActionButton
+        disabled={false}
+        onClick={() => {}}
+        text={'Repay With Collateral'}
+      />
+    ),
   },
 }
 

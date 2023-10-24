@@ -6,9 +6,9 @@ import { LoanPosition } from '../../model/loan-position'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { fetchMarkets } from '../../apis/market'
 import { calculateCouponsToRepay } from '../../model/market'
-import { max } from '../../utils/bigint'
+import { max, min } from '../../utils/bigint'
 import { useBorrowContext } from '../../contexts/borrow-context'
-import { fetchAmountOutByOdos } from '../../apis/odos'
+import { fetchAmountOutByOdos, fetchCallDataByOdos } from '../../apis/odos'
 import RepayModal from '../../components/modal/repay-modal'
 import { calculateLtv } from '../../utils/ltv'
 
@@ -119,9 +119,11 @@ const RepayModalContainer = ({
       position={position}
       value={value}
       setValue={setValue}
-      prices={prices}
       repayAmount={repayAmount}
-      balances={balances}
+      maxRepayableAmount={min(
+        position.amount - maxRefund,
+        balances[position.underlying.address],
+      )}
       showSlippageSelect={showSlippageSelect}
       slippage={slippage}
       setSlippage={setSlippage}
@@ -151,13 +153,53 @@ const RepayModalContainer = ({
             )
           : 0
       }
-      userAddress={userAddress}
-      pathId={pathId}
-      repayWithCollateral={repayWithCollateral}
-      repay={repay}
-      amount={amount}
-      maxRefund={maxRefund}
-      refund={refund}
+      remainingDebt={position.amount - maxRefund}
+      actionButton={
+        <button
+          disabled={
+            repayAmount === 0n ||
+            (!isUseCollateral &&
+              repayAmount > balances[position.underlying.address]) ||
+            repayAmount > position.amount - maxRefund
+          }
+          className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
+          onClick={async () => {
+            if (!userAddress) {
+              return
+            }
+            if (isUseCollateral && pathId) {
+              const swapData = await fetchCallDataByOdos({
+                pathId,
+                userAddress,
+              })
+              await repayWithCollateral(
+                position,
+                amount,
+                repayAmount,
+                refund,
+                swapData,
+              )
+            } else if (!isUseCollateral) {
+              await repay(position, amount, refund)
+            }
+            setValue('')
+            onClose()
+          }}
+        >
+          {repayAmount === 0n
+            ? 'Enter amount to repay'
+            : !isUseCollateral &&
+              repayAmount > balances[position.underlying.address]
+            ? `Insufficient ${position.underlying.symbol} balance`
+            : repayAmount > position.amount - maxRefund
+            ? `Cannot repay more than remaining debt`
+            : isUseCollateral
+            ? 'Repay with Collateral'
+            : 'Repay'}
+        </button>
+      }
+      debtAssetPrice={prices[position.underlying.address]}
+      collateralPrice={prices[position.collateral.underlying.address]}
     />
   )
 }

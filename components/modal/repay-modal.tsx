@@ -1,73 +1,52 @@
 import React from 'react'
 
-import { formatUnits } from '../../utils/numbers'
+import { BigDecimal, formatUnits } from '../../utils/numbers'
 import { LoanPosition } from '../../model/loan-position'
 import CurrencyAmountInput from '../currency-amount-input'
 import { Arrow } from '../svg/arrow'
 import SwapSvg from '../svg/swap-svg'
 import SlippageSelect from '../slippage-select'
-import { fetchCallDataByOdos } from '../../apis/odos'
 import Modal from '../../components/modal/modal'
-import { Balances } from '../../model/balances'
-import { Prices } from '../../model/prices'
-import { min } from '../../utils/bigint'
+import { max } from '../../utils/bigint'
 
 const RepayModal = ({
+  position,
   onClose,
+  value,
+  setValue,
+  showSlippageSelect,
   setShowSlippageSelect,
   isUseCollateral,
   setIsUseCollateral,
-  position,
-  value,
-  setValue,
-  prices,
-  repayAmount,
-  balances,
-  showSlippageSelect,
   slippage,
   setSlippage,
+  repayAmount,
+  maxRepayableAmount,
   currentLtv,
   expectedLtv,
-  userAddress,
-  pathId,
-  repayWithCollateral,
-  repay,
-  amount,
-  maxRefund,
-  refund,
+  remainingDebt,
+  actionButton,
+  debtAssetPrice,
+  collateralPrice,
 }: {
+  position: LoanPosition
   onClose: () => void
+  value: string
+  setValue: (value: string) => void
+  showSlippageSelect: boolean
   setShowSlippageSelect: React.Dispatch<React.SetStateAction<boolean>>
   isUseCollateral: boolean
   setIsUseCollateral: (isUseCollateral: boolean) => void
-  position: LoanPosition
-  value: string
-  setValue: (value: string) => void
-  prices: Prices
-  repayAmount: bigint
-  balances: Balances
-  showSlippageSelect: boolean
   slippage: string
   setSlippage: React.Dispatch<React.SetStateAction<string>>
+  repayAmount: bigint
+  maxRepayableAmount: bigint
   currentLtv: number
   expectedLtv: number
-  userAddress: `0x${string}` | undefined
-  pathId: string | undefined
-  repayWithCollateral: (
-    position: LoanPosition,
-    amount: bigint,
-    mightBoughtDebtAmount: bigint,
-    expectedProceeds: bigint,
-    swapData: `0x${string}`,
-  ) => Promise<void>
-  repay: (
-    position: LoanPosition,
-    amount: bigint,
-    expectedProceeds: bigint,
-  ) => Promise<void>
-  amount: bigint
-  maxRefund: bigint
-  refund: bigint
+  remainingDebt: bigint
+  actionButton: React.ReactNode
+  debtAssetPrice?: BigDecimal
+  collateralPrice?: BigDecimal
 }) => {
   return (
     <Modal
@@ -100,7 +79,7 @@ const RepayModal = ({
               currency={position.collateral.underlying}
               value={value}
               onValueChange={setValue}
-              price={prices[position.collateral.underlying.address]}
+              price={collateralPrice}
               availableAmount={position.collateralAmount}
             />
             <SwapSvg className="w-4 h-4 sm:w-6 sm:h-6 self-center my-3 sm:my-4" />
@@ -111,7 +90,7 @@ const RepayModal = ({
               currency={position.underlying}
               value={formatUnits(repayAmount, position.underlying.decimals)}
               onValueChange={setValue}
-              price={prices[position.underlying.address]}
+              price={debtAssetPrice}
               availableAmount={0n}
               disabled
             />
@@ -125,11 +104,8 @@ const RepayModal = ({
               currency={position.underlying}
               value={value}
               onValueChange={setValue}
-              price={prices[position.underlying.address]}
-              availableAmount={min(
-                position.amount - maxRefund,
-                balances[position.underlying.address],
-              )}
+              price={debtAssetPrice}
+              availableAmount={maxRepayableAmount}
             />
           </>
         )}
@@ -153,9 +129,9 @@ const RepayModal = ({
           <div className="flex items-center gap-1">
             <span>
               {formatUnits(
-                position.amount - maxRefund,
+                remainingDebt,
                 position.underlying.decimals,
-                prices[position.underlying.address],
+                debtAssetPrice,
               )}{' '}
               {position.underlying.symbol}
             </span>
@@ -164,9 +140,9 @@ const RepayModal = ({
                 <Arrow />
                 <span className="text-green-500">
                   {formatUnits(
-                    position.amount - maxRefund - repayAmount,
+                    max(remainingDebt - repayAmount, 0n),
                     position.underlying.decimals,
-                    prices[position.underlying.address],
+                    debtAssetPrice,
                   )}{' '}
                   {position.underlying.symbol}
                 </span>
@@ -193,48 +169,7 @@ const RepayModal = ({
           </div>
         </div>
       </div>
-      <button
-        disabled={
-          repayAmount === 0n ||
-          (!isUseCollateral &&
-            repayAmount > balances[position.underlying.address]) ||
-          repayAmount > position.amount - maxRefund
-        }
-        className="font-bold text-base sm:text-xl bg-green-500 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 sm:h-16 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
-        onClick={async () => {
-          if (!userAddress) {
-            return
-          }
-          if (isUseCollateral && pathId) {
-            const swapData = await fetchCallDataByOdos({
-              pathId,
-              userAddress,
-            })
-            await repayWithCollateral(
-              position,
-              amount,
-              repayAmount,
-              refund,
-              swapData,
-            )
-          } else if (!isUseCollateral) {
-            await repay(position, amount, refund)
-          }
-          setValue('')
-          onClose()
-        }}
-      >
-        {repayAmount === 0n
-          ? 'Enter amount to repay'
-          : !isUseCollateral &&
-            repayAmount > balances[position.underlying.address]
-          ? `Insufficient ${position.underlying.symbol} balance`
-          : repayAmount > position.amount - maxRefund
-          ? `Cannot repay more than remaining debt`
-          : isUseCollateral
-          ? 'Repay with Collateral'
-          : 'Repay'}
-      </button>
+      {actionButton}
     </Modal>
   )
 }
