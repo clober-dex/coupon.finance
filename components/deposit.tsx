@@ -274,9 +274,9 @@ const Deposit = ({
                   prices[position.underlying.address],
                 ).isGreaterThanOrEqualTo(0.01),
               )
-              .map((position, i) => (
-                <Position
-                  key={i}
+              .map((position, index) => (
+                <BondPositionCard
+                  key={index}
                   position={position}
                   price={prices[position.underlying.address]}
                   onWithdraw={() => setWithdrawPosition(position)}
@@ -324,7 +324,7 @@ const Deposit = ({
                 .filter(
                   (assetStatus) => assetStatus.totalDepositAvailable !== '0',
                 )
-                .map((assetStatus, i) => {
+                .map((assetStatus, index) => {
                   const validAssetStatuses = assetStatuses.filter(
                     ({ underlying, epoch }) =>
                       isAddressEqual(
@@ -353,7 +353,7 @@ const Deposit = ({
                     .reduce((acc, val) => (acc > val ? acc : val), 0n)
                   return (
                     <Asset
-                      key={i}
+                      key={index}
                       currency={assetStatus.underlying}
                       apy={apy}
                       available={available}

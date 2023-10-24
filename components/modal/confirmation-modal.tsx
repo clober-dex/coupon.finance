@@ -33,9 +33,9 @@ const ConfirmationModal = ({
           </div>
         </div>
         <div>
-          {confirmation.fields.map((field, i) => (
+          {confirmation.fields.map((field, index) => (
             <div
-              key={i}
+              key={index}
               className="flex items-center justify-between bg-white dark:bg-gray-700 px-3 py-2 text-sm sm:text-base rounded-lg"
             >
               <div className="flex items-center gap-2">

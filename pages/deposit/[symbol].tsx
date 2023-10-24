@@ -136,11 +136,11 @@ const Deposit = () => {
                     </div>
                     <div className="flex flex-col sm:flex-row justify-between">
                       {(proceedsByEpochsDeposited ?? []).map(
-                        ({ date, proceeds }, i) => (
+                        ({ date, proceeds }, index) => (
                           <button
-                            key={i}
+                            key={index}
                             className="flex sm:flex-col items-center gap-1 sm:gap-2 sm:w-[72px]"
-                            onClick={() => setEpochs(i + 1)}
+                            onClick={() => setEpochs(index + 1)}
                           >
                             <div className="text-sm w-20 sm:w-fit text-start">
                               {date}

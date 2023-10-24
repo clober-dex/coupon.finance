@@ -212,15 +212,17 @@ const Borrow = () => {
                       </div>
                     </div>
                     <div className="flex flex-col sm:flex-row justify-between">
-                      {(interestsByEpochsBorrowed || []).map(({ date }, i) => (
-                        <button
-                          key={i}
-                          className="flex flex-col items-center gap-2 w-[72px]"
-                          onClick={() => setEpochs(i + 1)}
-                        >
-                          <div className="text-sm">{date}</div>
-                        </button>
-                      ))}
+                      {(interestsByEpochsBorrowed || []).map(
+                        ({ date }, index) => (
+                          <button
+                            key={index}
+                            className="flex flex-col items-center gap-2 w-[72px]"
+                            onClick={() => setEpochs(index + 1)}
+                          >
+                            <div className="text-sm">{date}</div>
+                          </button>
+                        ),
+                      )}
                     </div>
                   </div>
                   <div className="flex flex-col gap-2">

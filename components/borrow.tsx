@@ -349,9 +349,9 @@ const Borrow = ({
                   Number(a.toEpoch.endTimestamp) -
                   Number(b.toEpoch.endTimestamp),
               )
-              .map((position, i) => (
+              .map((position, index) => (
                 <Position
-                  key={i}
+                  key={index}
                   position={position}
                   price={prices[position.underlying.address]}
                   collateralPrice={
@@ -398,7 +398,7 @@ const Borrow = ({
                 .filter(
                   (assetStatus) => assetStatus.totalBorrowAvailable !== '0',
                 )
-                .map((assetStatus, i) => {
+                .map((assetStatus, index) => {
                   const validAssetStatuses = assetStatuses.filter(
                     ({ underlying, epoch }) =>
                       isAddressEqual(
@@ -427,7 +427,7 @@ const Borrow = ({
                     .reduce((acc, val) => (acc > val ? acc : val), 0n)
                   return (
                     <Asset
-                      key={i}
+                      key={index}
                       currency={assetStatus.underlying}
                       apr={apr}
                       available={available}

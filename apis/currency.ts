@@ -51,8 +51,8 @@ export async function fetchPrices(currencyAddresses: `0x${string}`[]): Promise<{
     return {}
   }
 
-  return prices.reduce((acc, value, i) => {
-    const currencyAddress = currencyAddresses[i]
+  return prices.reduce((acc, value, index) => {
+    const currencyAddress = currencyAddresses[index]
     return {
       ...acc,
       [currencyAddress]: { value, decimals },
