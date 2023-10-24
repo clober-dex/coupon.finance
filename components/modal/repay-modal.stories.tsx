@@ -18,7 +18,9 @@ type Story = StoryObj<typeof RepayModal>
 
 export const Default: Story = {
   args: {
-    position: dummyLoanPosition,
+    debtCurrency: dummyLoanPosition.underlying,
+    collateral: dummyLoanPosition.collateral,
+    collateralAmount: dummyLoanPosition.collateralAmount,
     onClose: () => {},
     value: '0.01',
     setValue: () => {},
@@ -51,7 +53,9 @@ export const Default: Story = {
 
 export const RepayWithCollateral: Story = {
   args: {
-    position: dummyLoanPosition,
+    debtCurrency: dummyLoanPosition.underlying,
+    collateral: dummyLoanPosition.collateral,
+    collateralAmount: dummyLoanPosition.collateralAmount,
     onClose: () => {},
     value: '0.01',
     setValue: () => {},

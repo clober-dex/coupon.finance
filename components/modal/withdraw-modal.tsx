@@ -1,14 +1,15 @@
 import React from 'react'
 import { formatUnits } from 'viem'
 
-import { BondPosition } from '../../model/bond-position'
 import CurrencyAmountInput from '../../components/currency-amount-input'
 import Modal from '../../components/modal/modal'
 import { BigDecimal } from '../../utils/numbers'
 import { ActionButton, ActionButtonProps } from '../action-button'
+import { Currency } from '../../model/currency'
 
 const WithdrawModal = ({
-  position,
+  depositCurrency,
+  depositAmount,
   onClose,
   value,
   setValue,
@@ -17,7 +18,8 @@ const WithdrawModal = ({
   actionButtonProps,
   depositAssetPrice,
 }: {
-  position: BondPosition | null
+  depositCurrency: Currency
+  depositAmount: bigint
   onClose: () => void
   value: string
   setValue: (value: string) => void
@@ -26,9 +28,6 @@ const WithdrawModal = ({
   actionButtonProps: ActionButtonProps
   depositAssetPrice?: BigDecimal
 }) => {
-  if (!position) {
-    return <></>
-  }
   return (
     <Modal
       show
@@ -42,7 +41,7 @@ const WithdrawModal = ({
       </h1>
       <div className="mb-4">
         <CurrencyAmountInput
-          currency={position.underlying}
+          currency={depositCurrency}
           value={value}
           onValueChange={setValue}
           availableAmount={maxWithdrawAmount}
@@ -51,13 +50,13 @@ const WithdrawModal = ({
       </div>
       <div className="flex text-xs sm:text-sm gap-3 mb-2 sm:mb-3 justify-between sm:justify-start">
         <span className="text-gray-500">Your deposit amount</span>
-        {formatUnits(position.amount, position.underlying.decimals)}{' '}
-        {position.underlying.symbol}
+        {formatUnits(depositAmount, depositCurrency.decimals)}{' '}
+        {depositCurrency.symbol}
       </div>
       <div className="flex text-xs sm:text-sm gap-3 mb-6 sm:mb-8 justify-between sm:justify-start">
         <span className="text-gray-500">Coupon repurchase fee</span>
-        {formatUnits(repurchaseFee, position.underlying.decimals)}{' '}
-        {position.underlying.symbol}
+        {formatUnits(repurchaseFee, depositCurrency.decimals)}{' '}
+        {depositCurrency.symbol}
       </div>
       <ActionButton {...actionButtonProps} />
     </Modal>

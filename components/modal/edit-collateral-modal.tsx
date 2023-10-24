@@ -1,13 +1,13 @@
 import React from 'react'
 
-import { LoanPosition } from '../../model/loan-position'
 import CurrencyAmountInput from '../../components/currency-amount-input'
 import Modal from '../../components/modal/modal'
 import { BigDecimal } from '../../utils/numbers'
 import { ActionButton, ActionButtonProps } from '../action-button'
+import { Collateral } from '../../model/collateral'
 
 const EditCollateralModal = ({
-  position,
+  collateral,
   onClose,
   value,
   setValue,
@@ -18,7 +18,7 @@ const EditCollateralModal = ({
   actionButtonProps,
   collateralPrice,
 }: {
-  position: LoanPosition
+  collateral: Collateral
   onClose: () => void
   value: string
   setValue: (value: string) => void
@@ -50,7 +50,7 @@ const EditCollateralModal = ({
       </div>
       <div className="mb-4">
         <CurrencyAmountInput
-          currency={position.collateral.underlying}
+          currency={collateral.underlying}
           value={value}
           onValueChange={setValue}
           price={collateralPrice}

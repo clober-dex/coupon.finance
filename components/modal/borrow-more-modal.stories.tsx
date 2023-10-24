@@ -17,7 +17,7 @@ type Story = StoryObj<typeof BorrowMoreModal>
 
 export const Default: Story = {
   args: {
-    position: dummyLoanPosition,
+    debtCurrency: dummyLoanPosition.underlying,
     onClose: () => {},
     value: '0.01',
     setValue: () => {},

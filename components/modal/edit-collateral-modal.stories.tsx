@@ -18,7 +18,7 @@ type Story = StoryObj<typeof EditCollateralModal>
 
 export const Default: Story = {
   args: {
-    position: dummyLoanPosition,
+    collateral: dummyLoanPosition.collateral,
     onClose: () => {},
     value: '0.01',
     setValue: () => {},

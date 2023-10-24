@@ -53,7 +53,7 @@ const EditCollateralModalContainer = ({
 
   return (
     <EditCollateralModal
-      position={position}
+      collateral={position.collateral}
       onClose={onClose}
       value={value}
       setValue={setValue}

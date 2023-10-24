@@ -112,11 +112,13 @@ const RepayModalContainer = ({
 
   return (
     <RepayModal
+      debtCurrency={position.underlying}
+      collateral={position.collateral}
+      collateralAmount={position.collateralAmount}
       onClose={onClose}
       setShowSlippageSelect={setShowSlippageSelect}
       isUseCollateral={isUseCollateral}
       setIsUseCollateral={setIsUseCollateral}
-      position={position}
       value={value}
       setValue={setValue}
       repayAmount={repayAmount}

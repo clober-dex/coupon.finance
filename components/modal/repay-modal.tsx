@@ -1,7 +1,6 @@
 import React from 'react'
 
 import { BigDecimal, formatUnits } from '../../utils/numbers'
-import { LoanPosition } from '../../model/loan-position'
 import CurrencyAmountInput from '../currency-amount-input'
 import { Arrow } from '../svg/arrow'
 import SwapSvg from '../svg/swap-svg'
@@ -9,9 +8,13 @@ import SlippageSelect from '../slippage-select'
 import Modal from '../../components/modal/modal'
 import { max } from '../../utils/bigint'
 import { ActionButton, ActionButtonProps } from '../action-button'
+import { Currency } from '../../model/currency'
+import { Collateral } from '../../model/collateral'
 
 const RepayModal = ({
-  position,
+  debtCurrency,
+  collateral,
+  collateralAmount,
   onClose,
   value,
   setValue,
@@ -30,7 +33,9 @@ const RepayModal = ({
   debtAssetPrice,
   collateralPrice,
 }: {
-  position: LoanPosition
+  debtCurrency: Currency
+  collateral: Collateral
+  collateralAmount: bigint
   onClose: () => void
   value: string
   setValue: (value: string) => void
@@ -77,19 +82,19 @@ const RepayModal = ({
           <div className="flex flex-col w-full">
             <div className="mb-4 font-bold">Collateral amount to be used</div>
             <CurrencyAmountInput
-              currency={position.collateral.underlying}
+              currency={collateral.underlying}
               value={value}
               onValueChange={setValue}
               price={collateralPrice}
-              availableAmount={position.collateralAmount}
+              availableAmount={collateralAmount}
             />
             <SwapSvg className="w-4 h-4 sm:w-6 sm:h-6 self-center my-3 sm:my-4" />
             <div className="mb-4 font-bold">
               How much would you like to repay
             </div>
             <CurrencyAmountInput
-              currency={position.underlying}
-              value={formatUnits(repayAmount, position.underlying.decimals)}
+              currency={debtCurrency}
+              value={formatUnits(repayAmount, debtCurrency.decimals)}
               onValueChange={setValue}
               price={debtAssetPrice}
               availableAmount={0n}
@@ -102,7 +107,7 @@ const RepayModal = ({
               How much would you like to repay?
             </div>
             <CurrencyAmountInput
-              currency={position.underlying}
+              currency={debtCurrency}
               value={value}
               onValueChange={setValue}
               price={debtAssetPrice}
@@ -131,10 +136,10 @@ const RepayModal = ({
             <span>
               {formatUnits(
                 remainingDebt,
-                position.underlying.decimals,
+                debtCurrency.decimals,
                 debtAssetPrice,
               )}{' '}
-              {position.underlying.symbol}
+              {debtCurrency.symbol}
             </span>
             {value ? (
               <>
@@ -142,10 +147,10 @@ const RepayModal = ({
                 <span className="text-green-500">
                   {formatUnits(
                     max(remainingDebt - repayAmount, 0n),
-                    position.underlying.decimals,
+                    debtCurrency.decimals,
                     debtAssetPrice,
                   )}{' '}
-                  {position.underlying.symbol}
+                  {debtCurrency.symbol}
                 </span>
               </>
             ) : (

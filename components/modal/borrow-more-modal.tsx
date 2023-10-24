@@ -1,15 +1,15 @@
 import React from 'react'
 
 import { BigDecimal, formatUnits } from '../../utils/numbers'
-import { LoanPosition } from '../../model/loan-position'
 import CurrencyAmountInput from '../currency-amount-input'
 import { Arrow } from '../svg/arrow'
 import { ActionButton, ActionButtonProps } from '../action-button'
+import { Currency } from '../../model/currency'
 
 import Modal from './modal'
 
 const BorrowMoreModal = ({
-  position,
+  debtCurrency,
   onClose,
   value,
   setValue,
@@ -20,7 +20,7 @@ const BorrowMoreModal = ({
   actionButtonProps,
   debtAssetPrice,
 }: {
-  position: LoanPosition
+  debtCurrency: Currency
   onClose: () => void
   value: string
   setValue: (value: string) => void
@@ -38,7 +38,7 @@ const BorrowMoreModal = ({
       </h1>
       <div className="mb-4">
         <CurrencyAmountInput
-          currency={position.underlying}
+          currency={debtCurrency}
           value={value}
           onValueChange={setValue}
           price={debtAssetPrice}
@@ -63,12 +63,8 @@ const BorrowMoreModal = ({
         <div className="flex gap-3 justify-between sm:justify-start">
           <div className="text-gray-500">Coupon Purchase Fee</div>
           <div>
-            {formatUnits(
-              interest,
-              position.underlying.decimals,
-              debtAssetPrice,
-            )}{' '}
-            {position.underlying.symbol}
+            {formatUnits(interest, debtCurrency.decimals, debtAssetPrice)}{' '}
+            {debtCurrency.symbol}
           </div>
         </div>
       </div>
