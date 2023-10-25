@@ -1,0 +1,31 @@
+query getBondPosition($positionId: ID!) {
+  bondPosition(id: $positionId) {
+    id
+    user
+    amount
+    principal
+    substitute {
+      id
+      decimals
+      name
+      symbol
+    }
+    underlying {
+      id
+      decimals
+      name
+      symbol
+    }
+    fromEpoch {
+      id
+      startTimestamp
+      endTimestamp
+    }
+    toEpoch {
+      id
+      startTimestamp
+      endTimestamp
+    }
+    createdAt
+  }
+}

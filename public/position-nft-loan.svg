@@ -45,15 +45,15 @@
   <!-- Text -->
   <g>
     <text class="text" x="50%" y="23%" font-family="Inter" font-size="83" text-anchor="middle">Loan</text>
-    <text class="text" x="50%" y="40%" font-family="Inter" font-size="140" text-anchor="middle">1.2836<tspan class="text" dx="30" font-family="Inter" font-size="70">ETH</tspan>
+    <text class="text" x="50%" y="40%" font-family="Inter" font-size="142" text-anchor="middle">LOAN_AMOUNT<tspan class="text" dx="30" font-family="Inter" font-size="70">LOAN_TOKEN</tspan>
     </text>
-    <text x="50%" y="50%" fill="rgba(255, 255, 255, 0.60)" font-family="Inter" font-size="64" text-anchor="middle">Expires at<tspan dx="25" fill="rgba(255, 255, 255, 0.80)">24-06-01</tspan>
+    <text x="50%" y="50%" fill="rgba(255, 255, 255, 0.60)" font-family="Inter" font-size="64" text-anchor="middle">Expires at<tspan dx="25" fill="rgba(255, 255, 255, 0.80)">EXPIRES_AT</tspan>
     </text>
-    <text x="50%" y="62%" fill="rgba(255, 255, 255, 0.40)" font-family="Inter" font-size="40" text-anchor="middle">Collateral<tspan dx="25" fill="rgba(255, 255, 255, 0.80)">0.4821 BTC</tspan>
+    <text x="50%" y="62%" fill="rgba(255, 255, 255, 0.40)" font-family="Inter" font-size="40" text-anchor="middle">Collateral<tspan dx="25" fill="rgba(255, 255, 255, 0.80)">COLLATERAL_AMOUNT COLLATERAL_TOKEN</tspan>
     </text>
-    <text x="50%" y="68%" fill="rgba(255, 255, 255, 0.40)" font-family="Inter" font-size="40" text-anchor="middle">LTV<tspan dx="25" fill="rgba(255, 255, 255, 0.80)">32.74%</tspan>
+    <text x="50%" y="68%" fill="rgba(255, 255, 255, 0.40)" font-family="Inter" font-size="40" text-anchor="middle">LTV<tspan dx="25" fill="rgba(255, 255, 255, 0.80)">LTV_VALUE%</tspan>
     </text>
-    <text x="50%" y="74%" fill="rgba(255, 255, 255, 0.40)" font-family="Inter" font-size="40" text-anchor="middle">Liquidation Threshold<tspan dx="25" fill="rgba(255, 255, 255, 0.80)">70.00%</tspan>
+    <text x="50%" y="74%" fill="rgba(255, 255, 255, 0.40)" font-family="Inter" font-size="40" text-anchor="middle">Liquidation Threshold<tspan dx="25" fill="rgba(255, 255, 255, 0.80)">LIQUIDATION_THRESHOLD%</tspan>
     </text>
   </g>
   <!-- Overlay -->
