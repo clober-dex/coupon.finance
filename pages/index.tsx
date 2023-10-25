@@ -3,8 +3,8 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
 
-import Deposit from '../components/deposit'
-import Borrow from '../components/borrow'
+import DepositContainer from '../containers/deposit-container'
+import BorrowContainer from '../containers/borrow-container'
 import { useCurrencyContext } from '../contexts/currency-context'
 
 const Home = () => {
@@ -45,9 +45,9 @@ const Home = () => {
           </Link>
         </div>
         {router.query.mode !== 'borrow' ? (
-          <Deposit assetStatuses={assetStatuses} epochs={epochs} />
+          <DepositContainer assetStatuses={assetStatuses} epochs={epochs} />
         ) : (
-          <Borrow assetStatuses={assetStatuses} epochs={epochs} />
+          <BorrowContainer assetStatuses={assetStatuses} epochs={epochs} />
         )}
       </main>
     </div>

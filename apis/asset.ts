@@ -3,7 +3,6 @@ import { getAddress } from 'viem'
 import { getBuiltGraphSDK, Token } from '../.graphclient'
 import { Asset, AssetStatus } from '../model/asset'
 import { Market } from '../model/market'
-import { formatUnits } from '../utils/numbers'
 import { isEthereum } from '../contexts/currency-context'
 import { LIQUIDATION_TARGET_LTV_PRECISION } from '../utils/ltv'
 
@@ -101,28 +100,15 @@ export async function fetchAssetStatuses(): Promise<AssetStatus[]> {
         isBid: depth.isBid,
       })),
     })
-    const decimals = assetStatus.asset.underlying.decimals
-    const totalDepositAvailable = formatUnits(
-      market.totalBidsInBaseAfterFees(),
-      decimals,
-    )
-    const totalBorrowAvailable = formatUnits(
-      market.totalAsksInBaseAfterFees(),
-      decimals,
-    )
-    const totalDeposited = formatUnits(assetStatus.totalDeposited, decimals)
-    const totalBorrowed = formatUnits(assetStatus.totalBorrowed, decimals)
-    const bestCouponBidPrice = Number(market.bids[0]?.price ?? 0n) / 1e18
-    const bestCouponAskPrice = Number(market.asks[0]?.price ?? 0n) / 1e18
     return {
       underlying,
       epoch,
-      totalDepositAvailable,
-      totalDeposited,
-      totalBorrowAvailable,
-      totalBorrowed,
-      bestCouponBidPrice,
-      bestCouponAskPrice,
+      totalDepositAvailable: market.totalBidsInBaseAfterFees(),
+      totalDeposited: BigInt(assetStatus.totalDeposited),
+      totalBorrowAvailable: market.totalAsksInBaseAfterFees(),
+      totalBorrowed: BigInt(assetStatus.totalBorrowed),
+      bestCouponBidPrice: Number(market.bids[0]?.price ?? 0n) / 1e18,
+      bestCouponAskPrice: Number(market.asks[0]?.price ?? 0n) / 1e18,
     }
   })
 }
