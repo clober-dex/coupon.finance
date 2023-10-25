@@ -14,7 +14,6 @@ import { permit20 } from '../utils/permit20'
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { formatUnits } from '../utils/numbers'
 import { BorrowController__factory, RepayAdapter__factory } from '../typechain'
-import { max } from '../utils/bigint'
 import { fetchLoanPositions } from '../apis/loan-position'
 import { Collateral } from '../model/collateral'
 import { LoanPosition } from '../model/loan-position'
@@ -22,7 +21,7 @@ import { Currency } from '../model/currency'
 import { permit721 } from '../utils/permit721'
 import { writeContract } from '../utils/wallet'
 
-import { isEthereum, useCurrencyContext } from './currency-context'
+import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
 
 type BorrowContext = {
@@ -84,12 +83,11 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient()
 
   const { address: userAddress } = useAccount()
-  const { data: balance } = useBalance({ address: userAddress })
 
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
-  const { balances } = useCurrencyContext()
+  const { value } = useCurrencyContext()
 
   const { data: positions } = useQuery(
     ['loan-positions', userAddress],
@@ -114,10 +112,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         // TODO: alert wallet connect
         return
       }
-
-      const wethBalance = isEthereum(collateral.underlying)
-        ? balances[collateral.underlying.address] - (balance?.value || 0n)
-        : 0n
 
       let hash: Hash | undefined
       try {
@@ -164,9 +158,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               signature: { deadline, v, r, s },
             },
           ],
-          value: isEthereum(collateral.underlying)
-            ? max(collateralAmount - wethBalance, 0n)
-            : 0n,
+          value: value(collateral.underlying, collateralAmount),
           account: walletClient.account,
         })
         await queryClient.invalidateQueries(['loan-positions'])
@@ -178,14 +170,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
       return hash
     },
-    [
-      balance?.value,
-      balances,
-      publicClient,
-      queryClient,
-      setConfirmation,
-      walletClient,
-    ],
+    [publicClient, queryClient, setConfirmation, value, walletClient],
   )
 
   const repay = useCallback(
@@ -198,10 +183,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         // TODO: alert wallet connect
         return
       }
-
-      const wethBalance = isEthereum(position.underlying)
-        ? balances[position.underlying.address] - (balance?.value || 0n)
-        : 0n
 
       try {
         const deadline = BigInt(
@@ -254,9 +235,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               },
             },
           ],
-          value: isEthereum(position.underlying)
-            ? max(amount - wethBalance, 0n)
-            : 0n,
+          value: value(position.underlying, amount),
           account: walletClient.account,
         })
         await queryClient.invalidateQueries(['loan-positions'])
@@ -267,14 +246,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [
-      balance?.value,
-      balances,
-      publicClient,
-      queryClient,
-      setConfirmation,
-      walletClient,
-    ],
+    [publicClient, queryClient, setConfirmation, value, walletClient],
   )
 
   const repayWithCollateral = useCallback(
@@ -413,10 +385,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const wethBalance = isEthereum(underlying)
-        ? balances[underlying.address] - (balance?.value || 0n)
-        : 0n
-
       try {
         const deadline = BigInt(
           Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24),
@@ -470,9 +438,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               },
             },
           ],
-          value: isEthereum(underlying)
-            ? max(expectedInterest - wethBalance, 0n)
-            : 0n,
+          value: value(underlying, expectedInterest),
           account: walletClient.account,
         })
         await queryClient.invalidateQueries(['loan-positions'])
@@ -483,14 +449,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [
-      balance?.value,
-      balances,
-      publicClient,
-      queryClient,
-      setConfirmation,
-      walletClient,
-    ],
+    [publicClient, queryClient, setConfirmation, value, walletClient],
   )
 
   const shortenLoanDuration = useCallback(
@@ -551,10 +510,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const wethBalance = isEthereum(position.underlying)
-        ? balances[position.underlying.address] - (balance?.value || 0n)
-        : 0n
-
       try {
         const deadline = BigInt(
           Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24),
@@ -608,9 +563,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               },
             },
           ],
-          value: isEthereum(position.collateral.underlying)
-            ? max(amount - wethBalance, 0n)
-            : 0n,
+          value: value(position.collateral.underlying, amount),
           account: walletClient.account,
         })
         await queryClient.invalidateQueries(['loan-positions'])
@@ -621,14 +574,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [
-      balance?.value,
-      balances,
-      publicClient,
-      queryClient,
-      setConfirmation,
-      walletClient,
-    ],
+    [publicClient, queryClient, setConfirmation, value, walletClient],
   )
 
   const removeCollateral = useCallback(

@@ -12,7 +12,6 @@ import { Hash } from 'viem'
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { DepositController__factory } from '../typechain'
 import { Asset } from '../model/asset'
-import { max } from '../utils/bigint'
 import { permit20 } from '../utils/permit20'
 import { fetchBondPositions } from '../apis/bond-position'
 import { BondPosition } from '../model/bond-position'
@@ -21,7 +20,7 @@ import { permit721 } from '../utils/permit721'
 import { Currency } from '../model/currency'
 import { writeContract } from '../utils/wallet'
 
-import { isEthereum, useCurrencyContext } from './currency-context'
+import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
 
 type DepositContext = {
@@ -52,12 +51,11 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient()
 
   const { address: userAddress } = useAccount()
-  const { data: balance } = useBalance({ address: userAddress })
 
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
-  const { balances } = useCurrencyContext()
+  const { value } = useCurrencyContext()
 
   const { data: positions } = useQuery(
     ['bond-positions', userAddress],
@@ -80,10 +78,6 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         // TODO: alert wallet connect
         return
       }
-
-      const wethBalance = isEthereum(asset.underlying)
-        ? balances[asset.underlying.address] - (balance?.value || 0n)
-        : 0n
 
       let hash: Hash | undefined
       try {
@@ -125,9 +119,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
               },
             },
           ],
-          value: isEthereum(asset.underlying)
-            ? max(amount - wethBalance, 0n)
-            : 0n,
+          value: value(asset.underlying, amount),
           account: walletClient.account,
         })
         await queryClient.invalidateQueries(['bond-positions'])
@@ -139,14 +131,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
       return hash
     },
-    [
-      balance?.value,
-      balances,
-      publicClient,
-      queryClient,
-      setConfirmation,
-      walletClient,
-    ],
+    [publicClient, queryClient, setConfirmation, value, walletClient],
   )
 
   const withdraw = useCallback(

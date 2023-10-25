@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useAccount, useBalance, useQuery } from 'wagmi'
 import { readContracts } from '@wagmi/core'
 import { getAddress } from 'viem'
@@ -12,6 +12,7 @@ import { Asset, AssetStatus } from '../model/asset'
 import { Epoch } from '../model/epoch'
 import { Balances } from '../model/balances'
 import { Prices } from '../model/prices'
+import { max } from '../utils/bigint'
 
 type CurrencyContext = {
   balances: Balances
@@ -19,6 +20,7 @@ type CurrencyContext = {
   assets: Asset[]
   assetStatuses: AssetStatus[]
   epochs: Epoch[]
+  value: (currency: Currency, willPayAmount: bigint) => bigint
 }
 
 const Context = React.createContext<CurrencyContext>({
@@ -27,6 +29,7 @@ const Context = React.createContext<CurrencyContext>({
   assets: [],
   assetStatuses: [],
   epochs: [],
+  value: () => 0n,
 })
 
 export const isEthereum = (currency: Currency) => {
@@ -121,6 +124,17 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
     {
       refetchOnWindowFocus: true,
     },
+  ) as { data: Balances }
+
+  const value = useCallback(
+    (currency: Currency, willPayAmount: bigint) => {
+      if (!balance || !balances || !isEthereum(currency)) {
+        return 0n
+      }
+      const wrappedETHBalance = balances[currency.address] - balance.value
+      return max(willPayAmount - wrappedETHBalance, 0n)
+    },
+    [balance, balances],
   )
 
   return (
@@ -131,6 +145,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
         assets: assets ?? [],
         assetStatuses: assetStatuses ?? [],
         epochs: epochs ?? [],
+        value,
       }}
     >
       {children}
