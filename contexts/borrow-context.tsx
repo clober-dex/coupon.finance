@@ -12,7 +12,7 @@ import {
 import { Asset } from '../model/asset'
 import { permit20 } from '../utils/permit20'
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
-import { formatUnits, NUMERIC_EPSILON } from '../utils/numbers'
+import { formatUnits } from '../utils/numbers'
 import { BorrowController__factory, RepayAdapter__factory } from '../typechain'
 import { max } from '../utils/bigint'
 import { fetchLoanPositions } from '../apis/loan-position'
@@ -115,10 +115,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const maximumInterestPaid = max(
-        BigInt(Math.floor(Number(expectedInterest) * (1 + NUMERIC_EPSILON))),
-        expectedInterest,
-      )
       const wethBalance = isEthereum(collateral.underlying)
         ? balances[collateral.underlying.address] - (balance?.value || 0n)
         : 0n
@@ -160,8 +156,8 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             collateral.substitute.address,
             loanAsset.substitutes[0].address,
             collateralAmount,
-            loanAmount + maximumInterestPaid,
-            maximumInterestPaid,
+            loanAmount + expectedInterest,
+            expectedInterest,
             epochs,
             {
               permitAmount: collateralAmount,
@@ -203,7 +199,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const minimumInterestEarned = expectedProceeds
       const wethBalance = isEthereum(position.underlying)
         ? balances[position.underlying.address] - (balance?.value || 0n)
         : 0n
@@ -246,8 +241,8 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           functionName: 'repay',
           args: [
             position.id,
-            amount + minimumInterestEarned,
-            minimumInterestEarned,
+            amount + expectedProceeds,
+            expectedProceeds,
             { ...positionPermitResult },
             {
               permitAmount: amount,
@@ -295,7 +290,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const minimumInterestEarned = expectedProceeds
       try {
         const { deadline, r, s, v } = await permit721(
           walletClient,
@@ -336,7 +330,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           args: [
             position.id,
             amount,
-            minimumInterestEarned,
+            expectedProceeds,
             swapData,
             { deadline, v, r, s },
           ],
@@ -364,11 +358,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const maximumInterestPaid = max(
-        BigInt(Math.floor(Number(expectedInterest) * (1 + NUMERIC_EPSILON))),
-        expectedInterest,
-      )
-
       try {
         const { deadline, r, s, v } = await permit721(
           walletClient,
@@ -395,8 +384,8 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           functionName: 'borrowMore',
           args: [
             position.id,
-            amount + maximumInterestPaid,
-            maximumInterestPaid,
+            amount + expectedInterest,
+            expectedInterest,
             { deadline, v, r, s },
           ],
           account: walletClient.account,
@@ -424,10 +413,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const maximumInterestPaid = max(
-        BigInt(Math.floor(Number(expectedInterest) * (1 + NUMERIC_EPSILON))),
-        expectedInterest,
-      )
       const wethBalance = isEthereum(underlying)
         ? balances[underlying.address] - (balance?.value || 0n)
         : 0n
@@ -450,7 +435,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           underlying,
           walletClient.account.address,
           CONTRACT_ADDRESSES.BorrowController,
-          maximumInterestPaid,
+          expectedInterest,
           deadline,
         )
 
@@ -461,7 +446,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             {
               currency: underlying,
               label: underlying.symbol,
-              value: formatUnits(maximumInterestPaid, underlying.decimals),
+              value: formatUnits(expectedInterest, underlying.decimals),
             },
           ],
         })
@@ -473,10 +458,10 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           args: [
             positionId,
             epochs,
-            maximumInterestPaid,
+            expectedInterest,
             { ...positionPermitResult },
             {
-              permitAmount: maximumInterestPaid,
+              permitAmount: expectedInterest,
               signature: {
                 deadline: debtPermitResult.deadline,
                 r: debtPermitResult.r,
@@ -486,7 +471,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             },
           ],
           value: isEthereum(underlying)
-            ? max(maximumInterestPaid - wethBalance, 0n)
+            ? max(expectedInterest - wethBalance, 0n)
             : 0n,
           account: walletClient.account,
         })
@@ -520,7 +505,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const minimumInterestEarned = expectedProceeds
       try {
         const { deadline, s, r, v } = await permit721(
           walletClient,
@@ -538,7 +522,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             {
               currency: underlying,
               label: underlying.symbol,
-              value: formatUnits(minimumInterestEarned, underlying.decimals),
+              value: formatUnits(expectedProceeds, underlying.decimals),
             },
           ],
         })
@@ -546,12 +530,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           address: CONTRACT_ADDRESSES.BorrowController,
           abi: BorrowController__factory.abi,
           functionName: 'shortenLoanDuration',
-          args: [
-            positionId,
-            epochs,
-            minimumInterestEarned,
-            { deadline, v, r, s },
-          ],
+          args: [positionId, epochs, expectedProceeds, { deadline, v, r, s }],
           account: walletClient.account,
         })
         await queryClient.invalidateQueries(['loan-positions'])

@@ -16,7 +16,7 @@ import { max } from '../utils/bigint'
 import { permit20 } from '../utils/permit20'
 import { fetchBondPositions } from '../apis/bond-position'
 import { BondPosition } from '../model/bond-position'
-import { formatUnits, NUMERIC_EPSILON } from '../utils/numbers'
+import { formatUnits } from '../utils/numbers'
 import { permit721 } from '../utils/permit721'
 import { Currency } from '../model/currency'
 import { writeContract } from '../utils/wallet'
@@ -81,7 +81,6 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const minimumInterestEarned = expectedProceeds
       const wethBalance = isEthereum(asset.underlying)
         ? balances[asset.underlying.address] - (balance?.value || 0n)
         : 0n
@@ -113,9 +112,9 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           functionName: 'deposit',
           args: [
             asset.substitutes[0].address,
-            amount + minimumInterestEarned,
+            amount + expectedProceeds,
             epochs,
-            minimumInterestEarned,
+            expectedProceeds,
             {
               permitAmount: amount,
               signature: {
@@ -162,11 +161,6 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const maximumInterestPaid = max(
-        BigInt(Math.floor(Number(repurchaseFee) * (1 + NUMERIC_EPSILON))),
-        repurchaseFee,
-      )
-
       try {
         const { deadline, r, s, v } = await permit721(
           walletClient,
@@ -193,8 +187,8 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           functionName: 'withdraw',
           args: [
             tokenId,
-            amount + maximumInterestPaid,
-            maximumInterestPaid,
+            amount + repurchaseFee,
+            repurchaseFee,
             { deadline, v, r, s },
           ],
           account: walletClient.account,
