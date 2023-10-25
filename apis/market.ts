@@ -2,7 +2,7 @@ import { getAddress, isAddressEqual } from 'viem'
 
 import { getBuiltGraphSDK } from '../.graphclient'
 import {
-  calculateBorrowApr,
+  calculateBorrowApy,
   calculateDepositApy,
   Market,
 } from '../model/market'
@@ -105,7 +105,7 @@ export async function fetchDepositApyByEpochsDeposited(
     })
 }
 
-export async function fetchBorrowAprByEpochsBorrowed(
+export async function fetchBorrowApyByEpochsBorrowed(
   asset: Asset,
   amount: bigint,
   maxAmountExcludingFee: bigint,
@@ -121,8 +121,8 @@ export async function fetchBorrowAprByEpochsBorrowed(
   return markets
     .map((_, index) => markets.slice(0, index + 1))
     .map((markets) => {
-      const { apr, interest, maxInterest, totalBorrow, available } =
-        calculateBorrowApr(
+      const { apy, interest, maxInterest, totalBorrow, available } =
+        calculateBorrowApy(
           substitute,
           markets,
           amount,
@@ -136,7 +136,7 @@ export async function fetchBorrowAprByEpochsBorrowed(
           .replace(/-/g, '/'), // TODO: format properly
         interest,
         maxInterest,
-        apr,
+        apy,
         totalBorrow,
         available,
       }

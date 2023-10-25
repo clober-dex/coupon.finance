@@ -16,25 +16,25 @@ import {
 import { Epoch } from '../model/epoch'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { LoanPosition } from '../model/loan-position'
-import { calculateApr } from '../utils/apr'
 import BorrowMoreModalContainer from '../containers/modal/borrow-more-modal-container'
 import RepayModalContainer from '../containers/modal/repay-modal-container'
 import EditCollateralModalContainer from '../containers/modal/edit-collateral-modal-container'
 import EditExpiryModalContainer from '../containers/modal/edit-expiry-modal-container'
+import { calculateApy } from '../utils/apy'
 
 import EpochSelect from './epoch-select'
 import { LoanPositionCard } from './loan-position-card'
 
 const Asset = ({
   currency,
-  apr,
+  apy,
   available,
   borrowed,
   price,
   ...props
 }: {
   currency: Currency
-  apr: number
+  apy: number
   available: bigint
   borrowed: bigint
   price?: BigDecimal
@@ -57,7 +57,7 @@ const Asset = ({
               <div className="text-gray-500 text-xs">{currency.name}</div>
             </div>
           </div>
-          <div className="text-sm font-bold sm:w-[80px]">{apr.toFixed(2)}%</div>
+          <div className="text-sm font-bold sm:w-[80px]">{apy.toFixed(2)}%</div>
         </div>
         <div className="flex flex-row sm:flex-col w-full sm:w-[120px] justify-between px-4 sm:p-0">
           <div className="sm:hidden text-gray-500 text-xs">Available</div>
@@ -215,7 +215,7 @@ const Borrow = ({
           <div className="flex flex-col mb-12 gap-4">
             <div className="hidden sm:flex gap-4 text-gray-500 text-xs">
               <div className="w-[156px]">Asset</div>
-              <div className="w-[80px]">APR</div>
+              <div className="w-[80px]">APY</div>
               <div className="w-[120px]">Available</div>
               <div className="w-[120px]">Total Borrowed</div>
             </div>
@@ -240,7 +240,7 @@ const Borrow = ({
                   const currentTimestamp = Math.floor(
                     new Date().getTime() / 1000,
                   )
-                  const apr = calculateApr(
+                  const apy = calculateApy(
                     interest,
                     assetStatus.epoch.endTimestamp - currentTimestamp,
                   )
@@ -256,7 +256,7 @@ const Borrow = ({
                     <Asset
                       key={index}
                       currency={assetStatus.underlying}
-                      apr={apr}
+                      apy={apy}
                       available={available}
                       borrowed={parseUnits(
                         assetStatus.totalBorrowed,
