@@ -2,14 +2,20 @@ import React from 'react'
 import { ConnectButton } from '@rainbow-me/rainbowkit'
 import Link from 'next/link'
 
-import LogoSvg from './svg/logo-svg'
-import LogotypeSvg from './svg/logotype-svg'
-import TwitterSvg from './svg/twitter-svg'
-import DiscordSvg from './svg/discord-svg'
-import MenuSvg from './svg/menu-svg'
-import ThemeToggle from './theme-toggle'
+import LogoSvg from '../components/svg/logo-svg'
+import LogotypeSvg from '../components/svg/logotype-svg'
+import TwitterSvg from '../components/svg/twitter-svg'
+import DiscordSvg from '../components/svg/discord-svg'
+import ThemeToggle from '../components/theme-toggle'
+import MenuSvg from '../components/svg/menu-svg'
 
-const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
+const HeaderContainer = ({
+  onMenuClick,
+  setTheme,
+}: {
+  onMenuClick: () => void
+  setTheme: (theme: 'light' | 'dark') => void
+}) => {
   return (
     <div className="fixed w-full flex justify-between items-center py-4 px-4 sm:px-8 bg-white bg-opacity-5 backdrop-blur z-50">
       <div className="flex items-center gap-12">
@@ -44,7 +50,7 @@ const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
       </div>
       <div className="flex gap-3 sm:gap-4 items-center">
         <div className="hidden sm:flex">
-          <ThemeToggle />
+          <ThemeToggle setTheme={setTheme} />
         </div>
         <ConnectButton />
         <button className="flex sm:hidden" onClick={onMenuClick}>
@@ -55,4 +61,4 @@ const Header = ({ onMenuClick }: { onMenuClick: () => void }) => {
   )
 }
 
-export default Header
+export default HeaderContainer
