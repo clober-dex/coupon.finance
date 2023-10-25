@@ -2,7 +2,6 @@ import React, { useCallback } from 'react'
 import { Hash } from 'viem'
 import {
   useAccount,
-  useBalance,
   usePublicClient,
   useQuery,
   useQueryClient,

@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react'
 import {
   useAccount,
-  useBalance,
   usePublicClient,
   useQuery,
   useQueryClient,
