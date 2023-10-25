@@ -86,7 +86,7 @@ export async function fetchDepositApyByEpochsDeposited(
 
   const currentTimestamp = Math.floor(new Date().getTime() / 1000)
   return markets
-    .map((_, i) => markets.slice(0, i + 1))
+    .map((_, index) => markets.slice(0, index + 1))
     .map((markets) => {
       const { apy, proceeds } = calculateDepositApy(
         substitute,
@@ -119,7 +119,7 @@ export async function fetchBorrowAprByEpochsBorrowed(
 
   const currentTimestamp = Math.floor(new Date().getTime() / 1000)
   return markets
-    .map((_, i) => markets.slice(0, i + 1))
+    .map((_, index) => markets.slice(0, index + 1))
     .map((markets) => {
       const { apr, interest, maxInterest, totalBorrow, available } =
         calculateBorrowApr(

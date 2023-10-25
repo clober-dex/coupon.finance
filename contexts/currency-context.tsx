@@ -108,8 +108,8 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
           args: [userAddress],
         })),
       })
-      return results.reduce((acc, { result }, i) => {
-        const currency = currencies[i]
+      return results.reduce((acc, { result }, index) => {
+        const currency = currencies[index]
         return {
           ...acc,
           [currency.address]: isEthereum(currency)

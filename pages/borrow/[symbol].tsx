@@ -157,7 +157,7 @@ const Borrow = () => {
             />
           ) : (
             <div className="flex flex-1 sm:items-center justify-center">
-              <div className="flex flex-col sm:shadow bg-gray-50 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 w-full sm:w-[480px] gap-8">
+              <div className="flex flex-col sm:shadow bg-gray-50 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-5 w-full sm:w-[480px] gap-8">
                 <div className="flex flex-col gap-4">
                   <div className="font-bold text-sm sm:text-lg">
                     How much collateral would you like to add?
@@ -212,15 +212,17 @@ const Borrow = () => {
                       </div>
                     </div>
                     <div className="flex flex-col sm:flex-row justify-between">
-                      {(interestsByEpochsBorrowed || []).map(({ date }, i) => (
-                        <button
-                          key={i}
-                          className="flex flex-col items-center gap-2 w-[72px]"
-                          onClick={() => setEpochs(i + 1)}
-                        >
-                          <div className="text-sm">{date}</div>
-                        </button>
-                      ))}
+                      {(interestsByEpochsBorrowed || []).map(
+                        ({ date }, index) => (
+                          <button
+                            key={index}
+                            className="flex flex-col items-center gap-2 w-[72px]"
+                            onClick={() => setEpochs(index + 1)}
+                          >
+                            <div className="text-sm">{date}</div>
+                          </button>
+                        ),
+                      )}
                     </div>
                   </div>
                   <div className="flex flex-col gap-2">
