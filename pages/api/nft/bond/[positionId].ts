@@ -12,7 +12,7 @@ export default async function handler(
 ) {
   try {
     const query = req.query
-    const { positionId } = query
+    const { positionId, chainId } = query
     if (!positionId || typeof positionId !== 'string') {
       res.json({
         status: 'error',
