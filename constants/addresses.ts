@@ -1,7 +1,7 @@
-import { CHAINS } from './chain'
+import { CHAIN_IDS } from './chain'
 
 export const CONTRACT_ADDRESSES: {
-  [chain in CHAINS]: {
+  [chain in CHAIN_IDS]: {
     BondPositionManager: `0x${string}`
     BorrowController: `0x${string}`
     CouponOracle: `0x${string}`
@@ -10,7 +10,7 @@ export const CONTRACT_ADDRESSES: {
     OdosRepayAdapter: `0x${string}`
   }
 } = {
-  [CHAINS.ARBITRUM]: {
+  [CHAIN_IDS.ARBITRUM]: {
     BondPositionManager:
       '0x0000000000000000000000000000000000000000' as `0x${string}`,
     BorrowController:
@@ -23,7 +23,7 @@ export const CONTRACT_ADDRESSES: {
     OdosRepayAdapter:
       '0x0000000000000000000000000000000000000000' as `0x${string}`,
   },
-  [CHAINS.COUPON_FINANCE_CHAIN]: {
+  [CHAIN_IDS.COUPON_FINANCE_CHAIN]: {
     BondPositionManager:
       '0xA0D476c6A39beA239749C566a02343e5584Ec200' as `0x${string}`,
     BorrowController:
