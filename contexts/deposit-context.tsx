@@ -159,6 +159,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
       try {
         const { deadline, r, s, v } = await permit721(
+          chain.id,
           walletClient,
           CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].BondPositionManager,
           tokenId,
@@ -207,6 +208,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
       try {
         const { deadline, r, s, v } = await permit721(
+          chain.id,
           walletClient,
           CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].BondPositionManager,
           tokenId,
