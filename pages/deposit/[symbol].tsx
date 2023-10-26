@@ -12,6 +12,7 @@ import { fetchDepositApyByEpochsDeposited } from '../../apis/market'
 import { DepositForm } from '../../components/form/deposit-form'
 import BackSvg from '../../components/svg/back-svg'
 import { getLogo } from '../../model/currency'
+import { RiskSidebar } from '../../components/risk-sidebar'
 
 const Deposit = () => {
   const { chain } = useNetwork()
@@ -25,6 +26,7 @@ const Deposit = () => {
     },
     [epochs],
   )
+  const [showRiskSidebar, setShowRiskSidebar] = useState(false)
 
   const [value, setValue] = useState('')
 
@@ -72,7 +74,7 @@ const Deposit = () => {
       </Head>
       {asset ? (
         <main className="flex flex-1 flex-col justify-center items-center">
-          <div className="flex flex-1 flex-col w-full">
+          <div className="flex flex-1 flex-col w-full gap-6">
             <Link
               className="flex items-center font-bold text-base sm:text-2xl gap-2 sm:gap-3 mt-24 mb-2 sm:mb-2 ml-4 sm:ml-6"
               replace={true}
@@ -91,32 +93,49 @@ const Deposit = () => {
                 <div>{asset.underlying.symbol}</div>
               </div>
             </Link>
-            <DepositForm
-              depositCurrency={asset.underlying}
-              maxDepositAmount={maxDepositAmount}
-              proceed={proceed}
-              depositApy={apy}
-              proceedsByEpochsDeposited={proceedsByEpochsDeposited}
-              value={value}
-              setValue={setValue}
-              epochs={epochs}
-              setEpochs={setEpochs}
-              actionButtonProps={{
-                disabled:
-                  amount === 0n || epochs === 0 || amount > maxDepositAmount,
-                onClick: async () => {
-                  const hash = await deposit(asset, amount, epochs, proceed)
-                  if (hash) {
-                    await router.replace('/?mode=deposit')
-                  }
-                },
-                text:
-                  amount > maxDepositAmount
-                    ? `Insufficient ${asset.underlying.symbol} balance`
-                    : 'Deposit',
-              }}
-              depositAssetPrice={prices[asset.underlying.address]}
-            />
+            <div className="flex flex-col lg:flex-row sm:items-center lg:items-start justify-center gap-4">
+              <DepositForm
+                depositCurrency={asset.underlying}
+                maxDepositAmount={maxDepositAmount}
+                proceed={proceed}
+                depositApy={apy}
+                proceedsByEpochsDeposited={proceedsByEpochsDeposited}
+                value={value}
+                setValue={setValue}
+                epochs={epochs}
+                setEpochs={setEpochs}
+                showRiskSidebar={showRiskSidebar}
+                setShowRiskSidebar={setShowRiskSidebar}
+                actionButtonProps={{
+                  disabled:
+                    amount === 0n || epochs === 0 || amount > maxDepositAmount,
+                  onClick: async () => {
+                    const hash = await deposit(asset, amount, epochs, proceed)
+                    if (hash) {
+                      await router.replace('/?mode=deposit')
+                    }
+                  },
+                  text:
+                    amount > maxDepositAmount
+                      ? `Insufficient ${asset.underlying.symbol} balance`
+                      : 'Deposit',
+                }}
+                depositAssetPrice={prices[asset.underlying.address]}
+              />
+              {showRiskSidebar ? (
+                <RiskSidebar
+                  showRiskSidebar={showRiskSidebar}
+                  setShowRiskSidebar={setShowRiskSidebar}
+                />
+              ) : (
+                <></>
+              )}
+              <RiskSidebar
+                showRiskSidebar={showRiskSidebar}
+                setShowRiskSidebar={setShowRiskSidebar}
+                className="md:hidden"
+              />
+            </div>
           </div>
         </main>
       ) : (
