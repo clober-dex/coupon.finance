@@ -45,9 +45,9 @@
   <!-- Text -->
   <g>
     <text x="50%" y="29%" fill="url(#def_text)" font-family="Inter" font-size="83" text-anchor="middle">Deposit</text>
-    <text x="50%" y="50.5%" fill="url(#def_text)" font-family="Inter" font-size="160" text-anchor="middle">1000<tspan dx="30" fill="url(#def_text)" font-family="Inter" font-size="70">USDC</tspan>
+    <text x="50%" y="50.5%" fill="url(#def_text)" font-family="Inter" font-size="142" text-anchor="middle">DEPOSIT_AMOUNT<tspan dx="30" fill="url(#def_text)" font-family="Inter" font-size="70">DEPOSIT_TOKEN</tspan>
     </text>
-    <text x="50%" y="67%" fill="rgba(255, 255, 255, 0.40)" font-family="Inter" font-size="40" text-anchor="middle">Expires at<tspan dx="25" fill="rgba(255, 255, 255, 0.80)" font-family="Inter">24-12-01</tspan>
+    <text x="50%" y="67%" fill="rgba(255, 255, 255, 0.40)" font-family="Inter" font-size="40" text-anchor="middle">Expires at<tspan dx="25" fill="rgba(255, 255, 255, 0.80)" font-family="Inter">EXPIRES_AT</tspan>
     </text>
   </g>
   <!-- Overlay -->

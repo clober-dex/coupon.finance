@@ -1,9 +1,14 @@
 import { BondPosition } from '../model/bond-position'
-import { getBuiltGraphSDK } from '../.graphclient'
+import {
+  BondPosition as GraphqlBondPosition,
+  Epoch,
+  getBuiltGraphSDK,
+  Token,
+} from '../.graphclient'
 
 import { toCurrency } from './asset'
 
-const { getBondPositions } = getBuiltGraphSDK()
+const { getBondPositions, getBondPosition } = getBuiltGraphSDK()
 
 export async function fetchBondPositions(
   userAddress: `0x${string}`,
@@ -16,7 +21,35 @@ export async function fetchBondPositions(
       url: process.env.SUBGRAPH_URL,
     },
   )
-  return bondPositions.map((bondPosition) => ({
+  return bondPositions.map((bondPosition) => toBondPosition(bondPosition))
+}
+
+export async function fetchBondPosition(
+  positionId: bigint,
+): Promise<BondPosition | undefined> {
+  const { bondPosition } = await getBondPosition(
+    {
+      positionId: positionId.toString(),
+    },
+    {
+      url: process.env.SUBGRAPH_URL,
+    },
+  )
+  return bondPosition ? toBondPosition(bondPosition) : undefined
+}
+
+function toBondPosition(
+  bondPosition: Pick<
+    GraphqlBondPosition,
+    'id' | 'user' | 'amount' | 'principal' | 'createdAt'
+  > & {
+    substitute: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
+    underlying: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
+    fromEpoch: Pick<Epoch, 'id' | 'startTimestamp' | 'endTimestamp'>
+    toEpoch: Pick<Epoch, 'id' | 'startTimestamp' | 'endTimestamp'>
+  },
+): BondPosition {
+  return {
     tokenId: BigInt(bondPosition.id),
     substitute: toCurrency(bondPosition.substitute),
     underlying: toCurrency(bondPosition.underlying),
@@ -33,5 +66,5 @@ export async function fetchBondPositions(
       endTimestamp: Number(bondPosition.toEpoch.endTimestamp),
     },
     createdAt: Number(bondPosition.createdAt),
-  }))
+  }
 }
