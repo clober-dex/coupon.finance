@@ -13,6 +13,41 @@ import { DepositForm } from '../../components/form/deposit-form'
 import BackSvg from '../../components/svg/back-svg'
 import { getLogo } from '../../model/currency'
 import { RiskSidebar } from '../../components/risk-sidebar'
+import { Collateral } from '../../model/collateral'
+import { BigDecimal } from '../../utils/numbers'
+
+const dummyCollateralRiskInfos = [
+  {
+    collateral: {
+      underlying: {
+        address: '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f',
+        name: 'Wrapped BTC',
+        symbol: 'WBTC',
+        decimals: 8,
+      },
+      substitute: {
+        address: '0xe494b0813d70e6b9501ddfceb2225d12b839422b',
+        name: 'Wrapped Aave Wrapped BTC',
+        symbol: 'WaWBTC',
+        decimals: 8,
+      },
+      liquidationThreshold: 800000n,
+      liquidationTargetLtv: 700000n,
+      ltvPrecision: 1000000n,
+    },
+    collateralPrice: {
+      value: 2500000000000n,
+      decimals: 8,
+    },
+    collateralized: 1230000000000000000n,
+    borrowing: 1000000000000000000n,
+  },
+] as {
+  collateral: Collateral
+  collateralPrice: BigDecimal
+  collateralized: bigint
+  borrowing: bigint
+}[]
 
 const Deposit = () => {
   const { chain } = useNetwork()
@@ -124,6 +159,7 @@ const Deposit = () => {
               />
               {showRiskSidebar ? (
                 <RiskSidebar
+                  collateralRiskInfos={dummyCollateralRiskInfos}
                   showRiskSidebar={showRiskSidebar}
                   setShowRiskSidebar={setShowRiskSidebar}
                 />
@@ -131,6 +167,7 @@ const Deposit = () => {
                 <></>
               )}
               <RiskSidebar
+                collateralRiskInfos={dummyCollateralRiskInfos}
                 showRiskSidebar={showRiskSidebar}
                 setShowRiskSidebar={setShowRiskSidebar}
                 className="md:hidden"

@@ -2,15 +2,24 @@ import React from 'react'
 import Image from 'next/image'
 
 import { getLogo } from '../model/currency'
+import { Collateral } from '../model/collateral'
+import { BigDecimal, formatDollarValue, formatUnits } from '../utils/numbers'
 
 import { GreenCircleSvg } from './svg/green-circle-svg'
 import { OrangeCircleSvg } from './svg/orange-circle-svg'
 import { LeftBracketAngleSvg } from './svg/left-bracket-angle-svg'
 export const RiskSidebar = ({
+  collateralRiskInfos,
   showRiskSidebar,
   setShowRiskSidebar,
   ...props
 }: {
+  collateralRiskInfos: {
+    collateral: Collateral
+    collateralPrice: BigDecimal
+    collateralized: bigint
+    borrowing: bigint
+  }[]
   showRiskSidebar: boolean
   setShowRiskSidebar: (show: boolean) => void
 } & React.DetailedHTMLProps<
@@ -58,90 +67,82 @@ export const RiskSidebar = ({
             </div>
             <div className="flex flex-col items-start gap-4 text-xs font-medium text-gray-400 w-full">
               <div className="flex flex-row w-full items-start">
-                <div className="flex-1">Coin</div>
+                <div className="flex-[1.4]">Coin</div>
                 <div className="flex-1">Liquidation LTV</div>
                 <div className="flex-1">Collateralized</div>
                 <div className="flex-1">Borrowing</div>
               </div>
-              <div className="flex flex-col items-start gap-6 w-full">
-                <div className="flex flex-row items-center w-full">
-                  <div className="flex flex-1 items-center gap-3 shrink-0">
-                    <div className="w-8 h-8 relative">
-                      <Image
-                        src={getLogo({
-                          address: '0x0000000000000000000000000000000000000002',
-                          name: 'WBTC',
-                          symbol: 'WBTC',
-                          decimals: 8,
-                        })}
-                        alt={'WBTC'}
-                        fill
-                      />
-                    </div>
-                    <div className="flex flex-col justify-center items-start">
-                      <div className="text-base font-bold	text-gray-950">
-                        BTC
+              <div className="flex flex-col items-center gap-6 w-full">
+                {collateralRiskInfos.map(
+                  ({
+                    collateral,
+                    collateralPrice,
+                    collateralized,
+                    borrowing,
+                  }) => (
+                    <div
+                      key={collateral.underlying.address}
+                      className="flex flex-row items-center w-full"
+                    >
+                      <div className="flex flex-[1.4] items-center gap-3 shrink-0">
+                        <div className="w-8 h-8 relative">
+                          <Image
+                            src={getLogo(collateral.underlying)}
+                            alt={collateral.underlying.name}
+                            fill
+                          />
+                        </div>
+                        <div className="flex flex-col justify-center items-start">
+                          <div className="text-base font-bold	text-gray-950">
+                            {collateral.underlying.symbol}
+                          </div>
+                          <div className="text-xs font-medium	text-gray-500">
+                            {collateral.underlying.name}
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-xs font-medium	text-gray-500">
-                        Bitcoin
+                      <div className="flex-1 items-center justify-center text-sm text-gray-950">
+                        {(
+                          (Number(collateral.liquidationThreshold) * 100) /
+                          Number(collateral.ltvPrecision)
+                        ).toFixed(2)}
+                        %
+                      </div>
+                      <div className="flex flex-1 flex-col justify-center items-start gap-0.5">
+                        <div className="text-sm text-gray-950">
+                          {formatUnits(
+                            collateralized,
+                            collateral.underlying.decimals,
+                            collateralPrice,
+                          )}
+                        </div>
+                        <div className="text-xs text-gray-500 font-medium">
+                          {formatDollarValue(
+                            collateralized,
+                            collateral.underlying.decimals,
+                            collateralPrice,
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex flex-1 flex-col justify-center items-start gap-0.5">
+                        <div className="text-sm text-gray-950">
+                          {formatUnits(
+                            borrowing,
+                            collateral.underlying.decimals,
+                            collateralPrice,
+                          )}
+                        </div>
+                        <div className="text-xs text-gray-500 font-medium">
+                          {formatDollarValue(
+                            borrowing,
+                            collateral.underlying.decimals,
+                            collateralPrice,
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex-1 items-center justify-center text-sm text-gray-950">
-                    70.00%
-                  </div>
-                  <div className="flex flex-1 flex-col justify-center items-start gap-0.5">
-                    <div className="text-sm text-gray-950">1.2305</div>
-                    <div className="text-xs text-gray-500 font-medium">
-                      $3,827.54
-                    </div>
-                  </div>
-                  <div className="flex flex-1 flex-col justify-center items-start gap-0.5">
-                    <div className="text-sm text-gray-950">1.2305</div>
-                    <div className="text-xs text-gray-500 font-medium">
-                      $3,827.54
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-row items-center w-full">
-                  <div className="flex flex-1 items-center gap-3 shrink-0">
-                    <div className="w-8 h-8 relative">
-                      <Image
-                        src={getLogo({
-                          address: '0x0000000000000000000000000000000000000002',
-                          name: 'WETH',
-                          symbol: 'WETH',
-                          decimals: 8,
-                        })}
-                        alt={'WETH'}
-                        fill
-                      />
-                    </div>
-                    <div className="flex flex-col justify-center items-start">
-                      <div className="text-base font-bold	text-gray-950">
-                        ETH
-                      </div>
-                      <div className="text-xs font-medium	text-gray-500">
-                        Ethereum
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex-1 items-center justify-center text-sm text-gray-950">
-                    70.00%
-                  </div>
-                  <div className="flex flex-1 flex-col justify-center items-start gap-0.5">
-                    <div className="text-sm text-gray-950">3.5505</div>
-                    <div className="text-xs text-gray-500 font-medium">
-                      $827.54
-                    </div>
-                  </div>
-                  <div className="flex flex-1 flex-col justify-center items-start gap-0.5">
-                    <div className="text-sm text-gray-950">1.2305</div>
-                    <div className="text-xs text-gray-500 font-medium">
-                      $30,812.54
-                    </div>
-                  </div>
-                </div>
+                  ),
+                )}
               </div>
             </div>
           </div>
