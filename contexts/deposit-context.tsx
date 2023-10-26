@@ -54,7 +54,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
-  const { value } = useCurrencyContext()
+  const { calculateETHValue } = useCurrencyContext()
 
   const { data: positions } = useQuery(
     ['bond-positions', userAddress],
@@ -118,7 +118,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
               },
             },
           ],
-          value: value(asset.underlying, amount),
+          value: calculateETHValue(asset.underlying, amount),
           account: walletClient.account,
         })
         await queryClient.invalidateQueries(['bond-positions'])
@@ -130,7 +130,13 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
       return hash
     },
-    [publicClient, queryClient, setConfirmation, value, walletClient],
+    [
+      publicClient,
+      queryClient,
+      setConfirmation,
+      calculateETHValue,
+      walletClient,
+    ],
   )
 
   const withdraw = useCallback(

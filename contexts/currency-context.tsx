@@ -20,7 +20,7 @@ type CurrencyContext = {
   assets: Asset[]
   assetStatuses: AssetStatus[]
   epochs: Epoch[]
-  value: (currency: Currency, willPayAmount: bigint) => bigint
+  calculateETHValue: (currency: Currency, willPayAmount: bigint) => bigint
 }
 
 const Context = React.createContext<CurrencyContext>({
@@ -29,7 +29,7 @@ const Context = React.createContext<CurrencyContext>({
   assets: [],
   assetStatuses: [],
   epochs: [],
-  value: () => 0n,
+  calculateETHValue: () => 0n,
 })
 
 export const isEthereum = (currency: Currency) => {
@@ -126,7 +126,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
     },
   ) as { data: Balances }
 
-  const value = useCallback(
+  const calculateETHValue = useCallback(
     (currency: Currency, willPayAmount: bigint) => {
       if (!balance || !balances || !isEthereum(currency)) {
         return 0n
@@ -145,7 +145,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
         assets: assets ?? [],
         assetStatuses: assetStatuses ?? [],
         epochs: epochs ?? [],
-        value,
+        calculateETHValue: calculateETHValue,
       }}
     >
       {children}

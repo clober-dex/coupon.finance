@@ -86,7 +86,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
-  const { value } = useCurrencyContext()
+  const { calculateETHValue } = useCurrencyContext()
 
   const { data: positions } = useQuery(
     ['loan-positions', userAddress],
@@ -157,7 +157,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               signature: { deadline, v, r, s },
             },
           ],
-          value: value(collateral.underlying, collateralAmount),
+          value: calculateETHValue(collateral.underlying, collateralAmount),
           account: walletClient.account,
         })
         await queryClient.invalidateQueries(['loan-positions'])
@@ -169,7 +169,13 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
       return hash
     },
-    [publicClient, queryClient, setConfirmation, value, walletClient],
+    [
+      publicClient,
+      queryClient,
+      setConfirmation,
+      calculateETHValue,
+      walletClient,
+    ],
   )
 
   const repay = useCallback(
@@ -234,7 +240,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               },
             },
           ],
-          value: value(position.underlying, amount),
+          value: calculateETHValue(position.underlying, amount),
           account: walletClient.account,
         })
         await queryClient.invalidateQueries(['loan-positions'])
@@ -245,7 +251,13 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [publicClient, queryClient, setConfirmation, value, walletClient],
+    [
+      publicClient,
+      queryClient,
+      setConfirmation,
+      calculateETHValue,
+      walletClient,
+    ],
   )
 
   const repayWithCollateral = useCallback(
@@ -437,7 +449,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               },
             },
           ],
-          value: value(underlying, expectedInterest),
+          value: calculateETHValue(underlying, expectedInterest),
           account: walletClient.account,
         })
         await queryClient.invalidateQueries(['loan-positions'])
@@ -448,7 +460,13 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [publicClient, queryClient, setConfirmation, value, walletClient],
+    [
+      publicClient,
+      queryClient,
+      setConfirmation,
+      calculateETHValue,
+      walletClient,
+    ],
   )
 
   const shortenLoanDuration = useCallback(
@@ -562,7 +580,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               },
             },
           ],
-          value: value(position.collateral.underlying, amount),
+          value: calculateETHValue(position.collateral.underlying, amount),
           account: walletClient.account,
         })
         await queryClient.invalidateQueries(['loan-positions'])
@@ -573,7 +591,13 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [publicClient, queryClient, setConfirmation, value, walletClient],
+    [
+      publicClient,
+      queryClient,
+      setConfirmation,
+      calculateETHValue,
+      walletClient,
+    ],
   )
 
   const removeCollateral = useCallback(
