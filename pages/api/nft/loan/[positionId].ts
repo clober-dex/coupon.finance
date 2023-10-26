@@ -1,14 +1,11 @@
 import { promises as fs } from 'fs'
 
 import type { NextApiRequest, NextApiResponse } from 'next'
-import BigNumber from 'bignumber.js'
 
-import { getBuiltGraphSDK } from '../../../../.graphclient'
 import { fetchPrices } from '../../../../apis/currency'
-import { toCurrency } from '../../../../apis/asset'
-import { dollarValue, formatUnits } from '../../../../utils/numbers'
-
-const { getLoanPosition } = getBuiltGraphSDK()
+import { formatUnits } from '../../../../utils/numbers'
+import { calculateLtv } from '../../../../utils/ltv'
+import { fetchLoanPosition } from '../../../../apis/loan-position'
 
 export default async function handler(
   req: NextApiRequest,
@@ -24,14 +21,7 @@ export default async function handler(
       })
       return
     }
-    const { loanPosition } = await getLoanPosition(
-      {
-        positionId: positionId,
-      },
-      {
-        url: process.env.SUBGRAPH_URL,
-      },
-    )
+    const loanPosition = await fetchLoanPosition(BigInt(positionId))
     if (!loanPosition) {
       res.json({
         status: 'error',
@@ -39,57 +29,51 @@ export default async function handler(
       })
       return
     }
-    const loanAmount = BigInt(loanPosition.amount)
-    const collateralAmount = BigInt(loanPosition.collateralAmount)
-    const loanToken = toCurrency(loanPosition.underlying)
-    const collateralToken = toCurrency(loanPosition.collateral.underlying)
     const prices = await fetchPrices([
-      loanToken.address,
-      collateralToken.address,
+      loanPosition.underlying.address,
+      loanPosition.collateral.underlying.address,
     ])
     const expiresAt = new Date(Number(loanPosition.toEpoch.endTimestamp) * 1000)
       .toISOString()
       .slice(2, 10)
       .replace(/-/g, '-')
-    const ltv = dollarValue(
-      loanAmount,
-      loanToken.decimals,
-      prices[loanToken.address],
-    )
-      .times(100)
-      .div(
-        dollarValue(
-          collateralAmount,
-          collateralToken.decimals,
-          prices[collateralToken.address],
-        ),
-      )
-      .toFixed(2)
-    const liquidationThreshold = BigNumber(
-      loanPosition.collateral.liquidationThreshold / 10000,
+    const currentLtv = calculateLtv(
+      loanPosition.underlying,
+      prices[loanPosition.underlying.address],
+      loanPosition.amount,
+      loanPosition.collateral,
+      prices[loanPosition.collateral.underlying.address],
+      loanPosition.collateralAmount,
+    ).toFixed(2)
+    const liquidationThreshold = (
+      Number(loanPosition.collateral.liquidationThreshold) / 10000
     ).toFixed(2)
 
     const baseSvg = (
-      await fs.readFile('public/position-nft-loan.svg')
+      await fs.readFile('public/loan-position-nft.svg')
     ).toString()
 
     const svg = baseSvg
       .replace(
         /LOAN_AMOUNT/g,
-        formatUnits(loanAmount, loanToken.decimals, prices[loanToken.address]),
+        formatUnits(
+          loanPosition.amount,
+          loanPosition.underlying.decimals,
+          prices[loanPosition.underlying.address],
+        ),
       )
-      .replace(/LOAN_TOKEN/g, loanToken.symbol)
+      .replace(/LOAN_TOKEN/g, loanPosition.underlying.symbol)
       .replace(/EXPIRES_AT/g, expiresAt)
       .replace(
         /COLLATERAL_AMOUNT/g,
         formatUnits(
-          collateralAmount,
-          collateralToken.decimals,
-          prices[collateralToken.address],
+          loanPosition.collateralAmount,
+          loanPosition.collateral.underlying.decimals,
+          prices[loanPosition.collateral.underlying.address],
         ),
       )
-      .replace(/COLLATERAL_TOKEN/g, collateralToken.symbol)
-      .replace(/LTV_VALUE/g, ltv)
+      .replace(/COLLATERAL_TOKEN/g, loanPosition.collateral.underlying.symbol)
+      .replace(/LTV_VALUE/g, currentLtv)
       .replace(/LIQUIDATION_THRESHOLD/g, liquidationThreshold)
 
     res

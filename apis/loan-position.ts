@@ -1,10 +1,16 @@
 import { LoanPosition } from '../model/loan-position'
-import { getBuiltGraphSDK } from '../.graphclient'
+import {
+  Collateral,
+  Epoch,
+  getBuiltGraphSDK,
+  Token,
+  LoanPosition as GraphqlLoanPosition,
+} from '../.graphclient'
 import { LIQUIDATION_TARGET_LTV_PRECISION } from '../utils/ltv'
 
 import { toCurrency } from './asset'
 
-const { getLoanPositions } = getBuiltGraphSDK()
+const { getLoanPositions, getLoanPosition } = getBuiltGraphSDK()
 
 export async function fetchLoanPositions(
   userAddress: `0x${string}`,
@@ -17,7 +23,42 @@ export async function fetchLoanPositions(
       url: process.env.SUBGRAPH_URL,
     },
   )
-  return loanPositions.map((loanPosition) => ({
+  return loanPositions.map((loanPosition) => toLoanPosition(loanPosition))
+}
+
+export async function fetchLoanPosition(
+  positionId: bigint,
+): Promise<LoanPosition | undefined> {
+  const { loanPosition } = await getLoanPosition(
+    {
+      positionId: positionId.toString(),
+    },
+    {
+      url: process.env.SUBGRAPH_URL,
+    },
+  )
+  return loanPosition ? toLoanPosition(loanPosition) : undefined
+}
+
+function toLoanPosition(
+  loanPosition: Pick<
+    GraphqlLoanPosition,
+    'id' | 'user' | 'amount' | 'principal' | 'collateralAmount' | 'createdAt'
+  > & {
+    substitute: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
+    underlying: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
+    collateral: Pick<
+      Collateral,
+      'liquidationThreshold' | 'liquidationTargetLtv'
+    > & {
+      substitute: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
+      underlying: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
+    }
+    fromEpoch: Pick<Epoch, 'id' | 'startTimestamp' | 'endTimestamp'>
+    toEpoch: Pick<Epoch, 'id' | 'startTimestamp' | 'endTimestamp'>
+  },
+): LoanPosition {
+  return {
     id: BigInt(loanPosition.id),
     substitute: toCurrency(loanPosition.substitute),
     underlying: toCurrency(loanPosition.underlying),
@@ -46,5 +87,5 @@ export async function fetchLoanPositions(
       endTimestamp: Number(loanPosition.toEpoch.endTimestamp),
     },
     createdAt: Number(loanPosition.createdAt),
-  }))
+  }
 }

@@ -2,12 +2,9 @@ import { promises as fs } from 'fs'
 
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-import { getBuiltGraphSDK } from '../../../../.graphclient'
 import { fetchPrices } from '../../../../apis/currency'
-import { toCurrency } from '../../../../apis/asset'
 import { formatUnits } from '../../../../utils/numbers'
-
-const { getBondPosition } = getBuiltGraphSDK()
+import { fetchBondPosition } from '../../../../apis/bond-position'
 
 export default async function handler(
   req: NextApiRequest,
@@ -23,14 +20,7 @@ export default async function handler(
       })
       return
     }
-    const { bondPosition } = await getBondPosition(
-      {
-        positionId: positionId,
-      },
-      {
-        url: process.env.SUBGRAPH_URL,
-      },
-    )
+    const bondPosition = await fetchBondPosition(BigInt(positionId))
     if (!bondPosition) {
       res.json({
         status: 'error',
@@ -38,24 +28,26 @@ export default async function handler(
       })
       return
     }
-    const bondAmount = BigInt(bondPosition.amount)
-    const bondToken = toCurrency(bondPosition.underlying)
-    const prices = await fetchPrices([bondToken.address])
+    const prices = await fetchPrices([bondPosition.underlying.address])
     const expiresAt = new Date(Number(bondPosition.toEpoch.endTimestamp) * 1000)
       .toISOString()
       .slice(2, 10)
       .replace(/-/g, '-')
 
     const baseSvg = (
-      await fs.readFile('public/position-nft-deposit.svg')
+      await fs.readFile('public/bond-position-nft.svg')
     ).toString()
 
     const svg = baseSvg
       .replace(
         /DEPOSIT_AMOUNT/g,
-        formatUnits(bondAmount, bondToken.decimals, prices[bondToken.address]),
+        formatUnits(
+          bondPosition.amount,
+          bondPosition.underlying.decimals,
+          prices[bondPosition.underlying.address],
+        ),
       )
-      .replace(/DEPOSIT_TOKEN/g, bondToken.symbol)
+      .replace(/DEPOSIT_TOKEN/g, bondPosition.underlying.symbol)
       .replace(/EXPIRES_AT/g, expiresAt)
 
     res
