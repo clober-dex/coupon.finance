@@ -14,15 +14,22 @@ export default async function handler(
   try {
     const query = req.query
     const { positionId, chainId } = query
-    console.log(chainId)
-    if (!positionId || typeof positionId !== 'string') {
+    if (
+      !positionId ||
+      !chainId ||
+      typeof positionId !== 'string' ||
+      typeof chainId !== 'string'
+    ) {
       res.json({
         status: 'error',
         message: 'Something went wrong, please try again!!!',
       })
       return
     }
-    const loanPosition = await fetchLoanPosition(BigInt(positionId))
+    const loanPosition = await fetchLoanPosition(
+      Number(chainId),
+      BigInt(positionId),
+    )
     if (!loanPosition) {
       res.json({
         status: 'error',
@@ -30,7 +37,7 @@ export default async function handler(
       })
       return
     }
-    const prices = await fetchPrices([
+    const prices = await fetchPrices(Number(chainId), [
       loanPosition.underlying.address,
       loanPosition.collateral.underlying.address,
     ])
@@ -83,7 +90,6 @@ export default async function handler(
       })
       .end(svg)
   } catch (error) {
-    console.log(error)
     res.json({
       status: 'error',
       message: 'Something went wrong, please try again!!!',

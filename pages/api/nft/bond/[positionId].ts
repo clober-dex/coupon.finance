@@ -13,15 +13,22 @@ export default async function handler(
   try {
     const query = req.query
     const { positionId, chainId } = query
-    console.log(chainId)
-    if (!positionId || typeof positionId !== 'string') {
+    if (
+      !positionId ||
+      !chainId ||
+      typeof positionId !== 'string' ||
+      typeof chainId !== 'string'
+    ) {
       res.json({
         status: 'error',
         message: 'Something went wrong, please try again!!!',
       })
       return
     }
-    const bondPosition = await fetchBondPosition(BigInt(positionId))
+    const bondPosition = await fetchBondPosition(
+      Number(chainId),
+      BigInt(positionId),
+    )
     if (!bondPosition) {
       res.json({
         status: 'error',
@@ -29,7 +36,9 @@ export default async function handler(
       })
       return
     }
-    const prices = await fetchPrices([bondPosition.underlying.address])
+    const prices = await fetchPrices(Number(chainId), [
+      bondPosition.underlying.address,
+    ])
     const expiresAt = new Date(Number(bondPosition.toEpoch.endTimestamp) * 1000)
       .toISOString()
       .slice(2, 10)
@@ -57,7 +66,6 @@ export default async function handler(
       })
       .end(svg)
   } catch (error) {
-    console.log(error)
     res.json({
       status: 'error',
       message: 'Something went wrong, please try again!!!',
