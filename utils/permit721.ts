@@ -3,10 +3,12 @@ import { hexToSignature, isAddressEqual, zeroAddress } from 'viem'
 
 import { fetchApproval } from '../apis/approval'
 import { EIP712__factory, IERC721Permit__factory } from '../typechain'
+import { CHAIN_IDS } from '../constants/chain'
 
 import { zeroBytes32 } from './bytes'
 
 export const permit721 = async (
+  chainId: CHAIN_IDS,
   walletClient: GetWalletClientResult,
   nftContractAddress: `0x${string}`,
   tokenId: bigint,
@@ -19,7 +21,7 @@ export const permit721 = async (
   v: number
   deadline: bigint
 }> => {
-  const approval = await fetchApproval(nftContractAddress, tokenId)
+  const approval = await fetchApproval(chainId, nftContractAddress, tokenId)
   if (!walletClient || isAddressEqual(approval || zeroAddress, spender)) {
     return {
       r: zeroBytes32 as `0x${string}`,

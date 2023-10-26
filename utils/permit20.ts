@@ -4,11 +4,13 @@ import { hexToSignature } from 'viem'
 import { Currency } from '../model/currency'
 import { fetchAllowance } from '../apis/allowance'
 import { IERC20Metadata__factory, IERC20Permit__factory } from '../typechain'
+import { CHAIN_IDS } from '../constants/chain'
 
 import { zeroBytes32 } from './bytes'
 import { approve20 } from './approve20'
 
 export const permit20 = async (
+  chainId: CHAIN_IDS,
   walletClient: GetWalletClientResult,
   currency: Currency,
   owner: `0x${string}`,
@@ -21,7 +23,7 @@ export const permit20 = async (
   v: number
   deadline: bigint
 }> => {
-  const allowance = await fetchAllowance(currency, owner, spender)
+  const allowance = await fetchAllowance(chainId, currency, owner, spender)
   if (!walletClient || allowance >= value) {
     return {
       r: zeroBytes32 as `0x${string}`,
@@ -70,6 +72,7 @@ export const permit20 = async (
 
   if (nonce === undefined || !name) {
     await approve20(
+      chainId,
       walletClient,
       currency,
       walletClient.account.address,

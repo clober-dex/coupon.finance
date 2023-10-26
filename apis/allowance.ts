@@ -1,14 +1,20 @@
-import { readContracts } from '@wagmi/core'
+import { createPublicClient, http } from 'viem'
 
 import { Currency } from '../model/currency'
 import { IERC20__factory } from '../typechain'
+import { CHAIN_IDS, CHAINS } from '../constants/chain'
 
 export async function fetchAllowance(
+  chainId: CHAIN_IDS,
   currency: Currency,
   userAddress: `0x${string}`,
   spenderAddress: `0x${string}`,
 ): Promise<bigint> {
-  const [{ result: allowance }] = await readContracts({
+  const publicClient = createPublicClient({
+    chain: CHAINS[chainId as CHAIN_IDS],
+    transport: http(),
+  })
+  const [{ result: allowance }] = await publicClient.multicall({
     contracts: [
       {
         address: currency.address,

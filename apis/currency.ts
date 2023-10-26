@@ -1,10 +1,9 @@
-import { readContracts } from '@wagmi/core'
+import { createPublicClient, http } from 'viem'
 
 import { Currency } from '../model/currency'
 import { CONTRACT_ADDRESSES } from '../constants/addresses'
 import { CouponOracle__factory } from '../typechain'
-import { BigDecimal } from '../utils/numbers'
-import { CHAIN_IDS } from '../constants/chain'
+import { CHAIN_IDS, CHAINS } from '../constants/chain'
 import { Prices } from '../model/prices'
 
 import { fetchAssets } from './asset'
@@ -34,21 +33,26 @@ export async function fetchPrices(
   chainId: CHAIN_IDS,
   currencyAddresses: `0x${string}`[],
 ): Promise<Prices> {
-  const [{ result: prices }, { result: decimals }] = await readContracts({
-    contracts: [
-      {
-        address: CONTRACT_ADDRESSES[chainId].CouponOracle,
-        abi: CouponOracle__factory.abi,
-        functionName: 'getAssetsPrices',
-        args: [currencyAddresses],
-      },
-      {
-        address: CONTRACT_ADDRESSES[chainId].CouponOracle,
-        abi: CouponOracle__factory.abi,
-        functionName: 'decimals',
-      },
-    ],
+  const publicClient = createPublicClient({
+    chain: CHAINS[chainId as CHAIN_IDS],
+    transport: http(),
   })
+  const [{ result: prices }, { result: decimals }] =
+    await publicClient.multicall({
+      contracts: [
+        {
+          address: CONTRACT_ADDRESSES[chainId].CouponOracle,
+          abi: CouponOracle__factory.abi,
+          functionName: 'getAssetsPrices',
+          args: [currencyAddresses],
+        },
+        {
+          address: CONTRACT_ADDRESSES[chainId].CouponOracle,
+          abi: CouponOracle__factory.abi,
+          functionName: 'decimals',
+        },
+      ],
+    })
 
   if (!prices || !decimals) {
     return {}

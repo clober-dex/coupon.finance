@@ -85,6 +85,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       let hash: Hash | undefined
       try {
         const { deadline, r, s, v } = await permit20(
+          chain.id,
           walletClient,
           asset.underlying,
           walletClient.account.address,

@@ -119,6 +119,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       let hash: Hash | undefined
       try {
         const { deadline, r, s, v } = await permit20(
+          chain.id,
           walletClient,
           collateral.underlying,
           walletClient.account.address,
@@ -199,6 +200,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24),
         )
         const positionPermitResult = await permit721(
+          chain.id,
           walletClient,
           CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].LoanPositionManager,
           position.id,
@@ -207,6 +209,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           deadline,
         )
         const debtPermitResult = await permit20(
+          chain.id,
           walletClient,
           position.underlying,
           walletClient.account.address,
@@ -281,6 +284,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
       try {
         const { deadline, r, s, v } = await permit721(
+          chain.id,
           walletClient,
           CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].LoanPositionManager,
           position.id,
@@ -349,6 +353,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
       try {
         const { deadline, r, s, v } = await permit721(
+          chain.id,
           walletClient,
           CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].LoanPositionManager,
           position.id,
@@ -407,6 +412,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24),
         )
         const positionPermitResult = await permit721(
+          chain.id,
           walletClient,
           CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].LoanPositionManager,
           positionId,
@@ -416,6 +422,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         )
 
         const debtPermitResult = await permit20(
+          chain.id,
           walletClient,
           underlying,
           walletClient.account.address,
@@ -490,6 +497,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
       try {
         const { deadline, s, r, v } = await permit721(
+          chain.id,
           walletClient,
           CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].LoanPositionManager,
           positionId,
@@ -539,6 +547,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24),
         )
         const positionPermitResult = await permit721(
+          chain.id,
           walletClient,
           CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].LoanPositionManager,
           position.id,
@@ -547,6 +556,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           deadline,
         )
         const debtPermitResult = await permit20(
+          chain.id,
           walletClient,
           position.collateral.underlying,
           walletClient.account.address,
@@ -617,6 +627,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
       try {
         const { deadline, r, s, v } = await permit721(
+          chain.id,
           walletClient,
           CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].LoanPositionManager,
           position.id,
