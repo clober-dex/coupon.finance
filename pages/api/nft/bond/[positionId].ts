@@ -21,7 +21,7 @@ export default async function handler(
     ) {
       res.json({
         status: 'error',
-        message: 'Something went wrong, please try again!!!',
+        message: 'URL should be /api/nft/bond/[positionId]?chainId=[chainId]',
       })
       return
     }
@@ -32,7 +32,7 @@ export default async function handler(
     if (!bondPosition) {
       res.json({
         status: 'error',
-        message: 'Something went wrong, please try again!!!',
+        message: 'Something went wrong, while fetching bond position',
       })
       return
     }
