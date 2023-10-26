@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { useQuery } from 'wagmi'
+import { useNetwork, useQuery } from 'wagmi'
 
 import { LoanPosition } from '../../model/loan-position'
 import { fetchCouponAmountByEpochsBorrowed } from '../../apis/market'
@@ -14,6 +14,7 @@ const EditExpiryModalContainer = ({
   position: LoanPosition
   onClose: () => void
 }) => {
+  const { chain } = useNetwork()
   const { balances } = useCurrencyContext()
   const { extendLoanDuration, shortenLoanDuration } = useBorrowContext()
 
@@ -25,12 +26,15 @@ const EditExpiryModalContainer = ({
     [epochs],
   )
 
-  const { data } = useQuery(['edit-expiry-simulate', position], () =>
-    fetchCouponAmountByEpochsBorrowed(
-      position.substitute,
-      position.amount,
-      position.toEpoch.id,
-    ),
+  const { data } = useQuery(['edit-expiry-simulate', position, chain], () =>
+    chain
+      ? fetchCouponAmountByEpochsBorrowed(
+          chain.id,
+          position.substitute,
+          position.amount,
+          position.toEpoch.id,
+        )
+      : Promise.resolve([]),
   )
 
   const [expiryEpochIndex, interest, payable, refund, refundable] =

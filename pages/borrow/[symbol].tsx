@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { parseUnits } from 'viem'
-import { useQuery } from 'wagmi'
+import { useNetwork, useQuery } from 'wagmi'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -17,6 +17,7 @@ import { max, min } from '../../utils/bigint'
 import { BorrowForm } from '../../components/form/borrow-form'
 
 const Borrow = () => {
+  const { chain } = useNetwork()
   const { balances, prices, assets } = useCurrencyContext()
   const { borrow } = useBorrowContext()
 
@@ -78,13 +79,17 @@ const Borrow = () => {
       asset,
       borrowAmount,
       maxLoanableAmountExcludingCouponFee,
+      chain,
     ], // TODO: useDebounce
     () =>
-      fetchBorrowApyByEpochsBorrowed(
-        asset,
-        borrowAmount,
-        maxLoanableAmountExcludingCouponFee,
-      ),
+      chain
+        ? fetchBorrowApyByEpochsBorrowed(
+            chain.id,
+            asset,
+            borrowAmount,
+            maxLoanableAmountExcludingCouponFee,
+          )
+        : Promise.resolve([]),
     {
       refetchOnWindowFocus: true,
       keepPreviousData: true,

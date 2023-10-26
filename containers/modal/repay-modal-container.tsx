@@ -88,9 +88,15 @@ const RepayModalContainer = ({
   )
 
   const { data } = useQuery(
-    ['repay-simulate', position, repayAmount],
+    ['repay-simulate', position, repayAmount, connectedChain],
     async () => {
-      const markets = (await fetchMarkets())
+      if (!connectedChain) {
+        return {
+          maxRefund: 0n,
+          refund: 0n,
+        }
+      }
+      const markets = (await fetchMarkets(connectedChain.id))
         .filter((market) =>
           isAddressEqual(
             market.quoteToken.address,

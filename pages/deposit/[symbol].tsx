@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { parseUnits } from 'viem'
-import { useQuery } from 'wagmi'
+import { useNetwork, useQuery } from 'wagmi'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -14,6 +14,7 @@ import BackSvg from '../../components/svg/back-svg'
 import { getLogo } from '../../model/currency'
 
 const Deposit = () => {
+  const { chain } = useNetwork()
   const { balances, prices, assets } = useCurrencyContext()
   const { deposit } = useDepositContext()
 
@@ -44,8 +45,11 @@ const Deposit = () => {
   )
 
   const { data: proceedsByEpochsDeposited } = useQuery(
-    ['deposit-simulate', asset, amount], // TODO: useDebounce
-    () => (asset ? fetchDepositApyByEpochsDeposited(asset, amount) : []),
+    ['deposit-simulate', asset, amount, chain], // TODO: useDebounce
+    () =>
+      asset && chain
+        ? fetchDepositApyByEpochsDeposited(chain.id, asset, amount)
+        : [],
     {
       refetchOnWindowFocus: true,
       keepPreviousData: true,

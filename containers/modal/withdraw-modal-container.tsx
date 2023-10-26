@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { isAddressEqual, parseUnits } from 'viem'
-import { useQuery } from 'wagmi'
+import { useNetwork, useQuery } from 'wagmi'
 
 import { BondPosition } from '../../model/bond-position'
 import { useCurrencyContext } from '../../contexts/currency-context'
@@ -17,6 +17,7 @@ const WithdrawModalContainer = ({
   position: BondPosition | null
   onClose: () => void
 }) => {
+  const { chain } = useNetwork()
   const [value, setValue] = useState('')
   const { prices } = useCurrencyContext()
   const { withdraw } = useDepositContext()
@@ -29,14 +30,14 @@ const WithdrawModalContainer = ({
   const { data } = useQuery(
     ['coupon-repurchase-fee-to-withdraw', position?.underlying.address, amount],
     async () => {
-      if (!position) {
+      if (!position || !chain) {
         return {
           maxRepurchaseFee: 0n,
           repurchaseFee: 0n,
           available: 0n,
         }
       }
-      const markets = (await fetchMarkets())
+      const markets = (await fetchMarkets(chain.id))
         .filter((market) =>
           isAddressEqual(
             market.quoteToken.address,

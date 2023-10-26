@@ -1,3 +1,5 @@
+import { CHAIN_IDS } from '../constants/chain'
+
 export async function fetchOdosApi<T>(
   path: string,
   options?: RequestInit,
@@ -51,7 +53,7 @@ export async function fetchAmountOutByOdos({
   userAddress,
   gasPrice,
 }: {
-  chainId: number
+  chainId: CHAIN_IDS
   amountIn: string
   tokenIn: string
   tokenOut: string

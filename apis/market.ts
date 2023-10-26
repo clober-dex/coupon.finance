@@ -9,6 +9,8 @@ import {
 import { Currency } from '../model/currency'
 import { Asset } from '../model/asset'
 import { getEpoch } from '../utils/epoch'
+import { SUBGRAPH_URL } from '../constants/subgraph-url'
+import { CHAIN_IDS } from '../constants/chain'
 const { getMarkets } = getBuiltGraphSDK()
 
 type DepthDto = {
@@ -31,13 +33,13 @@ export type MarketDto = {
   baseToken: Currency
   depths: DepthDto[]
 }
-export async function fetchMarkets(): Promise<Market[]> {
+export async function fetchMarkets(chainId: CHAIN_IDS): Promise<Market[]> {
   const { markets } = await getMarkets(
     {
       fromEpoch: getEpoch(Math.floor(new Date().getTime() / 1000)).toString(),
     },
     {
-      url: process.env.SUBGRAPH_URL,
+      url: SUBGRAPH_URL[chainId],
     },
   )
   return markets.map((market) =>
@@ -74,11 +76,12 @@ export async function fetchMarkets(): Promise<Market[]> {
 
 // Returns an array with the of proceeds depending on how many epochs deposited.
 export async function fetchDepositApyByEpochsDeposited(
+  chainId: CHAIN_IDS,
   asset: Asset,
   amount: bigint,
 ) {
   const substitute = asset.substitutes[0]
-  const markets = (await fetchMarkets())
+  const markets = (await fetchMarkets(chainId))
     .filter((market) =>
       isAddressEqual(market.quoteToken.address, substitute.address),
     )
@@ -106,12 +109,13 @@ export async function fetchDepositApyByEpochsDeposited(
 }
 
 export async function fetchBorrowApyByEpochsBorrowed(
+  chainId: CHAIN_IDS,
   asset: Asset,
   amount: bigint,
   maxAmountExcludingFee: bigint,
 ) {
   const substitute = asset.substitutes[0]
-  const markets = (await fetchMarkets())
+  const markets = (await fetchMarkets(chainId))
     .filter((market) =>
       isAddressEqual(market.quoteToken.address, substitute.address),
     )
@@ -144,11 +148,12 @@ export async function fetchBorrowApyByEpochsBorrowed(
 }
 
 export async function fetchCouponAmountByEpochsBorrowed(
+  chainId: CHAIN_IDS,
   substitute: Currency,
   debtAmount: bigint,
   expiryEpoch: number,
 ) {
-  const markets = (await fetchMarkets())
+  const markets = (await fetchMarkets(chainId))
     .filter((market) =>
       isAddressEqual(market.quoteToken.address, substitute.address),
     )

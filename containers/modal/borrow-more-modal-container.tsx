@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { useQuery } from 'wagmi'
+import { useNetwork, useQuery } from 'wagmi'
 import { isAddressEqual, parseUnits } from 'viem'
 
 import { LoanPosition } from '../../model/loan-position'
@@ -18,6 +18,7 @@ const BorrowMoreModalContainer = ({
   position: LoanPosition
   onClose: () => void
 }) => {
+  const { chain } = useNetwork()
   const { borrowMore } = useBorrowContext()
   const { prices } = useCurrencyContext()
   const [value, setValue] = useState('')
@@ -48,9 +49,16 @@ const BorrowMoreModalContainer = ({
   )
 
   const { data } = useQuery(
-    ['borrow-more-simulate', position.underlying.address, amount],
+    ['borrow-more-simulate', position.underlying.address, amount, chain],
     async () => {
-      const markets = (await fetchMarkets())
+      if (!chain) {
+        return {
+          available: 0n,
+          interest: 0n,
+          maxInterest: 0n,
+        }
+      }
+      const markets = (await fetchMarkets(chain.id))
         .filter((market) =>
           isAddressEqual(
             market.quoteToken.address,

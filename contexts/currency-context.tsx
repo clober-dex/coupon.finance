@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { useAccount, useBalance, useQuery } from 'wagmi'
+import { useAccount, useBalance, useNetwork, useQuery } from 'wagmi'
 import { readContracts } from '@wagmi/core'
 import { getAddress } from 'viem'
 
@@ -44,11 +44,12 @@ export const isEthereum = (currency: Currency) => {
 export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { address: userAddress } = useAccount()
   const { data: balance } = useBalance({ address: userAddress })
+  const { chain } = useNetwork()
 
   const { data: assets } = useQuery(
-    ['assets'],
+    ['assets', chain],
     async () => {
-      return fetchAssets()
+      return chain ? fetchAssets(chain.id) : []
     },
     {
       initialData: [],
@@ -56,9 +57,9 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   )
 
   const { data: assetStatuses } = useQuery(
-    ['assetStatuses'],
+    ['assetStatuses', chain],
     async () => {
-      return fetchAssetStatuses()
+      return chain ? fetchAssetStatuses(chain.id) : []
     },
     {
       initialData: [],
@@ -66,9 +67,9 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   )
 
   const { data: epochs } = useQuery(
-    ['epochs'],
+    ['epochs', chain],
     async () => {
-      return fetchEpochs()
+      return chain ? fetchEpochs(chain.id) : []
     },
     {
       initialData: [],
@@ -76,9 +77,9 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   )
 
   const { data: currencies } = useQuery(
-    ['currencies'],
+    ['currencies', chain],
     async () => {
-      return fetchCurrencies()
+      return chain ? fetchCurrencies(chain.id) : []
     },
     {
       initialData: [],
@@ -86,10 +87,14 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   )
 
   const { data: prices } = useQuery(
-    ['prices', currencies],
+    ['prices', currencies, chain],
     async () => {
-      const currencyAddresses = currencies.map((currency) => currency.address)
-      return fetchPrices(currencyAddresses)
+      return chain
+        ? fetchPrices(
+            chain.id,
+            currencies.map((currency) => currency.address),
+          )
+        : ({} as Prices)
     },
     {
       refetchInterval: 5 * 1000,

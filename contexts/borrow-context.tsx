@@ -2,6 +2,7 @@ import React, { useCallback } from 'react'
 import { Hash } from 'viem'
 import {
   useAccount,
+  useNetwork,
   usePublicClient,
   useQuery,
   useQueryClient,
@@ -19,6 +20,7 @@ import { LoanPosition } from '../model/loan-position'
 import { Currency } from '../model/currency'
 import { permit721 } from '../utils/permit721'
 import { writeContract } from '../utils/wallet'
+import { CHAIN_IDS } from '../constants/chain'
 
 import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -82,6 +84,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient()
 
   const { address: userAddress } = useAccount()
+  const { chain } = useNetwork()
 
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
@@ -89,8 +92,9 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { calculateETHValue } = useCurrencyContext()
 
   const { data: positions } = useQuery(
-    ['loan-positions', userAddress],
-    () => (userAddress ? fetchLoanPositions(userAddress) : []),
+    ['loan-positions', userAddress, chain],
+    () =>
+      userAddress && chain ? fetchLoanPositions(chain.id, userAddress) : [],
     {
       refetchOnWindowFocus: true,
       refetchInterval: 2 * 1000,
@@ -107,7 +111,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       epochs: number,
       expectedInterest: bigint,
     ): Promise<Hash | undefined> => {
-      if (!walletClient) {
+      if (!walletClient || !chain) {
         // TODO: alert wallet connect
         return
       }
@@ -118,7 +122,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           walletClient,
           collateral.underlying,
           walletClient.account.address,
-          CONTRACT_ADDRESSES.BorrowController,
+          CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].BorrowController,
           collateralAmount,
           BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
         )
@@ -142,7 +146,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           ],
         })
         hash = await writeContract(publicClient, walletClient, {
-          address: CONTRACT_ADDRESSES.BorrowController,
+          address: CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].BorrowController,
           abi: BorrowController__factory.abi,
           functionName: 'borrow',
           args: [
@@ -175,6 +179,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       setConfirmation,
       calculateETHValue,
       walletClient,
+      chain,
     ],
   )
 
@@ -184,7 +189,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       amount: bigint,
       expectedProceeds: bigint,
     ): Promise<void> => {
-      if (!walletClient) {
+      if (!walletClient || !chain) {
         // TODO: alert wallet connect
         return
       }
@@ -195,17 +200,17 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         )
         const positionPermitResult = await permit721(
           walletClient,
-          CONTRACT_ADDRESSES.LoanPositionManager,
+          CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].LoanPositionManager,
           position.id,
           walletClient.account.address,
-          CONTRACT_ADDRESSES.BorrowController,
+          CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].BorrowController,
           deadline,
         )
         const debtPermitResult = await permit20(
           walletClient,
           position.underlying,
           walletClient.account.address,
-          CONTRACT_ADDRESSES.BorrowController,
+          CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].BorrowController,
           amount,
           deadline,
         )
@@ -222,7 +227,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           ],
         })
         await writeContract(publicClient, walletClient, {
-          address: CONTRACT_ADDRESSES.BorrowController,
+          address: CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].BorrowController,
           abi: BorrowController__factory.abi,
           functionName: 'repay',
           args: [
@@ -257,6 +262,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       setConfirmation,
       calculateETHValue,
       walletClient,
+      chain,
     ],
   )
 
@@ -268,7 +274,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       expectedProceeds: bigint,
       swapData: `0x${string}`,
     ): Promise<void> => {
-      if (!walletClient) {
+      if (!walletClient || !chain) {
         // TODO: alert wallet connect
         return
       }
@@ -276,10 +282,10 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       try {
         const { deadline, r, s, v } = await permit721(
           walletClient,
-          CONTRACT_ADDRESSES.LoanPositionManager,
+          CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].LoanPositionManager,
           position.id,
           walletClient.account.address,
-          CONTRACT_ADDRESSES.OdosRepayAdapter,
+          CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].OdosRepayAdapter,
           BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
         )
 
@@ -307,7 +313,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         })
 
         await writeContract(publicClient, walletClient, {
-          address: CONTRACT_ADDRESSES.OdosRepayAdapter,
+          address: CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].OdosRepayAdapter,
           abi: RepayAdapter__factory.abi,
           functionName: 'repayWithCollateral',
           args: [
@@ -327,7 +333,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [publicClient, queryClient, setConfirmation, walletClient],
+    [publicClient, queryClient, setConfirmation, walletClient, chain],
   )
 
   const borrowMore = useCallback(
@@ -336,7 +342,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       amount: bigint,
       expectedInterest: bigint,
     ): Promise<void> => {
-      if (!walletClient) {
+      if (!walletClient || !chain) {
         // TODO: alert wallet connect
         return
       }
@@ -344,10 +350,10 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       try {
         const { deadline, r, s, v } = await permit721(
           walletClient,
-          CONTRACT_ADDRESSES.LoanPositionManager,
+          CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].LoanPositionManager,
           position.id,
           walletClient.account.address,
-          CONTRACT_ADDRESSES.BorrowController,
+          CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].BorrowController,
           BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
         )
         setConfirmation({
@@ -362,7 +368,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           ],
         })
         await writeContract(publicClient, walletClient, {
-          address: CONTRACT_ADDRESSES.BorrowController,
+          address: CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].BorrowController,
           abi: BorrowController__factory.abi,
           functionName: 'borrowMore',
           args: [
@@ -381,7 +387,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [publicClient, queryClient, setConfirmation, walletClient],
+    [publicClient, queryClient, setConfirmation, walletClient, chain],
   )
 
   const extendLoanDuration = useCallback(
@@ -391,7 +397,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       epochs: number,
       expectedInterest: bigint,
     ): Promise<void> => {
-      if (!walletClient) {
+      if (!walletClient || !chain) {
         // TODO: alert wallet connect
         return
       }
@@ -402,10 +408,10 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         )
         const positionPermitResult = await permit721(
           walletClient,
-          CONTRACT_ADDRESSES.LoanPositionManager,
+          CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].LoanPositionManager,
           positionId,
           walletClient.account.address,
-          CONTRACT_ADDRESSES.BorrowController,
+          CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].BorrowController,
           deadline,
         )
 
@@ -413,7 +419,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           walletClient,
           underlying,
           walletClient.account.address,
-          CONTRACT_ADDRESSES.BorrowController,
+          CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].BorrowController,
           expectedInterest,
           deadline,
         )
@@ -431,7 +437,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         })
 
         await writeContract(publicClient, walletClient, {
-          address: CONTRACT_ADDRESSES.BorrowController,
+          address: CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].BorrowController,
           abi: BorrowController__factory.abi,
           functionName: 'extendLoanDuration',
           args: [
@@ -466,6 +472,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       setConfirmation,
       calculateETHValue,
       walletClient,
+      chain,
     ],
   )
 
@@ -476,7 +483,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       epochs: number,
       expectedProceeds: bigint,
     ): Promise<void> => {
-      if (!walletClient) {
+      if (!walletClient || !chain) {
         // TODO: alert wallet connect
         return
       }
@@ -484,10 +491,10 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       try {
         const { deadline, s, r, v } = await permit721(
           walletClient,
-          CONTRACT_ADDRESSES.LoanPositionManager,
+          CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].LoanPositionManager,
           positionId,
           walletClient.account.address,
-          CONTRACT_ADDRESSES.BorrowController,
+          CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].BorrowController,
           BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
         )
 
@@ -503,7 +510,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           ],
         })
         await writeContract(publicClient, walletClient, {
-          address: CONTRACT_ADDRESSES.BorrowController,
+          address: CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].BorrowController,
           abi: BorrowController__factory.abi,
           functionName: 'shortenLoanDuration',
           args: [positionId, epochs, expectedProceeds, { deadline, v, r, s }],
@@ -517,12 +524,12 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [publicClient, queryClient, setConfirmation, walletClient],
+    [publicClient, queryClient, setConfirmation, walletClient, chain],
   )
 
   const addCollateral = useCallback(
     async (position: LoanPosition, amount: bigint): Promise<void> => {
-      if (!walletClient) {
+      if (!walletClient || !chain) {
         // TODO: alert wallet connect
         return
       }
@@ -533,17 +540,17 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         )
         const positionPermitResult = await permit721(
           walletClient,
-          CONTRACT_ADDRESSES.LoanPositionManager,
+          CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].LoanPositionManager,
           position.id,
           walletClient.account.address,
-          CONTRACT_ADDRESSES.BorrowController,
+          CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].BorrowController,
           deadline,
         )
         const debtPermitResult = await permit20(
           walletClient,
           position.collateral.underlying,
           walletClient.account.address,
-          CONTRACT_ADDRESSES.BorrowController,
+          CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].BorrowController,
           amount,
           deadline,
         )
@@ -563,7 +570,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           ],
         })
         await writeContract(publicClient, walletClient, {
-          address: CONTRACT_ADDRESSES.BorrowController,
+          address: CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].BorrowController,
           abi: BorrowController__factory.abi,
           functionName: 'addCollateral',
           args: [
@@ -597,12 +604,13 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       setConfirmation,
       calculateETHValue,
       walletClient,
+      chain,
     ],
   )
 
   const removeCollateral = useCallback(
     async (position: LoanPosition, amount: bigint): Promise<void> => {
-      if (!walletClient) {
+      if (!walletClient || !chain) {
         // TODO: alert wallet connect
         return
       }
@@ -610,10 +618,10 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       try {
         const { deadline, r, s, v } = await permit721(
           walletClient,
-          CONTRACT_ADDRESSES.LoanPositionManager,
+          CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].LoanPositionManager,
           position.id,
           walletClient.account.address,
-          CONTRACT_ADDRESSES.BorrowController,
+          CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].BorrowController,
           BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
         )
 
@@ -632,7 +640,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           ],
         })
         await writeContract(publicClient, walletClient, {
-          address: CONTRACT_ADDRESSES.BorrowController,
+          address: CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].BorrowController,
           abi: BorrowController__factory.abi,
           functionName: 'removeCollateral',
           args: [position.id, amount, { deadline, v, r, s }],
@@ -646,7 +654,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [publicClient, queryClient, setConfirmation, walletClient],
+    [publicClient, queryClient, setConfirmation, walletClient, chain],
   )
 
   return (
