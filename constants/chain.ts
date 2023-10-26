@@ -1,0 +1,4 @@
+export enum CHAINS {
+  ARBITRUM = 42161,
+  COUPON_FINANCE_CHAIN = 7777,
+}

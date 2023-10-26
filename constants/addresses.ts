@@ -1,29 +1,29 @@
-type Build = 'dev' | 'prod'
-
-const BUILD: Build = process.env.BUILD as Build
+import { CHAINS } from './chain'
 
 export const CONTRACT_ADDRESSES: {
-  BondPositionManager: `0x${string}`
-  BorrowController: `0x${string}`
-  CouponOracle: `0x${string}`
-  DepositController: `0x${string}`
-  LoanPositionManager: `0x${string}`
-  OdosRepayAdapter: `0x${string}`
+  [chain in CHAINS]: {
+    BondPositionManager: `0x${string}`
+    BorrowController: `0x${string}`
+    CouponOracle: `0x${string}`
+    DepositController: `0x${string}`
+    LoanPositionManager: `0x${string}`
+    OdosRepayAdapter: `0x${string}`
+  }
 } = {
-  prod: {
+  [CHAINS.ARBITRUM]: {
     BondPositionManager:
-      '0x06ad1569cc3f430D16f906D21Cd2D1DA6eCA8e48' as `0x${string}`,
+      '0x0000000000000000000000000000000000000000' as `0x${string}`,
     BorrowController:
-      '0xf989cF31a0C30c766C7f81Eb71b1Df518e7E9EBA' as `0x${string}`,
-    CouponOracle: '0xE0dBCB42CCAc63C949cE3EF879A647DDb662916d' as `0x${string}`,
+      '0x0000000000000000000000000000000000000000' as `0x${string}`,
+    CouponOracle: '0x0000000000000000000000000000000000000000' as `0x${string}`,
     DepositController:
-      '0x724D0757261c4d0461A0fd71929e080447162148' as `0x${string}`,
+      '0x0000000000000000000000000000000000000000' as `0x${string}`,
     LoanPositionManager:
-      '0xDAC1D90536df1390E599534B6A6F5Fe35c907e20' as `0x${string}`,
+      '0x0000000000000000000000000000000000000000' as `0x${string}`,
     OdosRepayAdapter:
-      '0x1b2820D628F83b65126Ff591F468c960220E2594' as `0x${string}`,
+      '0x0000000000000000000000000000000000000000' as `0x${string}`,
   },
-  dev: {
+  [CHAINS.COUPON_FINANCE_CHAIN]: {
     BondPositionManager:
       '0xA0D476c6A39beA239749C566a02343e5584Ec200' as `0x${string}`,
     BorrowController:
@@ -36,4 +36,4 @@ export const CONTRACT_ADDRESSES: {
     OdosRepayAdapter:
       '0x00644a534bDea310ee2FCCF1c2821Df769A0b12F' as `0x${string}`,
   },
-}[BUILD]
+}
