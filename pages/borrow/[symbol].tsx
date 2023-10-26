@@ -192,7 +192,7 @@ const Borrow = () => {
                   asset,
                   borrowAmount,
                   epochs,
-                  interest,
+                  min(interest, maxInterest),
                 )
                 if (hash) {
                   await router.replace('/?mode=borrow')

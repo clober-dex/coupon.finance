@@ -82,7 +82,7 @@ const WithdrawModalContainer = ({
             position.underlying,
             position.tokenId,
             amount,
-            repurchaseFee,
+            min(repurchaseFee, maxRepurchaseFee),
           )
           setValue('')
           onClose()
