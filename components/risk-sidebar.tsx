@@ -74,14 +74,12 @@ export const RiskSidebar = ({
               </div>
               <div className="flex flex-col items-center gap-6 w-full">
                 {collateralRiskInfos.map(
-                  ({
-                    collateral,
-                    collateralPrice,
-                    collateralized,
-                    borrowing,
-                  }) => (
+                  (
+                    { collateral, collateralPrice, collateralized, borrowing },
+                    index,
+                  ) => (
                     <div
-                      key={collateral.underlying.address}
+                      key={index}
                       className="flex flex-row items-center w-full"
                     >
                       <div className="flex flex-[1.4] items-center gap-3 shrink-0">
