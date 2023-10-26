@@ -2,7 +2,6 @@ import React, { useCallback } from 'react'
 import { Hash } from 'viem'
 import {
   useAccount,
-  useBalance,
   usePublicClient,
   useQuery,
   useQueryClient,
@@ -14,7 +13,6 @@ import { permit20 } from '../utils/permit20'
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { formatUnits } from '../utils/numbers'
 import { BorrowController__factory, RepayAdapter__factory } from '../typechain'
-import { max } from '../utils/bigint'
 import { fetchLoanPositions } from '../apis/loan-position'
 import { Collateral } from '../model/collateral'
 import { LoanPosition } from '../model/loan-position'
@@ -22,7 +20,7 @@ import { Currency } from '../model/currency'
 import { permit721 } from '../utils/permit721'
 import { writeContract } from '../utils/wallet'
 
-import { isEthereum, useCurrencyContext } from './currency-context'
+import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
 
 type BorrowContext = {
@@ -80,18 +78,15 @@ const Context = React.createContext<BorrowContext>({
   removeCollateral: () => Promise.resolve(),
 })
 
-const SLIPPAGE_PERCENTAGE = 0.001
-
 export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient()
 
   const { address: userAddress } = useAccount()
-  const { data: balance } = useBalance({ address: userAddress })
 
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
-  const { balances } = useCurrencyContext()
+  const { calculateETHValue } = useCurrencyContext()
 
   const { data: positions } = useQuery(
     ['loan-positions', userAddress],
@@ -116,16 +111,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         // TODO: alert wallet connect
         return
       }
-
-      const maximumInterestPaid = max(
-        BigInt(
-          Math.floor(Number(expectedInterest) * (1 + SLIPPAGE_PERCENTAGE)),
-        ),
-        expectedInterest,
-      )
-      const wethBalance = isEthereum(collateral.underlying)
-        ? balances[collateral.underlying.address] - (balance?.value || 0n)
-        : 0n
 
       let hash: Hash | undefined
       try {
@@ -164,17 +149,15 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             collateral.substitute.address,
             loanAsset.substitutes[0].address,
             collateralAmount,
-            loanAmount + maximumInterestPaid,
-            maximumInterestPaid,
+            loanAmount + expectedInterest,
+            expectedInterest,
             epochs,
             {
               permitAmount: collateralAmount,
               signature: { deadline, v, r, s },
             },
           ],
-          value: isEthereum(collateral.underlying)
-            ? max(collateralAmount - wethBalance, 0n)
-            : 0n,
+          value: calculateETHValue(collateral.underlying, collateralAmount),
           account: walletClient.account,
         })
         await queryClient.invalidateQueries(['loan-positions'])
@@ -187,11 +170,10 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       return hash
     },
     [
-      balance?.value,
-      balances,
       publicClient,
       queryClient,
       setConfirmation,
+      calculateETHValue,
       walletClient,
     ],
   )
@@ -206,11 +188,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         // TODO: alert wallet connect
         return
       }
-
-      const minimumInterestEarned = expectedProceeds
-      const wethBalance = isEthereum(position.underlying)
-        ? balances[position.underlying.address] - (balance?.value || 0n)
-        : 0n
 
       try {
         const deadline = BigInt(
@@ -250,8 +227,8 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           functionName: 'repay',
           args: [
             position.id,
-            amount + minimumInterestEarned,
-            minimumInterestEarned,
+            amount + expectedProceeds,
+            expectedProceeds,
             { ...positionPermitResult },
             {
               permitAmount: amount,
@@ -263,9 +240,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               },
             },
           ],
-          value: isEthereum(position.underlying)
-            ? max(amount - wethBalance, 0n)
-            : 0n,
+          value: calculateETHValue(position.underlying, amount),
           account: walletClient.account,
         })
         await queryClient.invalidateQueries(['loan-positions'])
@@ -277,11 +252,10 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
     },
     [
-      balance?.value,
-      balances,
       publicClient,
       queryClient,
       setConfirmation,
+      calculateETHValue,
       walletClient,
     ],
   )
@@ -298,10 +272,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         // TODO: alert wallet connect
         return
       }
-
-      const minimumInterestEarned = BigInt(
-        Math.floor(Number(expectedProceeds) * (1 - SLIPPAGE_PERCENTAGE)),
-      )
 
       try {
         const { deadline, r, s, v } = await permit721(
@@ -343,7 +313,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           args: [
             position.id,
             amount,
-            minimumInterestEarned,
+            expectedProceeds,
             swapData,
             { deadline, v, r, s },
           ],
@@ -371,13 +341,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const maximumInterestPaid = max(
-        BigInt(
-          Math.floor(Number(expectedInterest) * (1 + SLIPPAGE_PERCENTAGE)),
-        ),
-        expectedInterest,
-      )
-
       try {
         const { deadline, r, s, v } = await permit721(
           walletClient,
@@ -404,8 +367,8 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           functionName: 'borrowMore',
           args: [
             position.id,
-            amount + maximumInterestPaid,
-            maximumInterestPaid,
+            amount + expectedInterest,
+            expectedInterest,
             { deadline, v, r, s },
           ],
           account: walletClient.account,
@@ -433,16 +396,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const maximumInterestPaid = max(
-        BigInt(
-          Math.floor(Number(expectedInterest) * (1 + SLIPPAGE_PERCENTAGE)),
-        ),
-        expectedInterest,
-      )
-      const wethBalance = isEthereum(underlying)
-        ? balances[underlying.address] - (balance?.value || 0n)
-        : 0n
-
       try {
         const deadline = BigInt(
           Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24),
@@ -461,7 +414,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           underlying,
           walletClient.account.address,
           CONTRACT_ADDRESSES.BorrowController,
-          maximumInterestPaid,
+          expectedInterest,
           deadline,
         )
 
@@ -472,7 +425,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             {
               currency: underlying,
               label: underlying.symbol,
-              value: formatUnits(maximumInterestPaid, underlying.decimals),
+              value: formatUnits(expectedInterest, underlying.decimals),
             },
           ],
         })
@@ -484,10 +437,10 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           args: [
             positionId,
             epochs,
-            maximumInterestPaid,
+            expectedInterest,
             { ...positionPermitResult },
             {
-              permitAmount: maximumInterestPaid,
+              permitAmount: expectedInterest,
               signature: {
                 deadline: debtPermitResult.deadline,
                 r: debtPermitResult.r,
@@ -496,9 +449,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               },
             },
           ],
-          value: isEthereum(underlying)
-            ? max(maximumInterestPaid - wethBalance, 0n)
-            : 0n,
+          value: calculateETHValue(underlying, expectedInterest),
           account: walletClient.account,
         })
         await queryClient.invalidateQueries(['loan-positions'])
@@ -510,11 +461,10 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
     },
     [
-      balance?.value,
-      balances,
       publicClient,
       queryClient,
       setConfirmation,
+      calculateETHValue,
       walletClient,
     ],
   )
@@ -531,9 +481,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return
       }
 
-      const minimumInterestEarned = BigInt(
-        Math.floor(Number(expectedProceeds) * (1 - SLIPPAGE_PERCENTAGE)),
-      )
       try {
         const { deadline, s, r, v } = await permit721(
           walletClient,
@@ -551,7 +498,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             {
               currency: underlying,
               label: underlying.symbol,
-              value: formatUnits(minimumInterestEarned, underlying.decimals),
+              value: formatUnits(expectedProceeds, underlying.decimals),
             },
           ],
         })
@@ -559,12 +506,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           address: CONTRACT_ADDRESSES.BorrowController,
           abi: BorrowController__factory.abi,
           functionName: 'shortenLoanDuration',
-          args: [
-            positionId,
-            epochs,
-            minimumInterestEarned,
-            { deadline, v, r, s },
-          ],
+          args: [positionId, epochs, expectedProceeds, { deadline, v, r, s }],
           account: walletClient.account,
         })
         await queryClient.invalidateQueries(['loan-positions'])
@@ -584,10 +526,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         // TODO: alert wallet connect
         return
       }
-
-      const wethBalance = isEthereum(position.underlying)
-        ? balances[position.underlying.address] - (balance?.value || 0n)
-        : 0n
 
       try {
         const deadline = BigInt(
@@ -642,9 +580,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               },
             },
           ],
-          value: isEthereum(position.collateral.underlying)
-            ? max(amount - wethBalance, 0n)
-            : 0n,
+          value: calculateETHValue(position.collateral.underlying, amount),
           account: walletClient.account,
         })
         await queryClient.invalidateQueries(['loan-positions'])
@@ -656,11 +592,10 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
     },
     [
-      balance?.value,
-      balances,
       publicClient,
       queryClient,
       setConfirmation,
+      calculateETHValue,
       walletClient,
     ],
   )

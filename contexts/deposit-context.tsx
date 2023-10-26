@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react'
 import {
   useAccount,
-  useBalance,
   usePublicClient,
   useQuery,
   useQueryClient,
@@ -12,7 +11,6 @@ import { Hash } from 'viem'
 import { CONTRACT_ADDRESSES } from '../utils/addresses'
 import { DepositController__factory } from '../typechain'
 import { Asset } from '../model/asset'
-import { max } from '../utils/bigint'
 import { permit20 } from '../utils/permit20'
 import { fetchBondPositions } from '../apis/bond-position'
 import { BondPosition } from '../model/bond-position'
@@ -21,7 +19,7 @@ import { permit721 } from '../utils/permit721'
 import { Currency } from '../model/currency'
 import { writeContract } from '../utils/wallet'
 
-import { isEthereum, useCurrencyContext } from './currency-context'
+import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
 
 type DepositContext = {
@@ -48,18 +46,15 @@ const Context = React.createContext<DepositContext>({
   collect: () => Promise.resolve(),
 })
 
-const SLIPPAGE_PERCENTAGE = 0.001
-
 export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient()
 
   const { address: userAddress } = useAccount()
-  const { data: balance } = useBalance({ address: userAddress })
 
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
-  const { balances } = useCurrencyContext()
+  const { calculateETHValue } = useCurrencyContext()
 
   const { data: positions } = useQuery(
     ['bond-positions', userAddress],
@@ -82,11 +77,6 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         // TODO: alert wallet connect
         return
       }
-
-      const minimumInterestEarned = expectedProceeds
-      const wethBalance = isEthereum(asset.underlying)
-        ? balances[asset.underlying.address] - (balance?.value || 0n)
-        : 0n
 
       let hash: Hash | undefined
       try {
@@ -115,9 +105,9 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           functionName: 'deposit',
           args: [
             asset.substitutes[0].address,
-            amount + minimumInterestEarned,
+            amount + expectedProceeds,
             epochs,
-            minimumInterestEarned,
+            expectedProceeds,
             {
               permitAmount: amount,
               signature: {
@@ -128,9 +118,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
               },
             },
           ],
-          value: isEthereum(asset.underlying)
-            ? max(amount - wethBalance, 0n)
-            : 0n,
+          value: calculateETHValue(asset.underlying, amount),
           account: walletClient.account,
         })
         await queryClient.invalidateQueries(['bond-positions'])
@@ -143,11 +131,10 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       return hash
     },
     [
-      balance?.value,
-      balances,
       publicClient,
       queryClient,
       setConfirmation,
+      calculateETHValue,
       walletClient,
     ],
   )
@@ -163,11 +150,6 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         // TODO: alert wallet connect
         return
       }
-
-      const maximumInterestPaid = max(
-        BigInt(Math.floor(Number(repurchaseFee) * (1 + SLIPPAGE_PERCENTAGE))),
-        repurchaseFee,
-      )
 
       try {
         const { deadline, r, s, v } = await permit721(
@@ -195,8 +177,8 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           functionName: 'withdraw',
           args: [
             tokenId,
-            amount + maximumInterestPaid,
-            maximumInterestPaid,
+            amount + repurchaseFee,
+            repurchaseFee,
             { deadline, v, r, s },
           ],
           account: walletClient.account,

@@ -411,6 +411,7 @@ export function calculateCouponsToWithdraw(
   markets: Market[],
   positionAmount: bigint,
   withdrawAmount: bigint,
+  numericEpsilon = 0.0001,
 ): {
   maxRepurchaseFee: bigint
   repurchaseFee: bigint
@@ -461,8 +462,11 @@ export function calculateCouponsToWithdraw(
 
   return {
     maxRepurchaseFee,
-    repurchaseFee,
-    available,
+    repurchaseFee: max(
+      BigInt(Math.floor(Number(repurchaseFee) * (1 + numericEpsilon))),
+      repurchaseFee,
+    ),
+    available: BigInt(Math.floor(Number(available) * (1 - numericEpsilon))),
   }
 }
 
@@ -471,6 +475,7 @@ export function calculateCouponsToBorrow(
   markets: Market[],
   maxAmountExcludingFee: bigint,
   borrowAmount: bigint,
+  numericEpsilon = 0.0001,
 ): {
   maxInterest: bigint
   interest: bigint
@@ -518,9 +523,12 @@ export function calculateCouponsToBorrow(
   }
 
   return {
-    interest,
     maxInterest,
-    available,
+    interest: max(
+      BigInt(Math.floor(Number(interest) * (1 + numericEpsilon))),
+      interest,
+    ),
+    available: BigInt(Math.floor(Number(available) * (1 - numericEpsilon))),
   }
 }
 
