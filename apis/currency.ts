@@ -1,7 +1,7 @@
 import { readContracts } from '@wagmi/core'
 
 import { Currency } from '../model/currency'
-import { CONTRACT_ADDRESSES } from '../utils/addresses'
+import { CONTRACT_ADDRESSES } from '../constants/addresses'
 import { CouponOracle__factory } from '../typechain'
 import { BigDecimal } from '../utils/numbers'
 

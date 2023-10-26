@@ -8,7 +8,7 @@ import {
 } from 'wagmi'
 import { Hash } from 'viem'
 
-import { CONTRACT_ADDRESSES } from '../utils/addresses'
+import { CONTRACT_ADDRESSES } from '../constants/addresses'
 import { DepositController__factory } from '../typechain'
 import { Asset } from '../model/asset'
 import { permit20 } from '../utils/permit20'

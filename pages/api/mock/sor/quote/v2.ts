@@ -3,7 +3,7 @@ import { createPublicClient, getAddress, http } from 'viem'
 import { ethers } from 'ethers'
 import { arbitrum, arbitrumGoerli } from 'viem/chains'
 
-import { CONTRACT_ADDRESSES } from '../../../../../utils/addresses'
+import { CONTRACT_ADDRESSES } from '../../../../../constants/addresses'
 import { CouponOracle__factory, ERC20__factory } from '../../../../../typechain'
 import { couponFinanceChain } from '../../../../../utils/dev-chain'
 

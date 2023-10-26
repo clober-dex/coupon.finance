@@ -10,7 +10,7 @@ import {
 
 import { Asset } from '../model/asset'
 import { permit20 } from '../utils/permit20'
-import { CONTRACT_ADDRESSES } from '../utils/addresses'
+import { CONTRACT_ADDRESSES } from '../constants/addresses'
 import { formatUnits } from '../utils/numbers'
 import { BorrowController__factory, RepayAdapter__factory } from '../typechain'
 import { fetchLoanPositions } from '../apis/loan-position'
