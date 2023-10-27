@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { parseUnits } from 'viem'
-import { useNetwork, useQuery } from 'wagmi'
+import { useQuery } from 'wagmi'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -15,9 +15,10 @@ import { Collateral } from '../../model/collateral'
 import { calculateLtv, calculateMaxLoanableAmount } from '../../utils/ltv'
 import { max, min } from '../../utils/bigint'
 import { BorrowForm } from '../../components/form/borrow-form'
+import { useChainContext } from '../../contexts/chain-context'
 
 const Borrow = () => {
-  const { chain } = useNetwork()
+  const { selectedChain } = useChainContext()
   const { balances, prices, assets } = useCurrencyContext()
   const { borrow } = useBorrowContext()
 
@@ -79,17 +80,15 @@ const Borrow = () => {
       asset,
       borrowAmount,
       maxLoanableAmountExcludingCouponFee,
-      chain,
+      selectedChain,
     ], // TODO: useDebounce
     () =>
-      chain
-        ? fetchBorrowApyByEpochsBorrowed(
-            chain.id,
-            asset,
-            borrowAmount,
-            maxLoanableAmountExcludingCouponFee,
-          )
-        : Promise.resolve([]),
+      fetchBorrowApyByEpochsBorrowed(
+        selectedChain.id,
+        asset,
+        borrowAmount,
+        maxLoanableAmountExcludingCouponFee,
+      ),
     {
       refetchOnWindowFocus: true,
       keepPreviousData: true,

@@ -9,7 +9,6 @@ import {
 } from '@rainbow-me/rainbowkit'
 import type { AppProps } from 'next/app'
 import { configureChains, createConfig, useAccount, WagmiConfig } from 'wagmi'
-import { arbitrumGoerli } from 'wagmi/chains'
 import { publicProvider } from 'wagmi/providers/public'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { identify } from '@web3analytic/funnel-sdk'
@@ -21,13 +20,14 @@ import HeaderContainer from '../containers/header-container'
 import { ThemeProvider, useThemeContext } from '../contexts/theme-context'
 import { DepositProvider } from '../contexts/deposit-context'
 import { BorrowProvider } from '../contexts/borrow-context'
-import { couponFinanceChain } from '../constants/dev-chain'
 import Panel from '../components/panel'
 import { CurrencyProvider } from '../contexts/currency-context'
 import { TransactionProvider } from '../contexts/transaction-context'
+import { supportChains } from '../constants/chain'
+import { ChainProvider } from '../contexts/chain-context'
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
-  [process.env.BUILD === 'dev' ? couponFinanceChain : arbitrumGoerli],
+  supportChains,
   [
     alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || '' }),
     publicProvider(),
@@ -106,31 +106,33 @@ function MyApp({ Component, pageProps }: AppProps) {
       </Head>
       <ThemeProvider>
         <WalletProvider>
-          <Web3AnalyticWrapper>
-            <TransactionProvider>
-              <CurrencyProvider>
-                <DepositProvider>
-                  <BorrowProvider>
-                    <div className="flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white">
-                      <HeaderWrapper />
-                      <Component {...pageProps} />
-                      <Link
-                        target="_blank"
-                        href="https://github.com/clober-dex/coupon.finance"
-                        className="fixed right-4 bottom-4 bg-gray-200 dark:bg-gray-800 rounded-full text-xs px-4 py-1"
-                      >
-                        #
-                        {process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(
-                          0,
-                          7,
-                        )}
-                      </Link>
-                    </div>
-                  </BorrowProvider>
-                </DepositProvider>
-              </CurrencyProvider>
-            </TransactionProvider>
-          </Web3AnalyticWrapper>
+          <ChainProvider>
+            <Web3AnalyticWrapper>
+              <TransactionProvider>
+                <CurrencyProvider>
+                  <DepositProvider>
+                    <BorrowProvider>
+                      <div className="flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white">
+                        <HeaderWrapper />
+                        <Component {...pageProps} />
+                        <Link
+                          target="_blank"
+                          href="https://github.com/clober-dex/coupon.finance"
+                          className="fixed right-4 bottom-4 bg-gray-200 dark:bg-gray-800 rounded-full text-xs px-4 py-1"
+                        >
+                          #
+                          {process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(
+                            0,
+                            7,
+                          )}
+                        </Link>
+                      </div>
+                    </BorrowProvider>
+                  </DepositProvider>
+                </CurrencyProvider>
+              </TransactionProvider>
+            </Web3AnalyticWrapper>
+          </ChainProvider>
         </WalletProvider>
       </ThemeProvider>
     </>

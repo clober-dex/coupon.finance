@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { useNetwork, useQuery } from 'wagmi'
+import { useQuery } from 'wagmi'
 import { isAddressEqual, parseUnits } from 'viem'
 
 import { LoanPosition } from '../../model/loan-position'
@@ -10,6 +10,7 @@ import { max, min } from '../../utils/bigint'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import BorrowMoreModal from '../../components/modal/borrow-more-modal'
 import { calculateLtv, calculateMaxLoanableAmount } from '../../utils/ltv'
+import { useChainContext } from '../../contexts/chain-context'
 
 const BorrowMoreModalContainer = ({
   position,
@@ -18,7 +19,7 @@ const BorrowMoreModalContainer = ({
   position: LoanPosition
   onClose: () => void
 }) => {
-  const { chain } = useNetwork()
+  const { selectedChain } = useChainContext()
   const { borrowMore } = useBorrowContext()
   const { prices } = useCurrencyContext()
   const [value, setValue] = useState('')
@@ -49,16 +50,14 @@ const BorrowMoreModalContainer = ({
   )
 
   const { data } = useQuery(
-    ['borrow-more-simulate', position.underlying.address, amount, chain],
+    [
+      'borrow-more-simulate',
+      position.underlying.address,
+      amount,
+      selectedChain,
+    ],
     async () => {
-      if (!chain) {
-        return {
-          available: 0n,
-          interest: 0n,
-          maxInterest: 0n,
-        }
-      }
-      const markets = (await fetchMarkets(chain.id))
+      const markets = (await fetchMarkets(selectedChain.id))
         .filter((market) =>
           isAddressEqual(
             market.quoteToken.address,
