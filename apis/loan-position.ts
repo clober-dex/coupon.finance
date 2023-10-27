@@ -53,7 +53,10 @@ function toLoanPosition(
     underlying: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
     collateral: Pick<
       Collateral,
-      'liquidationThreshold' | 'liquidationTargetLtv'
+      | 'liquidationThreshold'
+      | 'liquidationTargetLtv'
+      | 'totalCollateralized'
+      | 'totalBorrowed'
     > & {
       substitute: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
       underlying: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
@@ -76,6 +79,8 @@ function toLoanPosition(
         loanPosition.collateral.liquidationTargetLtv,
       ),
       ltvPrecision: LIQUIDATION_TARGET_LTV_PRECISION,
+      totalCollateralized: BigInt(loanPosition.collateral.totalCollateralized),
+      totalBorrowed: BigInt(loanPosition.collateral.totalBorrowed),
     },
     interest: BigInt(loanPosition.amount) - BigInt(loanPosition.principal),
     amount: BigInt(loanPosition.amount),

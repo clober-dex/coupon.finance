@@ -51,6 +51,8 @@ export async function fetchAssets(chainId: CHAIN_IDS): Promise<Asset[]> {
       liquidationThreshold: BigInt(collateral.liquidationThreshold),
       liquidationTargetLtv: BigInt(collateral.liquidationTargetLtv),
       ltvPrecision: LIQUIDATION_TARGET_LTV_PRECISION,
+      totalCollateralized: BigInt(collateral.totalCollateralized),
+      totalBorrowed: BigInt(collateral.totalBorrowed),
     })),
     substitutes: asset.substitutes.map((substitute) => toCurrency(substitute)),
   }))
