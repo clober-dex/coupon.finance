@@ -398,7 +398,7 @@ export const calculateBorrowApy = (
   const apy = calculateApy(p, d)
 
   return {
-    apy: apy,
+    apy,
     interest,
     maxInterest,
     totalBorrow,
