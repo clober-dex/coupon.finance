@@ -13,7 +13,6 @@ import { DepositForm } from '../../components/form/deposit-form'
 import BackSvg from '../../components/svg/back-svg'
 import { getLogo } from '../../model/currency'
 import { useChainContext } from '../../contexts/chain-context'
-
 import { RiskSidebar } from '../../components/risk-sidebar'
 import { Collateral } from '../../model/collateral'
 import { BigDecimal } from '../../utils/numbers'
@@ -181,20 +180,15 @@ const Deposit = () => {
                 }}
                 depositAssetPrice={prices[asset.underlying.address]}
               />
-              {showRiskSidebar ? (
-                <RiskSidebar
-                  collateralRiskInfos={dummyCollateralRiskInfos}
-                  showRiskSidebar={showRiskSidebar}
-                  setShowRiskSidebar={setShowRiskSidebar}
-                />
-              ) : (
-                <></>
-              )}
               <RiskSidebar
                 collateralRiskInfos={dummyCollateralRiskInfos}
                 showRiskSidebar={showRiskSidebar}
                 setShowRiskSidebar={setShowRiskSidebar}
-                className="md:hidden"
+                className={
+                  showRiskSidebar
+                    ? 'lg:opacity-100 transition-all duration-700'
+                    : 'lg:w-0 lg:opacity-0 duration-700'
+                }
               />
             </div>
           </div>
