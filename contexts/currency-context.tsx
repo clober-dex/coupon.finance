@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { useAccount, useBalance, useNetwork, useQuery } from 'wagmi'
+import { useAccount, useBalance, useQuery } from 'wagmi'
 import { readContracts } from '@wagmi/core'
 import { getAddress } from 'viem'
 
@@ -13,6 +13,8 @@ import { Epoch } from '../model/epoch'
 import { Balances } from '../model/balances'
 import { Prices } from '../model/prices'
 import { max } from '../utils/bigint'
+
+import { useChainContext } from './chain-context'
 
 type CurrencyContext = {
   balances: Balances
@@ -44,12 +46,12 @@ export const isEthereum = (currency: Currency) => {
 export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { address: userAddress } = useAccount()
   const { data: balance } = useBalance({ address: userAddress })
-  const { chain } = useNetwork()
+  const { selectedChain } = useChainContext()
 
   const { data: assets } = useQuery(
-    ['assets', chain],
+    ['assets', selectedChain],
     async () => {
-      return chain ? fetchAssets(chain.id) : []
+      return fetchAssets(selectedChain.id)
     },
     {
       initialData: [],
@@ -57,9 +59,9 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   )
 
   const { data: assetStatuses } = useQuery(
-    ['assetStatuses', chain],
+    ['assetStatuses', selectedChain],
     async () => {
-      return chain ? fetchAssetStatuses(chain.id) : []
+      return fetchAssetStatuses(selectedChain.id)
     },
     {
       initialData: [],
@@ -67,9 +69,9 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   )
 
   const { data: epochs } = useQuery(
-    ['epochs', chain],
+    ['epochs', selectedChain],
     async () => {
-      return chain ? fetchEpochs(chain.id) : []
+      return fetchEpochs(selectedChain.id)
     },
     {
       initialData: [],
@@ -77,9 +79,9 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   )
 
   const { data: currencies } = useQuery(
-    ['currencies', chain],
+    ['currencies', selectedChain],
     async () => {
-      return chain ? fetchCurrencies(chain.id) : []
+      return fetchCurrencies(selectedChain.id)
     },
     {
       initialData: [],
@@ -87,14 +89,12 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   )
 
   const { data: prices } = useQuery(
-    ['prices', currencies, chain],
+    ['prices', currencies, selectedChain],
     async () => {
-      return chain
-        ? fetchPrices(
-            chain.id,
-            currencies.map((currency) => currency.address),
-          )
-        : ({} as Prices)
+      return fetchPrices(
+        selectedChain.id,
+        currencies.map((currency) => currency.address),
+      )
     },
     {
       refetchInterval: 5 * 1000,

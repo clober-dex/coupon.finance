@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react'
 import {
   useAccount,
-  useNetwork,
   usePublicClient,
   useQuery,
   useQueryClient,
@@ -23,6 +22,7 @@ import { CHAIN_IDS } from '../constants/chain'
 
 import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
+import { useChainContext } from './chain-context'
 
 type DepositContext = {
   positions: BondPosition[]
@@ -52,7 +52,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient()
 
   const { address: userAddress } = useAccount()
-  const { chain } = useNetwork()
+  const { selectedChain } = useChainContext()
 
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
@@ -60,9 +60,9 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { calculateETHValue } = useCurrencyContext()
 
   const { data: positions } = useQuery(
-    ['bond-positions', userAddress, chain],
+    ['bond-positions', userAddress, selectedChain],
     () =>
-      userAddress && chain ? fetchBondPositions(chain.id, userAddress) : [],
+      userAddress ? fetchBondPositions(selectedChain.id, userAddress) : [],
     {
       refetchOnWindowFocus: true,
       refetchInterval: 2 * 1000,
@@ -77,7 +77,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       epochs: number,
       expectedProceeds: bigint,
     ): Promise<Hash | undefined> => {
-      if (!walletClient || !chain) {
+      if (!walletClient) {
         // TODO: alert wallet connect
         return
       }
@@ -85,11 +85,11 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       let hash: Hash | undefined
       try {
         const { deadline, r, s, v } = await permit20(
-          chain.id,
+          selectedChain.id,
           walletClient,
           asset.underlying,
           walletClient.account.address,
-          CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].DepositController,
+          CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
           amount,
           BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
         )
@@ -105,7 +105,8 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           ],
         })
         hash = await writeContract(publicClient, walletClient, {
-          address: CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].DepositController,
+          address:
+            CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
           abi: DepositController__factory.abi,
           functionName: 'deposit',
           args: [
@@ -141,7 +142,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       setConfirmation,
       calculateETHValue,
       walletClient,
-      chain,
+      selectedChain,
     ],
   )
 
@@ -152,19 +153,19 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       amount: bigint,
       repurchaseFee: bigint,
     ) => {
-      if (!walletClient || !chain) {
+      if (!walletClient) {
         // TODO: alert wallet connect
         return
       }
 
       try {
         const { deadline, r, s, v } = await permit721(
-          chain.id,
+          selectedChain.id,
           walletClient,
-          CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].BondPositionManager,
+          CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BondPositionManager,
           tokenId,
           walletClient.account.address,
-          CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].DepositController,
+          CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
           BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
         )
         setConfirmation({
@@ -179,7 +180,8 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           ],
         })
         await writeContract(publicClient, walletClient, {
-          address: CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].DepositController,
+          address:
+            CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
           abi: DepositController__factory.abi,
           functionName: 'withdraw',
           args: [
@@ -196,24 +198,24 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [publicClient, setConfirmation, walletClient, chain],
+    [publicClient, setConfirmation, walletClient, selectedChain],
   )
 
   const collect = useCallback(
     async (asset: Currency, tokenId: bigint, amount: bigint) => {
-      if (!walletClient || !chain) {
+      if (!walletClient) {
         // TODO: alert wallet connect
         return
       }
 
       try {
         const { deadline, r, s, v } = await permit721(
-          chain.id,
+          selectedChain.id,
           walletClient,
-          CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].BondPositionManager,
+          CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BondPositionManager,
           tokenId,
           walletClient.account.address,
-          CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].DepositController,
+          CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
           BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
         )
         setConfirmation({
@@ -228,7 +230,8 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           ],
         })
         await writeContract(publicClient, walletClient, {
-          address: CONTRACT_ADDRESSES[chain.id as CHAIN_IDS].DepositController,
+          address:
+            CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
           abi: DepositController__factory.abi,
           functionName: 'collect',
           args: [tokenId, { deadline, v, r, s }],
@@ -240,7 +243,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [publicClient, setConfirmation, walletClient, chain],
+    [publicClient, setConfirmation, walletClient, selectedChain],
   )
 
   return (

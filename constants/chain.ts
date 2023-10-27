@@ -1,7 +1,11 @@
 import { Chain } from 'wagmi'
 import { arbitrum } from 'viem/chains'
+import { arbitrumGoerli } from 'wagmi/chains'
 
 import { couponFinanceChain } from './dev-chain'
+
+export const supportChains: Chain[] =
+  process.env.BUILD === 'dev' ? [couponFinanceChain] : [arbitrumGoerli]
 
 export enum CHAIN_IDS {
   ARBITRUM = 42161,

@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { parseUnits } from 'viem'
-import { useNetwork, useQuery } from 'wagmi'
+import { useQuery } from 'wagmi'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -12,6 +12,8 @@ import { fetchDepositApyByEpochsDeposited } from '../../apis/market'
 import { DepositForm } from '../../components/form/deposit-form'
 import BackSvg from '../../components/svg/back-svg'
 import { getLogo } from '../../model/currency'
+import { useChainContext } from '../../contexts/chain-context'
+
 import { RiskSidebar } from '../../components/risk-sidebar'
 import { Collateral } from '../../model/collateral'
 import { BigDecimal } from '../../utils/numbers'
@@ -75,7 +77,7 @@ const dummyCollateralRiskInfos = [
 }[]
 
 const Deposit = () => {
-  const { chain } = useNetwork()
+  const { selectedChain } = useChainContext()
   const { balances, prices, assets } = useCurrencyContext()
   const { deposit } = useDepositContext()
 
@@ -107,11 +109,8 @@ const Deposit = () => {
   )
 
   const { data: proceedsByEpochsDeposited } = useQuery(
-    ['deposit-simulate', asset, amount, chain], // TODO: useDebounce
-    () =>
-      asset && chain
-        ? fetchDepositApyByEpochsDeposited(chain.id, asset, amount)
-        : [],
+    ['deposit-simulate', asset, amount, selectedChain], // TODO: useDebounce
+    () => fetchDepositApyByEpochsDeposited(selectedChain.id, asset, amount),
     {
       refetchOnWindowFocus: true,
       keepPreviousData: true,
