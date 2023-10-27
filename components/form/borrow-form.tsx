@@ -123,10 +123,10 @@ export const BorrowForm = ({
             {(interestsByEpochsBorrowed || []).map(({ date }, index) => (
               <button
                 key={index}
-                className="flex flex-col items-center gap-2 w-[72px]"
+                className="flex sm:flex-col items-center gap-1 sm:gap-2"
                 onClick={() => setEpochs(index + 1)}
               >
-                <div className="text-sm">{date}</div>
+                <div className="text-sm w-20 sm:w-fit text-start">{date}</div>
               </button>
             ))}
           </div>

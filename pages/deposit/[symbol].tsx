@@ -151,7 +151,7 @@ const Deposit = () => {
                 <div>{asset.underlying.symbol}</div>
               </div>
             </Link>
-            <div className="flex flex-col lg:flex-row sm:items-center lg:items-start justify-center gap-4">
+            <div className="flex flex-col lg:flex-row sm:items-center lg:items-start justify-center gap-4 mb-4">
               <DepositForm
                 depositCurrency={asset.underlying}
                 maxDepositAmount={maxDepositAmount}
