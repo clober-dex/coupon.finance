@@ -76,7 +76,7 @@ export default async function handler(
   } catch (error) {
     res.json({
       status: 'error',
-      message: 'Something went wrong, please try again!!!',
+      message: `error: ${error}`,
     })
   }
 }
