@@ -14,6 +14,9 @@ const nextConfig = {
   images: {
     domains: ['assets.odos.xyz'],
   },
+  serverRuntimeConfig: {
+    PROJECT_ROOT: __dirname,
+  },
 }
 
 module.exports = nextConfig
