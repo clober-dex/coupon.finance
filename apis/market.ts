@@ -11,6 +11,7 @@ import { Asset } from '../model/asset'
 import { getEpoch } from '../utils/epoch'
 import { SUBGRAPH_URL } from '../constants/subgraph-url'
 import { CHAIN_IDS } from '../constants/chain'
+import { formatDate } from '../utils/date'
 const { getMarkets } = getBuiltGraphSDK()
 
 type DepthDto = {
@@ -98,10 +99,9 @@ export async function fetchDepositApyByEpochsDeposited(
         currentTimestamp,
       )
       return {
-        date: new Date(Number(markets.at(-1)?.endTimestamp ?? 0n) * 1000)
-          .toISOString()
-          .slice(2, 10)
-          .replace(/-/g, '/'), // TODO: format properly
+        date: formatDate(
+          new Date(Number(markets.at(-1)?.endTimestamp ?? 0n) * 1000),
+        ),
         proceeds,
         apy,
       }
@@ -134,10 +134,9 @@ export async function fetchBorrowApyByEpochsBorrowed(
           currentTimestamp,
         )
       return {
-        date: new Date(Number(markets.at(-1)?.endTimestamp ?? 0n) * 1000)
-          .toISOString()
-          .slice(2, 10)
-          .replace(/-/g, '/'), // TODO: format properly
+        date: formatDate(
+          new Date(Number(markets.at(-1)?.endTimestamp ?? 0n) * 1000),
+        ),
         interest,
         maxInterest,
         apy,
@@ -169,10 +168,7 @@ export async function fetchCouponAmountByEpochsBorrowed(
         ? market.spend(market.baseToken.address, debtAmount).amountOut
         : 0n
     return {
-      date: new Date(Number(market.endTimestamp) * 1000)
-        .toISOString()
-        .slice(2, 10)
-        .replace(/-/g, '/'), // TODO: format properly
+      date: formatDate(new Date(Number(market.endTimestamp) * 1000)),
       interest,
       payable: debtAmount <= market.totalAsksInBaseAfterFees(),
       refund,
