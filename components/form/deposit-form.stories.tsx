@@ -33,6 +33,8 @@ export const Default: Story = {
     setValue: () => {},
     epochs: 2,
     setEpochs: () => {},
+    showRiskSidebar: false,
+    setShowRiskSidebar: () => {},
     actionButtonProps: {
       disabled: false,
       onClick: () => {},
@@ -43,4 +45,9 @@ export const Default: Story = {
       decimals: 8,
     },
   },
+}
+
+// @ts-ignore
+BigInt.prototype.toJSON = function () {
+  return this.toString()
 }

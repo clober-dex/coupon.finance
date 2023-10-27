@@ -6,6 +6,7 @@ import CurrencyAmountInput from '../currency-amount-input'
 import Slider from '../slider'
 import { BigDecimal, formatUnits } from '../../utils/numbers'
 import { ActionButton, ActionButtonProps } from '../action-button'
+import { RightBracketAngleSvg } from '../svg/right-bracket-angle-svg'
 
 export const DepositForm = ({
   depositCurrency,
@@ -17,6 +18,8 @@ export const DepositForm = ({
   setValue,
   epochs,
   setEpochs,
+  showRiskSidebar,
+  setShowRiskSidebar,
   actionButtonProps,
   depositAssetPrice,
 }: {
@@ -29,11 +32,13 @@ export const DepositForm = ({
   setValue: (value: string) => void
   epochs: number
   setEpochs: (value: number) => void
+  showRiskSidebar: boolean
+  setShowRiskSidebar: (show: boolean) => void
   actionButtonProps: ActionButtonProps
   depositAssetPrice?: BigDecimal
 }) => {
   return (
-    <div className="flex flex-1 sm:items-center justify-center">
+    <div className="relative z-30">
       <div className="flex flex-col sm:shadow bg-gray-50 dark:bg-gray-950 sm:dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 w-full sm:w-[480px] gap-8">
         <div className="flex flex-col gap-4">
           <div className="font-bold text-sm sm:text-lg">
@@ -136,6 +141,24 @@ export const DepositForm = ({
         </div>
         <ActionButton {...actionButtonProps} />
       </div>
+      {!showRiskSidebar ? (
+        <div className="hidden lg:inline-flex absolute -z-10 -right-24 top-6 py-2 pl-8 pr-3 gap-1 rounded-lg bg-[#22C55E1A]">
+          <button
+            className="flex flex-row gap-1"
+            onClick={() => setShowRiskSidebar(!showRiskSidebar)}
+          >
+            <div className="text-sm	font-bold opacity-90 text-green-500">
+              Check <br />
+              Risk
+            </div>
+            <div className="flex items-center h-full">
+              <RightBracketAngleSvg />
+            </div>
+          </button>
+        </div>
+      ) : (
+        <></>
+      )}
     </div>
   )
 }
