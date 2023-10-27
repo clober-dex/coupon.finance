@@ -1,10 +1,10 @@
-import { promises as fs } from 'fs'
-
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 import { fetchPrices } from '../../../../apis/currency'
 import { formatUnits } from '../../../../utils/numbers'
 import { fetchBondPosition } from '../../../../apis/bond-position'
+
+import bondSvg from './bond-svg'
 
 export default async function handler(
   req: NextApiRequest,
@@ -44,11 +44,7 @@ export default async function handler(
       .slice(2, 10)
       .replace(/-/g, '-')
 
-    const baseSvg = (
-      await fs.readFile(process.cwd() + '/public/bond-position-nft.svg', 'utf8')
-    ).toString()
-
-    const svg = baseSvg
+    const svg = bondSvg
       .replace(
         /DEPOSIT_AMOUNT/g,
         formatUnits(
