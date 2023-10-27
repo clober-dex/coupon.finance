@@ -1,6 +1,9 @@
 import { promises as fs } from 'fs'
+import path from 'path'
 
 import type { NextApiRequest, NextApiResponse } from 'next'
+import getConfig from 'next/config'
+const { serverRuntimeConfig } = getConfig()
 
 import { fetchPrices } from '../../../../apis/currency'
 import { formatUnits } from '../../../../utils/numbers'
@@ -45,7 +48,12 @@ export default async function handler(
       .replace(/-/g, '-')
 
     const baseSvg = (
-      await fs.readFile('public/bond-position-nft.svg')
+      await fs.readFile(
+        path.join(
+          serverRuntimeConfig.PROJECT_ROOT,
+          './public/bond-position-nft.svg',
+        ),
+      )
     ).toString()
 
     const svg = baseSvg
