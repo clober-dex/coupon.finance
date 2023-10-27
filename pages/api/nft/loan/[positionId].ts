@@ -1,11 +1,11 @@
-import { promises as fs } from 'fs'
-
 import type { NextApiRequest, NextApiResponse } from 'next'
 
 import { fetchPrices } from '../../../../apis/currency'
 import { formatUnits } from '../../../../utils/numbers'
 import { calculateLtv } from '../../../../utils/ltv'
 import { fetchLoanPosition } from '../../../../apis/loan-position'
+
+import loanSvg from './loan-svg'
 
 export default async function handler(
   req: NextApiRequest,
@@ -57,11 +57,7 @@ export default async function handler(
       Number(loanPosition.collateral.liquidationThreshold) / 10000
     ).toFixed(2)
 
-    const baseSvg = (
-      await fs.readFile('public/loan-position-nft.svg')
-    ).toString()
-
-    const svg = baseSvg
+    const svg = loanSvg
       .replace(
         /LOAN_AMOUNT/g,
         formatUnits(
@@ -92,7 +88,7 @@ export default async function handler(
   } catch (error) {
     res.json({
       status: 'error',
-      message: 'Something went wrong, please try again!!!',
+      message: `Something went wrong, please try again!!!: ${error}`,
     })
   }
 }
