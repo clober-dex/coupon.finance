@@ -1,9 +1,6 @@
 import { promises as fs } from 'fs'
-import path from 'path'
 
 import type { NextApiRequest, NextApiResponse } from 'next'
-import getConfig from 'next/config'
-const { serverRuntimeConfig } = getConfig()
 
 import { fetchPrices } from '../../../../apis/currency'
 import { formatUnits } from '../../../../utils/numbers'
@@ -47,14 +44,7 @@ export default async function handler(
       .slice(2, 10)
       .replace(/-/g, '-')
 
-    const baseSvg = (
-      await fs.readFile(
-        path.join(
-          serverRuntimeConfig.PROJECT_ROOT,
-          './public/bond-position-nft.svg',
-        ),
-      )
-    ).toString()
+    const baseSvg = (await fs.readFile('bond-position-nft.svg')).toString()
 
     const svg = baseSvg
       .replace(
@@ -76,7 +66,7 @@ export default async function handler(
   } catch (error) {
     res.json({
       status: 'error',
-      message: 'Something went wrong, please try again!!!',
+      message: `error: ${error}`,
     })
   }
 }
