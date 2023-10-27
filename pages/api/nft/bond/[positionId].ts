@@ -45,7 +45,7 @@ export default async function handler(
       .replace(/-/g, '-')
 
     const baseSvg = (
-      await fs.readFile('public/bond-position-nft.svg')
+      await fs.readFile(process.cwd() + '/public/bond-position-nft.svg', 'utf8')
     ).toString()
 
     const svg = baseSvg

@@ -58,7 +58,7 @@ export default async function handler(
     ).toFixed(2)
 
     const baseSvg = (
-      await fs.readFile('public/loan-position-nft.svg')
+      await fs.readFile(process.cwd() + '/public/loan-position-nft.svg', 'utf8')
     ).toString()
 
     const svg = baseSvg
