@@ -15,8 +15,10 @@ import { Collateral } from '../../model/collateral'
 import { calculateLtv, calculateMaxLoanableAmount } from '../../utils/ltv'
 import { max, min } from '../../utils/bigint'
 import { BorrowForm } from '../../components/form/borrow-form'
+import { useChainContext } from '../../contexts/chain-context'
 
 const Borrow = () => {
+  const { selectedChain } = useChainContext()
   const { balances, prices, assets } = useCurrencyContext()
   const { borrow } = useBorrowContext()
 
@@ -78,9 +80,11 @@ const Borrow = () => {
       asset,
       borrowAmount,
       maxLoanableAmountExcludingCouponFee,
+      selectedChain,
     ], // TODO: useDebounce
     () =>
       fetchBorrowApyByEpochsBorrowed(
+        selectedChain.id,
         asset,
         borrowAmount,
         maxLoanableAmountExcludingCouponFee,
@@ -192,7 +196,7 @@ const Borrow = () => {
                   asset,
                   borrowAmount,
                   epochs,
-                  interest,
+                  min(interest, maxInterest),
                 )
                 if (hash) {
                   await router.replace('/?mode=borrow')

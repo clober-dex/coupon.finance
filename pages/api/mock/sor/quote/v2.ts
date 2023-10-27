@@ -1,11 +1,10 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { createPublicClient, getAddress, http } from 'viem'
 import { ethers } from 'ethers'
-import { arbitrum, arbitrumGoerli } from 'viem/chains'
 
-import { CONTRACT_ADDRESSES } from '../../../../../utils/addresses'
+import { CONTRACT_ADDRESSES } from '../../../../../constants/addresses'
 import { CouponOracle__factory, ERC20__factory } from '../../../../../typechain'
-import { couponFinanceChain } from '../../../../../utils/dev-chain'
+import { CHAIN_IDS, CHAINS } from '../../../../../constants/chain'
 
 export default async function handler(
   req: NextApiRequest,
@@ -29,11 +28,7 @@ export default async function handler(
     } = req.body
 
     const publicClient = createPublicClient({
-      chain: {
-        [42161]: arbitrum,
-        [421613]: arbitrumGoerli,
-        [7777]: couponFinanceChain,
-      }[chainId],
+      chain: CHAINS[chainId as CHAIN_IDS],
       transport: http(),
     })
 
@@ -44,7 +39,7 @@ export default async function handler(
     ] = await publicClient.multicall({
       contracts: [
         {
-          address: CONTRACT_ADDRESSES.CouponOracle,
+          address: CONTRACT_ADDRESSES[chainId as CHAIN_IDS].CouponOracle,
           abi: CouponOracle__factory.abi,
           functionName: 'getAssetsPrices',
           args: [[inputTokens[0].tokenAddress, outputTokens[0].tokenAddress]],

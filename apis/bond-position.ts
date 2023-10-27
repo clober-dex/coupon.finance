@@ -5,12 +5,15 @@ import {
   getBuiltGraphSDK,
   Token,
 } from '../.graphclient'
+import { SUBGRAPH_URL } from '../constants/subgraph-url'
+import { CHAIN_IDS } from '../constants/chain'
 
 import { toCurrency } from './asset'
 
 const { getBondPositions, getBondPosition } = getBuiltGraphSDK()
 
 export async function fetchBondPositions(
+  chainId: CHAIN_IDS,
   userAddress: `0x${string}`,
 ): Promise<BondPosition[]> {
   const { bondPositions } = await getBondPositions(
@@ -18,13 +21,14 @@ export async function fetchBondPositions(
       userAddress: userAddress.toLowerCase(),
     },
     {
-      url: process.env.SUBGRAPH_URL,
+      url: SUBGRAPH_URL[chainId],
     },
   )
   return bondPositions.map((bondPosition) => toBondPosition(bondPosition))
 }
 
 export async function fetchBondPosition(
+  chainId: CHAIN_IDS,
   positionId: bigint,
 ): Promise<BondPosition | undefined> {
   const { bondPosition } = await getBondPosition(
@@ -32,7 +36,7 @@ export async function fetchBondPosition(
       positionId: positionId.toString(),
     },
     {
-      url: process.env.SUBGRAPH_URL,
+      url: SUBGRAPH_URL[chainId],
     },
   )
   return bondPosition ? toBondPosition(bondPosition) : undefined

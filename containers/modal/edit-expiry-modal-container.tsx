@@ -6,6 +6,7 @@ import { fetchCouponAmountByEpochsBorrowed } from '../../apis/market'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import EditExpiryModal from '../../components/modal/edit-expiry-modal'
+import { useChainContext } from '../../contexts/chain-context'
 
 const EditExpiryModalContainer = ({
   position,
@@ -14,6 +15,7 @@ const EditExpiryModalContainer = ({
   position: LoanPosition
   onClose: () => void
 }) => {
+  const { selectedChain } = useChainContext()
   const { balances } = useCurrencyContext()
   const { extendLoanDuration, shortenLoanDuration } = useBorrowContext()
 
@@ -25,12 +27,15 @@ const EditExpiryModalContainer = ({
     [epochs],
   )
 
-  const { data } = useQuery(['edit-expiry-simulate', position], () =>
-    fetchCouponAmountByEpochsBorrowed(
-      position.substitute,
-      position.amount,
-      position.toEpoch.id,
-    ),
+  const { data } = useQuery(
+    ['edit-expiry-simulate', position, selectedChain],
+    () =>
+      fetchCouponAmountByEpochsBorrowed(
+        selectedChain.id,
+        position.substitute,
+        position.amount,
+        position.toEpoch.id,
+      ),
   )
 
   const [expiryEpochIndex, interest, payable, refund, refundable] =

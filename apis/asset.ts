@@ -5,6 +5,8 @@ import { Asset, AssetStatus } from '../model/asset'
 import { Market } from '../model/market'
 import { isEthereum } from '../contexts/currency-context'
 import { LIQUIDATION_TARGET_LTV_PRECISION } from '../utils/ltv'
+import { SUBGRAPH_URL } from '../constants/subgraph-url'
+import { CHAIN_IDS } from '../constants/chain'
 
 const { getAssets, getAssetStatuses } = getBuiltGraphSDK()
 
@@ -30,14 +32,14 @@ export const toCurrency = (
         decimals: token.decimals,
       }
 
-export async function fetchAssets(): Promise<Asset[]> {
+export async function fetchAssets(chainId: CHAIN_IDS): Promise<Asset[]> {
   if (cache) {
     return cache
   }
   const { assets } = await getAssets(
     {},
     {
-      url: process.env.SUBGRAPH_URL,
+      url: SUBGRAPH_URL[chainId],
     },
   )
 
@@ -57,11 +59,13 @@ export async function fetchAssets(): Promise<Asset[]> {
   return result
 }
 
-export async function fetchAssetStatuses(): Promise<AssetStatus[]> {
+export async function fetchAssetStatuses(
+  chainId: CHAIN_IDS,
+): Promise<AssetStatus[]> {
   const { assetStatuses } = await getAssetStatuses(
     {},
     {
-      url: process.env.SUBGRAPH_URL,
+      url: SUBGRAPH_URL[chainId],
     },
   )
 

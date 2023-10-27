@@ -9,6 +9,7 @@ import { useDepositContext } from '../../contexts/deposit-context'
 import { calculateCouponsToWithdraw } from '../../model/market'
 import WithdrawModal from '../../components/modal/withdraw-modal'
 import { min } from '../../utils/bigint'
+import { useChainContext } from '../../contexts/chain-context'
 
 const WithdrawModalContainer = ({
   position,
@@ -17,6 +18,7 @@ const WithdrawModalContainer = ({
   position: BondPosition | null
   onClose: () => void
 }) => {
+  const { selectedChain } = useChainContext()
   const [value, setValue] = useState('')
   const { prices } = useCurrencyContext()
   const { withdraw } = useDepositContext()
@@ -27,7 +29,12 @@ const WithdrawModalContainer = ({
   )
 
   const { data } = useQuery(
-    ['coupon-repurchase-fee-to-withdraw', position?.underlying.address, amount],
+    [
+      'coupon-repurchase-fee-to-withdraw',
+      position?.underlying.address,
+      amount,
+      selectedChain,
+    ],
     async () => {
       if (!position) {
         return {
@@ -36,7 +43,7 @@ const WithdrawModalContainer = ({
           available: 0n,
         }
       }
-      const markets = (await fetchMarkets())
+      const markets = (await fetchMarkets(selectedChain.id))
         .filter((market) =>
           isAddressEqual(
             market.quoteToken.address,
@@ -82,7 +89,7 @@ const WithdrawModalContainer = ({
             position.underlying,
             position.tokenId,
             amount,
-            repurchaseFee,
+            min(repurchaseFee, maxRepurchaseFee),
           )
           setValue('')
           onClose()

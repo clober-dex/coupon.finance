@@ -10,6 +10,7 @@ import { max, min } from '../../utils/bigint'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import BorrowMoreModal from '../../components/modal/borrow-more-modal'
 import { calculateLtv, calculateMaxLoanableAmount } from '../../utils/ltv'
+import { useChainContext } from '../../contexts/chain-context'
 
 const BorrowMoreModalContainer = ({
   position,
@@ -18,6 +19,7 @@ const BorrowMoreModalContainer = ({
   position: LoanPosition
   onClose: () => void
 }) => {
+  const { selectedChain } = useChainContext()
   const { borrowMore } = useBorrowContext()
   const { prices } = useCurrencyContext()
   const [value, setValue] = useState('')
@@ -48,9 +50,14 @@ const BorrowMoreModalContainer = ({
   )
 
   const { data } = useQuery(
-    ['borrow-more-simulate', position.underlying.address, amount],
+    [
+      'borrow-more-simulate',
+      position.underlying.address,
+      amount,
+      selectedChain,
+    ],
     async () => {
-      const markets = (await fetchMarkets())
+      const markets = (await fetchMarkets(selectedChain.id))
         .filter((market) =>
           isAddressEqual(
             market.quoteToken.address,

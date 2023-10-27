@@ -7,12 +7,15 @@ import {
   LoanPosition as GraphqlLoanPosition,
 } from '../.graphclient'
 import { LIQUIDATION_TARGET_LTV_PRECISION } from '../utils/ltv'
+import { SUBGRAPH_URL } from '../constants/subgraph-url'
+import { CHAIN_IDS } from '../constants/chain'
 
 import { toCurrency } from './asset'
 
 const { getLoanPositions, getLoanPosition } = getBuiltGraphSDK()
 
 export async function fetchLoanPositions(
+  chainId: CHAIN_IDS,
   userAddress: `0x${string}`,
 ): Promise<LoanPosition[]> {
   const { loanPositions } = await getLoanPositions(
@@ -20,13 +23,14 @@ export async function fetchLoanPositions(
       userAddress: userAddress.toLowerCase(),
     },
     {
-      url: process.env.SUBGRAPH_URL,
+      url: SUBGRAPH_URL[chainId],
     },
   )
   return loanPositions.map((loanPosition) => toLoanPosition(loanPosition))
 }
 
 export async function fetchLoanPosition(
+  chainId: CHAIN_IDS,
   positionId: bigint,
 ): Promise<LoanPosition | undefined> {
   const { loanPosition } = await getLoanPosition(
@@ -34,7 +38,7 @@ export async function fetchLoanPosition(
       positionId: positionId.toString(),
     },
     {
-      url: process.env.SUBGRAPH_URL,
+      url: SUBGRAPH_URL[chainId],
     },
   )
   return loanPosition ? toLoanPosition(loanPosition) : undefined

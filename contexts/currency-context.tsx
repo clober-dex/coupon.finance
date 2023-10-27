@@ -14,6 +14,8 @@ import { Balances } from '../model/balances'
 import { Prices } from '../model/prices'
 import { max } from '../utils/bigint'
 
+import { useChainContext } from './chain-context'
+
 type CurrencyContext = {
   balances: Balances
   prices: Prices
@@ -44,11 +46,12 @@ export const isEthereum = (currency: Currency) => {
 export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { address: userAddress } = useAccount()
   const { data: balance } = useBalance({ address: userAddress })
+  const { selectedChain } = useChainContext()
 
   const { data: assets } = useQuery(
-    ['assets'],
+    ['assets', selectedChain],
     async () => {
-      return fetchAssets()
+      return fetchAssets(selectedChain.id)
     },
     {
       initialData: [],
@@ -56,9 +59,9 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   )
 
   const { data: assetStatuses } = useQuery(
-    ['assetStatuses'],
+    ['assetStatuses', selectedChain],
     async () => {
-      return fetchAssetStatuses()
+      return fetchAssetStatuses(selectedChain.id)
     },
     {
       initialData: [],
@@ -66,9 +69,9 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   )
 
   const { data: epochs } = useQuery(
-    ['epochs'],
+    ['epochs', selectedChain],
     async () => {
-      return fetchEpochs()
+      return fetchEpochs(selectedChain.id)
     },
     {
       initialData: [],
@@ -76,9 +79,9 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   )
 
   const { data: currencies } = useQuery(
-    ['currencies'],
+    ['currencies', selectedChain],
     async () => {
-      return fetchCurrencies()
+      return fetchCurrencies(selectedChain.id)
     },
     {
       initialData: [],
@@ -86,10 +89,12 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   )
 
   const { data: prices } = useQuery(
-    ['prices', currencies],
+    ['prices', currencies, selectedChain],
     async () => {
-      const currencyAddresses = currencies.map((currency) => currency.address)
-      return fetchPrices(currencyAddresses)
+      return fetchPrices(
+        selectedChain.id,
+        currencies.map((currency) => currency.address),
+      )
     },
     {
       refetchInterval: 5 * 1000,

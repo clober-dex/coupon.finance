@@ -1,12 +1,18 @@
-import { readContracts } from '@wagmi/core'
+import { createPublicClient, http } from 'viem'
 
 import { IERC721__factory } from '../typechain'
+import { CHAIN_IDS, CHAINS } from '../constants/chain'
 
 export async function fetchApproval(
+  chainId: CHAIN_IDS,
   nftContractAddress: `0x${string}`,
   tokenId: bigint,
 ): Promise<`0x${string}` | undefined> {
-  const [{ result: approval }] = await readContracts({
+  const publicClient = createPublicClient({
+    chain: CHAINS[chainId as CHAIN_IDS],
+    transport: http(),
+  })
+  const [{ result: approval }] = await publicClient.multicall({
     contracts: [
       {
         address: nftContractAddress,
