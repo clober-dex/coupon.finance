@@ -4,6 +4,7 @@ import { getBuiltGraphSDK } from '../.graphclient'
 import {
   calculateBorrowApy,
   calculateDepositApy,
+  calculateRemainingCoupons,
   Market,
 } from '../model/market'
 import { Currency } from '../model/currency'
@@ -106,6 +107,20 @@ export async function fetchDepositApyByEpochsDeposited(
         apy,
       }
     })
+}
+
+export async function fetchRemainingCouponsByEpochsDeposited(
+  chainId: CHAIN_IDS,
+  asset: Asset,
+  amount: bigint,
+) {
+  const substitute = asset.substitutes[0]
+  const markets = (await fetchMarkets(chainId))
+    .filter((market) =>
+      isAddressEqual(market.quoteToken.address, substitute.address),
+    )
+    .sort((a, b) => Number(a.epoch) - Number(b.epoch))
+  return calculateRemainingCoupons(asset.substitutes[0], markets, amount)
 }
 
 export async function fetchBorrowApyByEpochsBorrowed(

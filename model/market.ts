@@ -3,6 +3,7 @@ import { isAddressEqual } from 'viem'
 import { MarketDto } from '../apis/market'
 import { calculateApy } from '../utils/apy'
 import { max, min } from '../utils/bigint'
+import { formatDate } from '../utils/date'
 
 import { Currency } from './currency'
 
@@ -305,14 +306,19 @@ export const calculateTotalDeposit = (
   initialDeposit: bigint,
 ): {
   totalDeposit: bigint
+  remainingCoupons: { date: string; remainingCoupon: bigint }[]
 } => {
   let totalDeposit = initialDeposit
   const amountOuts = [...Array(markets.length).keys()].map(
     () => 2n ** 256n - 1n,
   )
-
+  const remainingCoupons = [...Array(markets.length).keys()].map(() => 0n)
   while (amountOuts.reduce((a, b) => a + b, 0n) > 0n) {
     for (let i = 0; i < markets.length; i++) {
+      const totalBidsInBaseAfterFees = markets[i].totalBidsInBaseAfterFees()
+      if (totalBidsInBaseAfterFees < initialDeposit) {
+        remainingCoupons[i] += initialDeposit - totalBidsInBaseAfterFees
+      }
       ;({ market: markets[i], amountOut: amountOuts[i] } = markets[i].spend(
         markets[i].baseToken.address,
         initialDeposit,
@@ -322,7 +328,18 @@ export const calculateTotalDeposit = (
     totalDeposit = totalDeposit + initialDeposit
   }
 
-  return { totalDeposit }
+  return {
+    totalDeposit,
+    remainingCoupons: remainingCoupons.map((remainingCoupon) => {
+      const date = formatDate(
+        new Date(Number(markets.at(-1)?.endTimestamp ?? 0n)),
+      )
+      return {
+        date,
+        remainingCoupon,
+      }
+    }),
+  }
 }
 
 export const calculateDepositApy = (
@@ -357,6 +374,26 @@ export const calculateDepositApy = (
     apy,
     proceeds: totalDeposit - initialDeposit,
   }
+}
+
+export const calculateRemainingCoupons = (
+  substitute: Currency,
+  markets: Market[],
+  initialDeposit: bigint,
+): { date: string; remainingCoupon: bigint }[] => {
+  if (
+    markets.some(
+      (market) =>
+        !isAddressEqual(
+          market.quoteToken.address,
+          substitute.address as `0x${string}`,
+        ),
+    )
+  ) {
+    new Error('Substitute token is not supported')
+  }
+  const { remainingCoupons } = calculateTotalDeposit(markets, initialDeposit)
+  return remainingCoupons
 }
 
 export const calculateBorrowApy = (

@@ -8,7 +8,10 @@ import Image from 'next/image'
 
 import { useDepositContext } from '../../contexts/deposit-context'
 import { useCurrencyContext } from '../../contexts/currency-context'
-import { fetchDepositApyByEpochsDeposited } from '../../apis/market'
+import {
+  fetchDepositApyByEpochsDeposited,
+  fetchRemainingCouponsByEpochsDeposited,
+} from '../../apis/market'
 import { DepositForm } from '../../components/form/deposit-form'
 import BackSvg from '../../components/svg/back-svg'
 import { getLogo } from '../../model/currency'
@@ -108,8 +111,18 @@ const Deposit = () => {
   )
 
   const { data: proceedsByEpochsDeposited } = useQuery(
-    ['deposit-simulate', asset, amount, selectedChain], // TODO: useDebounce
+    ['deposit-apy-simulate', asset, amount, selectedChain], // TODO: useDebounce
     () => fetchDepositApyByEpochsDeposited(selectedChain.id, asset, amount),
+    {
+      refetchOnWindowFocus: true,
+      keepPreviousData: true,
+    },
+  )
+
+  const { data: remainingCoupons } = useQuery(
+    ['deposit-remaining-coupons-simulate', asset, amount, selectedChain],
+    () =>
+      fetchRemainingCouponsByEpochsDeposited(selectedChain.id, asset, amount),
     {
       refetchOnWindowFocus: true,
       keepPreviousData: true,
