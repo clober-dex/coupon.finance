@@ -113,6 +113,7 @@ export async function fetchRemainingCouponsByEpochsDeposited(
   chainId: CHAIN_IDS,
   asset: Asset,
   amount: bigint,
+  epochs: number,
 ) {
   const substitute = asset.substitutes[0]
   const markets = (await fetchMarkets(chainId))
@@ -120,6 +121,8 @@ export async function fetchRemainingCouponsByEpochsDeposited(
       isAddressEqual(market.quoteToken.address, substitute.address),
     )
     .sort((a, b) => Number(a.epoch) - Number(b.epoch))
+    .slice(0, epochs)
+
   return calculateRemainingCoupons(asset.substitutes[0], markets, amount)
 }
 

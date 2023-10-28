@@ -306,7 +306,7 @@ export const calculateTotalDeposit = (
   initialDeposit: bigint,
 ): {
   totalDeposit: bigint
-  remainingCoupons: { date: string; remainingCoupon: bigint }[]
+  remainingCoupons: { date: string; remainingCoupon: bigint; symbol: string }[]
 } => {
   let totalDeposit = initialDeposit
   const amountOuts = [...Array(markets.length).keys()].map(
@@ -330,12 +330,12 @@ export const calculateTotalDeposit = (
 
   return {
     totalDeposit,
-    remainingCoupons: remainingCoupons.map((remainingCoupon) => {
-      const date = formatDate(
-        new Date(Number(markets.at(-1)?.endTimestamp ?? 0n)),
-      )
+    remainingCoupons: remainingCoupons.map((remainingCoupon, index) => {
       return {
-        date,
+        date: formatDate(
+          new Date(Number(markets[index].endTimestamp ?? 0n) * 1000),
+        ),
+        symbol: markets[index].baseToken.symbol,
         remainingCoupon,
       }
     }),
@@ -380,7 +380,7 @@ export const calculateRemainingCoupons = (
   substitute: Currency,
   markets: Market[],
   initialDeposit: bigint,
-): { date: string; remainingCoupon: bigint }[] => {
+): { date: string; remainingCoupon: bigint; symbol: string }[] => {
   if (
     markets.some(
       (market) =>

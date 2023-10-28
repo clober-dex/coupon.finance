@@ -15,6 +15,7 @@ export const DepositForm = ({
   proceed,
   depositApy,
   proceedsByEpochsDeposited,
+  remainingCoupons,
   value,
   setValue,
   epochs,
@@ -29,6 +30,7 @@ export const DepositForm = ({
   proceed: bigint
   depositApy: number
   proceedsByEpochsDeposited?: { date: string; proceeds: bigint }[]
+  remainingCoupons?: { date: string; remainingCoupon: bigint; symbol: string }[]
   value: string
   setValue: (value: string) => void
   epochs: number
@@ -139,12 +141,38 @@ export const DepositForm = ({
                 <div className="text-gray-400 text-base">APY</div>
                 <div className="ml-auto">{depositApy.toFixed(2)}%</div>
               </div>
-              <div className="flex w-full">
-                <div className="text-gray-400 text-base">
-                  Coupon <Tooltip id="remaning-coupon" />
+              {epochs &&
+              remainingCoupons &&
+              remainingCoupons.reduce((a, b) => a + b.remainingCoupon, 0n) >
+                0n ? (
+                <div className="flex w-full">
+                  <div className="text-gray-400 text-base">
+                    Coupon <Tooltip id="remaning-coupon" />
+                  </div>
+                  <div className="flex flex-col gap-2 ml-auto">
+                    {remainingCoupons.map(
+                      ({ date, remainingCoupon, symbol }, index) => (
+                        <div key={index} className="flex items-center gap-1">
+                          <div className="text-gray-950 text-base">
+                            +
+                            {formatUnits(
+                              remainingCoupon,
+                              depositCurrency.decimals,
+                              depositAssetPrice,
+                            )}{' '}
+                            {symbol}
+                          </div>
+                          <div className="text-gray-500 text-base ml-auto">
+                            ({date})
+                          </div>
+                        </div>
+                      ),
+                    )}
+                  </div>
                 </div>
-                <div className="ml-auto">{depositApy.toFixed(2)}%</div>
-              </div>
+              ) : (
+                <></>
+              )}
             </div>
           </div>
           <ActionButton {...actionButtonProps} />

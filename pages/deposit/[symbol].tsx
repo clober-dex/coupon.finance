@@ -120,9 +120,20 @@ const Deposit = () => {
   )
 
   const { data: remainingCoupons } = useQuery(
-    ['deposit-remaining-coupons-simulate', asset, amount, selectedChain],
+    [
+      'deposit-remaining-coupons-simulate',
+      asset,
+      amount,
+      epochs,
+      selectedChain,
+    ],
     () =>
-      fetchRemainingCouponsByEpochsDeposited(selectedChain.id, asset, amount),
+      fetchRemainingCouponsByEpochsDeposited(
+        selectedChain.id,
+        asset,
+        amount,
+        epochs,
+      ),
     {
       refetchOnWindowFocus: true,
       keepPreviousData: true,
@@ -171,6 +182,7 @@ const Deposit = () => {
                 proceed={proceed}
                 depositApy={apy}
                 proceedsByEpochsDeposited={proceedsByEpochsDeposited}
+                remainingCoupons={remainingCoupons}
                 value={value}
                 setValue={setValue}
                 epochs={epochs}
