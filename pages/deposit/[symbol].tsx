@@ -185,7 +185,7 @@ const Deposit = () => {
                 depositAssetPrice={prices[asset.underlying.address]}
               />
               <RiskSidebar
-                collateralRiskInfos={dummyCollateralRiskInfos}
+                asset={asset}
                 showRiskSidebar={showRiskSidebar}
                 setShowRiskSidebar={setShowRiskSidebar}
                 className={
@@ -193,6 +193,7 @@ const Deposit = () => {
                     ? 'lg:opacity-100 transition-all duration-700'
                     : 'lg:w-0 lg:opacity-0 duration-700'
                 }
+                prices={prices}
               />
             </div>
           </div>
