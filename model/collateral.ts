@@ -6,4 +6,6 @@ export type Collateral = {
   liquidationThreshold: bigint
   liquidationTargetLtv: bigint
   ltvPrecision: bigint
+  totalCollateralized: bigint
+  totalBorrowed: bigint
 }
