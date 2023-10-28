@@ -2,26 +2,24 @@ import React from 'react'
 import Image from 'next/image'
 
 import { getLogo } from '../model/currency'
-import { Collateral } from '../model/collateral'
-import { BigDecimal, formatDollarValue, formatUnits } from '../utils/numbers'
+import { formatDollarValue, formatUnits } from '../utils/numbers'
+import { Prices } from '../model/prices'
+import { Asset } from '../model/asset'
 
 import { GreenCircleSvg } from './svg/green-circle-svg'
 import { OrangeCircleSvg } from './svg/orange-circle-svg'
 import { LeftBracketAngleSvg } from './svg/left-bracket-angle-svg'
 export const RiskSidebar = ({
-  collateralRiskInfos,
+  asset,
   showRiskSidebar,
   setShowRiskSidebar,
+  prices,
   ...props
 }: {
-  collateralRiskInfos: {
-    collateral: Collateral
-    collateralPrice: BigDecimal
-    collateralized: bigint
-    borrowing: bigint
-  }[]
+  asset: Asset
   showRiskSidebar: boolean
   setShowRiskSidebar: (show: boolean) => void
+  prices: Prices
 } & React.DetailedHTMLProps<
   React.InputHTMLAttributes<HTMLInputElement>,
   HTMLInputElement
@@ -73,9 +71,15 @@ export const RiskSidebar = ({
                 <div className="flex-1">Borrowing</div>
               </div>
               <div className="flex flex-col items-center gap-6 w-full">
-                {collateralRiskInfos.map(
+                {asset.collaterals.map(
                   (
-                    { collateral, collateralPrice, collateralized, borrowing },
+                    {
+                      underlying,
+                      liquidationThreshold,
+                      ltvPrecision,
+                      totalCollateralized,
+                      totalBorrowed,
+                    },
                     index,
                   ) => (
                     <div
@@ -85,56 +89,58 @@ export const RiskSidebar = ({
                       <div className="flex flex-[1.4] items-center gap-3 shrink-0">
                         <div className="w-8 h-8 relative">
                           <Image
-                            src={getLogo(collateral.underlying)}
-                            alt={collateral.underlying.name}
+                            src={getLogo(underlying)}
+                            alt={underlying.name}
                             fill
                           />
                         </div>
                         <div className="flex flex-col justify-center items-start">
                           <div className="text-base font-bold	text-gray-950">
-                            {collateral.underlying.symbol}
+                            {underlying.symbol}
                           </div>
                           <div className="text-xs font-medium	text-gray-500">
-                            {collateral.underlying.name}
+                            {underlying.name}
                           </div>
                         </div>
                       </div>
                       <div className="flex-1 items-center justify-center text-sm text-gray-950">
                         {(
-                          (Number(collateral.liquidationThreshold) * 100) /
-                          Number(collateral.ltvPrecision)
+                          (Number(liquidationThreshold) * 100) /
+                          Number(ltvPrecision)
                         ).toFixed(2)}
                         %
                       </div>
                       <div className="flex flex-1 flex-col justify-center items-start gap-0.5">
                         <div className="text-sm text-gray-950">
                           {formatUnits(
-                            collateralized,
-                            collateral.underlying.decimals,
-                            collateralPrice,
-                          )}
+                            totalCollateralized,
+                            underlying.decimals,
+                            prices[underlying.address],
+                          )}{' '}
+                          {underlying.symbol}
                         </div>
                         <div className="text-xs text-gray-500 font-medium">
                           {formatDollarValue(
-                            collateralized,
-                            collateral.underlying.decimals,
-                            collateralPrice,
+                            totalCollateralized,
+                            underlying.decimals,
+                            prices[underlying.address],
                           )}
                         </div>
                       </div>
                       <div className="flex flex-1 flex-col justify-center items-start gap-0.5">
                         <div className="text-sm text-gray-950">
                           {formatUnits(
-                            borrowing,
-                            collateral.underlying.decimals,
-                            collateralPrice,
-                          )}
+                            totalBorrowed,
+                            asset.underlying.decimals,
+                            prices[asset.underlying.address],
+                          )}{' '}
+                          {asset.underlying.symbol}
                         </div>
                         <div className="text-xs text-gray-500 font-medium">
                           {formatDollarValue(
-                            borrowing,
-                            collateral.underlying.decimals,
-                            collateralPrice,
+                            totalBorrowed,
+                            asset.underlying.decimals,
+                            prices[asset.underlying.address],
                           )}
                         </div>
                       </div>
