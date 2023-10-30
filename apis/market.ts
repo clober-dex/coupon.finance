@@ -3,7 +3,7 @@ import { getAddress, isAddressEqual } from 'viem'
 import { getBuiltGraphSDK } from '../.graphclient'
 import {
   calculateBorrowApy,
-  calculateDepositApy,
+  calculateDepositInfos,
   Market,
 } from '../model/market'
 import { Currency } from '../model/currency'
@@ -11,6 +11,7 @@ import { Asset } from '../model/asset'
 import { getEpoch } from '../utils/epoch'
 import { SUBGRAPH_URL } from '../constants/subgraph-url'
 import { CHAIN_IDS } from '../constants/chain'
+import { formatDate } from '../utils/date'
 const { getMarkets } = getBuiltGraphSDK()
 
 type DepthDto = {
@@ -75,7 +76,7 @@ export async function fetchMarkets(chainId: CHAIN_IDS): Promise<Market[]> {
 }
 
 // Returns an array with the of proceeds depending on how many epochs deposited.
-export async function fetchDepositApyByEpochsDeposited(
+export async function fetchDepositInfosByEpochsDeposited(
   chainId: CHAIN_IDS,
   asset: Asset,
   amount: bigint,
@@ -91,19 +92,19 @@ export async function fetchDepositApyByEpochsDeposited(
   return markets
     .map((_, index) => markets.slice(0, index + 1))
     .map((markets) => {
-      const { apy, proceeds } = calculateDepositApy(
+      const { apy, proceeds, remainingCoupons } = calculateDepositInfos(
         substitute,
         markets,
         amount,
         currentTimestamp,
       )
       return {
-        date: new Date(Number(markets.at(-1)?.endTimestamp ?? 0n) * 1000)
-          .toISOString()
-          .slice(2, 10)
-          .replace(/-/g, '/'), // TODO: format properly
+        date: formatDate(
+          new Date(Number(markets.at(-1)?.endTimestamp ?? 0n) * 1000),
+        ),
         proceeds,
         apy,
+        remainingCoupons,
       }
     })
 }
@@ -134,10 +135,9 @@ export async function fetchBorrowApyByEpochsBorrowed(
           currentTimestamp,
         )
       return {
-        date: new Date(Number(markets.at(-1)?.endTimestamp ?? 0n) * 1000)
-          .toISOString()
-          .slice(2, 10)
-          .replace(/-/g, '/'), // TODO: format properly
+        date: formatDate(
+          new Date(Number(markets.at(-1)?.endTimestamp ?? 0n) * 1000),
+        ),
         interest,
         maxInterest,
         apy,
@@ -169,10 +169,7 @@ export async function fetchCouponAmountByEpochsBorrowed(
         ? market.spend(market.baseToken.address, debtAmount).amountOut
         : 0n
     return {
-      date: new Date(Number(market.endTimestamp) * 1000)
-        .toISOString()
-        .slice(2, 10)
-        .replace(/-/g, '/'), // TODO: format properly
+      date: formatDate(new Date(Number(market.endTimestamp) * 1000)),
       interest,
       payable: debtAmount <= market.totalAsksInBaseAfterFees(),
       refund,

@@ -43,7 +43,7 @@ const CurrencyAmountInput = ({
   }, [availableAmount, currency?.decimals, onValueChange])
 
   return (
-    <div className="flex flex-col bg-white dark:bg-gray-800 rounded-lg p-3 gap-2">
+    <div className="flex flex-col bg-white dark:bg-gray-800 p-3 gap-2 rounded-xl border-2 border-solid border-gray-200">
       <div className="flex flex-1 justify-between gap-2">
         <NumberInput
           className="flex-1 text-xl sm:text-2xl placeholder-gray-400 outline-none bg-transparent"

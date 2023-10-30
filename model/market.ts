@@ -3,8 +3,15 @@ import { isAddressEqual } from 'viem'
 import { MarketDto } from '../apis/market'
 import { calculateApy } from '../utils/apy'
 import { max, min } from '../utils/bigint'
+import { formatDate } from '../utils/date'
 
 import { Currency } from './currency'
+
+export type RemainingCoupon = {
+  date: string
+  remainingCoupon: bigint
+  symbol: string
+}
 
 type Depth = {
   price: bigint
@@ -305,14 +312,19 @@ export const calculateTotalDeposit = (
   initialDeposit: bigint,
 ): {
   totalDeposit: bigint
+  remainingCoupons: RemainingCoupon[]
 } => {
   let totalDeposit = initialDeposit
   const amountOuts = [...Array(markets.length).keys()].map(
     () => 2n ** 256n - 1n,
   )
-
+  const remainingCoupons = [...Array(markets.length).keys()].map(() => 0n)
   while (amountOuts.reduce((a, b) => a + b, 0n) > 0n) {
     for (let i = 0; i < markets.length; i++) {
+      const totalBidsInBaseAfterFees = markets[i].totalBidsInBaseAfterFees()
+      if (totalBidsInBaseAfterFees < initialDeposit) {
+        remainingCoupons[i] += initialDeposit - totalBidsInBaseAfterFees
+      }
       ;({ market: markets[i], amountOut: amountOuts[i] } = markets[i].spend(
         markets[i].baseToken.address,
         initialDeposit,
@@ -322,10 +334,21 @@ export const calculateTotalDeposit = (
     totalDeposit = totalDeposit + initialDeposit
   }
 
-  return { totalDeposit }
+  return {
+    totalDeposit,
+    remainingCoupons: remainingCoupons.map((remainingCoupon, index) => {
+      return {
+        date: formatDate(
+          new Date(Number(markets[index].endTimestamp ?? 0n) * 1000),
+        ),
+        symbol: markets[index].baseToken.symbol,
+        remainingCoupon,
+      }
+    }),
+  }
 }
 
-export const calculateDepositApy = (
+export const calculateDepositInfos = (
   substitute: Currency,
   markets: Market[],
   initialDeposit: bigint,
@@ -333,6 +356,7 @@ export const calculateDepositApy = (
 ): {
   proceeds: bigint
   apy: number
+  remainingCoupons: RemainingCoupon[]
 } => {
   if (
     markets.some(
@@ -347,7 +371,10 @@ export const calculateDepositApy = (
   }
 
   const endTimestamp = Math.max(...markets.map((market) => market.endTimestamp))
-  const { totalDeposit } = calculateTotalDeposit(markets, initialDeposit)
+  const { totalDeposit, remainingCoupons } = calculateTotalDeposit(
+    markets,
+    initialDeposit,
+  )
   const p =
     (Number(totalDeposit) - Number(initialDeposit)) / Number(initialDeposit)
   const d = Number(endTimestamp) - currentTimestamp
@@ -356,6 +383,7 @@ export const calculateDepositApy = (
   return {
     apy,
     proceeds: totalDeposit - initialDeposit,
+    remainingCoupons,
   }
 }
 
@@ -398,7 +426,7 @@ export const calculateBorrowApy = (
   const apy = calculateApy(p, d)
 
   return {
-    apy: apy,
+    apy,
     interest,
     maxInterest,
     totalBorrow,
