@@ -7,6 +7,12 @@ import { formatDate } from '../utils/date'
 
 import { Currency } from './currency'
 
+export type RemainingCoupon = {
+  date: string
+  remainingCoupon: bigint
+  symbol: string
+}
+
 type Depth = {
   price: bigint
   rawAmount: bigint
@@ -306,7 +312,7 @@ export const calculateTotalDeposit = (
   initialDeposit: bigint,
 ): {
   totalDeposit: bigint
-  remainingCoupons: { date: string; remainingCoupon: bigint; symbol: string }[]
+  remainingCoupons: RemainingCoupon[]
 } => {
   let totalDeposit = initialDeposit
   const amountOuts = [...Array(markets.length).keys()].map(
@@ -342,7 +348,7 @@ export const calculateTotalDeposit = (
   }
 }
 
-export const calculateDepositApy = (
+export const calculateDepositInfos = (
   substitute: Currency,
   markets: Market[],
   initialDeposit: bigint,
@@ -350,6 +356,7 @@ export const calculateDepositApy = (
 ): {
   proceeds: bigint
   apy: number
+  remainingCoupons: RemainingCoupon[]
 } => {
   if (
     markets.some(
@@ -364,7 +371,10 @@ export const calculateDepositApy = (
   }
 
   const endTimestamp = Math.max(...markets.map((market) => market.endTimestamp))
-  const { totalDeposit } = calculateTotalDeposit(markets, initialDeposit)
+  const { totalDeposit, remainingCoupons } = calculateTotalDeposit(
+    markets,
+    initialDeposit,
+  )
   const p =
     (Number(totalDeposit) - Number(initialDeposit)) / Number(initialDeposit)
   const d = Number(endTimestamp) - currentTimestamp
@@ -373,27 +383,8 @@ export const calculateDepositApy = (
   return {
     apy,
     proceeds: totalDeposit - initialDeposit,
+    remainingCoupons,
   }
-}
-
-export const calculateRemainingCoupons = (
-  substitute: Currency,
-  markets: Market[],
-  initialDeposit: bigint,
-): { date: string; remainingCoupon: bigint; symbol: string }[] => {
-  if (
-    markets.some(
-      (market) =>
-        !isAddressEqual(
-          market.quoteToken.address,
-          substitute.address as `0x${string}`,
-        ),
-    )
-  ) {
-    new Error('Substitute token is not supported')
-  }
-  const { remainingCoupons } = calculateTotalDeposit(markets, initialDeposit)
-  return remainingCoupons
 }
 
 export const calculateBorrowApy = (

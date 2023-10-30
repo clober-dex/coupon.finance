@@ -3,8 +3,7 @@ import { getAddress, isAddressEqual } from 'viem'
 import { getBuiltGraphSDK } from '../.graphclient'
 import {
   calculateBorrowApy,
-  calculateDepositApy,
-  calculateRemainingCoupons,
+  calculateDepositInfos,
   Market,
 } from '../model/market'
 import { Currency } from '../model/currency'
@@ -77,7 +76,7 @@ export async function fetchMarkets(chainId: CHAIN_IDS): Promise<Market[]> {
 }
 
 // Returns an array with the of proceeds depending on how many epochs deposited.
-export async function fetchDepositApyByEpochsDeposited(
+export async function fetchDepositInfosByEpochsDeposited(
   chainId: CHAIN_IDS,
   asset: Asset,
   amount: bigint,
@@ -93,7 +92,7 @@ export async function fetchDepositApyByEpochsDeposited(
   return markets
     .map((_, index) => markets.slice(0, index + 1))
     .map((markets) => {
-      const { apy, proceeds } = calculateDepositApy(
+      const { apy, proceeds, remainingCoupons } = calculateDepositInfos(
         substitute,
         markets,
         amount,
@@ -105,25 +104,9 @@ export async function fetchDepositApyByEpochsDeposited(
         ),
         proceeds,
         apy,
+        remainingCoupons,
       }
     })
-}
-
-export async function fetchRemainingCouponsByEpochsDeposited(
-  chainId: CHAIN_IDS,
-  asset: Asset,
-  amount: bigint,
-  epochs: number,
-) {
-  const substitute = asset.substitutes[0]
-  const markets = (await fetchMarkets(chainId))
-    .filter((market) =>
-      isAddressEqual(market.quoteToken.address, substitute.address),
-    )
-    .sort((a, b) => Number(a.epoch) - Number(b.epoch))
-    .slice(0, epochs)
-
-  return calculateRemainingCoupons(asset.substitutes[0], markets, amount)
 }
 
 export async function fetchBorrowApyByEpochsBorrowed(

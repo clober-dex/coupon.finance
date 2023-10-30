@@ -8,6 +8,7 @@ import Slider from '../slider'
 import { BigDecimal, formatUnits } from '../../utils/numbers'
 import { ActionButton, ActionButtonProps } from '../action-button'
 import { RightBracketAngleSvg } from '../svg/right-bracket-angle-svg'
+import { RemainingCoupon } from '../../model/market'
 
 export const DepositForm = ({
   depositCurrency,
@@ -30,7 +31,7 @@ export const DepositForm = ({
   proceed: bigint
   depositApy: number
   proceedsByEpochsDeposited?: { date: string; proceeds: bigint }[]
-  remainingCoupons?: { date: string; remainingCoupon: bigint; symbol: string }[]
+  remainingCoupons?: RemainingCoupon[]
   value: string
   setValue: (value: string) => void
   epochs: number

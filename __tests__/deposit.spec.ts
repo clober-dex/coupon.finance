@@ -1,7 +1,7 @@
 import { zeroAddress } from 'viem'
 
 import {
-  calculateDepositApy,
+  calculateDepositInfos,
   calculateTotalDeposit,
   Market,
 } from '../model/market'
@@ -234,7 +234,7 @@ describe('Deposit controller', () => {
       ),
     ]
     const initialDeposit = 10n ** 18n * 100n
-    const { apy, proceeds } = calculateDepositApy(
+    const { apy, proceeds } = calculateDepositInfos(
       {
         decimals: 18,
         address: '0x0000000000000000000000000000000000000000',

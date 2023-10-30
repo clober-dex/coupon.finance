@@ -8,10 +8,7 @@ import Image from 'next/image'
 
 import { useDepositContext } from '../../contexts/deposit-context'
 import { useCurrencyContext } from '../../contexts/currency-context'
-import {
-  fetchDepositApyByEpochsDeposited,
-  fetchRemainingCouponsByEpochsDeposited,
-} from '../../apis/market'
+import { fetchDepositInfosByEpochsDeposited } from '../../apis/market'
 import { DepositForm } from '../../components/form/deposit-form'
 import BackSvg from '../../components/svg/back-svg'
 import { getLogo } from '../../model/currency'
@@ -110,44 +107,24 @@ const Deposit = () => {
     [asset.underlying.address, asset.underlying.decimals, balances, value],
   )
 
-  const { data: proceedsByEpochsDeposited } = useQuery(
-    ['deposit-apy-simulate', asset, amount, selectedChain], // TODO: useDebounce
-    () => fetchDepositApyByEpochsDeposited(selectedChain.id, asset, amount),
+  const { data: depositInfosByEpochsDeposited } = useQuery(
+    ['deposit-simulate', asset, amount, selectedChain], // TODO: useDebounce
+    () => fetchDepositInfosByEpochsDeposited(selectedChain.id, asset, amount),
     {
       refetchOnWindowFocus: true,
       keepPreviousData: true,
     },
   )
 
-  const { data: remainingCoupons } = useQuery(
-    [
-      'deposit-remaining-coupons-simulate',
-      asset,
-      amount,
-      epochs,
-      selectedChain,
-    ],
-    () =>
-      fetchRemainingCouponsByEpochsDeposited(
-        selectedChain.id,
-        asset,
-        amount,
-        epochs,
-      ),
-    {
-      refetchOnWindowFocus: true,
-      keepPreviousData: true,
-    },
-  )
-
-  const [apy, proceed] = useMemo(() => {
-    return epochs && proceedsByEpochsDeposited
+  const [apy, proceed, remainingCoupons] = useMemo(() => {
+    return epochs && depositInfosByEpochsDeposited
       ? [
-          proceedsByEpochsDeposited[epochs - 1].apy ?? 0,
-          proceedsByEpochsDeposited[epochs - 1].proceeds ?? 0n,
+          depositInfosByEpochsDeposited[epochs - 1].apy ?? 0,
+          depositInfosByEpochsDeposited[epochs - 1].proceeds ?? 0n,
+          depositInfosByEpochsDeposited[epochs - 1].remainingCoupons ?? [],
         ]
-      : [0, 0n]
-  }, [epochs, proceedsByEpochsDeposited])
+      : [0, 0n, []]
+  }, [epochs, depositInfosByEpochsDeposited])
 
   return (
     <div className="flex flex-1">
@@ -181,7 +158,7 @@ const Deposit = () => {
                 maxDepositAmount={maxDepositAmount}
                 proceed={proceed}
                 depositApy={apy}
-                proceedsByEpochsDeposited={proceedsByEpochsDeposited}
+                proceedsByEpochsDeposited={depositInfosByEpochsDeposited}
                 remainingCoupons={remainingCoupons}
                 value={value}
                 setValue={setValue}
