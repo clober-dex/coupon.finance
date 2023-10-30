@@ -66,7 +66,7 @@ export const DepositForm = ({
                 The longer you deposit, the more interest you earn!
               </div>
             </div>
-            <div className="flex flex-row-reverse justify-between sm:flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4 sm:h-[116px]">
+            <div className="flex flex-row-reverse justify-between sm:flex-col relative bg-white dark:bg-gray-900 rounded-lg p-4 sm:h-[116px]">
               {proceedsByEpochsDeposited === undefined ? (
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                   <div
@@ -119,7 +119,9 @@ export const DepositForm = ({
         </div>
         <div className="flex flex-col bg-white gap-6 dark:bg-gray-950 sm:dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 w-full sm:w-[480px]">
           <div className="flex flex-col items-start gap-6 self-stretch">
-            <div className="text-lg text-gray-950 font-bold">You earn...</div>
+            <div className="text-lg text-gray-950 font-bold dark:text-white">
+              You earn...
+            </div>
             <div className="flex flex-col items-start gap-3 self-stretch">
               <div className="flex w-full">
                 <div className="text-gray-400 text-base">Interest</div>
@@ -154,7 +156,7 @@ export const DepositForm = ({
                     {remainingCoupons.map(
                       ({ date, remainingCoupon, symbol }, index) => (
                         <div key={index} className="flex items-center gap-1">
-                          <div className="text-gray-950 text-base">
+                          <div className="text-gray-950 text-base text-white">
                             +
                             {formatUnits(
                               remainingCoupon,
