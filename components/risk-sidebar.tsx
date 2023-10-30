@@ -28,7 +28,7 @@ export const RiskSidebar = ({
   return (
     <div {...props}>
       <div className="relative z-30">
-        <div className="flex flex-col gap-8 items-start p-6 pb-8 rounded-2xl bg-white dark:bg-gray-900 w-full sm:w-[480px]">
+        <div className="flex flex-col gap-8 items-start p-6 pb-8 mb-10 sm:mb-0 rounded-2xl bg-white dark:bg-gray-900 w-full sm:w-[480px]">
           <div className="flex flex-col items-start gap-4 self-stretch">
             <div className="text-base font-bold text-gray-950 dark:text-white">
               External Risk
