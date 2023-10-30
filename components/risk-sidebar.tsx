@@ -1,5 +1,6 @@
 import React from 'react'
 import Image from 'next/image'
+import { isAddressEqual } from 'viem'
 
 import { getLogo } from '../model/currency'
 import { formatDollarValue, formatUnits } from '../utils/numbers'
@@ -68,85 +69,93 @@ export const RiskSidebar = ({
                 <div className="flex-[1.4]">Coin</div>
                 <div className="flex-1">Liquidation LTV</div>
                 <div className="flex-1">Collateralized</div>
-                <div className="flex-1">Borrowing</div>
+                <div className="flex-1">
+                  Borrowing ({asset.underlying.symbol})
+                </div>
               </div>
               <div className="flex flex-col items-center gap-6 w-full">
-                {asset.collaterals.map(
-                  (
-                    {
-                      underlying,
-                      liquidationThreshold,
-                      ltvPrecision,
-                      totalCollateralized,
-                      totalBorrowed,
-                    },
-                    index,
-                  ) => (
-                    <div
-                      key={index}
-                      className="flex flex-row items-center w-full"
-                    >
-                      <div className="flex flex-[1.4] items-center gap-3 shrink-0">
-                        <div className="w-8 h-8 relative">
-                          <Image
-                            src={getLogo(underlying)}
-                            alt={underlying.name}
-                            fill
-                          />
-                        </div>
-                        <div className="flex flex-col justify-center items-start">
-                          <div className="text-base font-bold	text-gray-950">
-                            {underlying.symbol}
+                {asset.collaterals
+                  .filter(
+                    ({ underlying }) =>
+                      !isAddressEqual(
+                        underlying.address,
+                        asset.underlying.address,
+                      ),
+                  )
+                  .map(
+                    (
+                      {
+                        underlying,
+                        liquidationThreshold,
+                        ltvPrecision,
+                        totalCollateralized,
+                        totalBorrowed,
+                      },
+                      index,
+                    ) => (
+                      <div
+                        key={index}
+                        className="flex flex-row items-center w-full"
+                      >
+                        <div className="flex flex-[1.4] items-center gap-3 shrink-0">
+                          <div className="w-8 h-8 relative">
+                            <Image
+                              src={getLogo(underlying)}
+                              alt={underlying.name}
+                              fill
+                            />
                           </div>
-                          <div className="text-xs font-medium	text-gray-500">
-                            {underlying.name}
+                          <div className="flex flex-col justify-center items-start">
+                            <div className="text-base font-bold	text-gray-950">
+                              {underlying.symbol}
+                            </div>
+                            <div className="text-xs font-medium	text-gray-500">
+                              {underlying.name}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex-1 items-center justify-center text-sm text-gray-950">
+                          {(
+                            (Number(liquidationThreshold) * 100) /
+                            Number(ltvPrecision)
+                          ).toFixed(2)}
+                          %
+                        </div>
+                        <div className="flex flex-1 flex-col justify-center items-start gap-0.5">
+                          <div className="text-sm text-gray-950">
+                            {formatUnits(
+                              totalCollateralized,
+                              underlying.decimals,
+                              prices[underlying.address],
+                            )}
+                          </div>
+                          <div className="text-xs text-gray-500 font-medium">
+                            {formatDollarValue(
+                              totalCollateralized,
+                              underlying.decimals,
+                              prices[underlying.address],
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex flex-1 flex-col justify-center items-start gap-0.5">
+                          <div className="text-sm text-gray-950">
+                            {formatUnits(
+                              totalBorrowed,
+                              asset.underlying.decimals,
+                              prices[asset.underlying.address],
+                            )}
+                          </div>
+                          <div className="text-xs text-gray-500 font-medium">
+                            {formatDollarValue(
+                              totalBorrowed,
+                              asset.underlying.decimals,
+                              prices[asset.underlying.address],
+                            )}
                           </div>
                         </div>
                       </div>
-                      <div className="flex-1 items-center justify-center text-sm text-gray-950">
-                        {(
-                          (Number(liquidationThreshold) * 100) /
-                          Number(ltvPrecision)
-                        ).toFixed(2)}
-                        %
-                      </div>
-                      <div className="flex flex-1 flex-col justify-center items-start gap-0.5">
-                        <div className="text-sm text-gray-950">
-                          {formatUnits(
-                            totalCollateralized,
-                            underlying.decimals,
-                            prices[underlying.address],
-                          )}{' '}
-                          {underlying.symbol}
-                        </div>
-                        <div className="text-xs text-gray-500 font-medium">
-                          {formatDollarValue(
-                            totalCollateralized,
-                            underlying.decimals,
-                            prices[underlying.address],
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex flex-1 flex-col justify-center items-start gap-0.5">
-                        <div className="text-sm text-gray-950">
-                          {formatUnits(
-                            totalBorrowed,
-                            asset.underlying.decimals,
-                            prices[asset.underlying.address],
-                          )}{' '}
-                          {asset.underlying.symbol}
-                        </div>
-                        <div className="text-xs text-gray-500 font-medium">
-                          {formatDollarValue(
-                            totalBorrowed,
-                            asset.underlying.decimals,
-                            prices[asset.underlying.address],
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ),
-                )}
+                    ),
+                  )}
               </div>
             </div>
           </div>
