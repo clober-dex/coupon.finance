@@ -33,23 +33,26 @@ const Deposit = () => {
 
   const router = useRouter()
   const asset = useMemo(() => {
-    return (
-      assets.find((asset) => asset.underlying.symbol === router.query.symbol) ||
-      assets[0]
+    return assets.find(
+      (asset) => asset.underlying.symbol === router.query.symbol,
     )
   }, [assets, router.query.symbol])
 
   const [amount, maxDepositAmount] = useMemo(
     () => [
-      parseUnits(value, asset.underlying.decimals ?? 18),
-      balances[asset.underlying.address] ?? 0n,
+      parseUnits(value, asset ? asset.underlying.decimals : 18),
+      asset ? balances[asset.underlying.address] ?? 0n : 0n,
     ],
-    [asset.underlying.address, asset.underlying.decimals, balances, value],
+    [asset, balances, value],
   )
+  console.log('maxDepositAmount', maxDepositAmount)
 
   const { data: depositInfosByEpochsDeposited } = useQuery(
     ['deposit-simulate', asset, amount, selectedChain], // TODO: useDebounce
-    () => fetchDepositInfosByEpochsDeposited(selectedChain.id, asset, amount),
+    () =>
+      asset
+        ? fetchDepositInfosByEpochsDeposited(selectedChain.id, asset, amount)
+        : [],
     {
       refetchOnWindowFocus: true,
       keepPreviousData: true,

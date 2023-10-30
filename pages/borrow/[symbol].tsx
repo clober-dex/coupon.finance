@@ -39,9 +39,8 @@ const Borrow = () => {
 
   const router = useRouter()
   const asset = useMemo(() => {
-    return (
-      assets.find((asset) => asset.underlying.symbol === router.query.symbol) ||
-      assets[0]
+    return assets.find(
+      (asset) => asset.underlying.symbol === router.query.symbol,
     )
   }, [assets, router.query.symbol])
 
@@ -51,7 +50,7 @@ const Borrow = () => {
         collateralValue,
         collateral ? collateral.underlying.decimals : 18,
       ),
-      parseUnits(borrowValue, asset.underlying.decimals),
+      parseUnits(borrowValue, asset ? asset.underlying.decimals : 18),
       collateral ? balances[collateral.underlying.address] ?? 0n : 0n,
     ],
     [collateralValue, collateral, borrowValue, asset, balances],
@@ -61,6 +60,7 @@ const Borrow = () => {
     () =>
       epochs &&
       collateral &&
+      asset &&
       prices[asset.underlying.address] &&
       prices[collateral.underlying.address]
         ? calculateMaxLoanableAmount(
@@ -83,12 +83,14 @@ const Borrow = () => {
       selectedChain,
     ], // TODO: useDebounce
     () =>
-      fetchBorrowApyByEpochsBorrowed(
-        selectedChain.id,
-        asset,
-        borrowAmount,
-        maxLoanableAmountExcludingCouponFee,
-      ),
+      asset
+        ? fetchBorrowApyByEpochsBorrowed(
+            selectedChain.id,
+            asset,
+            borrowAmount,
+            maxLoanableAmountExcludingCouponFee,
+          )
+        : [],
     {
       refetchOnWindowFocus: true,
       keepPreviousData: true,
@@ -111,121 +113,125 @@ const Borrow = () => {
   return (
     <div className="flex flex-1">
       <Head>
-        <title>Borrow {asset.underlying.symbol}</title>
+        <title>Borrow {asset?.underlying.symbol}</title>
       </Head>
 
-      <main className="flex flex-1 flex-col justify-center items-center">
-        <div className="flex flex-1 flex-col w-full gap-6">
-          <Link
-            className="flex items-center font-bold text-base sm:text-2xl gap-2 sm:gap-3 mt-24 mb-2 sm:mb-2 ml-4 sm:ml-6"
-            replace={true}
-            href="/"
-          >
-            <BackSvg className="w-4 h-4 sm:w-8 sm:h-8" />
-            Borrow
-            <div className="flex gap-2">
-              <div className="w-6 h-6 sm:w-8 sm:h-8 relative">
-                <Image
-                  src={getLogo(asset.underlying)}
-                  alt={asset.underlying.name}
-                  fill
-                />
+      {asset ? (
+        <main className="flex flex-1 flex-col justify-center items-center">
+          <div className="flex flex-1 flex-col w-full gap-6">
+            <Link
+              className="flex items-center font-bold text-base sm:text-2xl gap-2 sm:gap-3 mt-24 mb-2 sm:mb-2 ml-4 sm:ml-6"
+              replace={true}
+              href="/"
+            >
+              <BackSvg className="w-4 h-4 sm:w-8 sm:h-8" />
+              Borrow
+              <div className="flex gap-2">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 relative">
+                  <Image
+                    src={getLogo(asset.underlying)}
+                    alt={asset.underlying.name}
+                    fill
+                  />
+                </div>
+                <div>{asset.underlying.symbol}</div>
               </div>
-              <div>{asset.underlying.symbol}</div>
-            </div>
-          </Link>
-          <div className="flex flex-col lg:flex-row sm:items-center lg:items-start justify-center gap-4 mb-4">
-            <BorrowForm
-              borrowCurrency={asset.underlying}
-              availableCollaterals={asset.collaterals}
-              maxBorrowAmount={max(
-                min(
-                  maxLoanableAmountExcludingCouponFee - maxInterest,
-                  available,
-                ),
-                0n,
-              )}
-              interest={interest}
-              borrowApy={apy}
-              borrowLTV={
-                collateral &&
-                prices[asset.underlying.address] &&
-                prices[collateral?.underlying.address]
-                  ? calculateLtv(
-                      asset.underlying,
-                      prices[asset.underlying.address],
-                      borrowAmount + interest,
+            </Link>
+            <div className="flex flex-col lg:flex-row sm:items-center lg:items-start justify-center gap-4 mb-4">
+              <BorrowForm
+                borrowCurrency={asset.underlying}
+                availableCollaterals={asset.collaterals}
+                maxBorrowAmount={max(
+                  min(
+                    maxLoanableAmountExcludingCouponFee - maxInterest,
+                    available,
+                  ),
+                  0n,
+                )}
+                interest={interest}
+                borrowApy={apy}
+                borrowLTV={
+                  collateral &&
+                  prices[asset.underlying.address] &&
+                  prices[collateral?.underlying.address]
+                    ? calculateLtv(
+                        asset.underlying,
+                        prices[asset.underlying.address],
+                        borrowAmount + interest,
+                        collateral,
+                        prices[collateral?.underlying.address],
+                        collateralAmount,
+                      )
+                    : 0
+                }
+                interestsByEpochsBorrowed={
+                  interestsByEpochsBorrowed
+                    ? interestsByEpochsBorrowed.map(({ date, apy }) => ({
+                        date,
+                        apy,
+                      }))
+                    : undefined
+                }
+                showCollateralSelect={showCollateralSelect}
+                setShowCollateralSelect={setShowCollateralSelect}
+                collateral={collateral}
+                setCollateral={setCollateral}
+                collateralValue={collateralValue}
+                setCollateralValue={setCollateralValue}
+                borrowValue={borrowValue}
+                setBorrowValue={setBorrowValue}
+                epochs={epochs}
+                setEpochs={setEpochs}
+                balances={balances}
+                prices={prices}
+                actionButtonProps={{
+                  disabled:
+                    epochs === 0 ||
+                    collateralAmount === 0n ||
+                    borrowAmount === 0n ||
+                    collateralAmount > collateralUserBalance ||
+                    borrowAmount > available ||
+                    borrowAmount + maxInterest >
+                      maxLoanableAmountExcludingCouponFee,
+                  onClick: async () => {
+                    if (!collateral) {
+                      return
+                    }
+                    const hash = await borrow(
                       collateral,
-                      prices[collateral?.underlying.address],
                       collateralAmount,
+                      asset,
+                      borrowAmount,
+                      epochs,
+                      min(interest, maxInterest),
                     )
-                  : 0
-              }
-              interestsByEpochsBorrowed={
-                interestsByEpochsBorrowed
-                  ? interestsByEpochsBorrowed.map(({ date, apy }) => ({
-                      date,
-                      apy,
-                    }))
-                  : undefined
-              }
-              showCollateralSelect={showCollateralSelect}
-              setShowCollateralSelect={setShowCollateralSelect}
-              collateral={collateral}
-              setCollateral={setCollateral}
-              collateralValue={collateralValue}
-              setCollateralValue={setCollateralValue}
-              borrowValue={borrowValue}
-              setBorrowValue={setBorrowValue}
-              epochs={epochs}
-              setEpochs={setEpochs}
-              balances={balances}
-              prices={prices}
-              actionButtonProps={{
-                disabled:
-                  epochs === 0 ||
-                  collateralAmount === 0n ||
-                  borrowAmount === 0n ||
-                  collateralAmount > collateralUserBalance ||
-                  borrowAmount > available ||
-                  borrowAmount + maxInterest >
-                    maxLoanableAmountExcludingCouponFee,
-                onClick: async () => {
-                  if (!collateral) {
-                    return
-                  }
-                  const hash = await borrow(
-                    collateral,
-                    collateralAmount,
-                    asset,
-                    borrowAmount,
-                    epochs,
-                    min(interest, maxInterest),
-                  )
-                  if (hash) {
-                    await router.replace('/?mode=borrow')
-                  }
-                },
-                text:
-                  epochs === 0
-                    ? 'Select expiration date'
-                    : collateralAmount === 0n
-                    ? 'Enter collateral amount'
-                    : borrowAmount === 0n
-                    ? 'Enter loan amount'
-                    : collateralAmount > collateralUserBalance
-                    ? `Insufficient ${collateral?.underlying.symbol} balance`
-                    : borrowAmount > available
-                    ? 'Not enough coupons for sale'
-                    : borrowAmount + maxInterest >
-                      maxLoanableAmountExcludingCouponFee
-                    ? 'Not enough collateral'
-                    : 'Borrow',
-              }}
-            />
+                    if (hash) {
+                      await router.replace('/?mode=borrow')
+                    }
+                  },
+                  text:
+                    epochs === 0
+                      ? 'Select expiration date'
+                      : collateralAmount === 0n
+                      ? 'Enter collateral amount'
+                      : borrowAmount === 0n
+                      ? 'Enter loan amount'
+                      : collateralAmount > collateralUserBalance
+                      ? `Insufficient ${collateral?.underlying.symbol} balance`
+                      : borrowAmount > available
+                      ? 'Not enough coupons for sale'
+                      : borrowAmount + maxInterest >
+                        maxLoanableAmountExcludingCouponFee
+                      ? 'Not enough collateral'
+                      : 'Borrow',
+                }}
+              />
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      ) : (
+        <></>
+      )}
     </div>
   )
 }
