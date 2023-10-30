@@ -1,11 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 
-import { fetchPrices } from '../../../../apis/currency'
-import { formatUnits } from '../../../../utils/numbers'
-import { calculateLtv } from '../../../../utils/ltv'
-import { fetchLoanPosition } from '../../../../apis/loan-position'
-
-import loanSvg from './loan-svg'
+import { fetchPrices } from '../../../../../apis/currency'
+import { formatUnits } from '../../../../../utils/numbers'
+import { calculateLtv } from '../../../../../utils/ltv'
+import { fetchLoanPosition } from '../../../../../apis/loan-position'
+import loanSvg from '../loan-svg'
 
 export default async function handler(
   req: NextApiRequest,
