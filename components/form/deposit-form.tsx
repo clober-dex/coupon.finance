@@ -182,13 +182,12 @@ export const DepositForm = ({
         </div>
       </div>
       {!showRiskSidebar ? (
-        <div className="hidden lg:inline-flex absolute -z-10 -right-24 top-6 py-2 pl-8 pr-3 gap-1 rounded-lg bg-[#22C55E1A]">
+        <div className="hidden lg:inline-flex absolute -z-10 -right-20 top-6 py-2 pl-8 pr-3 gap-1 rounded-lg bg-[#22C55E1A] h-[58px]">
           <button
-            className="flex flex-row gap-1"
+            className="flex flex-row gap-1 items-center"
             onClick={() => setShowRiskSidebar(!showRiskSidebar)}
           >
             <div className="text-sm	font-bold opacity-90 text-green-500">
-              Check <br />
               Risk
             </div>
             <div className="flex items-center h-full">
