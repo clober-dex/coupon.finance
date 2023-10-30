@@ -30,6 +30,8 @@ export const dummyLoanPosition: LoanPosition = {
     liquidationThreshold: 800000n,
     liquidationTargetLtv: 700000n,
     ltvPrecision: 1000000n,
+    totalCollateralized: 10000000n,
+    totalBorrowed: 12503898340000n,
   },
   amount: 1250389834000000000n,
   interest: 250389834000000000n,

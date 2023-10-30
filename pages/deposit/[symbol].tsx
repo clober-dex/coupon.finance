@@ -35,6 +35,8 @@ const dummyCollateralRiskInfos = [
       liquidationThreshold: 800000n,
       liquidationTargetLtv: 700000n,
       ltvPrecision: 1000000n,
+      totalCollateralized: 10000000n,
+      totalBorrowed: 100000000n,
     },
     collateralPrice: {
       value: 2500000000000n,
