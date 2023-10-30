@@ -28,32 +28,32 @@ export const RiskSidebar = ({
   return (
     <div {...props}>
       <div className="relative z-30">
-        <div className="flex flex-col gap-8 items-start p-6 pb-8 rounded-2xl bg-white w-full sm:w-[480px]">
+        <div className="flex flex-col gap-8 items-start p-6 pb-8 rounded-2xl bg-white dark:bg-gray-900 w-full sm:w-[480px]">
           <div className="flex flex-col items-start gap-4 self-stretch">
-            <div className="text-base font-bold text-gray-950">
+            <div className="text-base font-bold text-gray-950 dark:text-white">
               External Risk
             </div>
-            <div className="flex flex-col px-4 py-3 gap-2 items-start rounded-xl bg-gray-50">
+            <div className="flex flex-col px-4 py-3 gap-2 items-start rounded-xl bg-gray-50 dark:bg-gray-800">
               <div className="flex justify-center items-center gap-2">
                 <GreenCircleSvg />
-                <span className="text-sm font-medium text-gray-600">
+                <span className="text-sm font-medium text-gray-600 dark:text-white">
                   Oracle: Chainlink
                 </span>
               </div>
-              <div className="text-xs font-medium text-gray-600">
+              <div className="text-xs font-medium text-gray-600 dark:text-white">
                 This asset uses a Chainlink price feed. Coupon Finance cannot
                 verify the security of Chainlink feeds. Learn more about oracle
                 risk.
               </div>
             </div>
-            <div className="flex flex-col px-4 py-3 gap-2 items-start rounded-xl bg-gray-50">
+            <div className="flex flex-col px-4 py-3 gap-2 items-start rounded-xl bg-gray-50 dark:bg-gray-800">
               <div className="flex justify-center items-center gap-2">
                 <OrangeCircleSvg />
-                <span className="text-sm font-medium text-gray-600">
+                <span className="text-sm font-medium text-gray-600 dark:text-white">
                   Surplus management: Aave
                 </span>
               </div>
-              <div className="text-xs font-medium text-gray-600">
+              <div className="text-xs font-medium text-gray-600 dark:text-white">
                 Unlent assets are deposited in Aave. While Aave has been
                 audited, Coupon Finance cannot guarantee the security of Aave
                 pools.
@@ -61,7 +61,7 @@ export const RiskSidebar = ({
             </div>
           </div>
           <div className="flex flex-col items-start gap-6 self-stretch">
-            <div className="text-base font-bold text-gray-950">
+            <div className="text-base font-bold text-gray-950 dark:text-white">
               Collateral Risk
             </div>
             <div className="flex flex-col items-start gap-4 text-xs font-medium text-gray-400 w-full">
@@ -106,7 +106,7 @@ export const RiskSidebar = ({
                             />
                           </div>
                           <div className="flex flex-col justify-center items-start">
-                            <div className="text-base font-bold	text-gray-950">
+                            <div className="text-base font-bold	text-gray-950 dark:text-white">
                               {underlying.symbol}
                             </div>
                             <div className="text-xs font-medium	text-gray-500">
@@ -114,7 +114,7 @@ export const RiskSidebar = ({
                             </div>
                           </div>
                         </div>
-                        <div className="flex-1 items-center justify-center text-sm text-gray-950">
+                        <div className="flex-1 items-center justify-center text-sm text-gray-950 dark:text-white">
                           {(
                             (Number(liquidationThreshold) * 100) /
                             Number(ltvPrecision)
@@ -122,7 +122,7 @@ export const RiskSidebar = ({
                           %
                         </div>
                         <div className="flex flex-1 flex-col justify-center items-start gap-0.5">
-                          <div className="text-sm text-gray-950">
+                          <div className="text-sm text-gray-950 dark:text-white">
                             {formatUnits(
                               totalCollateralized,
                               underlying.decimals,
@@ -138,7 +138,7 @@ export const RiskSidebar = ({
                           </div>
                         </div>
                         <div className="flex flex-1 flex-col justify-center items-start gap-0.5">
-                          <div className="text-sm text-gray-950">
+                          <div className="text-sm text-gray-950 dark:text-white">
                             {formatUnits(
                               totalBorrowed,
                               asset.underlying.decimals,
