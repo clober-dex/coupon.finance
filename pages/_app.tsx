@@ -25,6 +25,7 @@ import { CurrencyProvider } from '../contexts/currency-context'
 import { TransactionProvider } from '../contexts/transaction-context'
 import { supportChains } from '../constants/chain'
 import { ChainProvider } from '../contexts/chain-context'
+import { Footer } from '../components/footer'
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   supportChains,
@@ -126,6 +127,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                             7,
                           )}
                         </Link>
+                        <Footer />
                       </div>
                     </BorrowProvider>
                   </DepositProvider>
