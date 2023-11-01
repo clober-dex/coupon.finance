@@ -119,9 +119,7 @@ export const DepositForm = ({
         </div>
         <div className="flex flex-col bg-white gap-6 dark:bg-gray-950 sm:dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 w-full sm:w-[480px]">
           <div className="flex flex-col items-start gap-6 self-stretch">
-            <div className="text-lg text-gray-950 font-bold dark:text-white">
-              You earn...
-            </div>
+            <div className="text-lg font-bold">You earn...</div>
             <div className="flex flex-col items-start gap-3 self-stretch">
               <div className="flex w-full">
                 <div className="text-gray-400 text-base">Interest</div>

@@ -45,7 +45,6 @@ const Deposit = () => {
     ],
     [asset, balances, value],
   )
-  console.log('maxDepositAmount', maxDepositAmount)
 
   const { data: depositInfosByEpochsDeposited } = useQuery(
     ['deposit-simulate', asset, amount, selectedChain], // TODO: useDebounce
