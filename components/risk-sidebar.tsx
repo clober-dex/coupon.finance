@@ -28,11 +28,9 @@ export const RiskSidebar = ({
   return (
     <div {...props}>
       <div className="relative z-30">
-        <div className="flex flex-col gap-8 items-start p-6 pb-8 mb-10 sm:mb-0 rounded-2xl bg-white dark:bg-gray-900 w-full sm:w-[480px]">
+        <div className="flex flex-col gap-8 items-start py-6 px-4 sm:p-6 pb-8 mb-10 sm:mb-0 rounded-2xl bg-white dark:bg-gray-900 w-full sm:w-[480px]">
           <div className="flex flex-col items-start gap-4 self-stretch">
-            <div className="text-base font-bold text-gray-950 dark:text-white">
-              External Risk
-            </div>
+            <div className="text-base font-bold">External Risk</div>
             <div className="flex flex-col px-4 py-3 gap-2 items-start rounded-xl bg-gray-50 dark:bg-gray-800">
               <div className="flex justify-center items-center gap-2">
                 <GreenCircleSvg />
@@ -61,19 +59,23 @@ export const RiskSidebar = ({
             </div>
           </div>
           <div className="flex flex-col items-start gap-6 self-stretch">
-            <div className="text-base font-bold text-gray-950 dark:text-white">
-              Collateral Risk
-            </div>
+            <div className="text-base font-bold">Collateral Risk</div>
             <div className="flex flex-col items-start gap-4 text-xs font-medium text-gray-400 w-full">
               <div className="flex flex-row w-full items-start">
-                <div className="flex-[1.4]">Coin</div>
-                <div className="flex-1">Liquidation LTV</div>
-                <div className="flex-1">Collateralized</div>
-                <div className="flex-1">
+                <div className="flex flex-[1.4] justify-center items-start">
+                  Coin
+                </div>
+                <div className="flex flex-1 sm:flex-row justify-start items-center">
+                  Liquidation LTV
+                </div>
+                <div className="flex flex-1 justify-center items-center">
+                  Collateralized
+                </div>
+                <div className="flex flex-1 pl-2 sm:flex-row justify-start items-center">
                   Borrowing ({asset.underlying.symbol})
                 </div>
               </div>
-              <div className="flex flex-col items-center gap-6 w-full">
+              <div className="flex flex-col items-center gap-2 sm:gap-6 w-full">
                 {asset.collaterals
                   .filter(
                     ({ underlying }) =>
@@ -97,8 +99,8 @@ export const RiskSidebar = ({
                         key={index}
                         className="flex flex-row items-center w-full"
                       >
-                        <div className="flex flex-[1.4] items-center gap-3 shrink-0">
-                          <div className="w-8 h-8 relative">
+                        <div className="flex flex-[1.4] sm:flex-[1.6] gap-3 shrink-0">
+                          <div className="inline-flex w-8 h-8 relative">
                             <Image
                               src={getLogo(underlying)}
                               alt={underlying.name}
@@ -109,12 +111,12 @@ export const RiskSidebar = ({
                             <div className="text-base font-bold	text-gray-950 dark:text-white">
                               {underlying.symbol}
                             </div>
-                            <div className="text-xs font-medium	text-gray-500">
+                            <div className="text-xs font-medium	text-gray-500 hidden sm:inline-flex">
                               {underlying.name}
                             </div>
                           </div>
                         </div>
-                        <div className="flex-1 items-center justify-center text-sm text-gray-950 dark:text-white">
+                        <div className="flex flex-1 text-sm justify-start items-center text-gray-950 dark:text-white">
                           {(
                             (Number(liquidationThreshold) * 100) /
                             Number(ltvPrecision)
