@@ -154,7 +154,7 @@ export const DepositForm = ({
                     {remainingCoupons.map(
                       ({ date, remainingCoupon, symbol }, index) => (
                         <div key={index} className="flex items-center gap-1">
-                          <div className="text-gray-950 text-base text-white">
+                          <div className="text-base">
                             +
                             {formatUnits(
                               remainingCoupon,
