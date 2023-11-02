@@ -1,6 +1,7 @@
 import React from 'react'
 import Image from 'next/image'
 import { isAddressEqual } from 'viem'
+import Link from 'next/link'
 
 import { getLogo } from '../model/currency'
 import { formatDollarValue, formatUnits } from '../utils/numbers'
@@ -40,8 +41,14 @@ export const RiskSidebar = ({
               </div>
               <div className="text-xs font-medium text-gray-600 dark:text-white">
                 This asset uses a Chainlink price feed. Coupon Finance cannot
-                verify the security of Chainlink feeds. Learn more about oracle
-                risk.
+                verify the security of Chainlink feeds.{' '}
+                <Link
+                  href="https://docs.coupon.finance/risks/oracle-manipulation"
+                  className="text-blue-500"
+                  target="_blank"
+                >
+                  Learn more about oracle risk.
+                </Link>
               </div>
             </div>
             <div className="flex flex-col px-4 py-3 gap-2 items-start rounded-xl bg-gray-50 dark:bg-gray-800">
