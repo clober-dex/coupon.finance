@@ -116,17 +116,6 @@ function MyApp({ Component, pageProps }: AppProps) {
                       <div className="flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white">
                         <HeaderWrapper />
                         <Component {...pageProps} />
-                        <Link
-                          target="_blank"
-                          href="https://github.com/clober-dex/coupon.finance"
-                          className="fixed right-4 bottom-4 bg-gray-200 dark:bg-gray-800 rounded-full text-xs px-4 py-1"
-                        >
-                          #
-                          {process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(
-                            0,
-                            7,
-                          )}
-                        </Link>
                         <Footer />
                       </div>
                     </BorrowProvider>
