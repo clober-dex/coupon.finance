@@ -140,7 +140,9 @@ export const DepositForm = ({
               </div>
               <div className="flex w-full">
                 <div className="text-gray-400 text-base">APY</div>
-                <div className="ml-auto">{depositApy.toFixed(2)}%</div>
+                <div className="ml-auto">
+                  {Number.isNaN(depositApy) ? 0 : depositApy.toFixed(2)}%
+                </div>
               </div>
               {epochs &&
               remainingCoupons &&
@@ -152,7 +154,7 @@ export const DepositForm = ({
                   </div>
                   <div className="flex flex-col gap-2 ml-auto">
                     {remainingCoupons.map(
-                      ({ date, remainingCoupon, symbol }, index) => (
+                      ({ date, remainingCoupon }, index) => (
                         <div key={index} className="flex items-center gap-1">
                           <div className="text-base">
                             +
@@ -161,10 +163,9 @@ export const DepositForm = ({
                               depositCurrency.decimals,
                               depositAssetPrice,
                             )}{' '}
-                            {symbol}
                           </div>
                           <div className="text-gray-500 text-base ml-auto">
-                            ({date})
+                            {date}
                           </div>
                         </div>
                       ),
