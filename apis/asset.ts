@@ -1,6 +1,6 @@
 import { getAddress } from 'viem'
 
-import { getBuiltGraphSDK, Token } from '../.graphclient'
+import { Collateral, getBuiltGraphSDK, Token } from '../.graphclient'
 import { Asset, AssetStatus } from '../model/asset'
 import { Market } from '../model/market'
 import { isEthereum } from '../contexts/currency-context'
@@ -43,20 +43,7 @@ export async function fetchAssets(chainId: CHAIN_IDS): Promise<Asset[]> {
     },
   )
 
-  const result = assets.map((asset) => ({
-    underlying: toCurrency(asset.underlying),
-    collaterals: asset.collaterals.map((collateral) => ({
-      underlying: toCurrency(collateral.underlying),
-      substitute: toCurrency(collateral.substitute),
-      liquidationThreshold: BigInt(collateral.liquidationThreshold),
-      liquidationTargetLtv: BigInt(collateral.liquidationTargetLtv),
-      ltvPrecision: LIQUIDATION_TARGET_LTV_PRECISION,
-      totalCollateralized: BigInt(collateral.totalCollateralized),
-      totalBorrowed: BigInt(collateral.totalBorrowed),
-    })),
-    substitutes: asset.substitutes.map((substitute) => toCurrency(substitute)),
-  }))
-
+  const result = assets.map((asset) => toAsset(asset))
   cache = result
   return result
 }
@@ -72,7 +59,6 @@ export async function fetchAssetStatuses(
   )
 
   return assetStatuses.map((assetStatus) => {
-    const underlying = toCurrency(assetStatus.asset.underlying)
     const epoch = {
       id: +assetStatus.epoch.id,
       startTimestamp: +assetStatus.market.epoch.startTimestamp,
@@ -107,7 +93,7 @@ export async function fetchAssetStatuses(
       })),
     })
     return {
-      underlying,
+      asset: toAsset(assetStatus.asset),
       epoch,
       totalDepositAvailable: market.totalBidsInBaseAfterFees(),
       totalDeposited: BigInt(assetStatus.totalDeposited),
@@ -117,4 +103,35 @@ export async function fetchAssetStatuses(
       bestCouponAskPrice: Number(market.asks[0]?.price ?? 0n) / 1e18,
     }
   })
+}
+
+function toAsset(asset: {
+  underlying: Pick<Token, 'id' | 'symbol' | 'name' | 'decimals'>
+  substitutes: Array<Pick<Token, 'id' | 'symbol' | 'name' | 'decimals'>>
+  collaterals: Array<
+    Pick<
+      Collateral,
+      | 'liquidationThreshold'
+      | 'liquidationTargetLtv'
+      | 'totalCollateralized'
+      | 'totalBorrowed'
+    > & {
+      underlying: Pick<Token, 'id' | 'symbol' | 'name' | 'decimals'>
+      substitute: Pick<Token, 'id' | 'symbol' | 'name' | 'decimals'>
+    }
+  >
+}): Asset {
+  return {
+    underlying: toCurrency(asset.underlying),
+    collaterals: asset.collaterals.map((collateral) => ({
+      underlying: toCurrency(collateral.underlying),
+      substitute: toCurrency(collateral.substitute),
+      liquidationThreshold: BigInt(collateral.liquidationThreshold),
+      liquidationTargetLtv: BigInt(collateral.liquidationTargetLtv),
+      ltvPrecision: LIQUIDATION_TARGET_LTV_PRECISION,
+      totalCollateralized: BigInt(collateral.totalCollateralized),
+      totalBorrowed: BigInt(collateral.totalBorrowed),
+    })),
+    substitutes: asset.substitutes.map((substitute) => toCurrency(substitute)),
+  }
 }
