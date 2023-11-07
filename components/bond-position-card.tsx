@@ -12,7 +12,6 @@ export const BondPositionCard = ({
   price,
   onWithdraw,
   onCollect,
-  ...props
 }: {
   position: BondPosition
   price?: BigDecimal
