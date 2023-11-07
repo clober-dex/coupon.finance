@@ -77,6 +77,10 @@ const HeaderContainer = ({
         <div className="hidden sm:flex">
           <ThemeToggle setTheme={setTheme} />
         </div>
+        <div className="inline-flex h-8 p-2 justify-center items-center gap-1 shrink-0 bg-white dark:bg-gray-400 rounded">
+          <span>0</span>
+          <span>pts</span>
+        </div>
         <WalletSelector address={address} status={status} />
         <button className="flex sm:hidden" onClick={onMenuClick}>
           <MenuSvg />
