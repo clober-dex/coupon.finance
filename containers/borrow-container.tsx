@@ -228,16 +228,16 @@ const BorrowContainer = ({
                 )
                 .map((assetStatus, index) => {
                   const validAssetStatuses = assetStatuses.filter(
-                    ({ underlying, epoch }) =>
+                    ({ asset, epoch }) =>
                       isAddressEqual(
-                        underlying.address,
-                        assetStatus.underlying.address,
+                        asset.underlying.address,
+                        assetStatus.asset.underlying.address,
                       ) && epoch.id <= assetStatus.epoch.id,
                   )
                   return (
                     <Asset
                       key={index}
-                      currency={assetStatus.underlying}
+                      currency={assetStatus.asset.underlying}
                       apy={calculateApy(
                         validAssetStatuses.reduce(
                           (acc, { bestCouponAskPrice }) =>
@@ -250,7 +250,7 @@ const BorrowContainer = ({
                         .map(({ totalBorrowAvailable }) => totalBorrowAvailable)
                         .reduce((acc, val) => (acc > val ? acc : val), 0n)}
                       borrowed={assetStatus.totalBorrowed}
-                      price={prices[assetStatus.underlying.address]}
+                      price={prices[assetStatus.asset.underlying.address]}
                     />
                   )
                 })}
