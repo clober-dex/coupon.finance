@@ -54,7 +54,9 @@ const Panel = ({
                     <div className="flex flex-col text-gray-950 dark:text-white justify-center text-base font-bold relative mb-6 flex-1 px-6 gap-8">
                       <div className="flex flex-col gap-4 items-start w-[192px]">
                         <button
-                          disabled={router.query.mode !== 'strategy'}
+                          disabled={
+                            !router.query.mode || router.query.mode === 'earn'
+                          }
                           onClick={() => {
                             setOpen(false)
                             router.replace('/', undefined, { shallow: true })
