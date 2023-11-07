@@ -1,6 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react'
 
 import '../styles/globals.css'
+
 import Panel from './panel'
 
 export default {
@@ -16,5 +17,11 @@ export const Default: Story = {
   args: {
     open: true,
     setOpen: () => {},
+    // @ts-ignore
+    router: {
+      query: {
+        mode: 'strategy',
+      },
+    },
   },
 }

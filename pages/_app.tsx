@@ -14,6 +14,7 @@ import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { identify } from '@web3analytic/funnel-sdk'
 import Head from 'next/head'
 import dynamic from 'next/dynamic'
+import { useRouter } from 'next/router'
 
 import HeaderContainer from '../containers/header-container'
 import { ThemeProvider, useThemeContext } from '../contexts/theme-context'
@@ -86,9 +87,15 @@ const Web3AnalyticWrapper = ({ children }: React.PropsWithChildren) => {
 const HeaderWrapper = () => {
   const [open, setOpen] = useState(false)
   const { setTheme } = useThemeContext()
+  const router = useRouter()
   return (
     <>
-      <Panel open={open} setOpen={setOpen} setTheme={setTheme} />
+      <Panel
+        open={open}
+        setOpen={setOpen}
+        setTheme={setTheme}
+        router={router}
+      />
       <HeaderContainer onMenuClick={() => setOpen(true)} setTheme={setTheme} />
     </>
   )
