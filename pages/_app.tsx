@@ -13,7 +13,6 @@ import { publicProvider } from 'wagmi/providers/public'
 import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { identify } from '@web3analytic/funnel-sdk'
 import Head from 'next/head'
-import Link from 'next/link'
 import dynamic from 'next/dynamic'
 
 import HeaderContainer from '../containers/header-container'
