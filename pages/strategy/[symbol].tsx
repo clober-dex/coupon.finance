@@ -206,7 +206,7 @@ const Borrow = () => {
                       min(interest, maxInterest),
                     )
                     if (hash) {
-                      await router.replace('/?mode=borrow')
+                      await router.replace('/?mode=strategy')
                     }
                   },
                   text:
