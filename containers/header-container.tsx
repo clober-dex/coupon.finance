@@ -39,7 +39,7 @@ const HeaderContainer = ({
             className={`
             ${
               !router.query.mode || router.query.mode === 'earn'
-                ? 'text-gray-950'
+                ? 'text-gray-950 dark:text-white'
                 : 'text-gray-400'
             }
           `}
@@ -56,7 +56,7 @@ const HeaderContainer = ({
             className={`
             ${
               router.query.mode === 'strategy'
-                ? 'text-gray-950'
+                ? 'text-gray-950 dark:text-white'
                 : 'text-gray-400'
             }
           `}
