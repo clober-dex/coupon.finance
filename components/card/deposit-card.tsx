@@ -26,7 +26,7 @@ export const DepositCard = ({
     ...apys.filter(({ apy }) => !Number.isNaN(apy)).map(({ apy }) => apy),
   )
   return (
-    <div className="transition ease-in-out delay-150 duration-300 hover:-translate-y-1 hover:scale-110 group flex flex-col w-full sm:w-[328px] p-4 justify-center items-center gap-4 bg-white dark:bg-gray-800 rounded-xl shadow">
+    <div className="transition ease-in-out delay-150 duration-300 hover:-translate-y-1 hover:scale-110 group flex flex-col h-[300px] w-full sm:w-[328px] p-4 justify-center items-center gap-4 bg-white dark:bg-gray-800 rounded-xl shadow">
       <div className="flex flex-col items-start gap-3 self-stretch">
         <div className="flex items-center gap-2 self-stretch">
           <div className="w-8 h-8 relative">
@@ -90,10 +90,10 @@ export const DepositCard = ({
               </div>
             </div>
           </div>
-          <div className="flex-col items-start self-stretch gap-3 hidden group-hover:flex group-hover:mt-3">
+          <div className="flex-col items-start self-stretch gap-3 hidden group-hover:flex">
             {apys.map(({ date, apy }, i) => (
               <div className="flex items-start self-stretch" key={i}>
-                <div className="felx flex-grow shrink-0 basis-0 text-gray-950 font-bold">
+                <div className="felx flex-grow shrink-0 basis-0 font-bold">
                   {!Number.isNaN(apy) ? `${apy.toFixed(2)}%` : 'N/A'}
                 </div>
                 <div className="text-gray-500 text-base">{date}</div>
