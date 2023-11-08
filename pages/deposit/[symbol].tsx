@@ -77,7 +77,7 @@ const Deposit = () => {
         <main className="flex flex-1 flex-col justify-center items-center">
           <div className="flex flex-1 flex-col w-full gap-6">
             <Link
-              className="flex items-center font-bold text-base sm:text-2xl gap-2 sm:gap-3 mt-24 mb-2 sm:mb-2 ml-4 sm:ml-6"
+              className="flex items-center font-bold text-base sm:text-2xl gap-2 sm:gap-3 mt-4 mb-2 sm:mb-2 ml-4 sm:ml-6"
               replace={true}
               href="/"
             >
