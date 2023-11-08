@@ -15,6 +15,7 @@ import { identify } from '@web3analytic/funnel-sdk'
 import Head from 'next/head'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/router'
+import { Inter } from 'next/font/google'
 
 import HeaderContainer from '../containers/header-container'
 import { ThemeProvider, useThemeContext } from '../contexts/theme-context'
@@ -26,6 +27,8 @@ import { TransactionProvider } from '../contexts/transaction-context'
 import { supportChains } from '../constants/chain'
 import { ChainProvider } from '../contexts/chain-context'
 import { Footer } from '../components/footer'
+
+const inter = Inter({ subsets: ['latin'] })
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   supportChains,
@@ -119,7 +122,9 @@ function MyApp({ Component, pageProps }: AppProps) {
                 <CurrencyProvider>
                   <DepositProvider>
                     <BorrowProvider>
-                      <div className="flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white">
+                      <div
+                        className={`${inter.className} flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white`}
+                      >
                         <HeaderWrapper />
                         <Component {...pageProps} />
                         <Footer />
