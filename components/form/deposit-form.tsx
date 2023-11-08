@@ -94,7 +94,7 @@ export const DepositForm = ({
                       className="flex sm:flex-col items-center gap-1 sm:gap-2"
                       onClick={() => setEpochs(index + 1)}
                     >
-                      <div className="text-sm w-20 sm:w-fit text-start">
+                      <div className="text-sm w-24 sm:w-fit text-start">
                         {date}
                       </div>
                       <div
