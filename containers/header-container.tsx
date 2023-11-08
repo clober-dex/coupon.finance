@@ -37,13 +37,7 @@ const HeaderContainer = ({
               router.replace('/', undefined, { shallow: true })
             }}
             disabled={!router.query.mode || router.query.mode === 'deposit'}
-            className={`
-            ${
-              !router.query.mode || router.query.mode === 'deposit'
-                ? 'text-gray-950 dark:text-white'
-                : 'text-gray-400'
-            }
-          `}
+            className="disabled:text-gray-950 disabled:dark:text-white text-gray-400"
           >
             Earn
           </button>
@@ -54,13 +48,7 @@ const HeaderContainer = ({
               })
             }}
             disabled={router.query.mode === 'borrow'}
-            className={`
-            ${
-              router.query.mode === 'borrow'
-                ? 'text-gray-950 dark:text-white'
-                : 'text-gray-400'
-            }
-          `}
+            className="disabled:text-gray-950 disabled:dark:text-white text-gray-400"
           >
             Strategies
           </button>
