@@ -1,10 +1,10 @@
 import React from 'react'
 import { formatUnits } from 'viem'
 
-import CurrencyAmountInput from '../../components/currency-amount-input'
+import CurrencyAmountInput from '../input/currency-amount-input'
 import Modal from '../../components/modal/modal'
 import { BigDecimal } from '../../utils/numbers'
-import { ActionButton, ActionButtonProps } from '../action-button'
+import { ActionButton, ActionButtonProps } from '../button/action-button'
 import { Currency } from '../../model/currency'
 
 const WithdrawModal = ({

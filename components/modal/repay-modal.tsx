@@ -1,13 +1,13 @@
 import React from 'react'
 
 import { BigDecimal, formatUnits } from '../../utils/numbers'
-import CurrencyAmountInput from '../currency-amount-input'
+import CurrencyAmountInput from '../input/currency-amount-input'
 import { Arrow } from '../svg/arrow'
 import SwapSvg from '../svg/swap-svg'
-import SlippageSelect from '../slippage-select'
+import SlippageSelect from '../selector/slippage-select'
 import Modal from '../../components/modal/modal'
 import { max } from '../../utils/bigint'
-import { ActionButton, ActionButtonProps } from '../action-button'
+import { ActionButton, ActionButtonProps } from '../button/action-button'
 import { Currency } from '../../model/currency'
 import { Collateral } from '../../model/collateral'
 

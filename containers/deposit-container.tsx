@@ -8,10 +8,10 @@ import { useCurrencyContext } from '../contexts/currency-context'
 import { BondPosition } from '../model/bond-position'
 import { dollarValue } from '../utils/numbers'
 import { Epoch } from '../model/epoch'
-import EpochSelect from '../components/epoch-select'
-import { BondPositionCard } from '../components/bond-position-card'
+import EpochSelect from '../components/selector/epoch-select'
+import { BondPositionCard } from '../components/card/bond-position-card'
 import { calculateApy } from '../utils/apy'
-import { DepositCard } from '../components/deposit-card'
+import { DepositCard } from '../components/card/deposit-card'
 
 import WithdrawModalContainer from './modal/withdraw-modal-container'
 

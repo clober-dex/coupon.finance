@@ -1,6 +1,6 @@
 import React from 'react'
 
-import NumberInput from '../number-input'
+import NumberInput from '../input/number-input'
 
 const SlippageSelectModal = ({
   slippage,

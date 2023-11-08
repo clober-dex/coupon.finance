@@ -2,7 +2,7 @@ import React from 'react'
 
 import Slider from '../../components/slider'
 import Modal from '../../components/modal/modal'
-import { ActionButton, ActionButtonProps } from '../action-button'
+import { ActionButton, ActionButtonProps } from '../button/action-button'
 
 const EditExpiryModal = ({
   onClose,

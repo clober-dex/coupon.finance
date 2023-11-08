@@ -5,12 +5,12 @@ import { useRouter } from 'next/router'
 
 import LogoSvg from '../components/svg/logo-svg'
 import LogotypeSvg from '../components/svg/logotype-svg'
-import ThemeToggle from '../components/theme-toggle'
+import ThemeToggleButton from '../components/button/theme-toggle-button'
 import MenuSvg from '../components/svg/menu-svg'
-import { WalletSelector } from '../components/wallet-selector'
+import { WalletSelector } from '../components/selector/wallet-selector'
 import useDropdown from '../hooks/useDropdown'
-import { CommunityDropdownModal } from '../components/community-dropdown-modal'
-import { UserPointButton } from '../components/user-point-button'
+import { CommunityDropdownModal } from '../components/modal/community-dropdown-modal'
+import { UserPointButton } from '../components/button/user-point-button'
 
 const HeaderContainer = ({
   onMenuClick,
@@ -76,7 +76,7 @@ const HeaderContainer = ({
       </div>
       <div className="flex gap-3 sm:gap-4 items-center">
         <div className="hidden sm:flex">
-          <ThemeToggle setTheme={setTheme} />
+          <ThemeToggleButton setTheme={setTheme} />
         </div>
         {address ? <UserPointButton score={0} /> : <></>}
         <WalletSelector address={address} status={status} />

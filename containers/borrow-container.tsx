@@ -16,8 +16,8 @@ import {
 import { Epoch } from '../model/epoch'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { LoanPosition } from '../model/loan-position'
-import { LoanPositionCard } from '../components/loan-position-card'
-import EpochSelect from '../components/epoch-select'
+import { LoanPositionCard } from '../components/card/loan-position-card'
+import EpochSelect from '../components/selector/epoch-select'
 import { calculateApy } from '../utils/apy'
 
 import EditCollateralModalContainer from './modal/edit-collateral-modal-container'
