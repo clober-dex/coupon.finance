@@ -3,7 +3,7 @@ import { isAddressEqual } from 'viem'
 import BigNumber from 'bignumber.js'
 
 import { useDepositContext } from '../contexts/deposit-context'
-import { AssetStatus } from '../model/asset'
+import { Asset, AssetStatus } from '../model/asset'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { BondPosition } from '../model/bond-position'
 import { dollarValue } from '../utils/numbers'
@@ -12,6 +12,7 @@ import EpochSelect from '../components/selector/epoch-select'
 import { BondPositionCard } from '../components/card/bond-position-card'
 import { calculateApy } from '../utils/apy'
 import { DepositCard } from '../components/card/deposit-card'
+import { DepositDetailCard } from '../components/card/deposit-detail-card'
 
 import WithdrawModalContainer from './modal/withdraw-modal-container'
 
@@ -27,6 +28,7 @@ const DepositContainer = ({
   const [withdrawPosition, setWithdrawPosition] = useState<BondPosition | null>(
     null,
   )
+  const [hoveredAsset, setHoveredAsset] = useState<Asset | undefined>(undefined)
   const [epoch, setEpoch] = useState<Epoch | undefined>(undefined)
   useEffect(() => {
     if (epochs.length > 0) {
@@ -148,24 +150,56 @@ const DepositContainer = ({
                     ) && epoch.id <= assetStatus.epoch.id,
                 )
                 return (
-                  <DepositCard
+                  <div
                     key={index}
-                    currency={assetStatus.asset.underlying}
-                    collaterals={assetStatus.asset.collaterals}
-                    apy={calculateApy(
-                      validAssetStatuses.reduce(
-                        (acc, { bestCouponBidPrice }) =>
-                          acc + bestCouponBidPrice,
-                        0,
-                      ),
-                      assetStatus.epoch.endTimestamp - currentTimestamp,
+                    onMouseOver={() => {
+                      setHoveredAsset(assetStatus.asset)
+                    }}
+                    onMouseOut={() => {
+                      setHoveredAsset(undefined)
+                    }}
+                  >
+                    {!hoveredAsset ||
+                    (hoveredAsset &&
+                      !isAddressEqual(
+                        hoveredAsset.underlying.address,
+                        assetStatus.asset.underlying.address,
+                      )) ? (
+                      <div>
+                        <DepositCard
+                          currency={assetStatus.asset.underlying}
+                          collaterals={assetStatus.asset.collaterals}
+                          apy={calculateApy(
+                            validAssetStatuses.reduce(
+                              (acc, { bestCouponBidPrice }) =>
+                                acc + bestCouponBidPrice,
+                              0,
+                            ),
+                            assetStatus.epoch.endTimestamp - currentTimestamp,
+                          )}
+                          available={validAssetStatuses
+                            .map(
+                              ({ totalDepositAvailable }) =>
+                                totalDepositAvailable,
+                            )
+                            .reduce((acc, val) => (acc > val ? acc : val), 0n)}
+                          deposited={assetStatus.totalDeposited}
+                          price={prices[assetStatus.asset.underlying.address]}
+                        />
+                      </div>
+                    ) : (
+                      <div className="lg:opacity-100 transition-all duration-700">
+                        <DepositDetailCard
+                          currency={assetStatus.asset.underlying}
+                          apys={[
+                            { date: '01 Jun 2024', apy: 12.1 },
+                            { date: '01 Dec 2024', apy: 10.1 },
+                            { date: '01 Jun 2023', apy: 2.1 },
+                          ]}
+                        />
+                      </div>
                     )}
-                    available={validAssetStatuses
-                      .map(({ totalDepositAvailable }) => totalDepositAvailable)
-                      .reduce((acc, val) => (acc > val ? acc : val), 0n)}
-                    deposited={assetStatus.totalDeposited}
-                    price={prices[assetStatus.asset.underlying.address]}
-                  />
+                  </div>
                 )
               })}
           </div>
