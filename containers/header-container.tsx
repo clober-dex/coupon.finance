@@ -10,6 +10,7 @@ import MenuSvg from '../components/svg/menu-svg'
 import { WalletSelector } from '../components/wallet-selector'
 import useDropdown from '../hooks/useDropdown'
 import { CommunityDropdownModal } from '../components/community-dropdown-modal'
+import { UserPointButton } from '../components/user-point-button'
 
 const HeaderContainer = ({
   onMenuClick,
@@ -77,10 +78,7 @@ const HeaderContainer = ({
         <div className="hidden sm:flex">
           <ThemeToggle setTheme={setTheme} />
         </div>
-        <div className="inline-flex h-8 p-2 justify-center items-center gap-1 shrink-0 bg-white dark:bg-gray-400 rounded">
-          <span>0</span>
-          <span>pts</span>
-        </div>
+        {address ? <UserPointButton score={0} /> : <></>}
         <WalletSelector address={address} status={status} />
         <button className="flex sm:hidden" onClick={onMenuClick}>
           <MenuSvg />
