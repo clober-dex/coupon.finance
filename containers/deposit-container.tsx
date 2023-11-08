@@ -41,7 +41,7 @@ const DepositContainer = ({
         DeFi
       </h1>
       {positions.length > 0 ? (
-        <div className="flex flex-col gap-6 mb-12 sm:mb-20 px-4 lg:p-0">
+        <div className="flex flex-col gap-6 mb-8 px-4 lg:p-0">
           <div className="flex gap-2 sm:gap-3 items-center">
             <h2 className="font-bold text-base sm:text-2xl">My Positions</h2>
             <div className="font-bold text-sm bg-gray-200 dark:bg-gray-700 rounded-full px-2.5 sm:px-3 py-0.5 sm:py-1">
