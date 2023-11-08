@@ -51,7 +51,7 @@ const HeaderContainer = ({
           </button>
           <button className="group dark:hover:text-gray-100 hover:text-gray-950 hidden lg:flex">
             Community
-            <div className="opacity-0 transition-all duration-100 group-hover:opacity-100 group-hover:duration-0">
+            <div className="opacity-0 transition-all duration-100 invisible group-hover:visible group-hover:opacity-100 group-hover:duration-0">
               <CommunityDropdownModal />
             </div>
           </button>
