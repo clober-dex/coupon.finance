@@ -10,8 +10,9 @@ import { dollarValue } from '../utils/numbers'
 import { Epoch } from '../model/epoch'
 import EpochSelect from '../components/selector/epoch-select'
 import { BondPositionCard } from '../components/card/bond-position-card'
-import { calculateApy } from '../utils/apy'
 import { DepositCard } from '../components/card/deposit-card'
+import { formatDate } from '../utils/date'
+import { calculateApy } from '../utils/apy'
 
 import WithdrawModalContainer from './modal/withdraw-modal-container'
 
@@ -140,27 +141,42 @@ const DepositContainer = ({
               .filter((assetStatus) => assetStatus.epoch.id === epoch.id)
               .filter((assetStatus) => assetStatus.totalDepositAvailable !== 0n)
               .map((assetStatus, index) => {
-                const validAssetStatuses = assetStatuses.filter(
-                  ({ asset, epoch }) =>
-                    isAddressEqual(
-                      asset.underlying.address,
-                      assetStatus.asset.underlying.address,
-                    ) && epoch.id <= assetStatus.epoch.id,
+                const assetStatusesByAsset = assetStatuses.filter(({ asset }) =>
+                  isAddressEqual(
+                    asset.underlying.address,
+                    assetStatus.asset.underlying.address,
+                  ),
                 )
                 return (
                   <DepositCard
-                    key={index}
                     currency={assetStatus.asset.underlying}
                     collaterals={assetStatus.asset.collaterals}
-                    apy={calculateApy(
-                      validAssetStatuses.reduce(
-                        (acc, { bestCouponBidPrice }) =>
-                          acc + bestCouponBidPrice,
-                        0,
-                      ),
-                      assetStatus.epoch.endTimestamp - currentTimestamp,
+                    key={index}
+                    apys={assetStatusesByAsset.map(
+                      ({ epoch, totalDepositAvailable }) => ({
+                        date: formatDate(
+                          new Date(Number(epoch.endTimestamp) * 1000),
+                        ),
+                        apy:
+                          totalDepositAvailable > 0n
+                            ? calculateApy(
+                                assetStatusesByAsset
+                                  .filter(
+                                    ({ epoch: _epoch }) =>
+                                      _epoch.id <= epoch.id,
+                                  )
+                                  .reduce(
+                                    (acc, { bestCouponBidPrice }) =>
+                                      acc + bestCouponBidPrice,
+                                    0,
+                                  ),
+                                assetStatus.epoch.endTimestamp -
+                                  currentTimestamp,
+                              )
+                            : Number.NaN,
+                      }),
                     )}
-                    available={validAssetStatuses
+                    available={assetStatusesByAsset
                       .map(({ totalDepositAvailable }) => totalDepositAvailable)
                       .reduce((acc, val) => (acc > val ? acc : val), 0n)}
                     deposited={assetStatus.totalDeposited}
