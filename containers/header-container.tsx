@@ -24,26 +24,19 @@ const HeaderContainer = ({
   const router = useRouter()
 
   return (
-    <div className="w-full flex justify-between items-center py-4 px-4 sm:px-8 bg-white bg-opacity-5 backdrop-blur z-50">
+    <div className="w-full flex justify-between items-center py-4 px-4 sm:px-8 bg-white bg-opacity-5 backdrop-blur z-5">
       <div className="flex items-center gap-12">
         <Link href="/">
           <LogoSvg className="h-9 hidden sm:flex w-[232.52px]" />
           <LogotypeSvg className="h-4 sm:hidden w-[123.09px]" />
         </Link>
-        <div className="flex items-center gap-8"></div>
         <div className="relative hidden sm:flex items-center gap-8 font-bold text-gray-400 hover:text-gray-500">
           <button
             onClick={() => {
               router.replace('/', undefined, { shallow: true })
             }}
             disabled={!router.query.mode || router.query.mode === 'deposit'}
-            className={`
-            ${
-              !router.query.mode || router.query.mode === 'deposit'
-                ? 'text-gray-950 dark:text-white'
-                : 'text-gray-400'
-            }
-          `}
+            className="disabled:text-gray-950 disabled:dark:text-white text-gray-400"
           >
             Earn
           </button>
@@ -54,13 +47,7 @@ const HeaderContainer = ({
               })
             }}
             disabled={router.query.mode === 'borrow'}
-            className={`
-            ${
-              router.query.mode === 'borrow'
-                ? 'text-gray-950 dark:text-white'
-                : 'text-gray-400'
-            }
-          `}
+            className="disabled:text-gray-950 disabled:dark:text-white text-gray-400"
           >
             Strategies
           </button>
@@ -68,6 +55,7 @@ const HeaderContainer = ({
             onClick={() => {
               setShowDropdown((prev) => !prev)
             }}
+            className="hidden lg:flex"
           >
             Community
           </button>
@@ -75,12 +63,12 @@ const HeaderContainer = ({
         </div>
       </div>
       <div className="flex gap-3 sm:gap-4 items-center">
-        <div className="hidden sm:flex">
+        <div className="hidden lg:flex">
           <ThemeToggleButton setTheme={setTheme} />
         </div>
         {address ? <UserPointButton score={0} /> : <></>}
         <WalletSelector address={address} status={status} />
-        <button className="flex sm:hidden" onClick={onMenuClick}>
+        <button className="flex lg:hidden" onClick={onMenuClick}>
           <MenuSvg />
         </button>
       </div>
