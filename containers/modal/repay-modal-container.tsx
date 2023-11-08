@@ -78,7 +78,7 @@ const RepayModalContainer = ({
       }
     },
     {
-      refetchInterval: 5000,
+      refetchInterval: 5 * 1000,
       keepPreviousData: true,
       initialData: {
         repayAmount: 0n,
