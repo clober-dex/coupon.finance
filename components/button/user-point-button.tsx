@@ -1,34 +1,18 @@
 import React from 'react'
 
-import useDropdown from '../../hooks/useDropdown'
 import { BalloonModal } from '../modal/balloon-modal'
 
 export const UserPointButton = ({ score }: { score: number }) => {
-  const { showDropdown, setShowDropdown } = useDropdown()
-
   return (
-    <div>
-      <button
-        onClick={() => {
-          setShowDropdown((prev) => !prev)
-        }}
-        className="inline-flex h-8 p-2 justify-center items-center gap-1 shrink-0 border-solid dark:border-white border-[1.5px] rounded"
-      >
+    <div className="group">
+      <div className="cursor-default flex h-8 p-2 sm:px-3 text-xs sm:text-base justify-center bg-white dark:bg-gray-900 items-center gap-1 shrink-0 border-solid rounded sm:rounded-lg">
         <span>{score}</span>
-        <span>pts</span>
-      </button>
-      <div className="absolute">
-        {showDropdown ? (
-          <div className="relative -right-[18px] -bottom-2 w-[280px]">
-            <BalloonModal
-              text={
-                'Points are earned based on coupons traded via deposits/loans.'
-              }
-            />
-          </div>
-        ) : (
-          <></>
-        )}
+        <span className="text-gray-500">pts</span>
+      </div>
+      <div className="absolute hidden group-hover:block">
+        <div className="relative -right-[18px] -bottom-2 w-[280px]">
+          <BalloonModal>Coming Soon!</BalloonModal>
+        </div>
       </div>
     </div>
   )
