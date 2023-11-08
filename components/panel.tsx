@@ -18,7 +18,7 @@ const Panel = ({
 }) => {
   return (
     <Transition.Root show={open} as={Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={setOpen}>
+      <Dialog as="div" className="relative z-[10000]" onClose={setOpen}>
         <div className="fixed inset-0 bg-black dark:bg-transparent bg-opacity-50 dark:bg-opacity-5 dark:backdrop-blur-sm" />
 
         <div className="fixed inset-0 overflow-hidden">
