@@ -1,3 +1,4 @@
+import React from 'react'
 import { Meta, StoryObj } from '@storybook/react'
 
 import '../../styles/globals.css'
@@ -8,6 +9,13 @@ export default {
   component: BorrowCard,
   parameters: {
     layout: 'centered',
+  },
+  render: ({ ...args }) => {
+    return (
+      <div className="w-[400px]">
+        <BorrowCard {...args} />
+      </div>
+    )
   },
 } as Meta<typeof BorrowCard>
 
