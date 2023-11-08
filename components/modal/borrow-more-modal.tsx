@@ -1,9 +1,9 @@
 import React from 'react'
 
 import { BigDecimal, formatUnits } from '../../utils/numbers'
-import CurrencyAmountInput from '../currency-amount-input'
+import CurrencyAmountInput from '../input/currency-amount-input'
 import { Arrow } from '../svg/arrow'
-import { ActionButton, ActionButtonProps } from '../action-button'
+import { ActionButton, ActionButtonProps } from '../button/action-button'
 import { Currency } from '../../model/currency'
 
 import Modal from './modal'

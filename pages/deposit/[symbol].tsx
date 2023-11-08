@@ -13,7 +13,7 @@ import { DepositForm } from '../../components/form/deposit-form'
 import BackSvg from '../../components/svg/back-svg'
 import { getLogo } from '../../model/currency'
 import { useChainContext } from '../../contexts/chain-context'
-import { RiskSidebar } from '../../components/risk-sidebar'
+import { RiskSidebar } from '../../components/bar/risk-sidebar'
 
 const Deposit = () => {
   const { selectedChain } = useChainContext()

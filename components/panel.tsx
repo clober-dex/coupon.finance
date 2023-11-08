@@ -3,7 +3,7 @@ import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { NextRouter } from 'next/router'
 
-import ThemeToggle from './theme-toggle'
+import ThemeToggleButton from './button/theme-toggle-button'
 
 const Panel = ({
   open,
@@ -111,7 +111,7 @@ const Panel = ({
                           Docs
                         </a>
                       </div>
-                      <ThemeToggle setTheme={setTheme} />
+                      <ThemeToggleButton setTheme={setTheme} />
                     </div>
                   </div>
                 </Dialog.Panel>

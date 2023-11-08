@@ -3,10 +3,10 @@ import React from 'react'
 import { Tooltip } from 'react-tooltip'
 
 import { Currency } from '../../model/currency'
-import CurrencyAmountInput from '../currency-amount-input'
+import CurrencyAmountInput from '../input/currency-amount-input'
 import Slider from '../slider'
 import { BigDecimal, formatUnits } from '../../utils/numbers'
-import { ActionButton, ActionButtonProps } from '../action-button'
+import { ActionButton, ActionButtonProps } from '../button/action-button'
 import { RightBracketAngleSvg } from '../svg/right-bracket-angle-svg'
 import { RemainingCoupon } from '../../model/market'
 
