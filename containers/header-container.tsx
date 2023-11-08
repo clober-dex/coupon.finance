@@ -34,7 +34,7 @@ const HeaderContainer = ({
               router.replace('/', undefined, { shallow: true })
             }}
             disabled={!router.query.mode || router.query.mode === 'deposit'}
-            className="hover:text-gray-950 disabled:text-gray-950 disabled:dark:text-white text-gray-400"
+            className="hover:text-gray-950 dark:hover:text-gray-100 disabled:text-gray-950 disabled:dark:text-white text-gray-400"
           >
             Earn
           </button>
@@ -45,11 +45,11 @@ const HeaderContainer = ({
               })
             }}
             disabled={router.query.mode === 'borrow'}
-            className="hover:text-gray-950 disabled:text-gray-950 disabled:dark:text-white text-gray-400"
+            className="hover:text-gray-950 dark:hover:text-gray-100 disabled:text-gray-950 disabled:dark:text-white text-gray-400"
           >
             Strategies
           </button>
-          <button className="group hover:text-gray-950 hidden lg:flex">
+          <button className="group dark:hover:text-gray-100 hover:text-gray-950 hidden lg:flex">
             Community
             <div className="opacity-0 transition-all duration-100 group-hover:opacity-100 group-hover:duration-0">
               <CommunityDropdownModal />
