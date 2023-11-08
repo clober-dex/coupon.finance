@@ -159,8 +159,7 @@ const DepositContainer = ({
                                       acc + bestCouponBidPrice,
                                     0,
                                   ),
-                                assetStatus.epoch.endTimestamp -
-                                  currentTimestamp,
+                                epoch.endTimestamp - currentTimestamp,
                               )
                             : Number.NaN,
                       }),
