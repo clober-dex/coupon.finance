@@ -8,7 +8,6 @@ import LogotypeSvg from '../components/svg/logotype-svg'
 import ThemeToggleButton from '../components/button/theme-toggle-button'
 import MenuSvg from '../components/svg/menu-svg'
 import { WalletSelector } from '../components/selector/wallet-selector'
-import useDropdown from '../hooks/useDropdown'
 import { CommunityDropdownModal } from '../components/modal/community-dropdown-modal'
 import { UserPointButton } from '../components/button/user-point-button'
 
@@ -19,7 +18,6 @@ const HeaderContainer = ({
   onMenuClick: () => void
   setTheme: (theme: 'light' | 'dark') => void
 }) => {
-  const { showDropdown, setShowDropdown } = useDropdown()
   const { address, status } = useAccount()
   const router = useRouter()
 
@@ -51,15 +49,12 @@ const HeaderContainer = ({
           >
             Strategies
           </button>
-          <button
-            onClick={() => {
-              setShowDropdown((prev) => !prev)
-            }}
-            className="hidden lg:flex"
-          >
-            Community
-          </button>
-          {showDropdown ? <CommunityDropdownModal /> : <></>}
+          <div className="group">
+            <button className="hidden lg:flex">Community</button>
+            <div className="hidden group-hover:block">
+              <CommunityDropdownModal />
+            </div>
+          </div>
         </div>
       </div>
       <div className="flex gap-3 sm:gap-4 items-center">
