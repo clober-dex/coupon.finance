@@ -9,10 +9,12 @@ export const WrongNetworkButton = ({
 }) => {
   return (
     <button
-      className="flex items-center justify-center gap-2 md:justify-start w-8 rounded md:w-full p-0 md:py-[6px] md:px-[8px] cursor-pointer h-8 bg-gray-800 md:bg-gray-950 hover:bg-gray-600 active::bg-gray-600"
+      className="flex items-center font-bold h-8 py-0 px-3 md:px-4 rounded bg-gray-100 text-white disabled:text-green-500 text-xs sm:text-sm"
       onClick={() => openChainModal && openChainModal()}
     >
-      <span className="text-red-500 inline-block">Wrong Network</span>
+      <span className="text-red-500 inline-block">
+        <span className="hidden sm:visible">Wrong</span> Network
+      </span>
       <TriangleDownSvg className="fill-red-500" />
     </button>
   )
