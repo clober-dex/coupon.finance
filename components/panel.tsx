@@ -55,7 +55,8 @@ const Panel = ({
                       <div className="flex flex-col gap-4 items-start w-[192px]">
                         <button
                           disabled={
-                            !router.query.mode || router.query.mode === 'earn'
+                            !router.query.mode ||
+                            router.query.mode === 'deposit'
                           }
                           onClick={() => {
                             setOpen(false)
@@ -65,10 +66,10 @@ const Panel = ({
                           Earn
                         </button>
                         <button
-                          disabled={router.query.mode === 'strategy'}
+                          disabled={router.query.mode === 'borrow'}
                           onClick={() => {
                             setOpen(false)
-                            router.replace('/?mode=strategy', undefined, {
+                            router.replace('/?mode=borrow', undefined, {
                               shallow: true,
                             })
                           }}

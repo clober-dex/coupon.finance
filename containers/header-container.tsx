@@ -35,10 +35,10 @@ const HeaderContainer = ({
             onClick={() => {
               router.replace('/', undefined, { shallow: true })
             }}
-            disabled={!router.query.mode || router.query.mode === 'earn'}
+            disabled={!router.query.mode || router.query.mode === 'deposit'}
             className={`
             ${
-              !router.query.mode || router.query.mode === 'earn'
+              !router.query.mode || router.query.mode === 'deposit'
                 ? 'text-gray-950 dark:text-white'
                 : 'text-gray-400'
             }
@@ -48,14 +48,14 @@ const HeaderContainer = ({
           </button>
           <button
             onClick={() => {
-              router.replace('/?mode=strategy', undefined, {
+              router.replace('/?mode=borrow', undefined, {
                 shallow: true,
               })
             }}
-            disabled={router.query.mode === 'strategy'}
+            disabled={router.query.mode === 'borrow'}
             className={`
             ${
-              router.query.mode === 'strategy'
+              router.query.mode === 'borrow'
                 ? 'text-gray-950 dark:text-white'
                 : 'text-gray-400'
             }

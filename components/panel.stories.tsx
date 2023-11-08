@@ -20,7 +20,7 @@ export const Default: Story = {
     // @ts-ignore
     router: {
       query: {
-        mode: 'strategy',
+        mode: 'borrow',
       },
     },
   },

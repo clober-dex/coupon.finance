@@ -17,7 +17,7 @@ const Home = () => {
       </Head>
 
       <main className="flex flex-1 flex-col justify-center items-center">
-        {router.query.mode !== 'strategy' ? (
+        {!router.query.mode || router.query.mode === 'deposit' ? (
           <DepositContainer assetStatuses={assetStatuses} epochs={epochs} />
         ) : (
           <BorrowContainer assetStatuses={assetStatuses} epochs={epochs} />

@@ -114,7 +114,7 @@ const Deposit = () => {
                   onClick: async () => {
                     const hash = await deposit(asset, amount, epochs, proceed)
                     if (hash) {
-                      await router.replace('/?mode=earn')
+                      await router.replace('/?mode=deposit')
                     }
                   },
                   text:
