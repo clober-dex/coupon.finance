@@ -126,8 +126,10 @@ function MyApp({ Component, pageProps }: AppProps) {
                         className={`${inter.className} flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white`}
                       >
                         <HeaderWrapper />
-                        <Component {...pageProps} />
-                        <Footer />
+                        <div className="pt-16 sm:pt-[68px]">
+                          <Component {...pageProps} />
+                          <Footer />
+                        </div>
                       </div>
                     </BorrowProvider>
                   </DepositProvider>
