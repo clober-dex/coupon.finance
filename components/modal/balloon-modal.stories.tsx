@@ -14,6 +14,6 @@ type Story = StoryObj<typeof BalloonModal>
 
 export const Default: Story = {
   args: {
-    text: 'Points are earned based on coupons traded via deposits/loans.',
+    children: 'Coming soon!',
   },
 }
