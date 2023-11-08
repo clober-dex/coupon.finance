@@ -123,7 +123,7 @@ const BorrowContainer = ({
   const currentTimestamp = Math.floor(new Date().getTime() / 1000)
   return (
     <div className="flex flex-1 flex-col w-full sm:w-fit">
-      <h1 className="flex justify-center text-center font-bold text-lg sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-12 mb-8 sm:mb-16">
+      <h1 className="flex justify-center text-center font-bold text-xl sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-16 mb-8 sm:mb-16">
         The Best Fixed-Rate <br className="flex sm:hidden" /> Borrowing in DeFi
       </h1>
       {positions.length > 0 ? (
@@ -228,16 +228,16 @@ const BorrowContainer = ({
                 )
                 .map((assetStatus, index) => {
                   const validAssetStatuses = assetStatuses.filter(
-                    ({ underlying, epoch }) =>
+                    ({ asset, epoch }) =>
                       isAddressEqual(
-                        underlying.address,
-                        assetStatus.underlying.address,
+                        asset.underlying.address,
+                        assetStatus.asset.underlying.address,
                       ) && epoch.id <= assetStatus.epoch.id,
                   )
                   return (
                     <Asset
                       key={index}
-                      currency={assetStatus.underlying}
+                      currency={assetStatus.asset.underlying}
                       apy={calculateApy(
                         validAssetStatuses.reduce(
                           (acc, { bestCouponAskPrice }) =>
@@ -250,7 +250,7 @@ const BorrowContainer = ({
                         .map(({ totalBorrowAvailable }) => totalBorrowAvailable)
                         .reduce((acc, val) => (acc > val ? acc : val), 0n)}
                       borrowed={assetStatus.totalBorrowed}
-                      price={prices[assetStatus.underlying.address]}
+                      price={prices[assetStatus.asset.underlying.address]}
                     />
                   )
                 })}

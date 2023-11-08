@@ -23,7 +23,7 @@ export default function EpochSelect({
       {({ open }) => (
         <>
           <div className="relative w-40">
-            <Listbox.Button className="relative w-full cursor-default rounded-md bg-white dark:bg-gray-800 py-1.5 pl-3 pr-10 text-left shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 sm:text-sm sm:leading-6">
+            <Listbox.Button className="text-sm relative w-full cursor-default rounded-md bg-white dark:bg-gray-800 py-1.5 pl-3 pr-10 text-left shadow-sm ring-1 ring-inset ring-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 sm:text-sm sm:leading-6">
               <span className="block truncate">
                 {formatDate(new Date(Number(value.endTimestamp) * 1000))}
               </span>

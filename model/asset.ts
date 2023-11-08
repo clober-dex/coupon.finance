@@ -9,7 +9,7 @@ export type Asset = {
 }
 
 export type AssetStatus = {
-  underlying: Currency
+  asset: Asset
   epoch: Epoch
   totalDepositAvailable: bigint
   totalDeposited: bigint

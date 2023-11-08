@@ -20,7 +20,9 @@ export const UserButton = ({
         className="w-4 h-4 rounded-[100%] aspect-square"
         address={address}
       />
-      <span className="hidden md:block">{formatAddress(address || '')}</span>
+      <span className="hidden font-bold text-sm md:block">
+        {formatAddress(address || '')}
+      </span>
     </button>
   )
 }
