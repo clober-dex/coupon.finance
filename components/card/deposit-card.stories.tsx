@@ -1,3 +1,4 @@
+import React from 'react'
 import { Meta, StoryObj } from '@storybook/react'
 
 import '../../styles/globals.css'
@@ -9,6 +10,13 @@ export default {
   component: DepositCard,
   parameters: {
     layout: 'centered',
+  },
+  render: ({ ...args }) => {
+    return (
+      <div className="w-[400px]">
+        <DepositCard {...args} />
+      </div>
+    )
   },
 } as Meta<typeof DepositCard>
 
