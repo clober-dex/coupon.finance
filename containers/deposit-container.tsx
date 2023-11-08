@@ -8,7 +8,6 @@ import { useCurrencyContext } from '../contexts/currency-context'
 import { BondPosition } from '../model/bond-position'
 import { dollarValue } from '../utils/numbers'
 import { Epoch } from '../model/epoch'
-import EpochSelect from '../components/selector/epoch-select'
 import { BondPositionCard } from '../components/card/bond-position-card'
 import { DepositCard } from '../components/card/deposit-card'
 import { formatDate } from '../utils/date'
@@ -125,16 +124,6 @@ const DepositContainer = ({
             <h2 className="font-bold text-base sm:text-2xl">
               Assets to deposit
             </h2>
-            <div className="flex items-center gap-6">
-              <label htmlFor="epoch" className="hidden sm:flex">
-                How long are you going to deposit?
-              </label>
-              <EpochSelect
-                epochs={epochs}
-                value={epoch}
-                onValueChange={setEpoch}
-              />
-            </div>
           </div>
           <div className="flex flex-col w-full h-full lg:grid lg:grid-cols-3 gap-2 sm:gap-4 mb-8">
             {assetStatuses
