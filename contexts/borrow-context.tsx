@@ -96,8 +96,8 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
     () =>
       userAddress ? fetchLoanPositions(selectedChain.id, userAddress) : [],
     {
-      refetchOnWindowFocus: true,
-      refetchInterval: 2 * 1000,
+      refetchIntervalInBackground: true,
+      refetchInterval: 5 * 1000,
       initialData: [],
     },
   )

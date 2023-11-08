@@ -64,8 +64,8 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
     () =>
       userAddress ? fetchBondPositions(selectedChain.id, userAddress) : [],
     {
-      refetchOnWindowFocus: true,
-      refetchInterval: 2 * 1000,
+      refetchIntervalInBackground: true,
+      refetchInterval: 5 * 1000,
       initialData: [],
     },
   )
