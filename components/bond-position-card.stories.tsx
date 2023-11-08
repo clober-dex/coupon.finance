@@ -30,6 +30,23 @@ export const Default: Story = {
   },
 }
 
+export const ExpiredPosition: Story = {
+  args: {
+    position: {
+      ...dummyBondPosition,
+      toEpoch: {
+        id: 107,
+        startTimestamp: 0,
+        endTimestamp: 0,
+      },
+    },
+    price: {
+      value: 990000000n,
+      decimals: 8,
+    },
+  },
+}
+
 // @ts-ignore
 BigInt.prototype.toJSON = function () {
   return this.toString()
