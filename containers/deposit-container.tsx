@@ -41,7 +41,7 @@ const DepositContainer = ({
         DeFi
       </h1>
       {positions.length > 0 ? (
-        <div className="flex flex-col gap-6 mb-12 sm:mb-20 px-4 sm:p-0">
+        <div className="flex flex-col gap-6 mb-12 sm:mb-20 px-4 lg:p-0">
           <div className="flex gap-2 sm:gap-3 items-center">
             <h2 className="font-bold text-base sm:text-2xl">My Positions</h2>
             <div className="font-bold text-sm bg-gray-200 dark:bg-gray-700 rounded-full px-2.5 sm:px-3 py-0.5 sm:py-1">
@@ -84,7 +84,7 @@ const DepositContainer = ({
               </div>
             </div>
           </div>
-          <div className="flex flex-col sm:grid sm:grid-cols-3 gap-4 sm:gap-6">
+          <div className="flex flex-1 flex-col w-full h-full sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 mb-8 justify-center">
             {positions
               .sort(
                 (a, b) =>
@@ -119,13 +119,13 @@ const DepositContainer = ({
         <></>
       )}
       {epoch ? (
-        <div className="flex flex-col gap-6 sm:gap-8 px-4 sm:p-0">
+        <div className="flex flex-col gap-6 sm:gap-8 px-4 lg:p-0">
           <div className="flex items-center gap-6 justify-between">
             <h2 className="font-bold text-base sm:text-2xl">
               Assets to deposit
             </h2>
           </div>
-          <div className="flex flex-col w-full h-full lg:grid lg:grid-cols-3 gap-2 sm:gap-4 mb-8">
+          <div className="flex flex-1 flex-col w-full h-full sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 mb-8 justify-center">
             {assetStatuses
               .filter((assetStatus) => assetStatus.epoch.id === epoch.id)
               .filter((assetStatus) => assetStatus.totalDepositAvailable !== 0n)

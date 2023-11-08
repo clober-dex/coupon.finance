@@ -20,7 +20,7 @@ export const BondPositionCard = ({
 } & React.HTMLAttributes<HTMLDivElement>) => {
   const now = Math.floor(new Date().getTime() / 1000)
   return (
-    <div className="flex w-full sm:w-[304px] pb-4 flex-col items-center gap-3 shrink-0 bg-white dark:bg-gray-800 rounded-xl shadow">
+    <div className="flex w-full pb-4 flex-col items-center gap-3 shrink-0 bg-white dark:bg-gray-800 rounded-xl shadow">
       <div className="flex p-4 items-center self-stretch">
         <div className="flex items-center gap-3 flex-grow flex-shrink basis-0">
           <div className="w-8 h-8 relative">

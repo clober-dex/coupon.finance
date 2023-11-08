@@ -127,6 +127,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }, {})
     },
     {
+      refetchInterval: 5 * 1000,
       refetchOnWindowFocus: true,
     },
   ) as { data: Balances }
