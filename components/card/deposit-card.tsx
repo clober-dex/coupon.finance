@@ -26,7 +26,7 @@ export const DepositCard = ({
     ...apys.filter(({ apy }) => !Number.isNaN(apy)).map(({ apy }) => apy),
   )
   return (
-    <div className="transition ease-in-out delay-150 duration-300 sm:hover:-translate-y-1 sm:hover:scale-110 group flex flex-col h-[275px] w-full sm:w-[328px] p-4 justify-center items-center gap-4 bg-white dark:bg-gray-800 rounded-xl shadow">
+    <div className="transition ease-in-out delay-150 duration-300 sm:hover:-translate-y-1 sm:hover:scale-110 group flex flex-col h-[275px] w-full p-4 justify-center items-center gap-4 bg-white dark:bg-gray-800 rounded-xl shadow">
       <div className="flex flex-col items-start gap-3 self-stretch">
         <div className="flex items-center gap-2 self-stretch">
           <div className="w-8 h-8 relative">
