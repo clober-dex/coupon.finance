@@ -34,13 +34,17 @@ const Context = React.createContext<CurrencyContext>({
   calculateETHValue: () => 0n,
 })
 
-export const isEthereum = (currency: Currency) => {
+export const isEtherAddress = (address: `0x${string}`) => {
   return [
     '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
     '0x4284186b053ACdBA28E8B26E99475d891533086a',
   ]
-    .map((address) => getAddress(address))
-    .includes(getAddress(currency.address))
+    .map((ethAddr) => getAddress(ethAddr))
+    .includes(getAddress(address))
+}
+
+export const isEther = (currency: Currency) => {
+  return isEtherAddress(currency.address)
 }
 
 export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
@@ -120,7 +124,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
         const currency = currencies[index]
         return {
           ...acc,
-          [currency.address]: isEthereum(currency)
+          [currency.address]: isEther(currency)
             ? (result ?? 0n) + (balance?.value ?? 0n)
             : result,
         }
@@ -134,7 +138,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
   const calculateETHValue = useCallback(
     (currency: Currency, willPayAmount: bigint) => {
-      if (!balance || !balances || !isEthereum(currency)) {
+      if (!balance || !balances || !isEther(currency)) {
         return 0n
       }
       const wrappedETHBalance = balances[currency.address] - balance.value

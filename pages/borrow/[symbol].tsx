@@ -1,10 +1,11 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { parseUnits } from 'viem'
+import { parseUnits, zeroAddress } from 'viem'
 import { useQuery } from 'wagmi'
 import Image from 'next/image'
 import Link from 'next/link'
+import BigNumber from 'bignumber.js'
 
 import BackSvg from '../../components/svg/back-svg'
 import { getLogo } from '../../model/currency'
@@ -16,6 +17,9 @@ import { calculateLtv, calculateMaxLoanableAmount } from '../../utils/ltv'
 import { max, min } from '../../utils/bigint'
 import { BorrowForm } from '../../components/form/borrow-form'
 import { useChainContext } from '../../contexts/chain-context'
+import { MIN_DEBT_SIZE_IN_ETH } from '../../constants/debt'
+import { CHAIN_IDS } from '../../constants/chain'
+import { ethValue } from '../../utils/currency'
 
 const Borrow = () => {
   const { selectedChain } = useChainContext()
@@ -110,6 +114,16 @@ const Borrow = () => {
     [epochs, interestsByEpochsBorrowed],
   )
 
+  const minDebtSizeInEth = MIN_DEBT_SIZE_IN_ETH[selectedChain.id as CHAIN_IDS]
+  const debtSizeInEth = ethValue(
+    selectedChain,
+    prices[zeroAddress],
+    asset?.underlying,
+    borrowAmount + interest,
+    prices[asset?.underlying?.address ?? zeroAddress],
+  )
+  const isDeptSizeLessThanMinDebtSize = debtSizeInEth.lt(minDebtSizeInEth)
+
   return (
     <div className="flex flex-1">
       <Head>
@@ -192,7 +206,8 @@ const Borrow = () => {
                     collateralAmount > collateralUserBalance ||
                     borrowAmount > available ||
                     borrowAmount + maxInterest >
-                      maxLoanableAmountExcludingCouponFee,
+                      maxLoanableAmountExcludingCouponFee ||
+                    isDeptSizeLessThanMinDebtSize,
                   onClick: async () => {
                     if (!collateral) {
                       return
@@ -223,6 +238,11 @@ const Borrow = () => {
                       : borrowAmount + maxInterest >
                         maxLoanableAmountExcludingCouponFee
                       ? 'Not enough collateral'
+                      : isDeptSizeLessThanMinDebtSize
+                      ? `Remaining debt must be ≥ ${minDebtSizeInEth.toFixed(
+                          3,
+                          BigNumber.ROUND_CEIL,
+                        )} ETH`
                       : 'Borrow',
                 }}
               />

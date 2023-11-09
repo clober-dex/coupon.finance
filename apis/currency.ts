@@ -1,10 +1,11 @@
-import { createPublicClient, http } from 'viem'
+import { createPublicClient, http, zeroAddress } from 'viem'
 
 import { Currency } from '../model/currency'
 import { CONTRACT_ADDRESSES } from '../constants/addresses'
 import { CouponOracle__factory } from '../typechain'
 import { CHAIN_IDS, CHAINS } from '../constants/chain'
 import { Prices } from '../model/prices'
+import { isEtherAddress } from '../contexts/currency-context'
 
 import { fetchAssets } from './asset'
 
@@ -60,9 +61,17 @@ export async function fetchPrices(
 
   return prices.reduce((acc, value, index) => {
     const currencyAddress = currencyAddresses[index]
-    return {
+    const newAcc = {
       ...acc,
       [currencyAddress]: { value, decimals },
+    }
+    if (isEtherAddress(currencyAddress)) {
+      return {
+        ...newAcc,
+        [zeroAddress]: { value, decimals },
+      }
+    } else {
+      return newAcc
     }
   }, {})
 }
