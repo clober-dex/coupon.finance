@@ -27,7 +27,7 @@ const Deposit = () => {
     },
     [epochs],
   )
-  const [showRiskSidebar, setShowRiskSidebar] = useState(false)
+  const [showRiskSidebar, setShowRiskSidebar] = useState(true)
 
   const [value, setValue] = useState('')
 

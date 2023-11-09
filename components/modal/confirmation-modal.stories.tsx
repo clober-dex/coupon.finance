@@ -30,6 +30,16 @@ export const Default: Story = {
           label: 'Field 1',
           value: 'Value 1',
         },
+        {
+          currency: {
+            address: '0x0000000000000000000000000000000000000003',
+            name: 'ETH',
+            symbol: 'ETH',
+            decimals: 18,
+          },
+          label: 'Field 1',
+          value: 'Value 1',
+        },
       ],
     },
   },

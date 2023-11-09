@@ -29,7 +29,10 @@ const Slider = ({
   onValueChange: (value: number) => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
   return (
-    <div className="flex flex-row h-auto justify-between" {...props}>
+    <div
+      className="flex flex-col sm:flex-row h-36 sm:h-auto justify-between"
+      {...props}
+    >
       {Array.from({ length }).map((_, index) => (
         <React.Fragment key={index}>
           <button
@@ -44,7 +47,7 @@ const Slider = ({
           </button>
           {index !== length - 1 && (
             <div
-              className={`flex-1 w-1 ml-0 h-1 mt-2.5 ${
+              className={`flex-1 w-1 ml-2.5 sm:ml-0 sm:h-1 sm:mt-2.5 ${
                 value > index + 1
                   ? 'bg-green-500'
                   : 'bg-gray-200 dark:bg-gray-700'
