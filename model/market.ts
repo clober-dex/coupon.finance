@@ -376,7 +376,7 @@ export const calculateDepositInfos = (
     initialDeposit,
   )
   const p =
-    (Number(totalDeposit) - Number(initialDeposit)) / Number(initialDeposit)
+    (Number(totalDeposit) - Number(initialDeposit)) / Number(totalDeposit)
   const d = Number(endTimestamp) - currentTimestamp
   const apy = calculateApy(p, d)
 
