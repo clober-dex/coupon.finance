@@ -4,5 +4,5 @@ export const formatDate = (date: Date): string =>
     month: 'short',
     day: '2-digit',
   })
-    .format(date)
+    .format(date.setDate(date.getDate() - 1))
     .replace(',', '')
