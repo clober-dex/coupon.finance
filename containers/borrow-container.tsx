@@ -140,12 +140,12 @@ const BorrowContainer = ({
                     collaterals={assetStatus.asset.collaterals}
                     key={index}
                     apys={assetStatusesByAsset.map(
-                      ({ epoch, totalDepositAvailable }) => ({
+                      ({ epoch, totalBorrowAvailable }) => ({
                         date: formatDate(
                           new Date(Number(epoch.endTimestamp) * 1000),
                         ),
                         apy:
-                          totalDepositAvailable > 0n
+                          totalBorrowAvailable > 0n
                             ? calculateApy(
                                 assetStatusesByAsset
                                   .filter(
