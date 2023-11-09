@@ -20,6 +20,7 @@ import { Currency } from '../model/currency'
 import { permit721 } from '../utils/permit721'
 import { writeContract } from '../utils/wallet'
 import { CHAIN_IDS } from '../constants/chain'
+import { tomorrowTimestampInSeconds } from '../utils/date'
 
 import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -124,8 +125,9 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           collateral.underlying,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          collateralAmount,
-          BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
+          collateralAmount -
+            calculateETHValue(collateral.underlying, collateralAmount),
+          tomorrowTimestampInSeconds(),
         )
         setConfirmation({
           title: `Borrowing ${loanAsset.underlying.symbol}`,
@@ -197,9 +199,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
 
       try {
-        const deadline = BigInt(
-          Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24),
-        )
         const positionPermitResult = await permit721(
           selectedChain.id,
           walletClient,
@@ -207,7 +206,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           position.id,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          deadline,
+          tomorrowTimestampInSeconds(),
         )
         const debtPermitResult = await permit20(
           selectedChain.id,
@@ -215,8 +214,8 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           position.underlying,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          amount,
-          deadline,
+          amount - calculateETHValue(position.underlying, amount),
+          tomorrowTimestampInSeconds(),
         )
 
         setConfirmation({
@@ -292,7 +291,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           position.id,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].OdosRepayAdapter,
-          BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
+          tomorrowTimestampInSeconds(),
         )
 
         setConfirmation({
@@ -362,7 +361,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           position.id,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
+          tomorrowTimestampInSeconds(),
         )
         setConfirmation({
           title: `Borrowing more ${position.underlying.symbol}`,
@@ -412,9 +411,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
 
       try {
-        const deadline = BigInt(
-          Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24),
-        )
         const positionPermitResult = await permit721(
           selectedChain.id,
           walletClient,
@@ -422,7 +418,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           positionId,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          deadline,
+          tomorrowTimestampInSeconds(),
         )
 
         const debtPermitResult = await permit20(
@@ -431,8 +427,8 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           underlying,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          expectedInterest,
-          deadline,
+          expectedInterest - calculateETHValue(underlying, expectedInterest),
+          tomorrowTimestampInSeconds(),
         )
 
         setConfirmation({
@@ -508,7 +504,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           positionId,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
+          tomorrowTimestampInSeconds(),
         )
 
         setConfirmation({
@@ -549,9 +545,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
 
       try {
-        const deadline = BigInt(
-          Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24),
-        )
         const positionPermitResult = await permit721(
           selectedChain.id,
           walletClient,
@@ -559,7 +552,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           position.id,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          deadline,
+          tomorrowTimestampInSeconds(),
         )
         const debtPermitResult = await permit20(
           selectedChain.id,
@@ -567,8 +560,8 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           position.collateral.underlying,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          amount,
-          deadline,
+          amount - calculateETHValue(position.collateral.underlying, amount),
+          tomorrowTimestampInSeconds(),
         )
 
         setConfirmation({
@@ -640,7 +633,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           position.id,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
+          tomorrowTimestampInSeconds(),
         )
 
         setConfirmation({
