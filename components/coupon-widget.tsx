@@ -22,13 +22,13 @@ export const CouponWidget = ({
   }[]
 }) => (
   <div className="fixed right-4 bottom-4">
-    <div className="group relative">
+    <div className="h-full group relative bg-transparent p-6">
       <CouponSvg
         target="_blank"
         href="https://github.com/clober-dex/coupon.finance"
         className="transition ease-in-out duration-300 group-hover:-translate-y-1 group-hover:scale-110"
       />
-      <div className="hidden absolute group-hover:block -right-2 sm:right-0 bottom-full mx-4 my-8 bg-white dark:bg-gray-500 rounded-lg">
+      <div className="hidden absolute group-hover:block -right-2 sm:right-0 bottom-3/4 mx-4 my-8 bg-white dark:bg-gray-500 rounded-lg">
         <div className="flex flex-col items-start w-max">
           {coupons.map((coupon, index) => (
             <div
