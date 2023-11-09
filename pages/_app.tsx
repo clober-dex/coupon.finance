@@ -27,6 +27,7 @@ import { TransactionProvider } from '../contexts/transaction-context'
 import { supportChains } from '../constants/chain'
 import { ChainProvider } from '../contexts/chain-context'
 import { Footer } from '../components/footer'
+import { CouponSvg } from '../components/svg/coupon-svg'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -128,6 +129,17 @@ function MyApp({ Component, pageProps }: AppProps) {
                         <HeaderWrapper />
                         <div className="mb-auto pt-12 md:pt-16">
                           <Component {...pageProps} />
+                          <CouponSvg
+                            target="_blank"
+                            href="https://github.com/clober-dex/coupon.finance"
+                            className="fixed right-4 bottom-4"
+                          >
+                            #
+                            {process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(
+                              0,
+                              7,
+                            )}
+                          </CouponSvg>
                         </div>
                         <Footer />
                       </div>
