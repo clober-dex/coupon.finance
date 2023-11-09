@@ -32,7 +32,7 @@ const ConfirmationModal = ({
             {confirmation.body}
           </div>
         </div>
-        <div>
+        <div className="flex flex-col gap-1">
           {confirmation.fields.map((field, index) => (
             <div
               key={index}
