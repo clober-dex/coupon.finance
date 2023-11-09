@@ -35,7 +35,7 @@ const Panel = ({
               >
                 <Dialog.Panel className="pointer-events-auto max-w-md">
                   <div className="flex h-full flex-col bg-white dark:bg-gray-950 shadow-xl">
-                    <div className="flex items-center px-8 h-16 justify-end">
+                    <div className="flex items-center px-4 h-16 justify-end">
                       <div className="flex items-start">
                         <div className="flex items-center">
                           <button
