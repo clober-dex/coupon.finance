@@ -30,7 +30,7 @@ const HeaderContainer = ({
     return 'deposit'
   }, [router.query.mode, router.route])
   return (
-    <div className="fixed z-[1000] w-full flex justify-between items-center py-4 px-4 sm:px-8 bg-white bg-opacity-5 backdrop-blur z-5">
+    <div className="fixed w-full flex justify-between items-center py-4 px-4 sm:px-8 bg-white bg-opacity-5 backdrop-blur z-50">
       <div className="flex items-center gap-12">
         <Link href="/">
           <LogoSvg className="h-9 hidden sm:flex w-[232.52px]" />
