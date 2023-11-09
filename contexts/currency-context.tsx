@@ -17,6 +17,7 @@ import { max } from '../utils/bigint'
 import { useChainContext } from './chain-context'
 
 type CurrencyContext = {
+  currencies: Currency[]
   balances: Balances
   prices: Prices
   assets: Asset[]
@@ -26,6 +27,7 @@ type CurrencyContext = {
 }
 
 const Context = React.createContext<CurrencyContext>({
+  currencies: [],
   balances: {},
   prices: {},
   assets: [],
@@ -146,6 +148,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   return (
     <Context.Provider
       value={{
+        currencies: currencies ?? [],
         prices: prices ?? {},
         balances: balances ?? {},
         assets: assets ?? [],

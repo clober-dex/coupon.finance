@@ -2,13 +2,12 @@ import BigNumber from 'bignumber.js'
 
 import { Currency } from '../model/currency'
 import { Prices } from '../model/prices'
-import { CHAIN_IDS } from '../constants/chain'
-import { ETH_CURRENCY } from '../constants/currency'
+import { isEthereum } from '../contexts/currency-context'
 
 import { dollarValue } from './numbers'
 
 export const convertToETH = (
-  chainId: CHAIN_IDS,
+  currencies: Currency[],
   prices: Prices,
   inputCurrency: Currency,
   inputAmount: bigint,
@@ -16,8 +15,8 @@ export const convertToETH = (
   if (!inputAmount) {
     return new BigNumber(0)
   }
-  const wethCurrency = ETH_CURRENCY[chainId]
-  if (inputCurrency.address === wethCurrency.address) {
+  const wethCurrency = currencies.find((currency) => isEthereum(currency))
+  if (!wethCurrency || inputCurrency.address === wethCurrency.address) {
     return new BigNumber(inputAmount.toString()).div(
       10 ** inputCurrency.decimals,
     )

@@ -14,7 +14,6 @@ import { calculateLtv } from '../../utils/ltv'
 import { MIN_DEBT_SIZE_IN_ETH } from '../../constants/debt'
 import { CHAIN_IDS } from '../../constants/chain'
 import { convertToETH } from '../../utils/currency'
-import { ETH_CURRENCY } from '../../constants/currency'
 import { useChainContext } from '../../contexts/chain-context'
 
 const RepayModalContainer = ({
@@ -28,7 +27,7 @@ const RepayModalContainer = ({
   const { address: userAddress } = useAccount()
   const { selectedChain } = useChainContext()
   const { repay, repayWithCollateral } = useBorrowContext()
-  const { prices, balances } = useCurrencyContext()
+  const { currencies, prices, balances } = useCurrencyContext()
 
   const [isUseCollateral, _setIsUseCollateral] = useState(false)
   const [value, setValue] = useState('')
@@ -128,7 +127,7 @@ const RepayModalContainer = ({
 
   const minDebtSizeInEth = MIN_DEBT_SIZE_IN_ETH[selectedChain.id as CHAIN_IDS]
   const expectedDebtSizeInEth = convertToETH(
-    selectedChain.id as CHAIN_IDS,
+    currencies,
     prices,
     position.underlying,
     max(position.amount - repayAmount - refund, 0n),

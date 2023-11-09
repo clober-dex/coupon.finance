@@ -19,11 +19,10 @@ import { useChainContext } from '../../contexts/chain-context'
 import { MIN_DEBT_SIZE_IN_ETH } from '../../constants/debt'
 import { CHAIN_IDS } from '../../constants/chain'
 import { convertToETH } from '../../utils/currency'
-import { ETH_CURRENCY } from '../../constants/currency'
 
 const Borrow = () => {
   const { selectedChain } = useChainContext()
-  const { balances, prices, assets } = useCurrencyContext()
+  const { currencies, balances, prices, assets } = useCurrencyContext()
   const { borrow } = useBorrowContext()
 
   const [epochs, _setEpochs] = useState(0)
@@ -116,9 +115,9 @@ const Borrow = () => {
 
   const minDebtSizeInEth = MIN_DEBT_SIZE_IN_ETH[selectedChain.id as CHAIN_IDS]
   const debtSizeInEth = convertToETH(
-    selectedChain.id as CHAIN_IDS,
+    currencies,
     prices,
-    asset ? asset.underlying : ETH_CURRENCY[selectedChain.id as CHAIN_IDS],
+    asset ? asset.underlying : currencies[0],
     borrowAmount + interest,
   )
   const isDeptSizeLessThanMinDebtSize = debtSizeInEth.lt(minDebtSizeInEth)
