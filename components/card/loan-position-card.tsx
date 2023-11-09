@@ -155,13 +155,13 @@ export const LoanPositionCard = ({
         </div>
         <div className="flex gap-3">
           <button
-            className="flex-1 bg-green-500 bg-opacity-10 text-green-500 font-bold px-3 py-2 rounded text-xs"
+            className="flex-1 bg-green-500 bg-opacity-10 hover:bg-opacity-20 text-green-500 font-bold px-3 py-2 rounded text-xs"
             onClick={onBorrowMore}
           >
             Borrow More
           </button>
           <button
-            className="flex-1 bg-green-500 bg-opacity-10 text-green-500 font-bold px-3 py-2 rounded text-xs"
+            className="flex-1 bg-green-500 bg-opacity-10 hover:bg-opacity-20 text-green-500 font-bold px-3 py-2 rounded text-xs"
             onClick={onRepay}
           >
             Repay

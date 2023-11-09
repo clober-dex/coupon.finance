@@ -5,7 +5,7 @@ import '../../styles/globals.css'
 import ConfirmationModal from './confirmation-modal'
 
 export default {
-  title: 'ConformationModal',
+  title: 'ConfirmationModal',
   component: ConfirmationModal,
   parameters: {
     layout: 'centered',

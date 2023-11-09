@@ -53,7 +53,9 @@ export const BorrowCard = ({
                     <span className="text-base font-bold">
                       {formatUnits(available, currency.decimals, price)}
                     </span>
-                    <span className="text-xs font-bold">{currency.symbol}</span>
+                    <span className="text-xs font-semibold">
+                      {currency.symbol}
+                    </span>
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-1">
@@ -62,7 +64,9 @@ export const BorrowCard = ({
                     <span className="text-base font-bold">
                       {formatUnits(borrowed, currency.decimals, price)}
                     </span>
-                    <span className="text-xs font-bold">{currency.symbol}</span>
+                    <span className="text-xs font-semibold">
+                      {currency.symbol}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -101,7 +105,7 @@ export const BorrowCard = ({
                 </div>
               ))}
             </div>
-            <div className="w-full flex flex-col items-center justify-center self-stretch bg-green-500 rounded h-12 px-3 py-2 font-bold text-base text-white gap-2">
+            <div className="w-full flex flex-col items-center justify-center self-stretch bg-green-500 rounded-lg h-12 px-3 py-2 font-bold text-base text-white gap-2 hover:bg-green-400 dark:hover:bg-green-600">
               Borrow
             </div>
           </div>

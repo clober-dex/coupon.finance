@@ -9,14 +9,18 @@ export const Footer = () => {
     <div className="flex mt-[64px] h-[68px] bg-white dark:bg-opacity-5 shrink-0 pt-0 items-center justify-center">
       <div className="inline-flex gap-12">
         <div className="flex items-center gap-2">
-          <div className="text-gray-400 text-sm">Powered by</div>
+          <div className="text-gray-400 dark:text-gray-500 text-sm">
+            Powered by
+          </div>
           <div className="flex flex-row gap-1">
             <CloberSymbolSvg />
             <CloberLogoSvg />
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <div className="text-gray-400 text-sm">Backed by</div>
+          <div className="text-gray-400 dark:text-gray-500 text-sm">
+            Backed by
+          </div>
           <HashedSvg />
         </div>
       </div>

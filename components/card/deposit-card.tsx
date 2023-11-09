@@ -27,7 +27,7 @@ export const DepositCard = ({
   )
   return (
     <Link href={`/deposit/${currency.symbol}`}>
-      <div className="transition ease-in-out delay-150 duration-300 sm:hover:-translate-y-1 sm:hover:scale-110 group flex flex-col h-[275px] w-full p-4 justify-center items-center gap-4 bg-white dark:bg-gray-800 rounded-xl shadow">
+      <div className="transition ease-in-out delay-150 duration-300 sm:hover:-translate-y-1 sm:hover:scale-110 group flex flex-col h-[275px] w-full p-4 justify-center items-center gap-4 bg-white dark:bg-gray-800 rounded-xl">
         <div className="flex flex-col items-start gap-3 self-stretch">
           <div className="flex items-center gap-2 self-stretch">
             <div className="w-8 h-8 relative">
@@ -53,7 +53,9 @@ export const DepositCard = ({
                     <span className="text-base font-bold">
                       {formatUnits(available, currency.decimals, price)}
                     </span>
-                    <span className="text-xs font-bold">{currency.symbol}</span>
+                    <span className="text-xs font-semibold">
+                      {currency.symbol}
+                    </span>
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-1">
@@ -62,7 +64,9 @@ export const DepositCard = ({
                     <span className="text-base font-bold">
                       {formatUnits(deposited, currency.decimals, price)}
                     </span>
-                    <span className="text-xs font-bold">{currency.symbol}</span>
+                    <span className="text-xs font-semibold">
+                      {currency.symbol}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -101,7 +105,7 @@ export const DepositCard = ({
                 </div>
               ))}
             </div>
-            <div className="w-full flex flex-col items-center justify-center self-stretch bg-green-500 rounded h-12 px-3 py-2 font-bold text-base text-white gap-2">
+            <div className="w-full flex flex-col items-center justify-center self-stretch bg-green-500 rounded-lg h-12 px-3 py-2 font-bold text-base text-white gap-2 hover:bg-green-400 dark:hover:bg-green-600">
               Deposit
             </div>
           </div>
