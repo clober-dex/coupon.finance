@@ -9,7 +9,7 @@ const ThemeToggleButton = ({
   setTheme: (theme: 'light' | 'dark') => void
 }) => {
   return (
-    <div className="flex rounded bg-white dark:bg-gray-800 w-16 h-8">
+    <div className="flex rounded bg-gray-50 dark:bg-gray-800 w-16 h-8">
       <button
         className="flex flex-1 rounded items-center justify-center border-solid dark:border-none border-gray-950 border-[1.5px]"
         onClick={() => setTheme('light')}

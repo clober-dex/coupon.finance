@@ -85,7 +85,7 @@ const Panel = ({
                           <path
                             d="M0 1H192"
                             strokeWidth="1.5"
-                            className="stroke-gray-600"
+                            className="stroke-gray-300 dark:stroke-gray-600"
                           />
                         </svg>
                         <a
