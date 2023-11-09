@@ -71,7 +71,7 @@ const WithdrawModalContainer = ({
     [data],
   )
   const withdrawAll = useMemo(
-    () => amount + maxRepurchaseFee === (position?.amount ?? 0n),
+    () => amount + maxRepurchaseFee >= (position?.amount ?? 0n),
     [amount, maxRepurchaseFee, position?.amount],
   )
 

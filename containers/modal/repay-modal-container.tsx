@@ -121,7 +121,7 @@ const RepayModalContainer = ({
     [data],
   )
   const repayAll = useMemo(
-    () => amount + maxRefund === position.amount,
+    () => amount + maxRefund >= position.amount,
     [amount, maxRefund, position.amount],
   )
 
