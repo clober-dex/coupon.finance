@@ -23,9 +23,8 @@ const EditExpiryModal = ({
     <Modal show onClose={onClose}>
       <h1 className="font-bold text-xl mb-3">Please select expiry date</h1>
       <div className="text-gray-500 text-sm mb-8">
-        To select a further date, more interest must be paid.
-        <br />
-        Select an earlier date to receive a refund on interest paid.
+        To select a further date, more interest must be paid. Select an earlier
+        date to receive a refund on interest paid.
       </div>
       <div className="flex flex-col relative bg-white dark:bg-gray-900 rounded-lg p-4 mb-8">
         <div className="px-6 mb-2">
