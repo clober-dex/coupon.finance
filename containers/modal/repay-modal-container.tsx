@@ -220,10 +220,7 @@ const RepayModalContainer = ({
             : repayAmount > position.amount - maxRefund
             ? `Cannot repay more than remaining debt`
             : isExpectedDebtSizeLessThanMinDebtSize
-            ? `Debt size must be bigger than ${minDebtSizeInEth.toFixed(
-                3,
-                2,
-              )} ETH in value`
+            ? `Remaining debt must be ≥ ${minDebtSizeInEth.toFixed(3, 2)} ETH`
             : isUseCollateral
             ? 'Repay with Collateral'
             : 'Repay',

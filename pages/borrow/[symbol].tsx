@@ -238,10 +238,10 @@ const Borrow = () => {
                         maxLoanableAmountExcludingCouponFee
                       ? 'Not enough collateral'
                       : isDeptSizeLessThanMinDebtSize
-                      ? `Debt size must be bigger than ${minDebtSizeInEth.toFixed(
+                      ? `Remaining debt must be ≥ ${minDebtSizeInEth.toFixed(
                           3,
                           2,
-                        )} ETH in value`
+                        )} ETH`
                       : 'Borrow',
                 }}
               />
