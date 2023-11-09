@@ -95,13 +95,6 @@ const DepositContainer = ({
                   Number(a.toEpoch.endTimestamp) -
                   Number(b.toEpoch.endTimestamp),
               )
-              .filter((position) =>
-                dollarValue(
-                  position.amount,
-                  position.underlying.decimals,
-                  prices[position.underlying.address],
-                ).isGreaterThanOrEqualTo(0.01),
-              )
               .map((position, index) => (
                 <BondPositionCard
                   key={index}

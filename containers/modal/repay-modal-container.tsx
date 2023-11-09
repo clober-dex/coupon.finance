@@ -125,6 +125,10 @@ const RepayModalContainer = ({
     () => (data ? [data.refund, data.maxRefund] : [0n, 0n]),
     [data],
   )
+  const repayAll = useMemo(
+    () => amount + maxRefund >= position.amount,
+    [amount, maxRefund, position.amount],
+  )
 
   const minDebtSizeInEth = MIN_DEBT_SIZE_IN_ETH[selectedChain.id as CHAIN_IDS]
   const expectedDebtSizeInEth = ethValue(
@@ -207,7 +211,7 @@ const RepayModalContainer = ({
               swapData,
             )
           } else if (!isUseCollateral) {
-            await repay(position, amount, refund)
+            await repay(position, amount, repayAll ? maxRefund : refund)
           }
           setValue('')
           onClose()

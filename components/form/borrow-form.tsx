@@ -91,6 +91,7 @@ export const BorrowForm = ({
             collateral ? prices[collateral?.underlying.address] : undefined
           }
           onCurrencyClick={() => setShowCollateralSelect(true)}
+          disabled={!collateral}
         />
       </div>
       <div className="flex flex-col gap-4">

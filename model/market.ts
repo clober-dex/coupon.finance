@@ -598,7 +598,7 @@ export function calculateCouponsToRepay(
   }
 
   return {
-    maxRefund: maxRefund,
-    refund: refund,
+    maxRefund,
+    refund,
   }
 }
