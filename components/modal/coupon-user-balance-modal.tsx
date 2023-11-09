@@ -23,10 +23,7 @@ const CouponWidget = ({
     }}
   >
     <div className="h-full relative bg-transparent p-2 sm:p-6">
-      <CouponSvg
-        target="_blank"
-        href="https://github.com/clober-dex/coupon.finance"
-      />
+      <CouponSvg />
       {children}
     </div>
   </div>
