@@ -96,7 +96,26 @@ export const LoanPositionCard = ({
               <span className="text-gray-500">
                 (
                 {formatDollarValue(
-                  position.amount,
+                  position.amount - position.interest,
+                  position.underlying.decimals,
+                  price,
+                )}
+                )
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center justify-between text-xs">
+            <div className="text-gray-500">Interest Charged</div>
+            <div className="flex gap-1 text-xs sm:text-sm">
+              {formatUnits(
+                position.interest,
+                position.underlying.decimals,
+                price,
+              )}
+              <span className="text-gray-500">
+                (
+                {formatDollarValue(
+                  position.interest,
                   position.underlying.decimals,
                   price,
                 )}
