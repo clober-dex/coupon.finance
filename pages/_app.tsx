@@ -109,10 +109,15 @@ const HeaderWrapper = () => {
 }
 
 const CouponWidgetWrapper = () => {
+  const { address } = useAccount()
   const { selectedChain } = useChainContext()
   const { coupons } = useCurrencyContext()
 
-  return <CouponWidget chainId={selectedChain.id} coupons={coupons} />
+  return address ? (
+    <CouponWidget chainId={selectedChain.id} coupons={coupons} />
+  ) : (
+    <></>
+  )
 }
 
 function MyApp({ Component, pageProps }: AppProps) {
