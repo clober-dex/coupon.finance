@@ -22,12 +22,15 @@ import { ThemeProvider, useThemeContext } from '../contexts/theme-context'
 import { DepositProvider } from '../contexts/deposit-context'
 import { BorrowProvider } from '../contexts/borrow-context'
 import Panel from '../components/panel'
-import { CurrencyProvider } from '../contexts/currency-context'
+import {
+  CurrencyProvider,
+  useCurrencyContext,
+} from '../contexts/currency-context'
 import { TransactionProvider } from '../contexts/transaction-context'
 import { supportChains } from '../constants/chain'
-import { ChainProvider } from '../contexts/chain-context'
+import { ChainProvider, useChainContext } from '../contexts/chain-context'
 import { Footer } from '../components/footer'
-import { CouponSvg } from '../components/svg/coupon-svg'
+import { CouponWidget } from '../components/coupon-widget'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -105,6 +108,13 @@ const HeaderWrapper = () => {
   )
 }
 
+const CouponWidgetWrapper = () => {
+  const { selectedChain } = useChainContext()
+  const { coupons } = useCurrencyContext()
+
+  return <CouponWidget chainId={selectedChain.id} coupons={coupons} />
+}
+
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
@@ -129,17 +139,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                         <HeaderWrapper />
                         <div className="mb-auto pt-12 md:pt-16">
                           <Component {...pageProps} />
-                          <CouponSvg
-                            target="_blank"
-                            href="https://github.com/clober-dex/coupon.finance"
-                            className="fixed right-4 bottom-4"
-                          >
-                            #
-                            {process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(
-                              0,
-                              7,
-                            )}
-                          </CouponSvg>
+                          <CouponWidgetWrapper />
                         </div>
                         <Footer />
                       </div>

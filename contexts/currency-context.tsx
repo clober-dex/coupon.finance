@@ -13,10 +13,18 @@ import { Epoch } from '../model/epoch'
 import { Balances } from '../model/balances'
 import { Prices } from '../model/prices'
 import { max } from '../utils/bigint'
+import { fetchMarkets } from '../apis/market'
+import { formatDate } from '../utils/date'
 
 import { useChainContext } from './chain-context'
 
 type CurrencyContext = {
+  coupons: {
+    date: string
+    balance: bigint
+    marketAddress: `0x${string}`
+    coupon: Currency
+  }[]
   balances: Balances
   prices: Prices
   assets: Asset[]
@@ -26,6 +34,7 @@ type CurrencyContext = {
 }
 
 const Context = React.createContext<CurrencyContext>({
+  coupons: [],
   balances: {},
   prices: {},
   assets: [],
@@ -136,6 +145,37 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
     },
   ) as { data: Balances }
 
+  const { data: coupons } = useQuery(
+    ['coupons', userAddress],
+    async () => {
+      if (!userAddress) {
+        return {}
+      }
+      const markets = await fetchMarkets(selectedChain.id)
+      const results = await readContracts({
+        contracts: markets.map(({ baseToken }) => ({
+          address: baseToken.address,
+          abi: IERC20__factory.abi,
+          functionName: 'balanceOf',
+          args: [userAddress],
+        })),
+      })
+      return results.map(({ result }, index) => {
+        const { address, baseToken, endTimestamp } = markets[index]
+        return {
+          date: formatDate(new Date(Number(endTimestamp) * 1000)),
+          marketAddress: getAddress(address),
+          coupon: baseToken,
+          balance: result ?? 0n,
+        }
+      })
+    },
+    {
+      refetchInterval: 5 * 1000,
+      refetchIntervalInBackground: true,
+    },
+  ) as { data: CurrencyContext['coupons'] }
+
   const calculateETHValue = useCallback(
     (currency: Currency, willPayAmount: bigint) => {
       if (!balance || !balances || !isEther(currency)) {
@@ -150,6 +190,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   return (
     <Context.Provider
       value={{
+        coupons: coupons ?? [],
         prices: prices ?? {},
         balances: balances ?? {},
         assets: assets ?? [],
