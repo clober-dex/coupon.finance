@@ -1,17 +1,17 @@
 import { Meta, StoryObj } from '@storybook/react'
 
-import '../styles/globals.css'
-import { CouponWidget } from './coupon-widget'
+import '../../styles/globals.css'
+import { CouponUserBalanceModal } from './coupon-user-balance-modal'
 
 export default {
-  title: 'CouponWidget',
-  component: CouponWidget,
+  title: 'CouponUserBalanceModal',
+  component: CouponUserBalanceModal,
   parameters: {
     layout: 'centered',
   },
-} as Meta<typeof CouponWidget>
+} as Meta<typeof CouponUserBalanceModal>
 
-type Story = StoryObj<typeof CouponWidget>
+type Story = StoryObj<typeof CouponUserBalanceModal>
 export const Default: Story = {
   args: {
     chainId: 1,

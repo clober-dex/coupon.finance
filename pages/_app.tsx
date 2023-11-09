@@ -30,7 +30,7 @@ import { TransactionProvider } from '../contexts/transaction-context'
 import { supportChains } from '../constants/chain'
 import { ChainProvider, useChainContext } from '../contexts/chain-context'
 import { Footer } from '../components/footer'
-import { CouponWidget } from '../components/coupon-widget'
+import { CouponUserBalanceModal } from '../components/modal/coupon-user-balance-modal'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -114,7 +114,7 @@ const CouponWidgetWrapper = () => {
   const { coupons } = useCurrencyContext()
 
   return address ? (
-    <CouponWidget chainId={selectedChain.id} coupons={coupons} />
+    <CouponUserBalanceModal chainId={selectedChain.id} coupons={coupons} />
   ) : (
     <></>
   )
