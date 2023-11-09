@@ -139,7 +139,7 @@ const RepayModalContainer = ({
     prices[position.underlying.address],
   )
   const isExpectedDebtSizeLessThanMinDebtSize =
-    expectedDebtSizeInEth.lt(minDebtSizeInEth)
+    expectedDebtSizeInEth.lt(minDebtSizeInEth) && expectedDebtSizeInEth.gt(0)
 
   return (
     <RepayModal

@@ -122,7 +122,8 @@ const Borrow = () => {
     borrowAmount + interest,
     prices[asset?.underlying?.address ?? zeroAddress],
   )
-  const isDeptSizeLessThanMinDebtSize = debtSizeInEth.lt(minDebtSizeInEth)
+  const isDeptSizeLessThanMinDebtSize =
+    debtSizeInEth.lt(minDebtSizeInEth) && debtSizeInEth.gt(0)
 
   return (
     <div className="flex flex-1">
