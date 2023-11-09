@@ -397,7 +397,6 @@ export const calculateBorrowApy = (
   interest: bigint
   maxInterest: bigint
   apy: number
-  totalBorrow: bigint
   available: bigint
 } => {
   if (
@@ -420,7 +419,7 @@ export const calculateBorrowApy = (
   )
 
   const endTimestamp = Math.max(...markets.map((market) => market.endTimestamp))
-  const totalBorrow = initialBorrow - interest
+  const totalBorrow = initialBorrow + interest
   const p = Number(interest) / Number(totalBorrow)
   const d = Number(endTimestamp) - currentTimestamp
   const apy = calculateApy(p, d)
@@ -429,7 +428,6 @@ export const calculateBorrowApy = (
     apy,
     interest,
     maxInterest,
-    totalBorrow,
     available,
   }
 }
