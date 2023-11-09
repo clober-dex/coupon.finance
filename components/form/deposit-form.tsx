@@ -153,8 +153,9 @@ export const DepositForm = ({
                     Coupon <Tooltip id="remaning-coupon" />
                   </div>
                   <div className="flex flex-col gap-2 ml-auto">
-                    {remainingCoupons.map(
-                      ({ date, remainingCoupon }, index) => (
+                    {remainingCoupons
+                      .filter(({ remainingCoupon }) => remainingCoupon !== 0n)
+                      .map(({ date, remainingCoupon }, index) => (
                         <div key={index} className="flex items-center gap-1">
                           <div className="text-base">
                             +
@@ -168,8 +169,7 @@ export const DepositForm = ({
                             {date}
                           </div>
                         </div>
-                      ),
-                    )}
+                      ))}
                   </div>
                 </div>
               ) : (
