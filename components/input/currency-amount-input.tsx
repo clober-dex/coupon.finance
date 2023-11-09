@@ -91,9 +91,13 @@ const CurrencyAmountInput = ({
           <div className="flex text-xs sm:text-sm gap-1 sm:gap-2">
             <div className="text-gray-500">Available</div>
             <div>{formatUnits(availableAmount, currency.decimals, price)}</div>
-            <button className="text-green-500" onClick={onMaxClick}>
-              MAX
-            </button>
+            {availableAmount > 0n ? (
+              <button className="text-green-500" onClick={onMaxClick}>
+                MAX
+              </button>
+            ) : (
+              <></>
+            )}
           </div>
         ) : (
           <></>

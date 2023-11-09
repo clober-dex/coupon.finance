@@ -37,7 +37,7 @@ export const BorrowCard = ({
             <div className="flex flex-col justify-center items-end ml-auto gap-1 group-hover:hidden">
               <div className="text-xs text-gray-400">As low as</div>
               <div className="text-base font-bold">
-                {!Number.isNaN(apy) ? `${apy.toFixed(2)}%` : 'N/A'}
+                {!Number.isNaN(apy) ? `${apy.toFixed(2)}%` : '-'}
               </div>
             </div>
             <div className="text-gray-400 text-sm ml-auto hidden group-hover:block">
@@ -95,7 +95,7 @@ export const BorrowCard = ({
               {apys.map(({ date, apy }, i) => (
                 <div className="flex items-start self-stretch" key={i}>
                   <div className="felx flex-grow shrink-0 basis-0 font-bold">
-                    {!Number.isNaN(apy) ? `${apy.toFixed(2)}%` : 'N/A'}
+                    {!Number.isNaN(apy) ? `${apy.toFixed(2)}%` : '-'}
                   </div>
                   <div className="text-gray-500 text-base">{date}</div>
                 </div>

@@ -14,7 +14,7 @@ const DarkSvg = (props: SVGProps<SVGSVGElement>) => (
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="dark:stroke-white stroke-gray-500 "
+      className="fill-gray-500 dark:fill-white"
     />
   </svg>
 )
