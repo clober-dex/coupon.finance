@@ -149,7 +149,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
     ['coupons', userAddress],
     async () => {
       if (!userAddress) {
-        return {}
+        return []
       }
       const markets = await fetchMarkets(selectedChain.id)
       const results = await readContracts({
