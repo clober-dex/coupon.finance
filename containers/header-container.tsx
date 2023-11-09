@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import Link from 'next/link'
 import { useAccount } from 'wagmi'
 import { useRouter } from 'next/router'
@@ -20,7 +20,15 @@ const HeaderContainer = ({
 }) => {
   const { address, status } = useAccount()
   const router = useRouter()
-
+  const selected = useMemo(() => {
+    if (router.query.mode === 'deposit' || router.route.includes('deposit')) {
+      return 'deposit'
+    }
+    if (router.query.mode === 'borrow' || router.route.includes('borrow')) {
+      return 'borrow'
+    }
+    return 'deposit'
+  }, [router.query.mode, router.route])
   return (
     <div className="fixed z-[1000] w-full flex justify-between items-center py-4 px-4 sm:px-8 bg-white bg-opacity-5 backdrop-blur z-5">
       <div className="flex items-center gap-12">
@@ -33,7 +41,7 @@ const HeaderContainer = ({
             onClick={() => {
               router.replace('/', undefined, { shallow: true })
             }}
-            disabled={!router.query.mode || router.query.mode === 'deposit'}
+            disabled={selected === 'deposit'}
             className="hover:text-gray-950 dark:hover:text-gray-100 disabled:text-gray-950 disabled:dark:text-white text-gray-400"
           >
             Earn
@@ -44,7 +52,7 @@ const HeaderContainer = ({
                 shallow: true,
               })
             }}
-            disabled={router.query.mode === 'borrow'}
+            disabled={selected === 'borrow'}
             className="hover:text-gray-950 dark:hover:text-gray-100 disabled:text-gray-950 disabled:dark:text-white text-gray-400"
           >
             Strategies

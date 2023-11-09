@@ -95,18 +95,6 @@ export const BorrowForm = ({
       </div>
       <div className="flex flex-col gap-4">
         <div className="font-bold text-sm sm:text-lg">
-          How much would you like to borrow?
-        </div>
-        <CurrencyAmountInput
-          currency={borrowCurrency}
-          value={borrowValue}
-          onValueChange={setBorrowValue}
-          price={prices[borrowCurrency.address]}
-          availableAmount={maxBorrowAmount}
-        />
-      </div>
-      <div className="flex flex-col gap-4">
-        <div className="font-bold text-sm sm:text-lg">
           Select expiration date.
         </div>
         <div className="flex flex-row-reverse justify-between sm:flex-col relative bg-white dark:bg-gray-800 rounded-lg p-4">
@@ -131,28 +119,40 @@ export const BorrowForm = ({
             ))}
           </div>
         </div>
-        <div className="flex flex-col gap-2">
-          <div className="flex w-full sm:w-fit text-sm gap-2 justify-between">
-            <span className="text-gray-500">APY</span>
-            <div className="flex gap-1">
-              <div className="text-gray-800 dark:text-white">
-                {borrowApy.toFixed(2)}%
-              </div>
-              <div className="text-gray-400">
-                (
-                {formatUnits(
-                  interest,
-                  borrowCurrency.decimals,
-                  prices[borrowCurrency.address],
-                )}{' '}
-                {borrowCurrency.symbol} in interest)
-              </div>
+      </div>
+      <div className="flex flex-col gap-4">
+        <div className="font-bold text-sm sm:text-lg">
+          How much would you like to borrow?
+        </div>
+        <CurrencyAmountInput
+          currency={borrowCurrency}
+          value={borrowValue}
+          onValueChange={setBorrowValue}
+          price={prices[borrowCurrency.address]}
+          availableAmount={maxBorrowAmount}
+        />
+      </div>
+      <div className="flex flex-col gap-2">
+        <div className="flex w-full sm:w-fit text-sm gap-2 justify-between">
+          <span className="text-gray-500">APY</span>
+          <div className="flex gap-1">
+            <div className="text-gray-800 dark:text-white">
+              {borrowApy.toFixed(2)}%
+            </div>
+            <div className="text-gray-400">
+              (
+              {formatUnits(
+                interest,
+                borrowCurrency.decimals,
+                prices[borrowCurrency.address],
+              )}{' '}
+              {borrowCurrency.symbol} in interest)
             </div>
           </div>
-          <div className="flex w-full sm:w-fit text-sm gap-2 justify-between">
-            <span className="text-gray-500">LTV</span>
-            <div className="text-yellow-500">{borrowLTV.toFixed(2)}%</div>
-          </div>
+        </div>
+        <div className="flex w-full sm:w-fit text-sm gap-2 justify-between">
+          <span className="text-gray-500">LTV</span>
+          <div className="text-yellow-500">{borrowLTV.toFixed(2)}%</div>
         </div>
       </div>
       <ActionButton {...actionButtonProps} />
