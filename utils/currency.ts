@@ -9,10 +9,10 @@ import { dollarValue } from './numbers'
 export const convertToETH = (
   currencies: Currency[],
   prices: Prices,
-  inputCurrency: Currency,
+  inputCurrency: Currency | undefined,
   inputAmount: bigint,
 ): BigNumber => {
-  if (!inputAmount) {
+  if (!inputCurrency || !inputAmount) {
     return new BigNumber(0)
   }
   const wethCurrency = currencies.find((currency) => isEthereum(currency))

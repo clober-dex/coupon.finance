@@ -117,7 +117,7 @@ const Borrow = () => {
   const debtSizeInEth = convertToETH(
     currencies,
     prices,
-    asset ? asset.underlying : currencies[0],
+    asset?.underlying,
     borrowAmount + interest,
   )
   const isDeptSizeLessThanMinDebtSize = debtSizeInEth.lt(minDebtSizeInEth)
