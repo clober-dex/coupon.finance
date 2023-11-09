@@ -5,7 +5,7 @@ import '../../styles/globals.css'
 import ConfirmationModal from './confirmation-modal'
 
 export default {
-  title: 'ConformationModal',
+  title: 'ConfirmationModal',
   component: ConfirmationModal,
   parameters: {
     layout: 'centered',
@@ -20,6 +20,16 @@ export const Default: Story = {
       title: 'Confirm',
       body: 'Are you sure you want to do this?',
       fields: [
+        {
+          currency: {
+            address: '0x0000000000000000000000000000000000000003',
+            name: 'ETH',
+            symbol: 'ETH',
+            decimals: 18,
+          },
+          label: 'Field 1',
+          value: 'Value 1',
+        },
         {
           currency: {
             address: '0x0000000000000000000000000000000000000003',

@@ -20,7 +20,7 @@ export const BondPositionCard = ({
 } & React.HTMLAttributes<HTMLDivElement>) => {
   const now = Math.floor(new Date().getTime() / 1000)
   return (
-    <div className="flex w-full pb-4 flex-col items-center gap-3 shrink-0 bg-white dark:bg-gray-800 rounded-xl shadow">
+    <div className="flex w-full pb-4 flex-col items-center gap-3 shrink-0 bg-white dark:bg-gray-800 rounded-xl">
       <div className="flex p-4 items-center self-stretch">
         <div className="flex items-center gap-3 flex-grow flex-shrink basis-0">
           <div className="w-8 h-8 relative">
@@ -31,7 +31,9 @@ export const BondPositionCard = ({
             />
           </div>
           <div className="flex flex-col justify-center items-start gap-0.5">
-            <div className="text-sm text-gray-500">Deposit</div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              Deposit
+            </div>
             <div className="font-bold text-base">
               {position.underlying.symbol}
             </div>
@@ -41,7 +43,7 @@ export const BondPositionCard = ({
           <div>
             {now < Number(position.toEpoch.endTimestamp) ? (
               <>
-                <div className="flex text-sm text-gray-500 justify-end font-normal">
+                <div className="flex text-sm text-gray-500 dark:text-gray-400 justify-end font-normal">
                   Expires
                 </div>
                 {formatDate(
@@ -112,7 +114,7 @@ export const BondPositionCard = ({
           </button>
         ) : (
           <button
-            className="w-full bg-green-500 bg-opacity-10 text-green-500 font-bold px-3 py-2 rounded text-xs"
+            className="w-full bg-green-500 bg-opacity-10 hover:bg-opacity-20 text-green-500 font-bold px-3 py-2 rounded text-xs"
             onClick={onWithdraw}
           >
             Withdraw
@@ -120,7 +122,7 @@ export const BondPositionCard = ({
         )}
       </div>
     </div>
-    // <div className="rounded-xl shadow bg-gray-50 dark:bg-gray-900" {...props}>
+    // <div className="rounded-xl bg-gray-50 dark:bg-gray-900" {...props}>
     //   <div className="flex justify-between rounded-t-xl p-4 bg-white dark:bg-gray-800">
     //     <div className="flex items-center gap-3">
     //       <div className="w-8 h-8 relative">

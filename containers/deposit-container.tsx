@@ -37,20 +37,22 @@ const DepositContainer = ({
   return (
     <div className="flex flex-1 flex-col w-full sm:w-fit">
       <h1 className="flex justify-center text-center font-bold text-xl sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-16 mb-8 sm:mb-16">
-        Term Deposit <br className="flex sm:hidden" /> for the Best Rates in
+        Term Deposit <br className="flex md:hidden" /> for the Best Rates in
         DeFi
       </h1>
       {positions.length > 0 ? (
         <div className="flex flex-col gap-6 mb-8 px-4 lg:p-0">
           <div className="flex gap-2 sm:gap-3 items-center">
             <h2 className="font-bold text-base sm:text-2xl">My Positions</h2>
-            <div className="font-bold text-sm bg-gray-200 dark:bg-gray-700 rounded-full px-2.5 sm:px-3 py-0.5 sm:py-1">
+            <div className="font-bold text-sm bg-gray-200 dark:bg-gray-800 rounded-full px-2.5 sm:px-3 py-0.5 sm:py-1">
               {positions.length}
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-8 text-sm shadow sm:w-fit bg-white dark:bg-gray-900 px-4 py-3 rounded-xl sm:rounded-lg">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-8 text-sm sm:w-fit bg-white dark:bg-gray-800 px-4 py-3 rounded-xl sm:rounded-lg">
             <div className="flex justify-between gap-3">
-              <div className="text-gray-500">Total Deposit</div>
+              <div className="text-gray-500 dark:text-gray-400">
+                Total Deposit
+              </div>
               <div className="font-bold">
                 $
                 {positions
@@ -67,7 +69,9 @@ const DepositContainer = ({
               </div>
             </div>
             <div className="flex justify-between gap-3">
-              <div className="text-gray-500">Total Earned</div>
+              <div className="text-gray-500 dark:text-gray-400">
+                Total Earned
+              </div>
               <div className="font-bold">
                 $
                 {positions

@@ -30,19 +30,19 @@ const HeaderContainer = ({
     return 'deposit'
   }, [router.query.mode, router.route])
   return (
-    <div className="fixed w-full flex justify-between items-center py-4 px-4 sm:px-8 bg-white bg-opacity-5 backdrop-blur z-50">
-      <div className="flex items-center gap-12">
+    <div className="fixed w-full flex justify-between items-center px-4 sm:px-8 bg-white bg-opacity-5 backdrop-blur z-50 h-16">
+      <div className="flex h-full items-center gap-12 lg:gap-16">
         <Link href="/">
           <LogoSvg className="h-9 hidden sm:flex w-[232.52px]" />
           <LogotypeSvg className="h-4 sm:hidden w-[123.09px]" />
         </Link>
-        <div className="relative hidden sm:flex items-center gap-8 font-bold text-gray-400 hover:text-gray-500">
+        <div className="h-full hidden md:flex items-center gap-8 font-bold text-gray-400 hover:text-gray-500">
           <button
             onClick={() => {
               router.replace('/', undefined, { shallow: true })
             }}
             disabled={selected === 'deposit'}
-            className="hover:text-gray-950 dark:hover:text-gray-100 disabled:text-gray-950 disabled:dark:text-white text-gray-400"
+            className="h-full hover:text-gray-950 dark:hover:text-gray-100 disabled:text-gray-950 disabled:dark:text-white text-gray-400"
           >
             Earn
           </button>
@@ -53,13 +53,13 @@ const HeaderContainer = ({
               })
             }}
             disabled={selected === 'borrow'}
-            className="hover:text-gray-950 dark:hover:text-gray-100 disabled:text-gray-950 disabled:dark:text-white text-gray-400"
+            className="h-full hover:text-gray-950 dark:hover:text-gray-100 disabled:text-gray-950 disabled:dark:text-white text-gray-400"
           >
             Strategies
           </button>
-          <button className="group dark:hover:text-gray-100 hover:text-gray-950 hidden lg:flex">
+          <button className="relative h-full items-center text-gray-400 group dark:hover:text-gray-100 hover:text-gray-950 hidden lg:flex">
             Community
-            <div className="opacity-0 transition-all duration-100 invisible group-hover:visible group-hover:opacity-100 group-hover:duration-0">
+            <div className="hidden group-hover:flex">
               <CommunityDropdownModal />
             </div>
           </button>

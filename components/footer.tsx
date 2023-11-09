@@ -9,7 +9,7 @@ export const Footer = () => {
     <div className="flex h-[68px] bg-white dark:bg-gray-950 shrink-0 pt-0 items-center justify-center">
       <div className="inline-flex gap-12">
         <div className="flex items-center gap-2">
-          <div className="text-gray-400 dark:text-white text-sm">
+          <div className="text-gray-400 dark:text-gray-500 text-sm">
             Powered by
           </div>
           <div className="flex flex-row gap-1">
@@ -18,7 +18,9 @@ export const Footer = () => {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <div className="text-gray-400 dark:text-white text-sm">Backed by</div>
+          <div className="text-gray-400 dark:text-gray-500 text-sm">
+            Backed by
+          </div>
           <HashedSvg />
         </div>
       </div>

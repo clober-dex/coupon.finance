@@ -23,7 +23,7 @@ const Panel = ({
 
         <div className="fixed inset-0 overflow-hidden">
           <div className="absolute inset-0 overflow-hidden">
-            <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-24">
+            <div className="pointer-events-none fixed inset-y-0 right-0 flex max-w-full">
               <Transition.Child
                 as={Fragment}
                 enter="transform transition ease-in-out duration-500 sm:duration-700"
@@ -33,11 +33,10 @@ const Panel = ({
                 leaveFrom="translate-x-0"
                 leaveTo="translate-x-full"
               >
-                <Dialog.Panel className="pointer-events-auto w-screen max-w-md">
-                  <div className="flex h-full flex-col bg-white dark:bg-gray-950 py-3 shadow-xl">
-                    <div className="px-3">
-                      <div className="flex items-start justify-between">
-                        <Dialog.Title className="text-base font-semibold leading-6 text-gray-900"></Dialog.Title>
+                <Dialog.Panel className="pointer-events-auto max-w-md">
+                  <div className="flex h-full flex-col bg-white dark:bg-gray-950 shadow-xl">
+                    <div className="flex items-center px-8 h-16 justify-end">
+                      <div className="flex items-start">
                         <div className="flex items-center">
                           <button
                             type="button"
@@ -51,7 +50,7 @@ const Panel = ({
                         </div>
                       </div>
                     </div>
-                    <div className="flex flex-col text-gray-950 dark:text-white justify-center text-base font-bold relative mb-6 flex-1 px-6 gap-8">
+                    <div className="flex flex-col text-gray-950 dark:text-white justify-center text-base font-bold relative mb-6 flex-1 pl-6 pr-16 gap-8">
                       <div className="flex flex-col gap-4 items-start w-[192px]">
                         <button
                           disabled={
@@ -85,8 +84,8 @@ const Panel = ({
                         >
                           <path
                             d="M0 1H192"
-                            stroke="#E5E7EB"
                             strokeWidth="1.5"
+                            className="stroke-gray-600"
                           />
                         </svg>
                         <a
