@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { useAccount, useFeeData, useQuery } from 'wagmi'
-import { isAddressEqual, parseUnits } from 'viem'
+import { isAddressEqual, parseUnits, zeroAddress } from 'viem'
 
 import { LoanPosition } from '../../model/loan-position'
 import { useCurrencyContext } from '../../contexts/currency-context'
@@ -13,7 +13,7 @@ import RepayModal from '../../components/modal/repay-modal'
 import { calculateLtv } from '../../utils/ltv'
 import { MIN_DEBT_SIZE_IN_ETH } from '../../constants/debt'
 import { CHAIN_IDS } from '../../constants/chain'
-import { convertToETH } from '../../utils/currency'
+import { ethValue } from '../../utils/currency'
 import { useChainContext } from '../../contexts/chain-context'
 
 const RepayModalContainer = ({
@@ -27,7 +27,7 @@ const RepayModalContainer = ({
   const { address: userAddress } = useAccount()
   const { selectedChain } = useChainContext()
   const { repay, repayWithCollateral } = useBorrowContext()
-  const { currencies, prices, balances } = useCurrencyContext()
+  const { prices, balances } = useCurrencyContext()
 
   const [isUseCollateral, _setIsUseCollateral] = useState(false)
   const [value, setValue] = useState('')
@@ -126,11 +126,12 @@ const RepayModalContainer = ({
   )
 
   const minDebtSizeInEth = MIN_DEBT_SIZE_IN_ETH[selectedChain.id as CHAIN_IDS]
-  const expectedDebtSizeInEth = convertToETH(
-    currencies,
-    prices,
+  const expectedDebtSizeInEth = ethValue(
+    selectedChain,
+    prices[zeroAddress],
     position.underlying,
     max(position.amount - repayAmount - refund, 0n),
+    prices[position.underlying.address],
   )
   const isExpectedDebtSizeLessThanMinDebtSize =
     expectedDebtSizeInEth.lt(minDebtSizeInEth)

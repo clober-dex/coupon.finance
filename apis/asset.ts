@@ -3,7 +3,7 @@ import { getAddress } from 'viem'
 import { Collateral, getBuiltGraphSDK, Token } from '../.graphclient'
 import { Asset, AssetStatus } from '../model/asset'
 import { Market } from '../model/market'
-import { isEthereum } from '../contexts/currency-context'
+import { isEther } from '../contexts/currency-context'
 import { LIQUIDATION_TARGET_LTV_PRECISION } from '../utils/ltv'
 import { SUBGRAPH_URL } from '../constants/subgraph-url'
 import { CHAIN_IDS } from '../constants/chain'
@@ -15,7 +15,7 @@ let cache: Asset[] | null = null
 export const toCurrency = (
   token: Pick<Token, 'id' | 'symbol' | 'name' | 'decimals'>,
 ) =>
-  isEthereum({
+  isEther({
     address: getAddress(token.id),
     ...token,
   })

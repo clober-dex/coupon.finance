@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { parseUnits } from 'viem'
+import { parseUnits, zeroAddress } from 'viem'
 import { useQuery } from 'wagmi'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -18,11 +18,11 @@ import { BorrowForm } from '../../components/form/borrow-form'
 import { useChainContext } from '../../contexts/chain-context'
 import { MIN_DEBT_SIZE_IN_ETH } from '../../constants/debt'
 import { CHAIN_IDS } from '../../constants/chain'
-import { convertToETH } from '../../utils/currency'
+import { ethValue } from '../../utils/currency'
 
 const Borrow = () => {
   const { selectedChain } = useChainContext()
-  const { currencies, balances, prices, assets } = useCurrencyContext()
+  const { balances, prices, assets } = useCurrencyContext()
   const { borrow } = useBorrowContext()
 
   const [epochs, _setEpochs] = useState(0)
@@ -114,11 +114,12 @@ const Borrow = () => {
   )
 
   const minDebtSizeInEth = MIN_DEBT_SIZE_IN_ETH[selectedChain.id as CHAIN_IDS]
-  const debtSizeInEth = convertToETH(
-    currencies,
-    prices,
+  const debtSizeInEth = ethValue(
+    selectedChain,
+    prices[zeroAddress],
     asset?.underlying,
     borrowAmount + interest,
+    prices[asset?.underlying?.address ?? zeroAddress],
   )
   const isDeptSizeLessThanMinDebtSize = debtSizeInEth.lt(minDebtSizeInEth)
 
