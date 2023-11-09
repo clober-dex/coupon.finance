@@ -1,10 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react'
 
 import '../styles/globals.css'
-import { mainnet } from 'wagmi'
-
-import { Currency } from '../model/currency'
-
 import { CouponWidget } from './coupon-widget'
 
 export default {
@@ -18,7 +14,7 @@ export default {
 type Story = StoryObj<typeof CouponWidget>
 export const Default: Story = {
   args: {
-    chain: mainnet,
+    chainId: 1,
     coupons: [
       {
         date: '01 Sep 2024',

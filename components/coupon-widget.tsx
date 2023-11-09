@@ -1,5 +1,4 @@
 import React from 'react'
-import { Chain } from 'wagmi'
 import Link from 'next/link'
 import { getAddress } from 'viem'
 
@@ -10,10 +9,10 @@ import { CouponSvg } from './svg/coupon-svg'
 import { RightBracketAngleSvg } from './svg/right-bracket-angle-svg'
 
 export const CouponWidget = ({
-  chain,
+  chainId,
   coupons,
 }: {
-  chain: Chain
+  chainId: number
   coupons: {
     date: string
     balance: bigint
@@ -45,9 +44,9 @@ export const CouponWidget = ({
                 </div>
                 <Link
                   target="_blank"
-                  href={`https://app.clober.io/limit?chain=${
-                    chain.id
-                  }&market=${getAddress(coupon.marketAddress)}`}
+                  href={`https://app.clober.io/limit?chain=${chainId}&market=${getAddress(
+                    coupon.marketAddress,
+                  )}`}
                 >
                   <div className="flex items-center gap-1 text-sm text-green-500">
                     Market <RightBracketAngleSvg />
