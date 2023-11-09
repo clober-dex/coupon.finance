@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { useAccount, useFeeData, useQuery } from 'wagmi'
 import { isAddressEqual, parseUnits, zeroAddress } from 'viem'
+import BigNumber from 'bignumber.js'
 
 import { LoanPosition } from '../../model/loan-position'
 import { useCurrencyContext } from '../../contexts/currency-context'
@@ -220,7 +221,10 @@ const RepayModalContainer = ({
             : repayAmount > position.amount - maxRefund
             ? `Cannot repay more than remaining debt`
             : isExpectedDebtSizeLessThanMinDebtSize
-            ? `Remaining debt must be ≥ ${minDebtSizeInEth.toFixed(3, 2)} ETH`
+            ? `Remaining debt must be ≥ ${minDebtSizeInEth.toFixed(
+                3,
+                BigNumber.ROUND_CEIL,
+              )} ETH`
             : isUseCollateral
             ? 'Repay with Collateral'
             : 'Repay',

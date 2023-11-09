@@ -5,6 +5,7 @@ import { parseUnits, zeroAddress } from 'viem'
 import { useQuery } from 'wagmi'
 import Image from 'next/image'
 import Link from 'next/link'
+import BigNumber from 'bignumber.js'
 
 import BackSvg from '../../components/svg/back-svg'
 import { getLogo } from '../../model/currency'
@@ -240,7 +241,7 @@ const Borrow = () => {
                       : isDeptSizeLessThanMinDebtSize
                       ? `Remaining debt must be ≥ ${minDebtSizeInEth.toFixed(
                           3,
-                          2,
+                          BigNumber.ROUND_CEIL,
                         )} ETH`
                       : 'Borrow',
                 }}
