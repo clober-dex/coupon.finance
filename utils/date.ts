@@ -6,3 +6,7 @@ export const formatDate = (date: Date): string =>
   })
     .format(date.setDate(date.getDate() - 1))
     .replace(',', '')
+
+export const tomorrowTimestampInSeconds = (): bigint => {
+  return BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24))
+}

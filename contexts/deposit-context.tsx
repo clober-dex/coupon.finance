@@ -19,6 +19,7 @@ import { permit721 } from '../utils/permit721'
 import { Currency } from '../model/currency'
 import { writeContract } from '../utils/wallet'
 import { CHAIN_IDS } from '../constants/chain'
+import { tomorrowTimestampInSeconds } from '../utils/date'
 
 import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -90,8 +91,8 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           asset.underlying,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
-          amount,
-          BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
+          amount - calculateETHValue(asset.underlying, amount),
+          tomorrowTimestampInSeconds(),
         )
         setConfirmation({
           title: 'Making Deposit',
@@ -166,7 +167,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           tokenId,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
-          BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
+          tomorrowTimestampInSeconds(),
         )
         setConfirmation({
           title: 'Making Withdrawal',
@@ -216,7 +217,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           tokenId,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
-          BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24)),
+          tomorrowTimestampInSeconds(),
         )
         setConfirmation({
           title: 'Collecting',
