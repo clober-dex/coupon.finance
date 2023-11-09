@@ -68,7 +68,7 @@ export const RiskSidebar = ({
             <div className="text-base font-bold">Collateral Risk</div>
             <div className="flex flex-col items-start gap-4 text-xs font-medium text-gray-400 w-full">
               <div className="flex flex-row w-full items-start">
-                <div className="flex flex-[1.4] justify-center items-start">
+                <div className="flex flex-[1.4] justify-start items-start">
                   Coin
                 </div>
                 <div className="flex flex-1 sm:flex-row justify-start items-center">
@@ -105,8 +105,8 @@ export const RiskSidebar = ({
                         key={index}
                         className="flex flex-row items-center w-full"
                       >
-                        <div className="flex flex-[1.4] sm:flex-[1.6] gap-3 shrink-0">
-                          <div className="inline-flex w-8 h-8 relative">
+                        <div className="flex flex-[1.4] items-center sm:flex-[1.6] gap-3 shrink-0">
+                          <div className="flex w-8 h-8 relative">
                             <Image
                               src={getLogo(underlying)}
                               alt={underlying.name}
@@ -114,7 +114,7 @@ export const RiskSidebar = ({
                             />
                           </div>
                           <div className="flex flex-col justify-center items-start">
-                            <div className="text-base font-bold	text-gray-950 dark:text-white">
+                            <div className="text-base font-bold flex justify-center	text-gray-950 dark:text-white">
                               {underlying.symbol}
                             </div>
                             <div className="text-xs font-medium	text-gray-500 hidden sm:inline-flex">
