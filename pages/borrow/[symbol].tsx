@@ -16,6 +16,10 @@ import { calculateLtv, calculateMaxLoanableAmount } from '../../utils/ltv'
 import { max, min } from '../../utils/bigint'
 import { BorrowForm } from '../../components/form/borrow-form'
 import { useChainContext } from '../../contexts/chain-context'
+import { MIN_DEBT_SIZE_IN_ETH } from '../../constants/debt'
+import { CHAIN_IDS } from '../../constants/chain'
+import { convertToETH } from '../../utils/currency'
+import { ETH_CURRENCY } from '../../constants/currency'
 
 const Borrow = () => {
   const { selectedChain } = useChainContext()
@@ -110,6 +114,15 @@ const Borrow = () => {
     [epochs, interestsByEpochsBorrowed],
   )
 
+  const minDebtSizeInEth = MIN_DEBT_SIZE_IN_ETH[selectedChain.id as CHAIN_IDS]
+  const debtSizeInEth = convertToETH(
+    selectedChain.id as CHAIN_IDS,
+    prices,
+    asset ? asset.underlying : ETH_CURRENCY[selectedChain.id as CHAIN_IDS],
+    borrowAmount + interest,
+  )
+  const isDeptSizeLessThanMinDebtSize = debtSizeInEth.lt(minDebtSizeInEth)
+
   return (
     <div className="flex flex-1">
       <Head>
@@ -192,7 +205,8 @@ const Borrow = () => {
                     collateralAmount > collateralUserBalance ||
                     borrowAmount > available ||
                     borrowAmount + maxInterest >
-                      maxLoanableAmountExcludingCouponFee,
+                      maxLoanableAmountExcludingCouponFee ||
+                    isDeptSizeLessThanMinDebtSize,
                   onClick: async () => {
                     if (!collateral) {
                       return
@@ -223,6 +237,10 @@ const Borrow = () => {
                       : borrowAmount + maxInterest >
                         maxLoanableAmountExcludingCouponFee
                       ? 'Not enough collateral'
+                      : isDeptSizeLessThanMinDebtSize
+                      ? `Minimum debt size is ${minDebtSizeInEth} in ${
+                          ETH_CURRENCY[selectedChain.id as CHAIN_IDS].symbol
+                        }`
                       : 'Borrow',
                 }}
               />

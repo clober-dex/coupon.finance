@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { useAccount, useFeeData, useNetwork, useQuery } from 'wagmi'
+import { useAccount, useFeeData, useQuery } from 'wagmi'
 import { isAddressEqual, parseUnits } from 'viem'
 
 import { LoanPosition } from '../../model/loan-position'
@@ -11,6 +11,11 @@ import { useBorrowContext } from '../../contexts/borrow-context'
 import { fetchAmountOutByOdos, fetchCallDataByOdos } from '../../apis/odos'
 import RepayModal from '../../components/modal/repay-modal'
 import { calculateLtv } from '../../utils/ltv'
+import { MIN_DEBT_SIZE_IN_ETH } from '../../constants/debt'
+import { CHAIN_IDS } from '../../constants/chain'
+import { convertToETH } from '../../utils/currency'
+import { ETH_CURRENCY } from '../../constants/currency'
+import { useChainContext } from '../../contexts/chain-context'
 
 const RepayModalContainer = ({
   position,
@@ -21,7 +26,7 @@ const RepayModalContainer = ({
 }) => {
   const { data: feeData } = useFeeData()
   const { address: userAddress } = useAccount()
-  const { chain: connectedChain } = useNetwork()
+  const { selectedChain } = useChainContext()
   const { repay, repayWithCollateral } = useBorrowContext()
   const { prices, balances } = useCurrencyContext()
 
@@ -57,9 +62,9 @@ const RepayModalContainer = ({
           pathId: undefined,
         }
       }
-      if (feeData?.gasPrice && userAddress && connectedChain) {
+      if (feeData?.gasPrice && userAddress && selectedChain) {
         const { amountOut: repayAmount, pathId } = await fetchAmountOutByOdos({
-          chainId: connectedChain.id,
+          chainId: selectedChain.id,
           amountIn: amount.toString(),
           tokenIn: position.collateral.underlying.address,
           tokenOut: position.underlying.address,
@@ -88,15 +93,15 @@ const RepayModalContainer = ({
   )
 
   const { data } = useQuery(
-    ['repay-simulate', position, repayAmount, connectedChain],
+    ['repay-simulate', position, repayAmount, selectedChain],
     async () => {
-      if (!connectedChain) {
+      if (!selectedChain) {
         return {
           maxRefund: 0n,
           refund: 0n,
         }
       }
-      const markets = (await fetchMarkets(connectedChain.id))
+      const markets = (await fetchMarkets(selectedChain.id))
         .filter((market) =>
           isAddressEqual(
             market.quoteToken.address,
@@ -120,6 +125,16 @@ const RepayModalContainer = ({
     () => (data ? [data.refund, data.maxRefund] : [0n, 0n]),
     [data],
   )
+
+  const minDebtSizeInEth = MIN_DEBT_SIZE_IN_ETH[selectedChain.id as CHAIN_IDS]
+  const expectedDebtSizeInEth = convertToETH(
+    selectedChain.id as CHAIN_IDS,
+    prices,
+    position.underlying,
+    max(position.amount - repayAmount - refund, 0n),
+  )
+  const isExpectedDebtSizeLessThanMinDebtSize =
+    expectedDebtSizeInEth.lt(minDebtSizeInEth)
 
   return (
     <RepayModal
@@ -172,7 +187,8 @@ const RepayModalContainer = ({
           repayAmount === 0n ||
           (!isUseCollateral &&
             repayAmount > balances[position.underlying.address]) ||
-          repayAmount > position.amount - maxRefund,
+          repayAmount > position.amount - maxRefund ||
+          isExpectedDebtSizeLessThanMinDebtSize,
         onClick: async () => {
           if (!userAddress) {
             return
@@ -203,6 +219,10 @@ const RepayModalContainer = ({
             ? `Insufficient ${position.underlying.symbol} balance`
             : repayAmount > position.amount - maxRefund
             ? `Cannot repay more than remaining debt`
+            : isExpectedDebtSizeLessThanMinDebtSize
+            ? `Minimum debt size is ${minDebtSizeInEth} in ${
+                ETH_CURRENCY[selectedChain.id as CHAIN_IDS].symbol
+              }`
             : isUseCollateral
             ? 'Repay with Collateral'
             : 'Repay',
