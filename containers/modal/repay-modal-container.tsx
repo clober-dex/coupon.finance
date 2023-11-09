@@ -120,6 +120,10 @@ const RepayModalContainer = ({
     () => (data ? [data.refund, data.maxRefund] : [0n, 0n]),
     [data],
   )
+  const repayAll = useMemo(
+    () => amount + maxRefund === position.amount,
+    [amount, maxRefund, position.amount],
+  )
 
   return (
     <RepayModal
@@ -190,7 +194,7 @@ const RepayModalContainer = ({
               swapData,
             )
           } else if (!isUseCollateral) {
-            await repay(position, amount, refund)
+            await repay(position, amount, repayAll ? maxRefund : refund)
           }
           setValue('')
           onClose()
