@@ -423,7 +423,7 @@ export const calculateBorrowApy = (
   const totalBorrow = initialBorrow - interest
   const p = Number(interest) / Number(totalBorrow)
   const d = Number(endTimestamp) - currentTimestamp
-  const apy = calculateApy(p, d)
+  const apy = calculateApy(p / (1 + p), d)
 
   return {
     apy,

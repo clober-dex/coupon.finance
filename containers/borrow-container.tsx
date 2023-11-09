@@ -140,27 +140,27 @@ const BorrowContainer = ({
                     collaterals={assetStatus.asset.collaterals}
                     key={index}
                     apys={assetStatusesByAsset.map(
-                      ({ epoch, totalBorrowAvailable }) => ({
-                        date: formatDate(
-                          new Date(Number(epoch.endTimestamp) * 1000),
-                        ),
-                        apy:
-                          totalBorrowAvailable > 0n
-                            ? calculateApy(
-                                assetStatusesByAsset
-                                  .filter(
-                                    ({ epoch: _epoch }) =>
-                                      _epoch.id <= epoch.id,
-                                  )
-                                  .reduce(
-                                    (acc, { bestCouponAskPrice }) =>
-                                      acc + bestCouponAskPrice,
-                                    0,
-                                  ),
-                                epoch.endTimestamp - currentTimestamp,
-                              )
-                            : Number.NaN,
-                      }),
+                      ({ epoch, totalBorrowAvailable }) => {
+                        const p = assetStatusesByAsset
+                          .filter(({ epoch: _epoch }) => _epoch.id <= epoch.id)
+                          .reduce(
+                            (acc, { bestCouponAskPrice }) =>
+                              acc + bestCouponAskPrice,
+                            0,
+                          )
+                        return {
+                          date: formatDate(
+                            new Date(Number(epoch.endTimestamp) * 1000),
+                          ),
+                          apy:
+                            totalBorrowAvailable > 0n
+                              ? calculateApy(
+                                  p / (1 - p),
+                                  epoch.endTimestamp - currentTimestamp,
+                                )
+                              : Number.NaN,
+                        }
+                      },
                     )}
                     available={assetStatusesByAsset
                       .map(({ totalBorrowAvailable }) => totalBorrowAvailable)
