@@ -152,7 +152,7 @@ const Borrow = () => {
                 <div>{asset.underlying.symbol}</div>
               </div>
             </Link>
-            <div className="flex flex-col lg:flex-row sm:items-center lg:items-start justify-center gap-4 mb-4">
+            <div className="flex flex-col lg:flex-row sm:items-center lg:items-start justify-center gap-4 mb-4 px-2 md:px-0">
               <BorrowForm
                 borrowCurrency={asset.underlying}
                 availableCollaterals={asset.collaterals}
