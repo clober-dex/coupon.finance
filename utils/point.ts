@@ -26,7 +26,7 @@ export const calculatePoint = (
 ): bigint => {
   return (
     (amount * price * periodInSeconds) /
-    60n /
+    3600n /
     10n ** BigInt(amountDecimals + priceDecimals)
   )
 }
