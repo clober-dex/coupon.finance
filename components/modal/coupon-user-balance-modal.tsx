@@ -41,6 +41,9 @@ export const CouponUserBalanceModal = ({
     coupon: Currency
   }[]
 }) => {
+  if (coupons.length === 0) {
+    return <></>
+  }
   const [clicked, setClicked] = React.useState(false)
 
   return (
