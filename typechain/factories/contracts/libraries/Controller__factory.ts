@@ -81,7 +81,7 @@ const _abi = [
         indexed: true,
         internalType: "Epoch",
         name: "epoch",
-        type: "uint8",
+        type: "uint16",
       },
       {
         indexed: true,
@@ -91,19 +91,6 @@ const _abi = [
       },
     ],
     name: "SetCouponMarket",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "token",
-        type: "address",
-      },
-    ],
-    name: "SetManagerAllowance",
     type: "event",
   },
   {
@@ -158,7 +145,7 @@ const _abi = [
           {
             internalType: "Epoch",
             name: "epoch",
-            type: "uint8",
+            type: "uint16",
           },
         ],
         internalType: "struct CouponKey",
@@ -167,32 +154,6 @@ const _abi = [
       },
     ],
     name: "getCouponMarket",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "token",
-        type: "address",
-      },
-    ],
-    name: "giveManagerAllowance",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "manager",
     outputs: [
       {
         internalType: "address",
@@ -326,7 +287,7 @@ const _abi = [
           {
             internalType: "Epoch",
             name: "epoch",
-            type: "uint8",
+            type: "uint16",
           },
         ],
         internalType: "struct CouponKey",

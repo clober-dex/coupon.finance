@@ -23,7 +23,7 @@ export interface IBondPositionManagerTypesInterface extends utils.Interface {
 
   events: {
     "RegisterAsset(address)": EventFragment;
-    "UpdatePosition(uint256,uint256,uint8)": EventFragment;
+    "UpdatePosition(uint256,uint256,uint16)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "RegisterAsset"): EventFragment;
@@ -87,7 +87,7 @@ export interface IBondPositionManagerTypes extends BaseContract {
       asset?: PromiseOrValue<string> | null
     ): RegisterAssetEventFilter;
 
-    "UpdatePosition(uint256,uint256,uint8)"(
+    "UpdatePosition(uint256,uint256,uint16)"(
       tokenId?: PromiseOrValue<BigNumberish> | null,
       amount?: null,
       expiredWith?: null

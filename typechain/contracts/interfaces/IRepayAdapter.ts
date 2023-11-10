@@ -45,18 +45,11 @@ export declare namespace IController {
 
 export interface IRepayAdapterInterface extends utils.Interface {
   functions: {
-    "giveManagerAllowance(address)": FunctionFragment;
     "repayWithCollateral(uint256,uint256,uint256,bytes,(uint256,uint8,bytes32,bytes32))": FunctionFragment;
   };
 
-  getFunction(
-    nameOrSignatureOrTopic: "giveManagerAllowance" | "repayWithCollateral"
-  ): FunctionFragment;
+  getFunction(nameOrSignatureOrTopic: "repayWithCollateral"): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "giveManagerAllowance",
-    values: [PromiseOrValue<string>]
-  ): string;
   encodeFunctionData(
     functionFragment: "repayWithCollateral",
     values: [
@@ -69,21 +62,15 @@ export interface IRepayAdapterInterface extends utils.Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "giveManagerAllowance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "repayWithCollateral",
     data: BytesLike
   ): Result;
 
   events: {
-    "SetCouponMarket(address,uint8,address)": EventFragment;
-    "SetManagerAllowance(address)": EventFragment;
+    "SetCouponMarket(address,uint16,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "SetCouponMarket"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SetManagerAllowance"): EventFragment;
 }
 
 export interface SetCouponMarketEventObject {
@@ -97,17 +84,6 @@ export type SetCouponMarketEvent = TypedEvent<
 >;
 
 export type SetCouponMarketEventFilter = TypedEventFilter<SetCouponMarketEvent>;
-
-export interface SetManagerAllowanceEventObject {
-  token: string;
-}
-export type SetManagerAllowanceEvent = TypedEvent<
-  [string],
-  SetManagerAllowanceEventObject
->;
-
-export type SetManagerAllowanceEventFilter =
-  TypedEventFilter<SetManagerAllowanceEvent>;
 
 export interface IRepayAdapter extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -136,11 +112,6 @@ export interface IRepayAdapter extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    giveManagerAllowance(
-      token: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     repayWithCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       sellCollateralAmount: PromiseOrValue<BigNumberish>,
@@ -150,11 +121,6 @@ export interface IRepayAdapter extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
-
-  giveManagerAllowance(
-    token: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   repayWithCollateral(
     positionId: PromiseOrValue<BigNumberish>,
@@ -166,11 +132,6 @@ export interface IRepayAdapter extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    giveManagerAllowance(
-      token: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     repayWithCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       sellCollateralAmount: PromiseOrValue<BigNumberish>,
@@ -182,7 +143,7 @@ export interface IRepayAdapter extends BaseContract {
   };
 
   filters: {
-    "SetCouponMarket(address,uint8,address)"(
+    "SetCouponMarket(address,uint16,address)"(
       asset?: PromiseOrValue<string> | null,
       epoch?: PromiseOrValue<BigNumberish> | null,
       cloberMarket?: PromiseOrValue<string> | null
@@ -192,21 +153,9 @@ export interface IRepayAdapter extends BaseContract {
       epoch?: PromiseOrValue<BigNumberish> | null,
       cloberMarket?: PromiseOrValue<string> | null
     ): SetCouponMarketEventFilter;
-
-    "SetManagerAllowance(address)"(
-      token?: PromiseOrValue<string> | null
-    ): SetManagerAllowanceEventFilter;
-    SetManagerAllowance(
-      token?: PromiseOrValue<string> | null
-    ): SetManagerAllowanceEventFilter;
   };
 
   estimateGas: {
-    giveManagerAllowance(
-      token: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     repayWithCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       sellCollateralAmount: PromiseOrValue<BigNumberish>,
@@ -218,11 +167,6 @@ export interface IRepayAdapter extends BaseContract {
   };
 
   populateTransaction: {
-    giveManagerAllowance(
-      token: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     repayWithCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       sellCollateralAmount: PromiseOrValue<BigNumberish>,

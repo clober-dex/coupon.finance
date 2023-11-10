@@ -23,9 +23,9 @@ export interface ILoanPositionManagerTypesInterface extends utils.Interface {
 
   events: {
     "LiquidatePosition(uint256,address,uint256,uint256,uint256)": EventFragment;
-    "SetLoanConfiguration(address,address,uint32,uint32,uint32,uint32)": EventFragment;
+    "SetLoanConfiguration(address,address,uint32,uint32,uint32,uint32,address)": EventFragment;
     "SetTreasury(address)": EventFragment;
-    "UpdatePosition(uint256,uint256,uint256,uint8)": EventFragment;
+    "UpdatePosition(uint256,uint256,uint256,uint16)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "LiquidatePosition"): EventFragment;
@@ -56,9 +56,10 @@ export interface SetLoanConfigurationEventObject {
   liquidationFee: number;
   liquidationProtocolFee: number;
   liquidationTargetLtv: number;
+  hook: string;
 }
 export type SetLoanConfigurationEvent = TypedEvent<
-  [string, string, number, number, number, number],
+  [string, string, number, number, number, number, string],
   SetLoanConfigurationEventObject
 >;
 
@@ -131,13 +132,14 @@ export interface ILoanPositionManagerTypes extends BaseContract {
       protocolFeeAmount?: null
     ): LiquidatePositionEventFilter;
 
-    "SetLoanConfiguration(address,address,uint32,uint32,uint32,uint32)"(
+    "SetLoanConfiguration(address,address,uint32,uint32,uint32,uint32,address)"(
       collateral?: PromiseOrValue<string> | null,
       debt?: PromiseOrValue<string> | null,
       liquidationThreshold?: null,
       liquidationFee?: null,
       liquidationProtocolFee?: null,
-      liquidationTargetLtv?: null
+      liquidationTargetLtv?: null,
+      hook?: null
     ): SetLoanConfigurationEventFilter;
     SetLoanConfiguration(
       collateral?: PromiseOrValue<string> | null,
@@ -145,7 +147,8 @@ export interface ILoanPositionManagerTypes extends BaseContract {
       liquidationThreshold?: null,
       liquidationFee?: null,
       liquidationProtocolFee?: null,
-      liquidationTargetLtv?: null
+      liquidationTargetLtv?: null,
+      hook?: null
     ): SetLoanConfigurationEventFilter;
 
     "SetTreasury(address)"(
@@ -155,7 +158,7 @@ export interface ILoanPositionManagerTypes extends BaseContract {
       newTreasury?: PromiseOrValue<string> | null
     ): SetTreasuryEventFilter;
 
-    "UpdatePosition(uint256,uint256,uint256,uint8)"(
+    "UpdatePosition(uint256,uint256,uint256,uint16)"(
       positionId?: PromiseOrValue<BigNumberish> | null,
       collateralAmount?: null,
       debtAmount?: null,

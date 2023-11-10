@@ -78,7 +78,7 @@ const _abi = [
         indexed: false,
         internalType: "Epoch",
         name: "expiredWith",
-        type: "uint8",
+        type: "uint16",
       },
     ],
     name: "UpdatePosition",

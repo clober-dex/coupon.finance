@@ -106,14 +106,14 @@ export interface ILoanPositionManagerInterface extends utils.Interface {
   functions: {
     "DOMAIN_SEPARATOR()": FunctionFragment;
     "PERMIT_TYPEHASH()": FunctionFragment;
-    "adjustPosition(uint256,uint256,uint256,uint8)": FunctionFragment;
+    "adjustPosition(uint256,uint256,uint256,uint16)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "assetDelta(address,uint256)": FunctionFragment;
     "assetPool()": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "baseURI()": FunctionFragment;
-    "burnCoupons(((address,uint8),uint256)[])": FunctionFragment;
-    "claimOwedCoupons((address,uint8)[],bytes)": FunctionFragment;
+    "burnCoupons(((address,uint16),uint256)[])": FunctionFragment;
+    "claimOwedCoupons((address,uint16)[],bytes)": FunctionFragment;
     "contractURI()": FunctionFragment;
     "depositToken(address,uint256)": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
@@ -128,7 +128,7 @@ export interface ILoanPositionManagerInterface extends utils.Interface {
     "lockData()": FunctionFragment;
     "minDebtValueInEth()": FunctionFragment;
     "mint(address,address)": FunctionFragment;
-    "mintCoupons(((address,uint8),uint256)[],address,bytes)": FunctionFragment;
+    "mintCoupons(((address,uint16),uint256)[],address,bytes)": FunctionFragment;
     "name()": FunctionFragment;
     "nextId()": FunctionFragment;
     "nonces(uint256)": FunctionFragment;
@@ -138,7 +138,7 @@ export interface ILoanPositionManagerInterface extends utils.Interface {
     "safeTransferFrom(address,address,uint256)": FunctionFragment;
     "safeTransferFrom(address,address,uint256,bytes)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
-    "setLoanConfiguration(address,address,uint32,uint32,uint32,uint32)": FunctionFragment;
+    "setLoanConfiguration(address,address,uint32,uint32,uint32,uint32,address)": FunctionFragment;
     "setTreasury(address)": FunctionFragment;
     "settlePosition(uint256)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
@@ -343,7 +343,8 @@ export interface ILoanPositionManagerInterface extends utils.Interface {
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
       PromiseOrValue<BigNumberish>,
-      PromiseOrValue<BigNumberish>
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<string>
     ]
   ): string;
   encodeFunctionData(
@@ -504,10 +505,10 @@ export interface ILoanPositionManagerInterface extends utils.Interface {
     "Approval(address,address,uint256)": EventFragment;
     "ApprovalForAll(address,address,bool)": EventFragment;
     "LiquidatePosition(uint256,address,uint256,uint256,uint256)": EventFragment;
-    "SetLoanConfiguration(address,address,uint32,uint32,uint32,uint32)": EventFragment;
+    "SetLoanConfiguration(address,address,uint32,uint32,uint32,uint32,address)": EventFragment;
     "SetTreasury(address)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
-    "UpdatePosition(uint256,uint256,uint256,uint8)": EventFragment;
+    "UpdatePosition(uint256,uint256,uint256,uint16)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
@@ -565,9 +566,10 @@ export interface SetLoanConfigurationEventObject {
   liquidationFee: number;
   liquidationProtocolFee: number;
   liquidationTargetLtv: number;
+  hook: string;
 }
 export type SetLoanConfigurationEvent = TypedEvent<
-  [string, string, number, number, number, number],
+  [string, string, number, number, number, number, string],
   SetLoanConfigurationEventObject
 >;
 
@@ -813,6 +815,7 @@ export interface ILoanPositionManager extends BaseContract {
       liquidationFee: PromiseOrValue<BigNumberish>,
       liquidationProtocolFee: PromiseOrValue<BigNumberish>,
       liquidationTargetLtv: PromiseOrValue<BigNumberish>,
+      hook: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
@@ -1035,6 +1038,7 @@ export interface ILoanPositionManager extends BaseContract {
     liquidationFee: PromiseOrValue<BigNumberish>,
     liquidationProtocolFee: PromiseOrValue<BigNumberish>,
     liquidationTargetLtv: PromiseOrValue<BigNumberish>,
+    hook: PromiseOrValue<string>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
@@ -1270,6 +1274,7 @@ export interface ILoanPositionManager extends BaseContract {
       liquidationFee: PromiseOrValue<BigNumberish>,
       liquidationProtocolFee: PromiseOrValue<BigNumberish>,
       liquidationTargetLtv: PromiseOrValue<BigNumberish>,
+      hook: PromiseOrValue<string>,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1350,13 +1355,14 @@ export interface ILoanPositionManager extends BaseContract {
       protocolFeeAmount?: null
     ): LiquidatePositionEventFilter;
 
-    "SetLoanConfiguration(address,address,uint32,uint32,uint32,uint32)"(
+    "SetLoanConfiguration(address,address,uint32,uint32,uint32,uint32,address)"(
       collateral?: PromiseOrValue<string> | null,
       debt?: PromiseOrValue<string> | null,
       liquidationThreshold?: null,
       liquidationFee?: null,
       liquidationProtocolFee?: null,
-      liquidationTargetLtv?: null
+      liquidationTargetLtv?: null,
+      hook?: null
     ): SetLoanConfigurationEventFilter;
     SetLoanConfiguration(
       collateral?: PromiseOrValue<string> | null,
@@ -1364,7 +1370,8 @@ export interface ILoanPositionManager extends BaseContract {
       liquidationThreshold?: null,
       liquidationFee?: null,
       liquidationProtocolFee?: null,
-      liquidationTargetLtv?: null
+      liquidationTargetLtv?: null,
+      hook?: null
     ): SetLoanConfigurationEventFilter;
 
     "SetTreasury(address)"(
@@ -1385,7 +1392,7 @@ export interface ILoanPositionManager extends BaseContract {
       tokenId?: PromiseOrValue<BigNumberish> | null
     ): TransferEventFilter;
 
-    "UpdatePosition(uint256,uint256,uint256,uint8)"(
+    "UpdatePosition(uint256,uint256,uint256,uint16)"(
       positionId?: PromiseOrValue<BigNumberish> | null,
       collateralAmount?: null,
       debtAmount?: null,
@@ -1574,6 +1581,7 @@ export interface ILoanPositionManager extends BaseContract {
       liquidationFee: PromiseOrValue<BigNumberish>,
       liquidationProtocolFee: PromiseOrValue<BigNumberish>,
       liquidationTargetLtv: PromiseOrValue<BigNumberish>,
+      hook: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
@@ -1791,6 +1799,7 @@ export interface ILoanPositionManager extends BaseContract {
       liquidationFee: PromiseOrValue<BigNumberish>,
       liquidationProtocolFee: PromiseOrValue<BigNumberish>,
       liquidationTargetLtv: PromiseOrValue<BigNumberish>,
+      hook: PromiseOrValue<string>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 

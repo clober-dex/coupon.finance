@@ -125,6 +125,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BorrowController__factory>;
     getContractFactory(
+      name: "CouponLiquidator",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.CouponLiquidator__factory>;
+    getContractFactory(
       name: "CouponManager",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.CouponManager__factory>;
@@ -225,6 +229,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IController__factory>;
     getContractFactory(
+      name: "ICouponLiquidator",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ICouponLiquidator__factory>;
+    getContractFactory(
       name: "ICouponManager",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ICouponManager__factory>;
@@ -236,6 +244,10 @@ declare module "hardhat/types/runtime" {
       name: "ICouponOracleTypes",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ICouponOracleTypes__factory>;
+    getContractFactory(
+      name: "ICouponPositionHook",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ICouponPositionHook__factory>;
     getContractFactory(
       name: "IDepositController",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -470,6 +482,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.BorrowController>;
     getContractAt(
+      name: "CouponLiquidator",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.CouponLiquidator>;
+    getContractAt(
       name: "CouponManager",
       address: string,
       signer?: ethers.Signer
@@ -595,6 +612,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IController>;
     getContractAt(
+      name: "ICouponLiquidator",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ICouponLiquidator>;
+    getContractAt(
       name: "ICouponManager",
       address: string,
       signer?: ethers.Signer
@@ -609,6 +631,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.ICouponOracleTypes>;
+    getContractAt(
+      name: "ICouponPositionHook",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ICouponPositionHook>;
     getContractAt(
       name: "IDepositController",
       address: string,

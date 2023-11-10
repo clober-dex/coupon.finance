@@ -42,15 +42,13 @@ export interface ControllerInterface extends utils.Interface {
   functions: {
     "acceptOwnership()": FunctionFragment;
     "cloberMarketSwapCallback(address,address,uint256,uint256,bytes)": FunctionFragment;
-    "getCouponMarket((address,uint8))": FunctionFragment;
-    "giveManagerAllowance(address)": FunctionFragment;
-    "manager()": FunctionFragment;
+    "getCouponMarket((address,uint16))": FunctionFragment;
     "onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)": FunctionFragment;
     "onERC1155Received(address,address,uint256,uint256,bytes)": FunctionFragment;
     "owner()": FunctionFragment;
     "pendingOwner()": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
-    "setCouponMarket((address,uint8),address)": FunctionFragment;
+    "setCouponMarket((address,uint16),address)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
   };
@@ -60,8 +58,6 @@ export interface ControllerInterface extends utils.Interface {
       | "acceptOwnership"
       | "cloberMarketSwapCallback"
       | "getCouponMarket"
-      | "giveManagerAllowance"
-      | "manager"
       | "onERC1155BatchReceived"
       | "onERC1155Received"
       | "owner"
@@ -90,11 +86,6 @@ export interface ControllerInterface extends utils.Interface {
     functionFragment: "getCouponMarket",
     values: [CouponKeyStruct]
   ): string;
-  encodeFunctionData(
-    functionFragment: "giveManagerAllowance",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(functionFragment: "manager", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "onERC1155BatchReceived",
     values: [
@@ -150,11 +141,6 @@ export interface ControllerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "giveManagerAllowance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "manager", data: BytesLike): Result;
-  decodeFunctionResult(
     functionFragment: "onERC1155BatchReceived",
     data: BytesLike
   ): Result;
@@ -187,14 +173,12 @@ export interface ControllerInterface extends utils.Interface {
   events: {
     "OwnershipTransferStarted(address,address)": EventFragment;
     "OwnershipTransferred(address,address)": EventFragment;
-    "SetCouponMarket(address,uint8,address)": EventFragment;
-    "SetManagerAllowance(address)": EventFragment;
+    "SetCouponMarket(address,uint16,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferStarted"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SetCouponMarket"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SetManagerAllowance"): EventFragment;
 }
 
 export interface OwnershipTransferStartedEventObject {
@@ -232,17 +216,6 @@ export type SetCouponMarketEvent = TypedEvent<
 >;
 
 export type SetCouponMarketEventFilter = TypedEventFilter<SetCouponMarketEvent>;
-
-export interface SetManagerAllowanceEventObject {
-  token: string;
-}
-export type SetManagerAllowanceEvent = TypedEvent<
-  [string],
-  SetManagerAllowanceEventObject
->;
-
-export type SetManagerAllowanceEventFilter =
-  TypedEventFilter<SetManagerAllowanceEvent>;
 
 export interface Controller extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -288,13 +261,6 @@ export interface Controller extends BaseContract {
       couponKey: CouponKeyStruct,
       overrides?: CallOverrides
     ): Promise<[string]>;
-
-    giveManagerAllowance(
-      token: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
-    manager(overrides?: CallOverrides): Promise<[string]>;
 
     onERC1155BatchReceived(
       arg0: PromiseOrValue<string>,
@@ -357,13 +323,6 @@ export interface Controller extends BaseContract {
     overrides?: CallOverrides
   ): Promise<string>;
 
-  giveManagerAllowance(
-    token: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  manager(overrides?: CallOverrides): Promise<string>;
-
   onERC1155BatchReceived(
     arg0: PromiseOrValue<string>,
     arg1: PromiseOrValue<string>,
@@ -422,13 +381,6 @@ export interface Controller extends BaseContract {
       couponKey: CouponKeyStruct,
       overrides?: CallOverrides
     ): Promise<string>;
-
-    giveManagerAllowance(
-      token: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
-    manager(overrides?: CallOverrides): Promise<string>;
 
     onERC1155BatchReceived(
       arg0: PromiseOrValue<string>,
@@ -490,7 +442,7 @@ export interface Controller extends BaseContract {
       newOwner?: PromiseOrValue<string> | null
     ): OwnershipTransferredEventFilter;
 
-    "SetCouponMarket(address,uint8,address)"(
+    "SetCouponMarket(address,uint16,address)"(
       asset?: PromiseOrValue<string> | null,
       epoch?: PromiseOrValue<BigNumberish> | null,
       cloberMarket?: PromiseOrValue<string> | null
@@ -500,13 +452,6 @@ export interface Controller extends BaseContract {
       epoch?: PromiseOrValue<BigNumberish> | null,
       cloberMarket?: PromiseOrValue<string> | null
     ): SetCouponMarketEventFilter;
-
-    "SetManagerAllowance(address)"(
-      token?: PromiseOrValue<string> | null
-    ): SetManagerAllowanceEventFilter;
-    SetManagerAllowance(
-      token?: PromiseOrValue<string> | null
-    ): SetManagerAllowanceEventFilter;
   };
 
   estimateGas: {
@@ -527,13 +472,6 @@ export interface Controller extends BaseContract {
       couponKey: CouponKeyStruct,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
-
-    giveManagerAllowance(
-      token: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    manager(overrides?: CallOverrides): Promise<BigNumber>;
 
     onERC1155BatchReceived(
       arg0: PromiseOrValue<string>,
@@ -596,13 +534,6 @@ export interface Controller extends BaseContract {
       couponKey: CouponKeyStruct,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
-
-    giveManagerAllowance(
-      token: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    manager(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     onERC1155BatchReceived(
       arg0: PromiseOrValue<string>,

@@ -38,7 +38,7 @@ const _abi = [
         indexed: true,
         internalType: "Epoch",
         name: "epoch",
-        type: "uint8",
+        type: "uint16",
       },
       {
         indexed: true,
@@ -49,32 +49,6 @@ const _abi = [
     ],
     name: "SetCouponMarket",
     type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "token",
-        type: "address",
-      },
-    ],
-    name: "SetManagerAllowance",
-    type: "event",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "token",
-        type: "address",
-      },
-    ],
-    name: "giveManagerAllowance",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
   },
 ] as const;
 
