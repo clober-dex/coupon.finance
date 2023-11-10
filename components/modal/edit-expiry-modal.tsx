@@ -7,7 +7,7 @@ import {
   getNextMonthStartTimestamp,
   SECONDS_IN_MONTH,
 } from '../../utils/date'
-import LeftFilledSlider from '../slider/left-filled-slider'
+import Slider from '../slider/slider'
 import { DotSvg } from '../svg/dot-svg'
 
 const EditExpiryModal = ({
@@ -28,7 +28,7 @@ const EditExpiryModal = ({
   const currentTimestamp = new Date().getTime() / 1000
   const leftMonthInSecond =
     getNextMonthStartTimestamp(currentTimestamp) - currentTimestamp
-  const leftFilledPercentage =
+  const leftPaddingPercentage =
     (leftMonthInSecond /
       (leftMonthInSecond +
         SECONDS_IN_MONTH * (dateList ? dateList.length : 1))) *
@@ -55,8 +55,8 @@ const EditExpiryModal = ({
           {dateList && dateList.length > 0 ? (
             <div className="sm:px-6 sm:mb-2">
               <div>
-                <LeftFilledSlider
-                  leftFilledPercentage={leftFilledPercentage}
+                <Slider
+                  leftPaddingPercentage={leftPaddingPercentage}
                   length={dateList?.length ?? 0}
                   value={epochs}
                   onValueChange={setEpochs}
@@ -74,7 +74,7 @@ const EditExpiryModal = ({
                       {dateList[epochs - 1].date}
                     </div>
                   </div>
-                </LeftFilledSlider>
+                </Slider>
               </div>
             </div>
           ) : (

@@ -13,7 +13,7 @@ import {
   getNextMonthStartTimestamp,
   SECONDS_IN_MONTH,
 } from '../../utils/date'
-import LeftFilledSlider from '../slider/left-filled-slider'
+import Slider from '../slider/slider'
 import { DotSvg } from '../svg/dot-svg'
 
 export const DepositForm = ({
@@ -50,7 +50,7 @@ export const DepositForm = ({
   const currentTimestamp = new Date().getTime() / 1000
   const leftMonthInSecond =
     getNextMonthStartTimestamp(currentTimestamp) - currentTimestamp
-  const leftFilledPercentage =
+  const leftPaddingPercentage =
     (leftMonthInSecond /
       (leftMonthInSecond +
         SECONDS_IN_MONTH *
@@ -96,9 +96,9 @@ export const DepositForm = ({
               proceedsByEpochsDeposited.length > 0 ? (
                 <div className="sm:px-6 sm:mb-2">
                   <div>
-                    <LeftFilledSlider
+                    <Slider
                       length={proceedsByEpochsDeposited?.length ?? 0}
-                      leftFilledPercentage={leftFilledPercentage}
+                      leftPaddingPercentage={leftPaddingPercentage}
                       value={epochs}
                       onValueChange={setEpochs}
                     >
@@ -124,7 +124,7 @@ export const DepositForm = ({
                               )}
                         </div>
                       </div>
-                    </LeftFilledSlider>
+                    </Slider>
                   </div>
                 </div>
               ) : (

@@ -16,29 +16,29 @@ const Line = ({ position }: { position: number }) => {
   )
 }
 
-const LeftFilledSlider = ({
+const Slider = ({
   length,
-  leftFilledPercentage,
+  leftPaddingPercentage,
   value,
   onValueChange,
   disabled,
   children,
 }: {
   length: number
-  leftFilledPercentage: number
+  leftPaddingPercentage: number
   value: number
   onValueChange: (value: number) => void
   disabled?: boolean
 } & React.HTMLAttributes<HTMLDivElement> &
   React.PropsWithChildren) => {
-  leftFilledPercentage = Math.min(100, leftFilledPercentage)
+  leftPaddingPercentage = Math.min(100, leftPaddingPercentage)
   const sliderRef = useRef<HTMLDivElement | null>(null)
   const thumbRef = useRef<HTMLDivElement | null>(null)
   const diff = useRef<number>(0)
   const unit = 100 / (length - 1)
 
   const [position, _setPosition] = React.useState<number>(
-    Math.max(Math.min(100, (value - 1) * unit), leftFilledPercentage),
+    Math.max(Math.min(100, (value - 1) * unit), leftPaddingPercentage),
   )
   const setPosition = useCallback(
     (position: number) => {
@@ -65,10 +65,10 @@ const LeftFilledSlider = ({
       }
       const newPosition = Math.floor((100 * newX) / end)
       setPosition(
-        Math.max(Math.round(newPosition / unit) * unit, leftFilledPercentage),
+        Math.max(Math.round(newPosition / unit) * unit, leftPaddingPercentage),
       )
     },
-    [disabled, leftFilledPercentage, setPosition, unit],
+    [disabled, leftPaddingPercentage, setPosition, unit],
   )
 
   useEffect(() => {
@@ -140,4 +140,4 @@ const LeftFilledSlider = ({
   )
 }
 
-export default LeftFilledSlider
+export default Slider

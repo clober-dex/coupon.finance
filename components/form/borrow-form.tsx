@@ -14,7 +14,7 @@ import {
   getNextMonthStartTimestamp,
   SECONDS_IN_MONTH,
 } from '../../utils/date'
-import LeftFilledSlider from '../slider/left-filled-slider'
+import Slider from '../slider/slider'
 import { DotSvg } from '../svg/dot-svg'
 
 export const BorrowForm = ({
@@ -63,7 +63,7 @@ export const BorrowForm = ({
   const currentTimestamp = new Date().getTime() / 1000
   const leftMonthInSecond =
     getNextMonthStartTimestamp(currentTimestamp) - currentTimestamp
-  const leftFilledPercentage =
+  const leftPaddingPercentage =
     (leftMonthInSecond /
       (leftMonthInSecond +
         SECONDS_IN_MONTH *
@@ -134,8 +134,8 @@ export const BorrowForm = ({
             interestsByEpochsBorrowed.length > 0 ? (
               <div className="sm:px-6 sm:mb-2 mr-4 sm:mr-0">
                 <div>
-                  <LeftFilledSlider
-                    leftFilledPercentage={leftFilledPercentage}
+                  <Slider
+                    leftPaddingPercentage={leftPaddingPercentage}
                     length={interestsByEpochsBorrowed?.length ?? 0}
                     value={epochs}
                     onValueChange={setEpochs}
@@ -153,7 +153,7 @@ export const BorrowForm = ({
                         {interestsByEpochsBorrowed[epochs - 1].date}
                       </div>
                     </div>
-                  </LeftFilledSlider>
+                  </Slider>
                 </div>
               </div>
             ) : (
