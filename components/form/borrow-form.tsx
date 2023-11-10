@@ -141,22 +141,20 @@ export const BorrowForm = ({
           <div className="text-lg font-bold">Transaction Overview</div>
           <div className="flex flex-col items-start gap-3 self-stretch">
             <div className="flex w-full">
+              <div className="text-gray-400 text-base">Interest</div>
+              <div className="flex ml-auto">
+                {formatUnits(
+                  interest,
+                  borrowCurrency.decimals,
+                  prices[borrowCurrency.address],
+                )}{' '}
+                {borrowCurrency.symbol}
+              </div>
+            </div>
+            <div className="flex w-full">
               <div className="text-gray-400 text-base">APY</div>
               <div className="flex ml-auto">
-                <div className="flex gap-1">
-                  <div>
-                    {Number.isNaN(borrowApy) ? 0 : borrowApy.toFixed(2)}%
-                  </div>
-                  <div className="text-gray-400">
-                    (
-                    {formatUnits(
-                      interest,
-                      borrowCurrency.decimals,
-                      prices[borrowCurrency.address],
-                    )}{' '}
-                    {borrowCurrency.symbol} in interest)
-                  </div>
-                </div>
+                {Number.isNaN(borrowApy) ? 0 : borrowApy.toFixed(2)}%
               </div>
             </div>
             <div className="flex w-full">
