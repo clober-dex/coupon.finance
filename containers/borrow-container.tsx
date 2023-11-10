@@ -119,9 +119,7 @@ const BorrowContainer = ({
       {epoch ? (
         <div className="flex flex-col gap-6 sm:gap-8 px-4 lg:p-0">
           <div className="flex items-center gap-6 justify-between">
-            <h2 className="font-bold text-base sm:text-2xl">
-              Assets to borrow
-            </h2>
+            <h2 className="font-bold text-base sm:text-2xl">Borrow</h2>
           </div>
           <div className="flex flex-1 flex-col w-full h-full sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 mb-8 justify-center">
             {assetStatuses
