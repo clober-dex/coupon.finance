@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { parseUnits, zeroAddress } from 'viem'
@@ -26,14 +26,7 @@ const Borrow = () => {
   const { balances, prices, assets } = useCurrencyContext()
   const { borrow } = useBorrowContext()
 
-  const [epochs, _setEpochs] = useState(0)
-  const setEpochs = useCallback(
-    (value: number) => {
-      _setEpochs(value === epochs ? value - 1 : value)
-    },
-    [epochs],
-  )
-
+  const [epochs, setEpochs] = useState(1)
   const [collateralValue, setCollateralValue] = useState('')
   const [borrowValue, setBorrowValue] = useState('')
   const [collateral, setCollateral] = useState<Collateral | undefined>(
@@ -103,7 +96,9 @@ const Borrow = () => {
 
   const [apy, available, interest, maxInterest] = useMemo(
     () =>
-      epochs && interestsByEpochsBorrowed
+      epochs &&
+      interestsByEpochsBorrowed &&
+      interestsByEpochsBorrowed.length > 0
         ? [
             interestsByEpochsBorrowed[epochs - 1].apy ?? 0,
             interestsByEpochsBorrowed[epochs - 1].available ?? 0n,

@@ -4,11 +4,17 @@ import { Tooltip } from 'react-tooltip'
 
 import { Currency } from '../../model/currency'
 import CurrencyAmountInput from '../input/currency-amount-input'
-import Slider from '../slider'
 import { BigDecimal, formatUnits } from '../../utils/numbers'
 import { ActionButton, ActionButtonProps } from '../button/action-button'
 import { RightBracketAngleSvg } from '../svg/right-bracket-angle-svg'
 import { RemainingCoupon } from '../../model/market'
+import {
+  getDaysBetweenDates,
+  getNextMonthStartTimestamp,
+  SECONDS_IN_MONTH,
+} from '../../utils/date'
+import LeftFilledSlider from '../slider/left-filled-slider'
+import { DotSvg } from '../svg/dot-svg'
 
 export const DepositForm = ({
   depositCurrency,
@@ -41,6 +47,15 @@ export const DepositForm = ({
   actionButtonProps: ActionButtonProps
   depositAssetPrice?: BigDecimal
 }) => {
+  const currentTimestamp = new Date().getTime() / 1000
+  const leftMonthInSecond =
+    getNextMonthStartTimestamp(currentTimestamp) - currentTimestamp
+  const leftFilledPercentage =
+    (leftMonthInSecond /
+      (leftMonthInSecond +
+        SECONDS_IN_MONTH *
+          (proceedsByEpochsDeposited ? proceedsByEpochsDeposited.length : 1))) *
+    100
   return (
     <div className="relative z-30">
       <div className="flex flex-col gap-4">
@@ -60,13 +75,13 @@ export const DepositForm = ({
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-2">
               <div className="font-bold text-sm sm:text-lg">
-                Select expiration date.
+                How long you’d like to secure your deposit?
               </div>
               <div className="text-gray-500 text-xs sm:text-sm">
-                The longer you deposit, the more interest you earn!
+                You can exit your position anytime before expiry.
               </div>
             </div>
-            <div className="flex flex-row-reverse justify-between sm:flex-col relative bg-white dark:bg-gray-900 rounded-lg p-4 sm:h-[116px]">
+            <div className="flex justify-between flex-col relative bg-white dark:bg-gray-900 rounded-lg p-4 pb-8 sm:pb-0 sm:h-[90px]">
               {proceedsByEpochsDeposited === undefined ? (
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                   <div
@@ -77,43 +92,44 @@ export const DepositForm = ({
               ) : (
                 <></>
               )}
-              <div className="sm:px-6 sm:mb-2">
-                <div>
-                  <Slider
-                    length={proceedsByEpochsDeposited?.length ?? 0}
-                    value={epochs}
-                    onValueChange={setEpochs}
-                  />
-                </div>
-              </div>
-              <div className="flex flex-col sm:flex-row justify-between">
-                {(proceedsByEpochsDeposited ?? []).map(
-                  ({ date, proceeds }, index) => (
-                    <button
-                      key={index}
-                      className="flex sm:flex-col items-center gap-1 sm:gap-2"
-                      onClick={() => setEpochs(index + 1)}
+              {proceedsByEpochsDeposited &&
+              proceedsByEpochsDeposited.length > 0 ? (
+                <div className="sm:px-6 sm:mb-2">
+                  <div>
+                    <LeftFilledSlider
+                      length={proceedsByEpochsDeposited?.length ?? 0}
+                      leftFilledPercentage={leftFilledPercentage}
+                      value={epochs}
+                      onValueChange={setEpochs}
                     >
-                      <div className="text-sm w-24 sm:w-fit text-start">
-                        {date}
+                      <div className="flex w-[96px] flex-col items-center gap-3 shrink-0">
+                        <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-gray-100 text-gray-400 text-xs">
+                          {getDaysBetweenDates(
+                            new Date(
+                              proceedsByEpochsDeposited[epochs - 1].date,
+                            ),
+                            new Date(currentTimestamp * 1000),
+                          )}{' '}
+                          Days
+                        </div>
+                        <DotSvg />
+                        <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-green-500 bg-opacity-10 text-xs text-green-500 font-bold">
+                          +
+                          {proceedsByEpochsDeposited[epochs - 1].proceeds === 0n
+                            ? '0.00'
+                            : formatUnits(
+                                proceedsByEpochsDeposited[epochs - 1].proceeds,
+                                depositCurrency.decimals,
+                                depositAssetPrice,
+                              )}
+                        </div>
                       </div>
-                      <div
-                        className={
-                          'px-2 py-1 rounded-full text-xs bg-green-500 text-green-500 bg-opacity-10'
-                        }
-                      >
-                        {`+${Number(
-                          formatUnits(
-                            proceeds,
-                            depositCurrency.decimals,
-                            depositAssetPrice,
-                          ),
-                        ).toFixed(2)}`}
-                      </div>
-                    </button>
-                  ),
-                )}
-              </div>
+                    </LeftFilledSlider>
+                  </div>
+                </div>
+              ) : (
+                <></>
+              )}
             </div>
           </div>
         </div>
