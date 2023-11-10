@@ -22,11 +22,15 @@ import { ThemeProvider, useThemeContext } from '../contexts/theme-context'
 import { DepositProvider } from '../contexts/deposit-context'
 import { BorrowProvider } from '../contexts/borrow-context'
 import Panel from '../components/panel'
-import { CurrencyProvider } from '../contexts/currency-context'
+import {
+  CurrencyProvider,
+  useCurrencyContext,
+} from '../contexts/currency-context'
 import { TransactionProvider } from '../contexts/transaction-context'
 import { supportChains } from '../constants/chain'
-import { ChainProvider } from '../contexts/chain-context'
+import { ChainProvider, useChainContext } from '../contexts/chain-context'
 import { Footer } from '../components/footer'
+import { CouponUserBalanceModal } from '../components/modal/coupon-user-balance-modal'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -104,6 +108,18 @@ const HeaderWrapper = () => {
   )
 }
 
+const CouponWidgetWrapper = () => {
+  const { address } = useAccount()
+  const { selectedChain } = useChainContext()
+  const { coupons } = useCurrencyContext()
+
+  return address ? (
+    <CouponUserBalanceModal chainId={selectedChain.id} coupons={coupons} />
+  ) : (
+    <></>
+  )
+}
+
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
@@ -128,6 +144,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                         <HeaderWrapper />
                         <div className="mb-auto pt-12 md:pt-16">
                           <Component {...pageProps} />
+                          <CouponWidgetWrapper />
                         </div>
                         <Footer />
                       </div>
