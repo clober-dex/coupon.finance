@@ -54,19 +54,19 @@ export interface CouponManagerInterface extends utils.Interface {
     "balanceOf(address,uint256)": FunctionFragment;
     "balanceOfBatch(address[],uint256[])": FunctionFragment;
     "baseURI()": FunctionFragment;
-    "burnBatch(address,((address,uint8),uint256)[])": FunctionFragment;
-    "burnExpiredCoupons((address,uint8)[])": FunctionFragment;
+    "burnBatch(address,((address,uint16),uint256)[])": FunctionFragment;
+    "burnExpiredCoupons((address,uint16)[])": FunctionFragment;
     "currentEpoch()": FunctionFragment;
     "eip712Domain()": FunctionFragment;
-    "epochEndTime(uint8)": FunctionFragment;
+    "epochEndTime(uint16)": FunctionFragment;
     "exists(uint256)": FunctionFragment;
     "isApprovedForAll(address,address)": FunctionFragment;
     "isMinter(address)": FunctionFragment;
-    "mintBatch(address,((address,uint8),uint256)[],bytes)": FunctionFragment;
+    "mintBatch(address,((address,uint16),uint256)[],bytes)": FunctionFragment;
     "nonces(address)": FunctionFragment;
     "permit(address,address,bool,uint256,uint8,bytes32,bytes32)": FunctionFragment;
-    "safeBatchTransferFrom(address,address,((address,uint8),uint256)[],bytes)": FunctionFragment;
     "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)": FunctionFragment;
+    "safeBatchTransferFrom(address,address,((address,uint16),uint256)[],bytes)": FunctionFragment;
     "safeTransferFrom(address,address,uint256,uint256,bytes)": FunctionFragment;
     "setApprovalForAll(address,bool)": FunctionFragment;
     "supportsInterface(bytes4)": FunctionFragment;
@@ -92,8 +92,8 @@ export interface CouponManagerInterface extends utils.Interface {
       | "mintBatch"
       | "nonces"
       | "permit"
-      | "safeBatchTransferFrom(address,address,((address,uint8),uint256)[],bytes)"
       | "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)"
+      | "safeBatchTransferFrom(address,address,((address,uint16),uint256)[],bytes)"
       | "safeTransferFrom"
       | "setApprovalForAll"
       | "supportsInterface"
@@ -171,21 +171,21 @@ export interface CouponManagerInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "safeBatchTransferFrom(address,address,((address,uint8),uint256)[],bytes)",
-    values: [
-      PromiseOrValue<string>,
-      PromiseOrValue<string>,
-      CouponStruct[],
-      PromiseOrValue<BytesLike>
-    ]
-  ): string;
-  encodeFunctionData(
     functionFragment: "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)",
     values: [
       PromiseOrValue<string>,
       PromiseOrValue<string>,
       PromiseOrValue<BigNumberish>[],
       PromiseOrValue<BigNumberish>[],
+      PromiseOrValue<BytesLike>
+    ]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "safeBatchTransferFrom(address,address,((address,uint16),uint256)[],bytes)",
+    values: [
+      PromiseOrValue<string>,
+      PromiseOrValue<string>,
+      CouponStruct[],
       PromiseOrValue<BytesLike>
     ]
   ): string;
@@ -257,11 +257,11 @@ export interface CouponManagerInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "nonces", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "permit", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "safeBatchTransferFrom(address,address,((address,uint8),uint256)[],bytes)",
+    functionFragment: "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)",
+    functionFragment: "safeBatchTransferFrom(address,address,((address,uint16),uint256)[],bytes)",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -470,19 +470,19 @@ export interface CouponManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    "safeBatchTransferFrom(address,address,((address,uint8),uint256)[],bytes)"(
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      coupons: CouponStruct[],
-      data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)"(
       from: PromiseOrValue<string>,
       to: PromiseOrValue<string>,
       ids: PromiseOrValue<BigNumberish>[],
       amounts: PromiseOrValue<BigNumberish>[],
+      data: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<ContractTransaction>;
+
+    "safeBatchTransferFrom(address,address,((address,uint16),uint256)[],bytes)"(
+      from: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
+      coupons: CouponStruct[],
       data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
@@ -607,19 +607,19 @@ export interface CouponManager extends BaseContract {
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
-  "safeBatchTransferFrom(address,address,((address,uint8),uint256)[],bytes)"(
-    from: PromiseOrValue<string>,
-    to: PromiseOrValue<string>,
-    coupons: CouponStruct[],
-    data: PromiseOrValue<BytesLike>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
   "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)"(
     from: PromiseOrValue<string>,
     to: PromiseOrValue<string>,
     ids: PromiseOrValue<BigNumberish>[],
     amounts: PromiseOrValue<BigNumberish>[],
+    data: PromiseOrValue<BytesLike>,
+    overrides?: Overrides & { from?: PromiseOrValue<string> }
+  ): Promise<ContractTransaction>;
+
+  "safeBatchTransferFrom(address,address,((address,uint16),uint256)[],bytes)"(
+    from: PromiseOrValue<string>,
+    to: PromiseOrValue<string>,
+    coupons: CouponStruct[],
     data: PromiseOrValue<BytesLike>,
     overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
@@ -744,19 +744,19 @@ export interface CouponManager extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "safeBatchTransferFrom(address,address,((address,uint8),uint256)[],bytes)"(
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      coupons: CouponStruct[],
-      data: PromiseOrValue<BytesLike>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)"(
       from: PromiseOrValue<string>,
       to: PromiseOrValue<string>,
       ids: PromiseOrValue<BigNumberish>[],
       amounts: PromiseOrValue<BigNumberish>[],
+      data: PromiseOrValue<BytesLike>,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "safeBatchTransferFrom(address,address,((address,uint16),uint256)[],bytes)"(
+      from: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
+      coupons: CouponStruct[],
       data: PromiseOrValue<BytesLike>,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -922,19 +922,19 @@ export interface CouponManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
-    "safeBatchTransferFrom(address,address,((address,uint8),uint256)[],bytes)"(
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      coupons: CouponStruct[],
-      data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)"(
       from: PromiseOrValue<string>,
       to: PromiseOrValue<string>,
       ids: PromiseOrValue<BigNumberish>[],
       amounts: PromiseOrValue<BigNumberish>[],
+      data: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<BigNumber>;
+
+    "safeBatchTransferFrom(address,address,((address,uint16),uint256)[],bytes)"(
+      from: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
+      coupons: CouponStruct[],
       data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
@@ -1048,19 +1048,19 @@ export interface CouponManager extends BaseContract {
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
-    "safeBatchTransferFrom(address,address,((address,uint8),uint256)[],bytes)"(
-      from: PromiseOrValue<string>,
-      to: PromiseOrValue<string>,
-      coupons: CouponStruct[],
-      data: PromiseOrValue<BytesLike>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     "safeBatchTransferFrom(address,address,uint256[],uint256[],bytes)"(
       from: PromiseOrValue<string>,
       to: PromiseOrValue<string>,
       ids: PromiseOrValue<BigNumberish>[],
       amounts: PromiseOrValue<BigNumberish>[],
+      data: PromiseOrValue<BytesLike>,
+      overrides?: Overrides & { from?: PromiseOrValue<string> }
+    ): Promise<PopulatedTransaction>;
+
+    "safeBatchTransferFrom(address,address,((address,uint16),uint256)[],bytes)"(
+      from: PromiseOrValue<string>,
+      to: PromiseOrValue<string>,
+      coupons: CouponStruct[],
       data: PromiseOrValue<BytesLike>,
       overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;

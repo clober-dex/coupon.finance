@@ -60,17 +60,12 @@ export declare namespace IController {
 export interface IDepositControllerInterface extends utils.Interface {
   functions: {
     "collect(uint256,(uint256,uint8,bytes32,bytes32))": FunctionFragment;
-    "deposit(address,uint256,uint8,uint256,(uint256,(uint256,uint8,bytes32,bytes32)))": FunctionFragment;
-    "giveManagerAllowance(address)": FunctionFragment;
+    "deposit(address,uint256,uint16,uint256,(uint256,(uint256,uint8,bytes32,bytes32)))": FunctionFragment;
     "withdraw(uint256,uint256,uint256,(uint256,uint8,bytes32,bytes32))": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic:
-      | "collect"
-      | "deposit"
-      | "giveManagerAllowance"
-      | "withdraw"
+    nameOrSignatureOrTopic: "collect" | "deposit" | "withdraw"
   ): FunctionFragment;
 
   encodeFunctionData(
@@ -88,10 +83,6 @@ export interface IDepositControllerInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "giveManagerAllowance",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "withdraw",
     values: [
       PromiseOrValue<BigNumberish>,
@@ -103,19 +94,13 @@ export interface IDepositControllerInterface extends utils.Interface {
 
   decodeFunctionResult(functionFragment: "collect", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "giveManagerAllowance",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
 
   events: {
-    "SetCouponMarket(address,uint8,address)": EventFragment;
-    "SetManagerAllowance(address)": EventFragment;
+    "SetCouponMarket(address,uint16,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "SetCouponMarket"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SetManagerAllowance"): EventFragment;
 }
 
 export interface SetCouponMarketEventObject {
@@ -129,17 +114,6 @@ export type SetCouponMarketEvent = TypedEvent<
 >;
 
 export type SetCouponMarketEventFilter = TypedEventFilter<SetCouponMarketEvent>;
-
-export interface SetManagerAllowanceEventObject {
-  token: string;
-}
-export type SetManagerAllowanceEvent = TypedEvent<
-  [string],
-  SetManagerAllowanceEventObject
->;
-
-export type SetManagerAllowanceEventFilter =
-  TypedEventFilter<SetManagerAllowanceEvent>;
 
 export interface IDepositController extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -183,11 +157,6 @@ export interface IDepositController extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    giveManagerAllowance(
-      token: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     withdraw(
       positionId: PromiseOrValue<BigNumberish>,
       withdrawAmount: PromiseOrValue<BigNumberish>,
@@ -210,11 +179,6 @@ export interface IDepositController extends BaseContract {
     minEarnInterest: PromiseOrValue<BigNumberish>,
     tokenPermitParams: IController.ERC20PermitParamsStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  giveManagerAllowance(
-    token: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   withdraw(
@@ -241,11 +205,6 @@ export interface IDepositController extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    giveManagerAllowance(
-      token: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     withdraw(
       positionId: PromiseOrValue<BigNumberish>,
       withdrawAmount: PromiseOrValue<BigNumberish>,
@@ -256,7 +215,7 @@ export interface IDepositController extends BaseContract {
   };
 
   filters: {
-    "SetCouponMarket(address,uint8,address)"(
+    "SetCouponMarket(address,uint16,address)"(
       asset?: PromiseOrValue<string> | null,
       epoch?: PromiseOrValue<BigNumberish> | null,
       cloberMarket?: PromiseOrValue<string> | null
@@ -266,13 +225,6 @@ export interface IDepositController extends BaseContract {
       epoch?: PromiseOrValue<BigNumberish> | null,
       cloberMarket?: PromiseOrValue<string> | null
     ): SetCouponMarketEventFilter;
-
-    "SetManagerAllowance(address)"(
-      token?: PromiseOrValue<string> | null
-    ): SetManagerAllowanceEventFilter;
-    SetManagerAllowance(
-      token?: PromiseOrValue<string> | null
-    ): SetManagerAllowanceEventFilter;
   };
 
   estimateGas: {
@@ -289,11 +241,6 @@ export interface IDepositController extends BaseContract {
       minEarnInterest: PromiseOrValue<BigNumberish>,
       tokenPermitParams: IController.ERC20PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    giveManagerAllowance(
-      token: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     withdraw(
@@ -319,11 +266,6 @@ export interface IDepositController extends BaseContract {
       minEarnInterest: PromiseOrValue<BigNumberish>,
       tokenPermitParams: IController.ERC20PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    giveManagerAllowance(
-      token: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     withdraw(

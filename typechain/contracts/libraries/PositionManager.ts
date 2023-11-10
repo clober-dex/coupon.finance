@@ -56,7 +56,7 @@ export interface PositionManagerInterface extends utils.Interface {
     "assetPool()": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "baseURI()": FunctionFragment;
-    "burnCoupons(((address,uint8),uint256)[])": FunctionFragment;
+    "burnCoupons(((address,uint16),uint256)[])": FunctionFragment;
     "contractURI()": FunctionFragment;
     "depositToken(address,uint256)": FunctionFragment;
     "eip712Domain()": FunctionFragment;
@@ -64,7 +64,7 @@ export interface PositionManagerInterface extends utils.Interface {
     "isApprovedForAll(address,address)": FunctionFragment;
     "lock(bytes)": FunctionFragment;
     "lockData()": FunctionFragment;
-    "mintCoupons(((address,uint8),uint256)[],address,bytes)": FunctionFragment;
+    "mintCoupons(((address,uint16),uint256)[],address,bytes)": FunctionFragment;
     "name()": FunctionFragment;
     "nextId()": FunctionFragment;
     "nonces(uint256)": FunctionFragment;

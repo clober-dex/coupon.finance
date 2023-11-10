@@ -238,7 +238,7 @@ const _abi = [
               {
                 internalType: "Epoch",
                 name: "epoch",
-                type: "uint8",
+                type: "uint16",
               },
             ],
             internalType: "struct CouponKey",
@@ -386,7 +386,7 @@ const _abi = [
               {
                 internalType: "Epoch",
                 name: "epoch",
-                type: "uint8",
+                type: "uint16",
               },
             ],
             internalType: "struct CouponKey",

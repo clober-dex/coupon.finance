@@ -60,13 +60,12 @@ export declare namespace IController {
 export interface IBorrowControllerInterface extends utils.Interface {
   functions: {
     "addCollateral(uint256,uint256,(uint256,uint8,bytes32,bytes32),(uint256,(uint256,uint8,bytes32,bytes32)))": FunctionFragment;
-    "borrow(address,address,uint256,uint256,uint256,uint8,(uint256,(uint256,uint8,bytes32,bytes32)))": FunctionFragment;
+    "borrow(address,address,uint256,uint256,uint256,uint16,(uint256,(uint256,uint8,bytes32,bytes32)))": FunctionFragment;
     "borrowMore(uint256,uint256,uint256,(uint256,uint8,bytes32,bytes32))": FunctionFragment;
-    "extendLoanDuration(uint256,uint8,uint256,(uint256,uint8,bytes32,bytes32),(uint256,(uint256,uint8,bytes32,bytes32)))": FunctionFragment;
-    "giveManagerAllowance(address)": FunctionFragment;
+    "extendLoanDuration(uint256,uint16,uint256,(uint256,uint8,bytes32,bytes32),(uint256,(uint256,uint8,bytes32,bytes32)))": FunctionFragment;
     "removeCollateral(uint256,uint256,(uint256,uint8,bytes32,bytes32))": FunctionFragment;
     "repay(uint256,uint256,uint256,(uint256,uint8,bytes32,bytes32),(uint256,(uint256,uint8,bytes32,bytes32)))": FunctionFragment;
-    "shortenLoanDuration(uint256,uint8,uint256,(uint256,uint8,bytes32,bytes32))": FunctionFragment;
+    "shortenLoanDuration(uint256,uint16,uint256,(uint256,uint8,bytes32,bytes32))": FunctionFragment;
   };
 
   getFunction(
@@ -75,7 +74,6 @@ export interface IBorrowControllerInterface extends utils.Interface {
       | "borrow"
       | "borrowMore"
       | "extendLoanDuration"
-      | "giveManagerAllowance"
       | "removeCollateral"
       | "repay"
       | "shortenLoanDuration"
@@ -122,10 +120,6 @@ export interface IBorrowControllerInterface extends utils.Interface {
     ]
   ): string;
   encodeFunctionData(
-    functionFragment: "giveManagerAllowance",
-    values: [PromiseOrValue<string>]
-  ): string;
-  encodeFunctionData(
     functionFragment: "removeCollateral",
     values: [
       PromiseOrValue<BigNumberish>,
@@ -164,10 +158,6 @@ export interface IBorrowControllerInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "giveManagerAllowance",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "removeCollateral",
     data: BytesLike
   ): Result;
@@ -178,12 +168,10 @@ export interface IBorrowControllerInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "SetCouponMarket(address,uint8,address)": EventFragment;
-    "SetManagerAllowance(address)": EventFragment;
+    "SetCouponMarket(address,uint16,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "SetCouponMarket"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SetManagerAllowance"): EventFragment;
 }
 
 export interface SetCouponMarketEventObject {
@@ -197,17 +185,6 @@ export type SetCouponMarketEvent = TypedEvent<
 >;
 
 export type SetCouponMarketEventFilter = TypedEventFilter<SetCouponMarketEvent>;
-
-export interface SetManagerAllowanceEventObject {
-  token: string;
-}
-export type SetManagerAllowanceEvent = TypedEvent<
-  [string],
-  SetManagerAllowanceEventObject
->;
-
-export type SetManagerAllowanceEventFilter =
-  TypedEventFilter<SetManagerAllowanceEvent>;
 
 export interface IBorrowController extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -272,11 +249,6 @@ export interface IBorrowController extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
 
-    giveManagerAllowance(
-      token: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     removeCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
@@ -336,11 +308,6 @@ export interface IBorrowController extends BaseContract {
     positionPermitParams: IController.PermitSignatureStruct,
     debtPermitParams: IController.ERC20PermitParamsStruct,
     overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
-
-  giveManagerAllowance(
-    token: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
   ): Promise<ContractTransaction>;
 
   removeCollateral(
@@ -404,11 +371,6 @@ export interface IBorrowController extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    giveManagerAllowance(
-      token: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     removeCollateral(
       positionId: PromiseOrValue<BigNumberish>,
       amount: PromiseOrValue<BigNumberish>,
@@ -435,7 +397,7 @@ export interface IBorrowController extends BaseContract {
   };
 
   filters: {
-    "SetCouponMarket(address,uint8,address)"(
+    "SetCouponMarket(address,uint16,address)"(
       asset?: PromiseOrValue<string> | null,
       epoch?: PromiseOrValue<BigNumberish> | null,
       cloberMarket?: PromiseOrValue<string> | null
@@ -445,13 +407,6 @@ export interface IBorrowController extends BaseContract {
       epoch?: PromiseOrValue<BigNumberish> | null,
       cloberMarket?: PromiseOrValue<string> | null
     ): SetCouponMarketEventFilter;
-
-    "SetManagerAllowance(address)"(
-      token?: PromiseOrValue<string> | null
-    ): SetManagerAllowanceEventFilter;
-    SetManagerAllowance(
-      token?: PromiseOrValue<string> | null
-    ): SetManagerAllowanceEventFilter;
   };
 
   estimateGas: {
@@ -489,11 +444,6 @@ export interface IBorrowController extends BaseContract {
       positionPermitParams: IController.PermitSignatureStruct,
       debtPermitParams: IController.ERC20PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
-    giveManagerAllowance(
-      token: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<BigNumber>;
 
     removeCollateral(
@@ -556,11 +506,6 @@ export interface IBorrowController extends BaseContract {
       positionPermitParams: IController.PermitSignatureStruct,
       debtPermitParams: IController.ERC20PermitParamsStruct,
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
-    giveManagerAllowance(
-      token: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
     ): Promise<PopulatedTransaction>;
 
     removeCollateral(

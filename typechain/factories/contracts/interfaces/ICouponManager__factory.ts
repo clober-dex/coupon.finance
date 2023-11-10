@@ -213,7 +213,7 @@ const _abi = [
               {
                 internalType: "Epoch",
                 name: "epoch",
-                type: "uint8",
+                type: "uint16",
               },
             ],
             internalType: "struct CouponKey",
@@ -248,7 +248,7 @@ const _abi = [
           {
             internalType: "Epoch",
             name: "epoch",
-            type: "uint8",
+            type: "uint16",
           },
         ],
         internalType: "struct CouponKey[]",
@@ -268,7 +268,7 @@ const _abi = [
       {
         internalType: "Epoch",
         name: "",
-        type: "uint8",
+        type: "uint16",
       },
     ],
     stateMutability: "view",
@@ -279,7 +279,7 @@ const _abi = [
       {
         internalType: "Epoch",
         name: "epoch",
-        type: "uint8",
+        type: "uint16",
       },
     ],
     name: "epochEndTime",
@@ -374,7 +374,7 @@ const _abi = [
               {
                 internalType: "Epoch",
                 name: "epoch",
-                type: "uint8",
+                type: "uint16",
               },
             ],
             internalType: "struct CouponKey",
@@ -415,33 +415,14 @@ const _abi = [
         type: "address",
       },
       {
-        components: [
-          {
-            components: [
-              {
-                internalType: "address",
-                name: "asset",
-                type: "address",
-              },
-              {
-                internalType: "Epoch",
-                name: "epoch",
-                type: "uint8",
-              },
-            ],
-            internalType: "struct CouponKey",
-            name: "key",
-            type: "tuple",
-          },
-          {
-            internalType: "uint256",
-            name: "amount",
-            type: "uint256",
-          },
-        ],
-        internalType: "struct Coupon[]",
-        name: "coupons",
-        type: "tuple[]",
+        internalType: "uint256[]",
+        name: "ids",
+        type: "uint256[]",
+      },
+      {
+        internalType: "uint256[]",
+        name: "amounts",
+        type: "uint256[]",
       },
       {
         internalType: "bytes",
@@ -467,14 +448,33 @@ const _abi = [
         type: "address",
       },
       {
-        internalType: "uint256[]",
-        name: "ids",
-        type: "uint256[]",
-      },
-      {
-        internalType: "uint256[]",
-        name: "amounts",
-        type: "uint256[]",
+        components: [
+          {
+            components: [
+              {
+                internalType: "address",
+                name: "asset",
+                type: "address",
+              },
+              {
+                internalType: "Epoch",
+                name: "epoch",
+                type: "uint16",
+              },
+            ],
+            internalType: "struct CouponKey",
+            name: "key",
+            type: "tuple",
+          },
+          {
+            internalType: "uint256",
+            name: "amount",
+            type: "uint256",
+          },
+        ],
+        internalType: "struct Coupon[]",
+        name: "coupons",
+        type: "tuple[]",
       },
       {
         internalType: "bytes",

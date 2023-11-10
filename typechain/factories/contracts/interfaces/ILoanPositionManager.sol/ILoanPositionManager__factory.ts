@@ -197,6 +197,12 @@ const _abi = [
         name: "liquidationTargetLtv",
         type: "uint32",
       },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "hook",
+        type: "address",
+      },
     ],
     name: "SetLoanConfiguration",
     type: "event",
@@ -264,7 +270,7 @@ const _abi = [
         indexed: false,
         internalType: "Epoch",
         name: "unlockedAt",
-        type: "uint8",
+        type: "uint16",
       },
     ],
     name: "UpdatePosition",
@@ -316,7 +322,7 @@ const _abi = [
       {
         internalType: "Epoch",
         name: "expiredWith",
-        type: "uint8",
+        type: "uint16",
       },
     ],
     name: "adjustPosition",
@@ -333,7 +339,7 @@ const _abi = [
               {
                 internalType: "Epoch",
                 name: "epoch",
-                type: "uint8",
+                type: "uint16",
               },
             ],
             internalType: "struct CouponKey",
@@ -362,7 +368,7 @@ const _abi = [
               {
                 internalType: "Epoch",
                 name: "epoch",
-                type: "uint8",
+                type: "uint16",
               },
             ],
             internalType: "struct CouponKey",
@@ -494,7 +500,7 @@ const _abi = [
               {
                 internalType: "Epoch",
                 name: "epoch",
-                type: "uint8",
+                type: "uint16",
               },
             ],
             internalType: "struct CouponKey",
@@ -529,7 +535,7 @@ const _abi = [
           {
             internalType: "Epoch",
             name: "epoch",
-            type: "uint8",
+            type: "uint16",
           },
         ],
         internalType: "struct CouponKey[]",
@@ -731,7 +737,7 @@ const _abi = [
           {
             internalType: "Epoch",
             name: "expiredWith",
-            type: "uint8",
+            type: "uint16",
           },
           {
             internalType: "bool",
@@ -937,7 +943,7 @@ const _abi = [
               {
                 internalType: "Epoch",
                 name: "epoch",
-                type: "uint8",
+                type: "uint16",
               },
             ],
             internalType: "struct CouponKey",
@@ -1185,6 +1191,11 @@ const _abi = [
         internalType: "uint32",
         name: "liquidationTargetLtv",
         type: "uint32",
+      },
+      {
+        internalType: "address",
+        name: "hook",
+        type: "address",
       },
     ],
     name: "setLoanConfiguration",

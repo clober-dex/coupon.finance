@@ -54,7 +54,7 @@ const _abi = [
         indexed: true,
         internalType: "Epoch",
         name: "epoch",
-        type: "uint8",
+        type: "uint16",
       },
       {
         indexed: true,
@@ -64,19 +64,6 @@ const _abi = [
       },
     ],
     name: "SetCouponMarket",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
-        internalType: "address",
-        name: "token",
-        type: "address",
-      },
-    ],
-    name: "SetManagerAllowance",
     type: "event",
   },
   {
@@ -191,9 +178,9 @@ const _abi = [
         type: "uint256",
       },
       {
-        internalType: "uint8",
+        internalType: "uint16",
         name: "loanEpochs",
-        type: "uint8",
+        type: "uint16",
       },
       {
         components: [
@@ -298,9 +285,9 @@ const _abi = [
         type: "uint256",
       },
       {
-        internalType: "uint8",
+        internalType: "uint16",
         name: "epochs",
-        type: "uint8",
+        type: "uint16",
       },
       {
         internalType: "uint256",
@@ -377,19 +364,6 @@ const _abi = [
     name: "extendLoanDuration",
     outputs: [],
     stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "token",
-        type: "address",
-      },
-    ],
-    name: "giveManagerAllowance",
-    outputs: [],
-    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -534,9 +508,9 @@ const _abi = [
         type: "uint256",
       },
       {
-        internalType: "uint8",
+        internalType: "uint16",
         name: "epochs",
-        type: "uint8",
+        type: "uint16",
       },
       {
         internalType: "uint256",

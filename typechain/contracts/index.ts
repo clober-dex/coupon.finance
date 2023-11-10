@@ -11,6 +11,7 @@ export type { AaveTokenSubstitute } from "./AaveTokenSubstitute";
 export type { AssetPool } from "./AssetPool";
 export type { BondPositionManager } from "./BondPositionManager";
 export type { BorrowController } from "./BorrowController";
+export type { CouponLiquidator } from "./CouponLiquidator";
 export type { CouponManager } from "./CouponManager";
 export type { CouponOracle } from "./CouponOracle";
 export type { DepositController } from "./DepositController";

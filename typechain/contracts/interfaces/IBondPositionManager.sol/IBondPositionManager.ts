@@ -74,13 +74,13 @@ export interface IBondPositionManagerInterface extends utils.Interface {
     "DOMAIN_SEPARATOR()": FunctionFragment;
     "MAX_EPOCH()": FunctionFragment;
     "PERMIT_TYPEHASH()": FunctionFragment;
-    "adjustPosition(uint256,uint256,uint8)": FunctionFragment;
+    "adjustPosition(uint256,uint256,uint16)": FunctionFragment;
     "approve(address,uint256)": FunctionFragment;
     "assetDelta(address,uint256)": FunctionFragment;
     "assetPool()": FunctionFragment;
     "balanceOf(address)": FunctionFragment;
     "baseURI()": FunctionFragment;
-    "burnCoupons(((address,uint8),uint256)[])": FunctionFragment;
+    "burnCoupons(((address,uint16),uint256)[])": FunctionFragment;
     "contractURI()": FunctionFragment;
     "depositToken(address,uint256)": FunctionFragment;
     "getApproved(uint256)": FunctionFragment;
@@ -90,7 +90,7 @@ export interface IBondPositionManagerInterface extends utils.Interface {
     "lock(bytes)": FunctionFragment;
     "lockData()": FunctionFragment;
     "mint(address)": FunctionFragment;
-    "mintCoupons(((address,uint8),uint256)[],address,bytes)": FunctionFragment;
+    "mintCoupons(((address,uint16),uint256)[],address,bytes)": FunctionFragment;
     "name()": FunctionFragment;
     "nextId()": FunctionFragment;
     "nonces(uint256)": FunctionFragment;
@@ -393,7 +393,7 @@ export interface IBondPositionManagerInterface extends utils.Interface {
     "ApprovalForAll(address,address,bool)": EventFragment;
     "RegisterAsset(address)": EventFragment;
     "Transfer(address,address,uint256)": EventFragment;
-    "UpdatePosition(uint256,uint256,uint8)": EventFragment;
+    "UpdatePosition(uint256,uint256,uint16)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "Approval"): EventFragment;
@@ -1041,7 +1041,7 @@ export interface IBondPositionManager extends BaseContract {
       tokenId?: PromiseOrValue<BigNumberish> | null
     ): TransferEventFilter;
 
-    "UpdatePosition(uint256,uint256,uint8)"(
+    "UpdatePosition(uint256,uint256,uint16)"(
       tokenId?: PromiseOrValue<BigNumberish> | null,
       amount?: null,
       expiredWith?: null

@@ -8,7 +8,6 @@ import type {
   BytesLike,
   CallOverrides,
   ContractTransaction,
-  Overrides,
   PayableOverrides,
   PopulatedTransaction,
   Signer,
@@ -59,19 +58,14 @@ export declare namespace IController {
 
 export interface ILeverageAdapterInterface extends utils.Interface {
   functions: {
-    "giveManagerAllowance(address)": FunctionFragment;
-    "leverage(address,address,uint256,uint256,uint256,uint8,bytes,(uint256,(uint256,uint8,bytes32,bytes32)))": FunctionFragment;
+    "leverage(address,address,uint256,uint256,uint256,uint16,bytes,(uint256,(uint256,uint8,bytes32,bytes32)))": FunctionFragment;
     "leverageMore(uint256,uint256,uint256,uint256,bytes,(uint256,uint8,bytes32,bytes32),(uint256,(uint256,uint8,bytes32,bytes32)))": FunctionFragment;
   };
 
   getFunction(
-    nameOrSignatureOrTopic: "giveManagerAllowance" | "leverage" | "leverageMore"
+    nameOrSignatureOrTopic: "leverage" | "leverageMore"
   ): FunctionFragment;
 
-  encodeFunctionData(
-    functionFragment: "giveManagerAllowance",
-    values: [PromiseOrValue<string>]
-  ): string;
   encodeFunctionData(
     functionFragment: "leverage",
     values: [
@@ -98,10 +92,6 @@ export interface ILeverageAdapterInterface extends utils.Interface {
     ]
   ): string;
 
-  decodeFunctionResult(
-    functionFragment: "giveManagerAllowance",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "leverage", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "leverageMore",
@@ -109,12 +99,10 @@ export interface ILeverageAdapterInterface extends utils.Interface {
   ): Result;
 
   events: {
-    "SetCouponMarket(address,uint8,address)": EventFragment;
-    "SetManagerAllowance(address)": EventFragment;
+    "SetCouponMarket(address,uint16,address)": EventFragment;
   };
 
   getEvent(nameOrSignatureOrTopic: "SetCouponMarket"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "SetManagerAllowance"): EventFragment;
 }
 
 export interface SetCouponMarketEventObject {
@@ -128,17 +116,6 @@ export type SetCouponMarketEvent = TypedEvent<
 >;
 
 export type SetCouponMarketEventFilter = TypedEventFilter<SetCouponMarketEvent>;
-
-export interface SetManagerAllowanceEventObject {
-  token: string;
-}
-export type SetManagerAllowanceEvent = TypedEvent<
-  [string],
-  SetManagerAllowanceEventObject
->;
-
-export type SetManagerAllowanceEventFilter =
-  TypedEventFilter<SetManagerAllowanceEvent>;
 
 export interface ILeverageAdapter extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -167,11 +144,6 @@ export interface ILeverageAdapter extends BaseContract {
   removeListener: OnEvent<this>;
 
   functions: {
-    giveManagerAllowance(
-      token: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<ContractTransaction>;
-
     leverage(
       collateralToken: PromiseOrValue<string>,
       debtToken: PromiseOrValue<string>,
@@ -195,11 +167,6 @@ export interface ILeverageAdapter extends BaseContract {
       overrides?: PayableOverrides & { from?: PromiseOrValue<string> }
     ): Promise<ContractTransaction>;
   };
-
-  giveManagerAllowance(
-    token: PromiseOrValue<string>,
-    overrides?: Overrides & { from?: PromiseOrValue<string> }
-  ): Promise<ContractTransaction>;
 
   leverage(
     collateralToken: PromiseOrValue<string>,
@@ -225,11 +192,6 @@ export interface ILeverageAdapter extends BaseContract {
   ): Promise<ContractTransaction>;
 
   callStatic: {
-    giveManagerAllowance(
-      token: PromiseOrValue<string>,
-      overrides?: CallOverrides
-    ): Promise<void>;
-
     leverage(
       collateralToken: PromiseOrValue<string>,
       debtToken: PromiseOrValue<string>,
@@ -255,7 +217,7 @@ export interface ILeverageAdapter extends BaseContract {
   };
 
   filters: {
-    "SetCouponMarket(address,uint8,address)"(
+    "SetCouponMarket(address,uint16,address)"(
       asset?: PromiseOrValue<string> | null,
       epoch?: PromiseOrValue<BigNumberish> | null,
       cloberMarket?: PromiseOrValue<string> | null
@@ -265,21 +227,9 @@ export interface ILeverageAdapter extends BaseContract {
       epoch?: PromiseOrValue<BigNumberish> | null,
       cloberMarket?: PromiseOrValue<string> | null
     ): SetCouponMarketEventFilter;
-
-    "SetManagerAllowance(address)"(
-      token?: PromiseOrValue<string> | null
-    ): SetManagerAllowanceEventFilter;
-    SetManagerAllowance(
-      token?: PromiseOrValue<string> | null
-    ): SetManagerAllowanceEventFilter;
   };
 
   estimateGas: {
-    giveManagerAllowance(
-      token: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<BigNumber>;
-
     leverage(
       collateralToken: PromiseOrValue<string>,
       debtToken: PromiseOrValue<string>,
@@ -305,11 +255,6 @@ export interface ILeverageAdapter extends BaseContract {
   };
 
   populateTransaction: {
-    giveManagerAllowance(
-      token: PromiseOrValue<string>,
-      overrides?: Overrides & { from?: PromiseOrValue<string> }
-    ): Promise<PopulatedTransaction>;
-
     leverage(
       collateralToken: PromiseOrValue<string>,
       debtToken: PromiseOrValue<string>,
