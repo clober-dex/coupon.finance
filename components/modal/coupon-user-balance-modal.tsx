@@ -42,7 +42,7 @@ export const CouponUserBalanceModal = ({
   }[]
 }) => {
   const [clicked, setClicked] = useState(false)
-  if (coupons.length === 0) {
+  if (coupons.reduce((acc, { balance }) => acc + balance, 0n) === 0n) {
     return <></>
   }
 
