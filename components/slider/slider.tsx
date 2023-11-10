@@ -18,14 +18,14 @@ const Line = ({ position }: { position: number }) => {
 
 const Slider = ({
   length,
-  leftPaddingPercentage,
+  leftPaddingPercentage = 0,
   value,
   onValueChange,
   disabled,
   children,
 }: {
   length: number
-  leftPaddingPercentage: number
+  leftPaddingPercentage?: number
   value: number
   onValueChange: (value: number) => void
   disabled?: boolean
