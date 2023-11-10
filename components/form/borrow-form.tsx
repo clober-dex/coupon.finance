@@ -166,7 +166,7 @@ export const BorrowForm = ({
               <div className="ml-auto">
                 {collateral
                   ? Number(
-                      (collateral.liquidationTargetLtv * 100n) /
+                      (collateral.liquidationThreshold * 100n) /
                         collateral.ltvPrecision,
                     )
                   : 0}
