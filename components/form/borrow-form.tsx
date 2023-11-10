@@ -168,7 +168,7 @@ export const BorrowForm = ({
                   ? Number(
                       (collateral.liquidationThreshold * 100n) /
                         collateral.ltvPrecision,
-                    )
+                    ).toFixed(2)
                   : 0}
                 %
               </div>
