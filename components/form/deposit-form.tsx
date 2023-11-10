@@ -94,7 +94,7 @@ export const DepositForm = ({
               )}
               {proceedsByEpochsDeposited &&
               proceedsByEpochsDeposited.length > 0 ? (
-                <div className="sm:px-6 sm:mb-2">
+                <div className="sm:px-6 sm:mb-2 mr-4 sm:mr-0">
                   <div>
                     <Slider
                       length={proceedsByEpochsDeposited?.length ?? 0}
