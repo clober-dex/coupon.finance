@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { getAddress } from 'viem'
 import BigNumber from 'bignumber.js'
@@ -41,10 +41,10 @@ export const CouponUserBalanceModal = ({
     coupon: Currency
   }[]
 }) => {
+  const [clicked, setClicked] = useState(false)
   if (coupons.length === 0) {
     return <></>
   }
-  const [clicked, setClicked] = React.useState(false)
 
   return (
     <>
