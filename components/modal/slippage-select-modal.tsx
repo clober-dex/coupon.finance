@@ -28,19 +28,19 @@ const SlippageSelectModal = ({
       <div className="flex gap-1">
         <button
           onClick={() => setSlippage('0.5')}
-          className="flex items-center justify-center rounded px-3 py-1.5 text-green-500 dark:text-white text-sm bg-green-500 dark:bg-transparent bg-opacity-10 border-[1.5px] border-solid border-gray-700 hover:bg-opacity-20 dark:hover:border-white flex-1"
+          className="flex items-center justify-center rounded px-3 py-1.5 text-green-500 dark:text-white text-sm bg-green-500 dark:bg-transparent bg-opacity-10 border-[1.5px] border-solid hover:bg-opacity-20 dark:hover:border-white flex-1"
         >
           0.5%
         </button>
         <button
           onClick={() => setSlippage('1')}
-          className="flex items-center justify-center rounded px-3 py-1.5 text-green-500 dark:text-white text-sm bg-green-500 dark:bg-transparent bg-opacity-10 border-[1.5px] border-solid border-gray-700 hover:bg-opacity-20 dark:hover:border-white flex-1"
+          className="flex items-center justify-center rounded px-3 py-1.5 text-green-500 dark:text-white text-sm bg-green-500 dark:bg-transparent bg-opacity-10 border-[1.5px] border-solid hover:bg-opacity-20 dark:hover:border-white flex-1"
         >
           1.0%
         </button>
         <button
           onClick={() => setSlippage('1.5')}
-          className="flex items-center justify-center rounded px-3 py-1.5 text-green-500 dark:text-white text-sm bg-green-500 dark:bg-transparent bg-opacity-10 border-[1.5px] border-solid border-gray-700 hover:bg-opacity-20 dark:hover:border-white flex-1"
+          className="flex items-center justify-center rounded px-3 py-1.5 text-green-500 dark:text-white text-sm bg-green-500 dark:bg-transparent bg-opacity-10 border-[1.5px] border-solid hover:bg-opacity-20 dark:hover:border-white flex-1"
         >
           1.5%
         </button>
