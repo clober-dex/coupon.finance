@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { parseUnits } from 'viem'
@@ -20,13 +20,7 @@ const Deposit = () => {
   const { balances, prices, assets } = useCurrencyContext()
   const { deposit } = useDepositContext()
 
-  const [epochs, _setEpochs] = useState(0)
-  const setEpochs = useCallback(
-    (value: number) => {
-      _setEpochs(value === epochs ? value - 1 : value)
-    },
-    [epochs],
-  )
+  const [epochs, setEpochs] = useState(1)
   const [showRiskSidebar, setShowRiskSidebar] = useState(true)
 
   const [value, setValue] = useState('')
@@ -59,7 +53,9 @@ const Deposit = () => {
   )
 
   const [apy, proceed, remainingCoupons] = useMemo(() => {
-    return epochs && depositInfosByEpochsDeposited
+    return epochs &&
+      depositInfosByEpochsDeposited &&
+      depositInfosByEpochsDeposited.length > 0
       ? [
           depositInfosByEpochsDeposited[epochs - 1].apy ?? 0,
           depositInfosByEpochsDeposited[epochs - 1].proceeds ?? 0n,

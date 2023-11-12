@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useQuery } from 'wagmi'
 
 import { LoanPosition } from '../../model/loan-position'
@@ -19,13 +19,7 @@ const EditExpiryModalContainer = ({
   const { balances } = useCurrencyContext()
   const { extendLoanDuration, shortenLoanDuration } = useBorrowContext()
 
-  const [epochs, _setEpochs] = useState(0)
-  const setEpochs = useCallback(
-    (value: number) => {
-      _setEpochs(value === epochs ? value - 1 : value)
-    },
-    [epochs],
-  )
+  const [epochs, setEpochs] = useState(1)
 
   const { data } = useQuery(
     ['edit-expiry-simulate', position, selectedChain],
@@ -63,9 +57,9 @@ const EditExpiryModalContainer = ({
 
   useEffect(() => {
     if (expiryEpochIndex > 0) {
-      _setEpochs(expiryEpochIndex)
+      setEpochs(expiryEpochIndex)
     }
-  }, [expiryEpochIndex, position, _setEpochs])
+  }, [expiryEpochIndex, position, setEpochs])
 
   return (
     <EditExpiryModal
