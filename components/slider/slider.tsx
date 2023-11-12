@@ -129,7 +129,7 @@ const Slider = ({
         onMouseDown={handleMouseDown}
       >
         <div
-          className={`top-1/2 absolute rounded-2xl cursor-grab -translate-x-[${
+          className={`top-1/2 absolute rounded-2xl select-none cursor-grab -translate-x-[${
             50 - position
           }%] -translate-y-1/2`}
         >
