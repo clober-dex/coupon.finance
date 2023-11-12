@@ -91,7 +91,7 @@ export const BorrowForm = ({
     />
   ) : (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col bg-white gap-4 dark:bg-gray-950 sm:dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 sm:pb-8 w-full sm:w-[480px]">
+      <div className="flex flex-col bg-white gap-4 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 sm:pb-8 w-full sm:w-[480px]">
         <div className="flex flex-col gap-4">
           <div className="font-bold text-sm sm:text-lg">
             How much collateral would you like to add?
@@ -175,7 +175,7 @@ export const BorrowForm = ({
           />
         </div>
       </div>
-      <div className="flex flex-col bg-white gap-6 dark:bg-gray-950 sm:dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 w-full sm:w-[480px]">
+      <div className="flex flex-col bg-white gap-6 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 w-full sm:w-[480px]">
         <div className="flex flex-col items-start gap-6 self-stretch">
           <div className="text-lg font-bold">Transaction Overview</div>
           <div className="flex flex-col items-start gap-3 self-stretch">
