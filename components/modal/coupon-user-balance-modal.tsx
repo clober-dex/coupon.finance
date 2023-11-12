@@ -22,7 +22,7 @@ const CouponWidget = ({
       e.stopPropagation()
     }}
   >
-    <div className="h-full relative bg-transparent p-2 sm:p-6">
+    <div className="h-full relative bg-transparent p-2 sm:p-6 cursor-pointer">
       <CouponSvg />
       {children}
     </div>
@@ -42,7 +42,7 @@ export const CouponUserBalanceModal = ({
   }[]
 }) => {
   const [clicked, setClicked] = useState(false)
-  if (coupons.length === 0) {
+  if (coupons.reduce((acc, { balance }) => acc + balance, 0n) === 0n) {
     return <></>
   }
 
@@ -55,7 +55,7 @@ export const CouponUserBalanceModal = ({
             onClick={() => setClicked(false)}
           >
             <CouponWidget setClicked={setClicked}>
-              <div className="absolute -right-2 sm:right-0 bottom-3/4 mx-4 my-8 bg-white dark:bg-gray-500 rounded-lg">
+              <div className="absolute -right-2 sm:right-0 bottom-3/4 mx-4 my-8 bg-white dark:bg-gray-500 rounded-lg cursor-pointer">
                 <div className="flex flex-col p-2 items-start w-max">
                   {coupons
                     .filter(({ balance }) => balance > 0n)
@@ -66,7 +66,7 @@ export const CouponUserBalanceModal = ({
                       >
                         <div className="flex items-center flex-grow shrink-0 gap-3 sm:gap-2 basis-0">
                           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 flex-grow shrink-0 basis-0 text-sm">
-                            <div>
+                            <div className="text-black dark:text-white">
                               +
                               {new BigNumber(
                                 formatUnits(
@@ -76,7 +76,9 @@ export const CouponUserBalanceModal = ({
                               ).toFixed(4)}{' '}
                               {coupon.coupon.symbol}
                             </div>
-                            <div className="text-gray-500">({coupon.date})</div>
+                            <div className="text-gray-500 dark:text-gray-300">
+                              ({coupon.date})
+                            </div>
                           </div>
                           <Link
                             target="_blank"
