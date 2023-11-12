@@ -10,7 +10,7 @@ export const CouponSvg = (props: SVGProps<SVGSVGElement>) => (
     {...props}
   >
     <circle cx="40" cy="40" r="40" fill="url(#paint0_linear_1188_33732)" />
-    <circle cx="40" cy="40" r="36" fill="white" />
+    <circle cx="40" cy="40" r="36" className="fill-white dark:fill-gray-950" />
     <g clipPath="url(#clip0_1188_33732)">
       <path
         fillRule="evenodd"
@@ -95,7 +95,7 @@ export const CouponSvg = (props: SVGProps<SVGSVGElement>) => (
         <rect
           width="38.6667"
           height="38.6667"
-          fill="white"
+          className="fill-white dark:fill-gray-950"
           transform="translate(20.6666 20.6665)"
         />
       </clipPath>
