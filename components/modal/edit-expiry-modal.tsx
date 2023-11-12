@@ -41,7 +41,7 @@ const EditExpiryModal = ({
         date to receive a refund on interest paid.
       </div>
       <div className="flex flex-col gap-2">
-        <div className="flex justify-between flex-col relative bg-white dark:bg-gray-900 rounded-lg px-4 sm:py-6">
+        <div className="flex justify-between flex-col relative bg-white dark:bg-gray-900 rounded-lg pl-4 pr-12 sm:pl-0 sm:pr-6 sm:py-10">
           {dateList.length === 0 ? (
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
               <div
