@@ -17,7 +17,7 @@ const ConfirmationModal = ({
   return createPortal(
     <div className="flex items-center justify-center fixed inset-0 bg-black bg-opacity-50 z-50 dark:backdrop-blur-sm px-4 sm:px-0">
       <div
-        className="shadow flex flex-col bg-gray-50 w-full sm:w-80 dark:bg-gray-800 text-gray-950 dark:text-white rounded-xl sm:rounded-2xl p-4 gap-4"
+        className="flex flex-col bg-gray-50 w-full sm:w-80 dark:bg-gray-800 text-gray-950 dark:text-white rounded-xl sm:rounded-2xl p-4 gap-4"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col gap-1">

@@ -1,7 +1,7 @@
 import React from 'react'
 
 export const CommunityDropdownModal = () => (
-  <div className="absolute top-16 left-0 bg-white dark:bg-gray-800 inline-flex flex-col items-start shadow text-gray-400 rounded-lg">
+  <div className="absolute top-16 left-0 bg-white dark:bg-gray-800 inline-flex flex-col items-start text-gray-400 rounded-lg">
     <a
       target="_blank"
       href="https://twitter.com/CouponFinance"
