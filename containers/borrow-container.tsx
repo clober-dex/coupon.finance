@@ -54,7 +54,7 @@ const BorrowContainer = ({
               {positions.length}
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-8 text-sm shadow sm:w-fit bg-white dark:bg-gray-900 px-4 py-3 rounded-xl sm:rounded-lg">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-8 text-sm sm:w-fit bg-white dark:bg-gray-900 px-4 py-3 rounded-xl sm:rounded-lg">
             <div className="flex justify-between gap-3">
               <div className="text-gray-500">Total Borrow Amount</div>
               <div className="font-bold">
