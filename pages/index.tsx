@@ -21,7 +21,7 @@ const Home = () => {
       <Head>
         <title>Coupon Finance</title>
       </Head>
-      <div className="fixed w-full flex gap-16 items-end justify-center pb-1 bg-white dark:bg-gray-900 z-50 h-12 md:hidden">
+      <div className="fixed w-full flex gap-16 items-end justify-center pb-1 bg-white dark:bg-gray-900 z-10 h-12 md:hidden">
         <button
           onClick={() => {
             router.replace('/', undefined, { shallow: true })
