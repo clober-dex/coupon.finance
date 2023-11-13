@@ -161,7 +161,9 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             expectedInterest,
             epochs,
             {
-              permitAmount: collateralAmount,
+              permitAmount:
+                collateralAmount -
+                calculateETHValue(collateral.underlying, collateralAmount),
               signature: { deadline, v, r, s },
             },
           ],
@@ -240,7 +242,8 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             expectedProceeds,
             { ...positionPermitResult },
             {
-              permitAmount: amount,
+              permitAmount:
+                amount - calculateETHValue(position.underlying, amount),
               signature: {
                 deadline: debtPermitResult.deadline,
                 v: debtPermitResult.v,
@@ -454,7 +457,9 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             expectedInterest,
             { ...positionPermitResult },
             {
-              permitAmount: expectedInterest,
+              permitAmount:
+                expectedInterest -
+                calculateETHValue(underlying, expectedInterest),
               signature: {
                 deadline: debtPermitResult.deadline,
                 r: debtPermitResult.r,
@@ -588,7 +593,9 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             amount,
             { ...positionPermitResult },
             {
-              permitAmount: amount,
+              permitAmount:
+                amount -
+                calculateETHValue(position.collateral.underlying, amount),
               signature: {
                 deadline: debtPermitResult.deadline,
                 r: debtPermitResult.r,

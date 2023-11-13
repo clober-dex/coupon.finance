@@ -116,7 +116,8 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
             epochs,
             expectedProceeds,
             {
-              permitAmount: amount,
+              permitAmount:
+                amount - calculateETHValue(asset.underlying, amount),
               signature: {
                 deadline,
                 v,
