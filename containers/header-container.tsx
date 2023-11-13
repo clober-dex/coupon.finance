@@ -10,6 +10,7 @@ import MenuSvg from '../components/svg/menu-svg'
 import { WalletSelector } from '../components/selector/wallet-selector'
 import { CommunityDropdownModal } from '../components/modal/community-dropdown-modal'
 import { UserPointButton } from '../components/button/user-point-button'
+import { ZIndices } from '../utils/z-indices'
 import { useCurrencyContext } from '../contexts/currency-context'
 
 const HeaderContainer = ({
@@ -32,7 +33,9 @@ const HeaderContainer = ({
     return 'deposit'
   }, [router.query.mode, router.route])
   return (
-    <div className="fixed w-full flex flex-col justify-between items-center px-4 md:px-8 bg-white dark:bg-gray-900 md:dark:bg-transparent md:bg-opacity-5 md:backdrop-blur z-50 h-12 md:h-16">
+    <div
+      className={`fixed w-full flex flex-col justify-between items-center px-4 md:px-8 bg-white dark:bg-gray-900 md:dark:bg-transparent md:bg-opacity-5 md:backdrop-blur z-[${ZIndices.modal}] h-12 md:h-16`}
+    >
       <div className="flex w-full justify-between items-center h-12 md:h-full">
         <div className="flex h-full items-center gap-12 lg:gap-16">
           <Link href="/">

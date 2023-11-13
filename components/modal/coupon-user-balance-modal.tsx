@@ -8,6 +8,7 @@ import { Currency } from '../../model/currency'
 import { formatUnits } from '../../utils/numbers'
 import { CouponSvg } from '../svg/coupon-svg'
 import { RightBracketAngleSvg } from '../svg/right-bracket-angle-svg'
+import { ZIndices } from '../../utils/z-indices'
 
 const CouponWidget = ({
   setClicked,
@@ -16,7 +17,7 @@ const CouponWidget = ({
   setClicked: React.Dispatch<React.SetStateAction<boolean>>
 } & React.PropsWithChildren) => (
   <div
-    className="fixed right-2 bottom-2 sm:right-4 sm:bottom-4"
+    className="fixed right-2 bottom-2 sm:right-4 sm:bottom-4 z-50"
     onClick={(e) => {
       setClicked((clicked) => !clicked)
       e.stopPropagation()
@@ -51,7 +52,7 @@ export const CouponUserBalanceModal = ({
       {clicked ? (
         createPortal(
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-50 dark:backdrop-blur-sm"
+            className={`fixed inset-0 bg-black bg-opacity-50 z-[${ZIndices.modal}] dark:backdrop-blur-sm`}
             onClick={() => setClicked(false)}
           >
             <CouponWidget setClicked={setClicked}>
