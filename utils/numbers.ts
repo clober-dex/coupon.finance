@@ -35,11 +35,15 @@ export const formatUnits = (
 ): string => {
   const formatted = _formatUnits(value, decimals)
   if (!price) {
-    return formatted
+    return removeTrailingZeros(formatted)
   }
   const priceValue = Number(price.value) / 10 ** price.decimals
   const underHalfPennyDecimals =
     Math.floor(Math.max(-Math.log10(0.005 / priceValue), 0) / 2) * 2
   const fixed = new BigNumber(formatted).toFixed(underHalfPennyDecimals)
-  return +fixed === 0 ? formatted : fixed
+  return removeTrailingZeros(+fixed === 0 ? formatted : fixed)
+}
+
+export const removeTrailingZeros = (value: string): string => {
+  return value.replace(/([0-9]+(\.[0-9]+[1-9])?)(\.?0+$)/, '$1')
 }
