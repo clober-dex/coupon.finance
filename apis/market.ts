@@ -145,7 +145,7 @@ export async function fetchBorrowApyByEpochsBorrowed(
     })
 }
 
-export async function fetchCouponAmountByEpochsBorrowed(
+export async function fetchInterestOrRefundCouponAmountByEpochs(
   chainId: CHAIN_IDS,
   substitute: Currency,
   debtAmount: bigint,
@@ -166,6 +166,7 @@ export async function fetchCouponAmountByEpochsBorrowed(
       market.epoch < expiryEpoch
         ? market.spend(market.baseToken.address, debtAmount).amountOut
         : 0n
+    console.log(expiryEpoch, interest, refund, debtAmount)
     return {
       date: formatDate(new Date(Number(market.endTimestamp) * 1000)),
       interest,
