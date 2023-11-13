@@ -33,8 +33,6 @@ export const Default: Story = {
     setValue: () => {},
     epochs: 2,
     setEpochs: () => {},
-    showRiskSidebar: false,
-    setShowRiskSidebar: () => {},
     actionButtonProps: {
       disabled: false,
       onClick: () => {},
@@ -68,8 +66,6 @@ export const RemainingCoupons: Story = {
     setValue: () => {},
     epochs: 2,
     setEpochs: () => {},
-    showRiskSidebar: false,
-    setShowRiskSidebar: () => {},
     actionButtonProps: {
       disabled: false,
       onClick: () => {},

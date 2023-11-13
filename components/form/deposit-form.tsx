@@ -6,7 +6,6 @@ import { Currency } from '../../model/currency'
 import CurrencyAmountInput from '../input/currency-amount-input'
 import { BigDecimal, formatUnits } from '../../utils/numbers'
 import { ActionButton, ActionButtonProps } from '../button/action-button'
-import { RightBracketAngleSvg } from '../svg/right-bracket-angle-svg'
 import { RemainingCoupon } from '../../model/market'
 import {
   currentTimestampInSeconds,
@@ -28,8 +27,6 @@ export const DepositForm = ({
   setValue,
   epochs,
   setEpochs,
-  showRiskSidebar,
-  setShowRiskSidebar,
   actionButtonProps,
   depositAssetPrice,
 }: {
@@ -43,8 +40,6 @@ export const DepositForm = ({
   setValue: (value: string) => void
   epochs: number
   setEpochs: (value: number) => void
-  showRiskSidebar: boolean
-  setShowRiskSidebar: (show: boolean) => void
   actionButtonProps: ActionButtonProps
   depositAssetPrice?: BigDecimal
 }) => {
@@ -104,7 +99,7 @@ export const DepositForm = ({
                       onValueChange={setEpochs}
                     >
                       <div className="flex w-[96px] flex-col items-center gap-3 shrink-0">
-                        <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-gray-100 text-gray-400 text-xs">
+                        <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-white text-xs font-bold">
                           {getDaysBetweenDates(
                             new Date(
                               proceedsByEpochsDeposited[epochs - 1].date,
@@ -197,23 +192,6 @@ export const DepositForm = ({
           <ActionButton {...actionButtonProps} />
         </div>
       </div>
-      {!showRiskSidebar ? (
-        <div className="hidden lg:inline-flex absolute -z-10 -right-20 top-6 py-2 pl-8 pr-3 gap-1 rounded-lg bg-[#22C55E1A] h-[58px]">
-          <button
-            className="flex flex-row gap-1 items-center"
-            onClick={() => setShowRiskSidebar(!showRiskSidebar)}
-          >
-            <div className="text-sm	font-bold opacity-90 text-green-500">
-              Risk
-            </div>
-            <div className="flex items-center h-full">
-              <RightBracketAngleSvg />
-            </div>
-          </button>
-        </div>
-      ) : (
-        <></>
-      )}
     </div>
   )
 }

@@ -78,8 +78,6 @@ export const Default: Story = {
         },
       ],
     },
-    showRiskSidebar: true,
-    setShowRiskSidebar: () => {},
     prices: {
       '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f': {
         value: 2500000000000n,
