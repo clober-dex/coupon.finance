@@ -44,7 +44,7 @@ export default `<svg class="normal warning danger" xmlns="http://www.w3.org/2000
   <path class="frame" fill-rule="evenodd" clip-rule="evenodd" d="M135 88.0001L134 88L88.0002 88L88 1004H135H1065H1112L1112 88L1065 88.0002L135 88.0001ZM228.334 957H181.667L181.667 910.333H135L135 863.667H181.667L181.666 910.333H228.333V863.666L181.666 863.666L181.667 817H135L135 275L181.666 275L181.666 228.334L135 228.334L135 181.667L181.666 181.667L181.666 135L228.333 135L228.333 181.667L181.667 181.667L181.667 228.333L228.333 228.333L228.333 181.667L275 181.667L275 135L1065 135L1018.33 135V181.667L1065 181.667L1065 228.333H1018.33L1018.33 181.667H971.667V228.334L1018.33 228.334L1018.33 275H1065L1065 957L1065 910.334H1018.33V957.001H971.666V910.334L1018.33 910.334V863.667H971.666V910.334L925 910.334V957.001L275 957V910.333H228.334V957ZM1018.33 817V863.667H1065V817H1018.33ZM971.666 135V181.667L925 181.667V135H971.666Z" />
   <!-- Text -->
   <g>
-    <text class="text" x="50%" y="23%" font-family="Inter" font-size="83" text-anchor="middle">Loan</text>
+    <text class="text" x="50%" y="23%" font-family="Inter" font-size="77" text-anchor="middle">Certificate of Loan</text>
     <text class="text" x="50%" y="40%" font-family="Inter" font-size="142" text-anchor="middle">LOAN_AMOUNT<tspan class="text" dx="30" font-family="Inter" font-size="70">LOAN_TOKEN</tspan>
     </text>
     <text x="50%" y="50%" fill="rgba(255, 255, 255, 0.60)" font-family="Inter" font-size="64" text-anchor="middle">Expires at<tspan dx="25" fill="rgba(255, 255, 255, 0.80)">EXPIRES_AT</tspan>
