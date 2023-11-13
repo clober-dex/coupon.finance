@@ -153,6 +153,9 @@ const RepayModalContainer = ({
       value={value}
       setValue={setValue}
       repayAmount={repayAmount}
+      refundAmountAfterSwap={
+        isUseCollateral ? repayAmount - position.amount : 0n
+      }
       maxRepayableAmount={min(
         position.amount - maxRefund,
         balances[position.underlying.address],
