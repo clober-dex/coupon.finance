@@ -11,7 +11,7 @@ import { LoanPosition } from '../model/loan-position'
 import { LoanPositionCard } from '../components/card/loan-position-card'
 import { calculateApy } from '../utils/apy'
 import { BorrowCard } from '../components/card/borrow-card'
-import { formatDate } from '../utils/date'
+import { currentTimestampInSeconds, formatDate } from '../utils/date'
 
 import EditCollateralModalContainer from './modal/edit-collateral-modal-container'
 import RepayModalContainer from './modal/repay-modal-container'
@@ -40,7 +40,7 @@ const BorrowContainer = ({
       setEpoch(epochs[0])
     }
   }, [epochs])
-  const currentTimestamp = Math.floor(new Date().getTime() / 1000)
+  const currentTimestamp = currentTimestampInSeconds()
   return (
     <div className="flex flex-1 flex-col w-full sm:w-fit">
       <h1 className="flex justify-center text-center font-bold text-xl sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-16 mb-8 sm:mb-16">

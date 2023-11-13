@@ -9,6 +9,7 @@ import { ActionButton, ActionButtonProps } from '../button/action-button'
 import { RightBracketAngleSvg } from '../svg/right-bracket-angle-svg'
 import { RemainingCoupon } from '../../model/market'
 import {
+  currentTimestampInSeconds,
   getDaysBetweenDates,
   getNextMonthStartTimestamp,
   SECONDS_IN_MONTH,
@@ -47,7 +48,7 @@ export const DepositForm = ({
   actionButtonProps: ActionButtonProps
   depositAssetPrice?: BigDecimal
 }) => {
-  const currentTimestamp = new Date().getTime() / 1000
+  const currentTimestamp = currentTimestampInSeconds()
   const leftMonthInSecond =
     getNextMonthStartTimestamp(currentTimestamp) - currentTimestamp
   const leftPaddingPercentage =

@@ -11,7 +11,7 @@ import { Asset } from '../model/asset'
 import { getEpoch } from '../utils/epoch'
 import { SUBGRAPH_URL } from '../constants/subgraph-url'
 import { CHAIN_IDS } from '../constants/chain'
-import { formatDate } from '../utils/date'
+import { currentTimestampInSeconds, formatDate } from '../utils/date'
 const { getMarkets } = getBuiltGraphSDK()
 
 type DepthDto = {
@@ -37,7 +37,7 @@ export type MarketDto = {
 export async function fetchMarkets(chainId: CHAIN_IDS): Promise<Market[]> {
   const { markets } = await getMarkets(
     {
-      fromEpoch: getEpoch(Math.floor(new Date().getTime() / 1000)).toString(),
+      fromEpoch: getEpoch(currentTimestampInSeconds()).toString(),
     },
     {
       url: SUBGRAPH_URL[chainId],
@@ -88,7 +88,7 @@ export async function fetchDepositInfosByEpochsDeposited(
     )
     .sort((a, b) => Number(a.epoch) - Number(b.epoch))
 
-  const currentTimestamp = Math.floor(new Date().getTime() / 1000)
+  const currentTimestamp = currentTimestampInSeconds()
   return markets
     .map((_, index) => markets.slice(0, index + 1))
     .map((markets) => {
@@ -122,7 +122,7 @@ export async function fetchBorrowApyByEpochsBorrowed(
     )
     .sort((a, b) => Number(a.epoch) - Number(b.epoch))
 
-  const currentTimestamp = Math.floor(new Date().getTime() / 1000)
+  const currentTimestamp = currentTimestampInSeconds()
   return markets
     .map((_, index) => markets.slice(0, index + 1))
     .map((markets) => {

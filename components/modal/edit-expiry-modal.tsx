@@ -3,6 +3,7 @@ import React from 'react'
 import Modal from '../../components/modal/modal'
 import { ActionButton, ActionButtonProps } from '../button/action-button'
 import {
+  currentTimestampInSeconds,
   getDaysBetweenDates,
   getNextMonthStartTimestamp,
   SECONDS_IN_MONTH,
@@ -25,7 +26,7 @@ const EditExpiryModal = ({
   }[]
   actionButtonProps: ActionButtonProps
 }) => {
-  const currentTimestamp = new Date().getTime() / 1000
+  const currentTimestamp = currentTimestampInSeconds()
   const leftMonthInSecond =
     getNextMonthStartTimestamp(currentTimestamp) - currentTimestamp
   const leftPaddingPercentage =
