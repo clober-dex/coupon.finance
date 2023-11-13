@@ -44,7 +44,7 @@ export default `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.
   <path fill="url(#def_frame)" fill-rule="evenodd" clip-rule="evenodd" d="M135 138L134 138L88.0001 138L88 922H135H1065H1112L1112 138L1065 138L135 138ZM228.334 875H181.667L181.667 828.333H135L135 781.667H181.667L181.666 828.333H228.333V781.666L181.666 781.666L181.667 735H135L135 325L181.666 325L181.666 278.334L135 278.334L135 231.667L181.666 231.667L181.666 185L228.333 185L228.333 231.667L181.667 231.667L181.667 278.333L228.333 278.333L228.333 231.667L275 231.667L275 185L1065 185L1018.33 185V231.667L1065 231.667L1065 278.333H1018.33L1018.33 231.667H971.667V278.334L1018.33 278.334L1018.33 325H1065L1065 875L1065 828.334H1018.33V875H971.666V828.334L1018.33 828.334V781.667H971.666V828.334L925 828.334V875L275 875V828.333H228.334V875ZM1018.33 735V781.667H1065V735H1018.33ZM971.666 185V231.667L924.999 231.667V185H971.666Z" />
   <!-- Text -->
   <g>
-    <text x="50%" y="29%" fill="url(#def_text)" font-family="Inter" font-size="83" text-anchor="middle">Deposit</text>
+    <text x="50%" y="29%" fill="url(#def_text)" font-family="Inter" font-size="77" text-anchor="middle">Certificate of Deposit</text>
     <text x="50%" y="50.5%" fill="url(#def_text)" font-family="Inter" font-size="142" text-anchor="middle">DEPOSIT_AMOUNT<tspan dx="30" fill="url(#def_text)" font-family="Inter" font-size="70">DEPOSIT_TOKEN</tspan>
     </text>
     <text x="50%" y="67%" fill="rgba(255, 255, 255, 0.40)" font-family="Inter" font-size="40" text-anchor="middle">Expires at<tspan dx="25" fill="rgba(255, 255, 255, 0.80)" font-family="Inter">EXPIRES_AT</tspan>
