@@ -7,6 +7,7 @@ export type Confirmation = {
   title: string
   body: string
   fields: {
+    direction?: 'in' | 'out'
     currency?: Currency
     label: string
     value: string
