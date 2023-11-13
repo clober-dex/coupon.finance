@@ -41,9 +41,9 @@ const Slider = ({
   const setPosition = useCallback(
     (position: number) => {
       _setPosition(position)
-      onValueChange(Math.floor(position / unit) + 1)
+      onValueChange(Math.min(Math.floor(position / unit) + 1, length))
     },
-    [onValueChange, unit],
+    [length, onValueChange, unit],
   )
 
   const handleMove = useCallback(
