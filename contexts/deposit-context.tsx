@@ -99,6 +99,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           body: 'Please confirm in your wallet.',
           fields: [
             {
+              direction: 'in',
               currency: asset.underlying,
               label: asset.underlying.symbol,
               value: formatUnits(amount, asset.underlying.decimals),
@@ -175,6 +176,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           body: 'Please confirm in your wallet.',
           fields: [
             {
+              direction: 'out',
               currency: asset,
               label: asset.symbol,
               value: formatUnits(amount, asset.decimals),
@@ -225,6 +227,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           body: 'Please confirm in your wallet.',
           fields: [
             {
+              direction: 'out',
               currency: asset,
               label: asset.symbol,
               value: formatUnits(amount, asset.decimals),
