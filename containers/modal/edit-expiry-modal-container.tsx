@@ -19,7 +19,7 @@ const EditExpiryModalContainer = ({
   const { balances } = useCurrencyContext()
   const { extendLoanDuration, shortenLoanDuration } = useBorrowContext()
 
-  const [epochs, setEpochs] = useState(1)
+  const [epochs, setEpochs] = useState(0)
 
   const { data } = useQuery(
     ['edit-expiry-simulate', position, selectedChain],
@@ -61,7 +61,7 @@ const EditExpiryModalContainer = ({
     }
   }, [expiryEpochIndex, position, setEpochs])
 
-  return (
+  return epochs > 0 ? (
     <EditExpiryModal
       onClose={onClose}
       epochs={epochs}
@@ -108,6 +108,8 @@ const EditExpiryModalContainer = ({
             : 'Edit expiry date',
       }}
     />
+  ) : (
+    <></>
   )
 }
 
