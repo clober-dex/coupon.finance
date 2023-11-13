@@ -37,7 +37,9 @@ const Slider = ({
   const diff = useRef<number>(0)
   const unit = (100 - leftPaddingPercentage) / (length - 1)
 
-  const [position, _setPosition] = React.useState<number>(leftPaddingPercentage)
+  const [position, _setPosition] = React.useState<number>(
+    Math.max(Math.min(100, (value - 1) * unit), leftPaddingPercentage),
+  )
   const setPosition = useCallback(
     (position: number) => {
       _setPosition(position)
