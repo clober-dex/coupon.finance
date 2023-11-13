@@ -43,8 +43,8 @@ const BorrowContainer = ({
   const currentTimestamp = currentTimestampInSeconds()
   return (
     <div className="flex flex-1 flex-col w-full md:w-[640px] lg:w-[960px]">
-      <h1 className="flex justify-center text-center font-bold text-xl sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-16 mb-8 sm:mb-16">
-        Pay Less, Borrow More.
+      <h1 className="flex justify-center text-center font-bold text-3xl sm:text-5xl sm:leading-[48px] mt-8 sm:mt-16 mb-8 sm:mb-16">
+        Pay Less, Do More.
       </h1>
       {positions.length > 0 ? (
         <div className="flex flex-col gap-6 mb-8 px-4 lg:p-0">

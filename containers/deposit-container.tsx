@@ -36,7 +36,7 @@ const DepositContainer = ({
   const currentTimestamp = currentTimestampInSeconds()
   return (
     <div className="flex flex-1 flex-col w-full md:w-[640px] lg:w-[960px]">
-      <h1 className="flex justify-center text-center font-bold text-xl sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-16 mb-8 sm:mb-16">
+      <h1 className="flex justify-center text-center font-bold text-3xl sm:text-5xl sm:leading-[48px] mt-8 sm:mt-16 mb-8 sm:mb-16">
         Lending, Fixed.
       </h1>
       {positions.length > 0 ? (
