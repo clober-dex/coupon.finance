@@ -19,20 +19,19 @@ export const Default: Story = {
     onClose: () => {},
     epochs: 0,
     setEpochs: () => {},
-    dateList: [
-      {
-        date: '2023-12-31',
-      },
-      {
-        date: '2024-06-30',
-      },
-      {
-        date: '2024-12-31',
-      },
-      {
-        date: '2025-06-30',
-      },
-    ],
+    dateList: ['2023-12-31', '2024-06-30', '2024-12-31', '2025-06-30'],
+    currency: {
+      address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+      name: 'Wrapped Ether',
+      symbol: 'WETH',
+      decimals: 18,
+    },
+    price: {
+      value: 170000000000n,
+      decimals: 8,
+    },
+    interest: 0n,
+    refund: 100000000n,
     actionButtonProps: {
       disabled: false,
       onClick: () => {},
@@ -46,20 +45,19 @@ export const Half: Story = {
     onClose: () => {},
     epochs: 2,
     setEpochs: () => {},
-    dateList: [
-      {
-        date: '2023-12-31',
-      },
-      {
-        date: '2024-06-30',
-      },
-      {
-        date: '2024-12-31',
-      },
-      {
-        date: '2025-06-30',
-      },
-    ],
+    dateList: ['2023-12-31', '2024-06-30', '2024-12-31', '2025-06-30'],
+    currency: {
+      address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+      name: 'Wrapped Ether',
+      symbol: 'WETH',
+      decimals: 18,
+    },
+    price: {
+      value: 170000000000n,
+      decimals: 8,
+    },
+    interest: 0n,
+    refund: 100000000n,
     actionButtonProps: {
       disabled: false,
       onClick: () => {},
@@ -73,20 +71,19 @@ export const Full: Story = {
     onClose: () => {},
     epochs: 4,
     setEpochs: () => {},
-    dateList: [
-      {
-        date: '2023-12-31',
-      },
-      {
-        date: '2024-06-30',
-      },
-      {
-        date: '2024-12-31',
-      },
-      {
-        date: '2025-06-30',
-      },
-    ],
+    dateList: ['2023-12-31', '2024-06-30', '2024-12-31', '2025-06-30'],
+    currency: {
+      address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+      name: 'Wrapped Ether',
+      symbol: 'WETH',
+      decimals: 18,
+    },
+    price: {
+      value: 170000000000n,
+      decimals: 8,
+    },
+    interest: 0n,
+    refund: 100000000n,
     actionButtonProps: {
       disabled: false,
       onClick: () => {},
