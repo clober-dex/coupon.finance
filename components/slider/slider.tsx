@@ -37,15 +37,13 @@ const Slider = ({
   const diff = useRef<number>(0)
   const unit = (100 - leftPaddingPercentage) / (length - 1)
 
-  const [position, _setPosition] = React.useState<number>(
-    Math.max(Math.min(100, (value - 1) * unit), leftPaddingPercentage),
-  )
+  const [position, _setPosition] = React.useState<number>(0)
   const setPosition = useCallback(
     (position: number) => {
       _setPosition(position)
-      onValueChange(Math.floor(position / unit) + 1)
+      onValueChange(Math.min(Math.floor(position / unit) + 1, length))
     },
-    [onValueChange, unit],
+    [length, onValueChange, unit],
   )
 
   const handleMove = useCallback(
@@ -76,6 +74,11 @@ const Slider = ({
       thumbRef.current.style.left = `${position}%`
     }
   }, [position, thumbRef])
+
+  useEffect(() => {
+    const newPosition = unit * (value - 1)
+    setPosition(Math.round(newPosition / unit) * unit + leftPaddingPercentage)
+  }, [leftPaddingPercentage, setPosition, unit, value])
 
   useEffect(() => {
     if (disabled) {
