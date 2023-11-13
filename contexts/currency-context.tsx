@@ -15,6 +15,8 @@ import { Prices } from '../model/prices'
 import { max } from '../utils/bigint'
 import { fetchMarkets } from '../apis/market'
 import { formatDate } from '../utils/date'
+import { fetchPoints } from '../apis/point'
+import { getCurrentPoint } from '../utils/point'
 
 import { useChainContext } from './chain-context'
 
@@ -30,6 +32,7 @@ type CurrencyContext = {
   assets: Asset[]
   assetStatuses: AssetStatus[]
   epochs: Epoch[]
+  point: bigint
   calculateETHValue: (currency: Currency, willPayAmount: bigint) => bigint
 }
 
@@ -40,6 +43,7 @@ const Context = React.createContext<CurrencyContext>({
   assets: [],
   assetStatuses: [],
   epochs: [],
+  point: 0n,
   calculateETHValue: () => 0n,
 })
 
@@ -176,6 +180,24 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
     },
   ) as { data: CurrencyContext['coupons'] }
 
+  const { data: point } = useQuery(
+    ['point', selectedChain, userAddress],
+    async () => {
+      if (!userAddress) {
+        return 0n
+      }
+      const points = await fetchPoints(selectedChain.id, userAddress)
+      if (points.length === 0) {
+        return 0n
+      }
+      return getCurrentPoint(points)
+    },
+    {
+      refetchInterval: 5 * 1000,
+      refetchIntervalInBackground: true,
+    },
+  )
+
   const calculateETHValue = useCallback(
     (currency: Currency, willPayAmount: bigint) => {
       if (!balance || !balances || !isEther(currency)) {
@@ -196,6 +218,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
         assets: assets ?? [],
         assetStatuses: assetStatuses ?? [],
         epochs: epochs ?? [],
+        point: point ?? 0n,
         calculateETHValue: calculateETHValue,
       }}
     >
