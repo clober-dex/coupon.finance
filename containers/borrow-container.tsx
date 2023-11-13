@@ -42,7 +42,7 @@ const BorrowContainer = ({
   }, [epochs])
   const currentTimestamp = currentTimestampInSeconds()
   return (
-    <div className="flex flex-1 flex-col w-full sm:w-fit">
+    <div className="flex flex-1 flex-col w-full sm:w-[960px]">
       <h1 className="flex justify-center text-center font-bold text-xl sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-16 mb-8 sm:mb-16">
         Pay Less, Borrow More.
       </h1>
