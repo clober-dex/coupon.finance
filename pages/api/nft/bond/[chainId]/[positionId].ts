@@ -4,6 +4,7 @@ import { fetchPrices } from '../../../../../apis/currency'
 import { formatUnits } from '../../../../../utils/numbers'
 import { fetchBondPosition } from '../../../../../apis/bond-position'
 import bondSvg from '../bond-svg'
+import { formatDate } from '../../../../../utils/date'
 
 export default async function handler(
   req: NextApiRequest,
@@ -38,11 +39,9 @@ export default async function handler(
     const prices = await fetchPrices(Number(chainId), [
       bondPosition.underlying.address,
     ])
-    const expiresAt = new Date(Number(bondPosition.toEpoch.endTimestamp) * 1000)
-      .toISOString()
-      .slice(2, 10)
-      .replace(/-/g, '-')
-
+    const expiresAt = formatDate(
+      new Date(Number(bondPosition.toEpoch.endTimestamp) * 1000),
+    )
     const svg = bondSvg
       .replace(
         /DEPOSIT_AMOUNT/g,

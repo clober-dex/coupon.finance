@@ -5,6 +5,7 @@ import { formatUnits } from '../../../../../utils/numbers'
 import { calculateLtv } from '../../../../../utils/ltv'
 import { fetchLoanPosition } from '../../../../../apis/loan-position'
 import loanSvg from '../loan-svg'
+import { formatDate } from '../../../../../utils/date'
 
 export default async function handler(
   req: NextApiRequest,
@@ -40,10 +41,9 @@ export default async function handler(
       loanPosition.underlying.address,
       loanPosition.collateral.underlying.address,
     ])
-    const expiresAt = new Date(Number(loanPosition.toEpoch.endTimestamp) * 1000)
-      .toISOString()
-      .slice(2, 10)
-      .replace(/-/g, '-')
+    const expiresAt = formatDate(
+      new Date(Number(loanPosition.toEpoch.endTimestamp) * 1000),
+    )
     const currentLtv = calculateLtv(
       loanPosition.underlying,
       prices[loanPosition.underlying.address],
