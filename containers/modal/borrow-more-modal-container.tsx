@@ -33,15 +33,19 @@ const BorrowMoreModalContainer = ({
     () =>
       prices[position.underlying.address] &&
       prices[position.collateral.underlying.address]
-        ? calculateMaxLoanableAmount(
-            position.underlying,
-            prices[position.underlying.address],
-            position.collateral,
-            prices[position.collateral.underlying.address],
-            position.collateralAmount,
+        ? max(
+            calculateMaxLoanableAmount(
+              position.underlying,
+              prices[position.underlying.address],
+              position.collateral,
+              prices[position.collateral.underlying.address],
+              position.collateralAmount,
+            ) - position.amount,
+            0n,
           )
         : 0n,
     [
+      position.amount,
       position.collateral,
       position.collateralAmount,
       position.underlying,
@@ -130,9 +134,8 @@ const BorrowMoreModalContainer = ({
       actionButtonProps={{
         disabled:
           amount === 0n ||
-          amount + (position.amount - position.interest) > available ||
-          amount + (position.amount - position.interest) + maxInterest >
-            maxLoanableAmountExcludingCouponFee,
+          amount > available ||
+          amount > maxLoanableAmountExcludingCouponFee - maxInterest,
         onClick: async () => {
           await borrowMore(position, amount, interest)
           setValue('')
@@ -141,10 +144,9 @@ const BorrowMoreModalContainer = ({
         text:
           amount === 0n
             ? 'Enter loan amount'
-            : amount + (position.amount - position.interest) > available
+            : amount > available
             ? 'Not enough coupons for sale'
-            : amount + (position.amount - position.interest) + maxInterest >
-              maxLoanableAmountExcludingCouponFee
+            : amount > maxLoanableAmountExcludingCouponFee - maxInterest
             ? 'Not enough collateral'
             : 'Borrow More',
       }}
