@@ -63,7 +63,7 @@ const EditExpiryModal = ({
                   onValueChange={setEpochs}
                 >
                   <div className="flex w-[110px] flex-col items-center gap-2 shrink-0">
-                    <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-gray-100 text-gray-400 text-xs">
+                    <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-white text-xs">
                       {getDaysBetweenDates(
                         new Date(dateList[epochs - 1].date),
                         new Date(currentTimestamp * 1000),

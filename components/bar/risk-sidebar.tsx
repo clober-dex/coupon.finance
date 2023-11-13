@@ -9,17 +9,13 @@ import { Prices } from '../../model/prices'
 import { Asset } from '../../model/asset'
 import { GreenCircleSvg } from '../svg/green-circle-svg'
 import { OrangeCircleSvg } from '../svg/orange-circle-svg'
-import { LeftBracketAngleSvg } from '../svg/left-bracket-angle-svg'
+
 export const RiskSidebar = ({
   asset,
-  showRiskSidebar,
-  setShowRiskSidebar,
   prices,
   ...props
 }: {
   asset: Asset
-  showRiskSidebar: boolean
-  setShowRiskSidebar: (show: boolean) => void
   prices: Prices
 } & React.DetailedHTMLProps<
   React.InputHTMLAttributes<HTMLInputElement>,
@@ -167,19 +163,6 @@ export const RiskSidebar = ({
               </div>
             </div>
           </div>
-        </div>
-        <div className="hidden lg:inline-flex absolute -z-10 h-[56px] -right-20 top-6 py-2 pl-8 pr-3 gap-1 rounded-lg bg-[#22C55E1A]">
-          <button
-            className="flex flex-row gap-1"
-            onClick={() => setShowRiskSidebar(!showRiskSidebar)}
-          >
-            <div className="flex items-center h-full">
-              <LeftBracketAngleSvg />
-            </div>
-            <div className="flex text-sm	font-bold opacity-90 text-green-500 items-center h-full">
-              Close
-            </div>
-          </button>
         </div>
       </div>
     </div>

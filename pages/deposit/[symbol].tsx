@@ -21,7 +21,6 @@ const Deposit = () => {
   const { deposit } = useDepositContext()
 
   const [epochs, setEpochs] = useState(1)
-  const [showRiskSidebar, setShowRiskSidebar] = useState(true)
 
   const [value, setValue] = useState('')
 
@@ -102,8 +101,6 @@ const Deposit = () => {
                 setValue={setValue}
                 epochs={epochs}
                 setEpochs={setEpochs}
-                showRiskSidebar={showRiskSidebar}
-                setShowRiskSidebar={setShowRiskSidebar}
                 actionButtonProps={{
                   disabled:
                     amount === 0n || epochs === 0 || amount > maxDepositAmount,
@@ -120,17 +117,7 @@ const Deposit = () => {
                 }}
                 depositAssetPrice={prices[asset.underlying.address]}
               />
-              <RiskSidebar
-                asset={asset}
-                showRiskSidebar={showRiskSidebar}
-                setShowRiskSidebar={setShowRiskSidebar}
-                className={
-                  showRiskSidebar
-                    ? 'lg:opacity-100 transition-all duration-700'
-                    : 'lg:w-0 lg:opacity-0 duration-700'
-                }
-                prices={prices}
-              />
+              <RiskSidebar asset={asset} prices={prices} />
             </div>
           </div>
         </main>
