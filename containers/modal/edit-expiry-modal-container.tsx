@@ -16,7 +16,7 @@ const EditExpiryModalContainer = ({
   onClose: () => void
 }) => {
   const { selectedChain } = useChainContext()
-  const { balances } = useCurrencyContext()
+  const { balances, prices } = useCurrencyContext()
   const { extendLoanDuration, shortenLoanDuration } = useBorrowContext()
 
   const [epochs, setEpochs] = useState(0)
@@ -66,7 +66,11 @@ const EditExpiryModalContainer = ({
       onClose={onClose}
       epochs={epochs}
       setEpochs={setEpochs}
-      dateList={data || []}
+      dateList={data ? data.map(({ date }) => date) : []}
+      currency={position.underlying}
+      price={prices[position.underlying.address] ?? 0n}
+      interest={interest}
+      refund={refund}
       actionButtonProps={{
         disabled:
           epochs === 0 ||
