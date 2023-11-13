@@ -1,4 +1,4 @@
 export const ZIndices = {
-  modal: 50,
+  modal: 1000,
   panel: 10000,
 }
