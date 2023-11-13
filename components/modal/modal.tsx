@@ -19,7 +19,7 @@ const Modal = ({
 
   return createPortal(
     <div
-      className={`flex items-center justify-center fixed inset-0 bg-black bg-opacity-50 z-[${ZIndices.modal}] dark:backdrop-blur-sm px-4 sm:px-0`}
+      className={`flex items-center justify-center fixed inset-0 bg-black bg-opacity-50 ${ZIndices.modal} dark:backdrop-blur-sm px-4 sm:px-0`}
       onClick={onClose}
     >
       <div

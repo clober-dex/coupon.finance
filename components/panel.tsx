@@ -22,7 +22,7 @@ const Panel = ({
     <Transition.Root show={open} as={Fragment}>
       <Dialog
         as="div"
-        className={`relative z-[${ZIndices.panel}]`}
+        className={`relative ${ZIndices.panel}`}
         onClose={setOpen}
       >
         <div className="fixed inset-0 bg-black dark:bg-transparent bg-opacity-50 dark:bg-opacity-5 dark:backdrop-blur-sm" />

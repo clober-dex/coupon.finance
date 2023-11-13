@@ -17,7 +17,7 @@ const CouponWidget = ({
   setClicked: React.Dispatch<React.SetStateAction<boolean>>
 } & React.PropsWithChildren) => (
   <div
-    className={`fixed right-2 bottom-2 sm:right-4 sm:bottom-4 z-[${ZIndices.modal}]`}
+    className={`fixed right-2 bottom-2 sm:right-4 sm:bottom-4 ${ZIndices.modal}`}
     onClick={(e) => {
       setClicked((clicked) => !clicked)
       e.stopPropagation()
@@ -52,7 +52,7 @@ export const CouponUserBalanceModal = ({
       {clicked ? (
         createPortal(
           <div
-            className={`fixed inset-0 bg-black bg-opacity-50 z-[${ZIndices.modal}] dark:backdrop-blur-sm`}
+            className={`fixed inset-0 bg-black bg-opacity-50 ${ZIndices.modal} dark:backdrop-blur-sm`}
             onClick={() => setClicked(false)}
           >
             <CouponWidget setClicked={setClicked}>
