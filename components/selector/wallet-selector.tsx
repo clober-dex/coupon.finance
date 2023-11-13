@@ -31,7 +31,7 @@ export function WalletSelector({
       ) : (
         <button
           disabled={true}
-          className="flex items-center font-bold h-8 py-0 px-3 md:px-4 rounded bg-gray-100 text-white disabled:text-green-500 text-xs sm:text-sm"
+          className="flex items-center justify-center rounded-lg py-0 px-3 text-green-500 h-8 bg-gray-100 dark:bg-gray-800 text-base"
         >
           {status}
         </button>
