@@ -50,7 +50,7 @@ const EditExpiryModal = ({
         date to receive a refund on interest paid.
       </div>
       <div className="flex flex-col gap-4">
-        <div className="flex flex-col bg-white dark:bg-gray-900">
+        <div className="flex flex-col bg-gray-50 dark:bg-gray-900">
           <div className="flex justify-between flex-col relative rounded-lg pl-4 pr-12 sm:pl-0 sm:pr-6 sm:py-10">
             {dateList.length === 0 ? (
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
@@ -72,7 +72,7 @@ const EditExpiryModal = ({
                     onValueChange={setEpochs}
                   >
                     <div className="flex w-[110px] flex-col items-center gap-2 shrink-0">
-                      <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-gray-100 text-gray-400 text-xs">
+                      <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-gray-100 text-gray-400 text-xs font-bold">
                         {getDaysBetweenDates(
                           new Date(dateList[epochs - 1]),
                           new Date(currentTimestamp * 1000),
@@ -91,23 +91,19 @@ const EditExpiryModal = ({
               <></>
             )}
           </div>
-          {interest > 0n || refund > 0n ? (
-            <div className="flex items-start self-stretch">
-              <div className="text-gray-400 text-base">
-                {interest > 0n ? 'Interest' : refund > 0n ? 'Refund' : ''}
-              </div>
-              <div className="ml-auto text-base text-black dark:text-white">
-                {interest > 0n
-                  ? formatUnits(interest, currency.decimals, price)
-                  : refund > 0n
-                  ? formatUnits(refund, currency.decimals, price)
-                  : '0'}{' '}
-                {currency.symbol}
-              </div>
+          <div className="flex items-start self-stretch">
+            <div className="text-gray-400 text-base">
+              {interest > 0n ? 'Interest' : refund > 0n ? 'Refund' : ''}
             </div>
-          ) : (
-            <></>
-          )}
+            <div className="ml-auto text-base text-black dark:text-white">
+              {interest > 0n
+                ? formatUnits(interest, currency.decimals, price)
+                : refund > 0n
+                ? formatUnits(refund, currency.decimals, price)
+                : '0'}{' '}
+              {currency.symbol}
+            </div>
+          </div>
         </div>
         <ActionButton {...actionButtonProps} />
       </div>
