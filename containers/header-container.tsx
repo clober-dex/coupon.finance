@@ -11,6 +11,7 @@ import { WalletSelector } from '../components/selector/wallet-selector'
 import { CommunityDropdownModal } from '../components/modal/community-dropdown-modal'
 import { UserPointButton } from '../components/button/user-point-button'
 import { ZIndices } from '../utils/z-indices'
+import { useCurrencyContext } from '../contexts/currency-context'
 
 const HeaderContainer = ({
   onMenuClick,
@@ -20,6 +21,7 @@ const HeaderContainer = ({
   setTheme: (theme: 'light' | 'dark') => void
 }) => {
   const { address, status } = useAccount()
+  const { point } = useCurrencyContext()
   const router = useRouter()
   const selected = useMemo(() => {
     if (router.query.mode === 'deposit' || router.route.includes('deposit')) {
@@ -73,7 +75,7 @@ const HeaderContainer = ({
           <div className="hidden lg:flex">
             <ThemeToggleButton setTheme={setTheme} />
           </div>
-          {address ? <UserPointButton score={0} /> : <></>}
+          {address ? <UserPointButton score={Number(point)} /> : <></>}
           <WalletSelector address={address} status={status} />
           <button className="flex lg:hidden" onClick={onMenuClick}>
             <MenuSvg />

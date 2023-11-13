@@ -37,8 +37,7 @@ const DepositContainer = ({
   return (
     <div className="flex flex-1 flex-col w-full sm:w-fit">
       <h1 className="flex justify-center text-center font-bold text-xl sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-16 mb-8 sm:mb-16">
-        Term Deposit <br className="flex md:hidden" /> for the Best Rates in
-        DeFi
+        Lending, Fixed.
       </h1>
       {positions.length > 0 ? (
         <div className="flex flex-col gap-6 mb-8 px-4 lg:p-0">
