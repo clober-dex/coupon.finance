@@ -35,11 +35,9 @@ const Slider = ({
   const sliderRef = useRef<HTMLDivElement | null>(null)
   const thumbRef = useRef<HTMLDivElement | null>(null)
   const diff = useRef<number>(0)
-  const unit = 100 / (length - 1)
+  const unit = (100 - leftPaddingPercentage) / (length - 1)
 
-  const [position, _setPosition] = React.useState<number>(
-    Math.max(Math.min(100, (value - 1) * unit), leftPaddingPercentage),
-  )
+  const [position, _setPosition] = React.useState<number>(leftPaddingPercentage)
   const setPosition = useCallback(
     (position: number) => {
       _setPosition(position)
@@ -63,10 +61,10 @@ const Slider = ({
       if (newX > end) {
         newX = end
       }
-      const newPosition = Math.floor((100 * newX) / end)
-      setPosition(
-        Math.max(Math.round(newPosition / unit) * unit, leftPaddingPercentage),
+      const newPosition = Math.ceil(
+        (newX / end) * (100 - leftPaddingPercentage),
       )
+      setPosition(Math.round(newPosition / unit) * unit + leftPaddingPercentage)
     },
     [disabled, leftPaddingPercentage, setPosition, unit],
   )
