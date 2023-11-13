@@ -3,7 +3,8 @@ import { POINT_SUBGRAPH_URL } from '../constants/subgraph-url'
 import { CHAIN_IDS } from '../constants/chain'
 import { Point } from '../model/point'
 
-const { getBondPositionPoints, getLoanPositionPoints } = getBuiltGraphSDK()
+const { getBondPositionPoints, getLoanPositionPoints, getUserPoint } =
+  getBuiltGraphSDK()
 
 export async function fetchPoints(
   chainId: CHAIN_IDS,
@@ -20,6 +21,14 @@ export async function fetchPoints(
   const { loanPositionPoints } = await getLoanPositionPoints(
     {
       userAddress: userAddress.toLowerCase(),
+    },
+    {
+      url: POINT_SUBGRAPH_URL[chainId],
+    },
+  )
+  const { userPoint } = await getUserPoint(
+    {
+      user: userAddress.toLowerCase(),
     },
     {
       url: POINT_SUBGRAPH_URL[chainId],
@@ -42,5 +51,17 @@ export async function fetchPoints(
       accumulatedPoint: BigInt(point.accumulatedPoint),
       updatedAt: BigInt(point.updatedAt),
     })),
+    ...(userPoint
+      ? [
+          {
+            amount: 0n,
+            decimals: 0,
+            price: 0n,
+            priceDecimals: 0,
+            accumulatedPoint: BigInt(userPoint.point),
+            updatedAt: BigInt(userPoint.updatedAt),
+          },
+        ]
+      : []),
   ]
 }
