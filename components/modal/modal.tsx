@@ -1,6 +1,8 @@
 import React from 'react'
 import { createPortal } from 'react-dom'
 
+import { ZIndices } from '../../utils/z-indices'
+
 const Modal = ({
   show,
   onClose,
@@ -17,7 +19,7 @@ const Modal = ({
 
   return createPortal(
     <div
-      className="flex items-center justify-center fixed inset-0 bg-black bg-opacity-50 z-50 dark:backdrop-blur-sm px-4 sm:px-0"
+      className={`flex items-center justify-center fixed inset-0 bg-black bg-opacity-50 z-[${ZIndices.modal}] dark:backdrop-blur-sm px-4 sm:px-0`}
       onClick={onClose}
     >
       <div

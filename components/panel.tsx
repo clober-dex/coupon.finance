@@ -3,6 +3,8 @@ import { Dialog, Transition } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { NextRouter } from 'next/router'
 
+import { ZIndices } from '../utils/z-indices'
+
 import ThemeToggleButton from './button/theme-toggle-button'
 
 const Panel = ({
@@ -18,7 +20,11 @@ const Panel = ({
 }) => {
   return (
     <Transition.Root show={open} as={Fragment}>
-      <Dialog as="div" className="relative z-[10000]" onClose={setOpen}>
+      <Dialog
+        as="div"
+        className={`relative z-[${ZIndices.panel}]`}
+        onClose={setOpen}
+      >
         <div className="fixed inset-0 bg-black dark:bg-transparent bg-opacity-50 dark:bg-opacity-5 dark:backdrop-blur-sm" />
 
         <div className="fixed inset-0 overflow-hidden">
