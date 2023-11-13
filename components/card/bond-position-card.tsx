@@ -5,7 +5,7 @@ import { BondPosition } from '../../model/bond-position'
 import { BigDecimal, formatDollarValue, formatUnits } from '../../utils/numbers'
 import { getLogo } from '../../model/currency'
 import { calculateApy } from '../../utils/apy'
-import { formatDate } from '../../utils/date'
+import { currentTimestampInSeconds, formatDate } from '../../utils/date'
 
 export const BondPositionCard = ({
   position,
@@ -18,7 +18,7 @@ export const BondPositionCard = ({
   onWithdraw: () => void
   onCollect: () => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
-  const now = Math.floor(new Date().getTime() / 1000)
+  const now = currentTimestampInSeconds()
   return (
     <div className="flex w-full pb-4 flex-col items-center gap-3 shrink-0 bg-white dark:bg-gray-800 rounded-xl">
       <div className="flex p-4 items-center self-stretch">

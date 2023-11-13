@@ -10,6 +10,7 @@ import { Collateral } from '../../model/collateral'
 import { Balances } from '../../model/balances'
 import { Prices } from '../../model/prices'
 import {
+  currentTimestampInSeconds,
   getDaysBetweenDates,
   getNextMonthStartTimestamp,
   SECONDS_IN_MONTH,
@@ -60,7 +61,7 @@ export const BorrowForm = ({
   prices: Prices
   actionButtonProps: ActionButtonProps
 }) => {
-  const currentTimestamp = new Date().getTime() / 1000
+  const currentTimestamp = currentTimestampInSeconds()
   const leftMonthInSecond =
     getNextMonthStartTimestamp(currentTimestamp) - currentTimestamp
   const leftPaddingPercentage =

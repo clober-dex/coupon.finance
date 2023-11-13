@@ -10,7 +10,7 @@ import { dollarValue } from '../utils/numbers'
 import { Epoch } from '../model/epoch'
 import { BondPositionCard } from '../components/card/bond-position-card'
 import { DepositCard } from '../components/card/deposit-card'
-import { formatDate } from '../utils/date'
+import { currentTimestampInSeconds, formatDate } from '../utils/date'
 import { calculateApy } from '../utils/apy'
 
 import WithdrawModalContainer from './modal/withdraw-modal-container'
@@ -33,7 +33,7 @@ const DepositContainer = ({
       setEpoch(epochs[0])
     }
   }, [epochs])
-  const currentTimestamp = Math.floor(new Date().getTime() / 1000)
+  const currentTimestamp = currentTimestampInSeconds()
   return (
     <div className="flex flex-1 flex-col w-full sm:w-fit">
       <h1 className="flex justify-center text-center font-bold text-xl sm:text-[48px] sm:leading-[48px] mt-8 sm:mt-16 mb-8 sm:mb-16">
