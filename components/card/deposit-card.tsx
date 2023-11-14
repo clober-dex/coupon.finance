@@ -53,9 +53,6 @@ export const DepositCard = ({
                     <span className="text-base font-bold">
                       {formatUnits(available, currency.decimals, price)}
                     </span>
-                    <span className="text-xs font-semibold">
-                      {currency.symbol}
-                    </span>
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-1">
@@ -63,9 +60,6 @@ export const DepositCard = ({
                   <div className="flex items-baseline gap-1">
                     <span className="text-base font-bold">
                       {formatUnits(deposited, currency.decimals, price)}
-                    </span>
-                    <span className="text-xs font-semibold">
-                      {currency.symbol}
                     </span>
                   </div>
                 </div>
