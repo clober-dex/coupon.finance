@@ -25,6 +25,7 @@ export class Market {
 
   address: string
   orderToken: string
+  couponId: bigint
   takerFee: bigint
   quoteUnit: bigint
   epoch: number
@@ -40,6 +41,7 @@ export class Market {
   constructor(
     address: string,
     orderToken: string,
+    couponId: bigint,
     takerFee: bigint,
     quoteUnit: bigint,
     epoch: number,
@@ -54,6 +56,7 @@ export class Market {
   ) {
     this.address = address
     this.orderToken = orderToken
+    this.couponId = couponId
     this.takerFee = takerFee
     this.quoteUnit = quoteUnit
     this.epoch = epoch
@@ -71,6 +74,7 @@ export class Market {
     return new Market(
       market.address,
       market.orderToken,
+      market.couponId,
       market.takerFee,
       market.quoteUnit,
       market.epoch,
@@ -89,6 +93,7 @@ export class Market {
     return new Market(
       dto.address,
       dto.orderToken,
+      BigInt(dto.couponId),
       BigInt(dto.takerFee),
       BigInt(dto.quoteUnit),
       Number(dto.epoch.id),

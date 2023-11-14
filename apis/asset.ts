@@ -67,6 +67,7 @@ export async function fetchAssetStatuses(
     const market = Market.fromDto({
       address: getAddress(assetStatus.market.id),
       orderToken: getAddress(assetStatus.market.orderToken),
+      couponId: assetStatus.market.couponId,
       takerFee: assetStatus.market.takerFee,
       quoteUnit: assetStatus.market.quoteUnit,
       epoch: {

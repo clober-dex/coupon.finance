@@ -40,6 +40,7 @@ query getAssetStatuses {
     }
     market {
       id
+      couponId
       orderToken
       takerFee
       quoteUnit
