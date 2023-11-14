@@ -47,7 +47,13 @@ export async function fetchLoanPosition(
 function toLoanPosition(
   loanPosition: Pick<
     GraphqlLoanPosition,
-    'id' | 'user' | 'amount' | 'principal' | 'collateralAmount' | 'createdAt'
+    | 'id'
+    | 'user'
+    | 'amount'
+    | 'liquidationRepaidAmount'
+    | 'principal'
+    | 'collateralAmount'
+    | 'createdAt'
   > & {
     substitute: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
     underlying: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
@@ -84,6 +90,7 @@ function toLoanPosition(
     },
     interest: BigInt(loanPosition.amount) - BigInt(loanPosition.principal),
     amount: BigInt(loanPosition.amount),
+    liquidationRepaidAmount: BigInt(loanPosition.liquidationRepaidAmount),
     collateralAmount: BigInt(loanPosition.collateralAmount),
     fromEpoch: {
       id: Number(loanPosition.fromEpoch.id),

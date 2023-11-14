@@ -9,6 +9,7 @@ export type LoanPosition = {
   collateral: Collateral
   interest: bigint
   amount: bigint
+  liquidationRepaidAmount: bigint
   collateralAmount: bigint
   fromEpoch: Epoch
   toEpoch: Epoch

@@ -34,6 +34,7 @@ export const dummyLoanPosition: LoanPosition = {
     totalBorrowed: 12503898340000n,
   },
   amount: 1250389834000000000n,
+  liquidationRepaidAmount: 1250389834000000000n,
   interest: 250389834000000000n,
   collateralAmount: 10000000n,
   fromEpoch: {

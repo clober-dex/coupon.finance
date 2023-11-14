@@ -3,6 +3,7 @@ query getLoanPositions($userAddress: String!) {
     id
     user
     amount
+    liquidationRepaidAmount
     principal
     substitute {
       id
