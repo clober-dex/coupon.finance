@@ -18,7 +18,8 @@ type Story = StoryObj<typeof WithdrawModal>
 export const Default: Story = {
   args: {
     depositCurrency: dummyBondPosition.underlying,
-    depositAmount: dummyBondPosition.amount,
+    depositedAmount: dummyBondPosition.amount,
+    withdrawAmount: 500000000000000000000n,
     onClose: () => {},
     value: '0.01',
     setValue: () => {},
