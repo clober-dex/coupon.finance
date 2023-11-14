@@ -9,7 +9,6 @@ import {
   formatUnits,
 } from '../../utils/numbers'
 import { getLogo } from '../../model/currency'
-import { calculateApy } from '../../utils/apy'
 import { EditSvg } from '../svg/edit-svg'
 import { currentTimestampInSeconds, formatDate } from '../../utils/date'
 
