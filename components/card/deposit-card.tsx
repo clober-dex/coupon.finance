@@ -98,7 +98,12 @@ export const DepositCard = ({
               </div>
             </div>
             <div className="flex-col items-start self-stretch gap-3 hidden group-hover:flex">
-              {apys.map(({ date, apy }, i) => (
+              {(apys.length < 4
+                ? apys.concat(
+                    Array(4 - apys.length).fill({ date: '-', apy: Number.NaN }),
+                  )
+                : apys
+              ).map(({ date, apy }, i) => (
                 <div className="flex items-start self-stretch" key={i}>
                   <div className="felx flex-grow shrink-0 basis-0 font-bold">
                     {!Number.isNaN(apy) ? `${apy.toFixed(2)}%` : '-'}
