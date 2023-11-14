@@ -23,15 +23,15 @@ export const BondPositionCard = ({
     <div className="flex w-full pb-4 flex-col items-center gap-3 shrink-0 bg-white dark:bg-gray-800 rounded-xl">
       <div className="flex p-4 items-center self-stretch">
         <div className="flex items-center gap-3 flex-grow flex-shrink basis-0">
-          <div className="w-8 h-8 relative">
+          <div className="w-10 h-10 relative">
             <Image
               src={getLogo(position.underlying)}
               alt={position.underlying.name}
               fill
             />
           </div>
-          <div className="flex flex-col justify-center items-start gap-0.5">
-            <div className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="flex flex-col">
+            <div className="text-xs text-gray-500 dark:text-gray-400">
               Deposit
             </div>
             <div className="font-bold text-base">
@@ -43,7 +43,7 @@ export const BondPositionCard = ({
           <div>
             {now < Number(position.toEpoch.endTimestamp) ? (
               <>
-                <div className="flex text-sm text-gray-500 dark:text-gray-400 justify-end font-normal">
+                <div className="flex text-xs text-gray-500 dark:text-gray-400 justify-end font-normal">
                   Expires
                 </div>
                 {formatDate(
