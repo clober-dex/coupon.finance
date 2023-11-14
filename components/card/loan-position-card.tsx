@@ -95,14 +95,14 @@ export const LoanPositionCard = ({
             </div>
             <div className="text-base">
               {formatUnits(
-                position.amount - position.interest,
+                position.amount,
                 position.underlying.decimals,
                 price,
               )}{' '}
               <span className="text-gray-500 text-xs">
                 (
                 {formatDollarValue(
-                  position.amount - position.interest,
+                  position.amount,
                   position.underlying.decimals,
                   price,
                 )}
