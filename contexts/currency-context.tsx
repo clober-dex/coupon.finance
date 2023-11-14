@@ -3,7 +3,7 @@ import { useAccount, useBalance, useQuery } from 'wagmi'
 import { readContracts } from '@wagmi/core'
 import { getAddress } from 'viem'
 
-import { IERC20__factory } from '../typechain'
+import { IERC1155__factory, IERC20__factory } from '../typechain'
 import { fetchBalances, fetchCurrencies, fetchPrices } from '../apis/currency'
 import { Currency } from '../model/currency'
 import { fetchAssets, fetchAssetStatuses } from '../apis/asset'
@@ -17,6 +17,8 @@ import { fetchMarkets } from '../apis/market'
 import { formatDate } from '../utils/date'
 import { fetchPoints } from '../apis/point'
 import { getCurrentPoint } from '../utils/point'
+import { CONTRACT_ADDRESSES } from '../constants/addresses'
+import { CHAIN_IDS } from '../constants/chain'
 
 import { useChainContext } from './chain-context'
 
@@ -144,7 +146,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return []
       }
       const markets = await fetchMarkets(selectedChain.id)
-      const results = await readContracts({
+      const erc20Results = await readContracts({
         contracts: markets.map(({ baseToken }) => ({
           address: baseToken.address,
           abi: IERC20__factory.abi,
@@ -152,13 +154,22 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
           args: [userAddress],
         })),
       })
-      return results.map(({ result }, index) => {
+      const erc1155Results = await readContracts({
+        contracts: markets.map(({ couponId }) => ({
+          address:
+            CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].CouponManager,
+          abi: IERC1155__factory.abi,
+          functionName: 'balanceOf',
+          args: [userAddress, couponId],
+        })),
+      })
+      return erc20Results.map(({ result }, index) => {
         const { address, baseToken, endTimestamp } = markets[index]
         return {
           date: formatDate(new Date(Number(endTimestamp) * 1000)),
           marketAddress: getAddress(address),
           coupon: baseToken,
-          balance: result ?? 0n,
+          balance: (result ?? 0n) + (erc1155Results[index].result ?? 0n),
         }
       })
     },
