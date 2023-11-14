@@ -28,7 +28,7 @@ export const currentTimestampInSeconds = (): number => 1702454065 // TODO: rever
 
 // TODO: adjust deadline for permit20
 export const tomorrowTimestampInSeconds = (): bigint => {
-  return BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24))
+  return BigInt(Math.floor(currentTimestampInSeconds() + 60 * 60 * 24))
 }
 
 export const getNextMonthStartTimestamp = (now: number): number => {
