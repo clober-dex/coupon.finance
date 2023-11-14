@@ -10,30 +10,33 @@ export async function fetchPoints(
   chainId: CHAIN_IDS,
   userAddress: `0x${string}`,
 ): Promise<Point[]> {
-  const { bondPositionPoints } = await getBondPositionPoints(
-    {
-      userAddress: userAddress.toLowerCase(),
-    },
-    {
-      url: POINT_SUBGRAPH_URL[chainId],
-    },
-  )
-  const { loanPositionPoints } = await getLoanPositionPoints(
-    {
-      userAddress: userAddress.toLowerCase(),
-    },
-    {
-      url: POINT_SUBGRAPH_URL[chainId],
-    },
-  )
-  const { userPoint } = await getUserPoint(
-    {
-      user: userAddress.toLowerCase(),
-    },
-    {
-      url: POINT_SUBGRAPH_URL[chainId],
-    },
-  )
+  const [{ bondPositionPoints }, { loanPositionPoints }, { userPoint }] =
+    await Promise.all([
+      getBondPositionPoints(
+        {
+          userAddress: userAddress.toLowerCase(),
+        },
+        {
+          url: POINT_SUBGRAPH_URL[chainId],
+        },
+      ),
+      getLoanPositionPoints(
+        {
+          userAddress: userAddress.toLowerCase(),
+        },
+        {
+          url: POINT_SUBGRAPH_URL[chainId],
+        },
+      ),
+      getUserPoint(
+        {
+          user: userAddress.toLowerCase(),
+        },
+        {
+          url: POINT_SUBGRAPH_URL[chainId],
+        },
+      ),
+    ])
   return [
     ...bondPositionPoints.map((point) => ({
       amount: BigInt(point.amount),
