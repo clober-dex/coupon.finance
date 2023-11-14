@@ -26,6 +26,7 @@ export const Default: Story = {
     setIsWithdrawCollateral: () => {},
     availableCollateralAmount: 100000000n,
     currentLtv: 60,
+    expectedLtv: 70,
     collateralPrice: {
       value: 2500000000000n,
       decimals: 8,
