@@ -159,18 +159,6 @@ export const LoanPositionCard = ({
           </div>
           <div className="flex items-center gap-1 self-stretch">
             <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
-              APY
-            </div>
-            <div className="text-sm sm:text-base">
-              {calculateApy(
-                Number(position.interest) / Number(position.amount),
-                position.toEpoch.endTimestamp - position.createdAt,
-              ).toFixed(2)}
-              %
-            </div>
-          </div>
-          <div className="flex items-center gap-1 self-stretch">
-            <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
               Current / Liq. LTV
             </div>
             <div className="text-sm sm:text-base">
