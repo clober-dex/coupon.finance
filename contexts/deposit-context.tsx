@@ -58,7 +58,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
-  const { calculateETHValue } = useCurrencyContext()
+  const { calculateETHValue, prices } = useCurrencyContext()
 
   const { data: positions } = useQuery(
     ['bond-positions', userAddress, selectedChain],
@@ -102,7 +102,11 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
               direction: 'in',
               currency: asset.underlying,
               label: asset.underlying.symbol,
-              value: formatUnits(amount, asset.underlying.decimals),
+              value: formatUnits(
+                amount,
+                asset.underlying.decimals,
+                prices[asset.underlying.address],
+              ),
             },
           ],
         })
@@ -140,12 +144,13 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       return hash
     },
     [
+      walletClient,
+      selectedChain.id,
+      calculateETHValue,
+      setConfirmation,
+      prices,
       publicClient,
       queryClient,
-      setConfirmation,
-      calculateETHValue,
-      walletClient,
-      selectedChain,
     ],
   )
 
@@ -179,7 +184,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
               direction: 'out',
               currency: asset,
               label: asset.symbol,
-              value: formatUnits(amount, asset.decimals),
+              value: formatUnits(amount, asset.decimals, prices[asset.address]),
             },
           ],
         })
@@ -202,7 +207,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [publicClient, setConfirmation, walletClient, selectedChain],
+    [walletClient, selectedChain.id, setConfirmation, prices, publicClient],
   )
 
   const collect = useCallback(
@@ -230,7 +235,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
               direction: 'out',
               currency: asset,
               label: asset.symbol,
-              value: formatUnits(amount, asset.decimals),
+              value: formatUnits(amount, asset.decimals, prices[asset.address]),
             },
           ],
         })
@@ -248,7 +253,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [publicClient, setConfirmation, walletClient, selectedChain],
+    [walletClient, selectedChain.id, setConfirmation, prices, publicClient],
   )
 
   return (
