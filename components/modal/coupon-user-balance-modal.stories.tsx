@@ -14,7 +14,6 @@ export default {
 type Story = StoryObj<typeof CouponUserBalanceModal>
 export const Default: Story = {
   args: {
-    chainId: 1,
     coupons: [
       {
         date: '01 Sep 2024',

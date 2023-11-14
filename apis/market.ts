@@ -23,6 +23,7 @@ type DepthDto = {
 export type MarketDto = {
   address: string
   orderToken: string
+  couponId: string
   takerFee: string
   quoteUnit: string
   epoch: {
@@ -47,6 +48,7 @@ export async function fetchMarkets(chainId: CHAIN_IDS): Promise<Market[]> {
     Market.fromDto({
       address: getAddress(market.id),
       orderToken: getAddress(market.orderToken),
+      couponId: market.couponId,
       takerFee: market.takerFee,
       quoteUnit: market.quoteUnit,
       epoch: {

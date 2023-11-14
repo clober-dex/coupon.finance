@@ -1,6 +1,4 @@
 import React, { useState } from 'react'
-import Link from 'next/link'
-import { getAddress } from 'viem'
 import BigNumber from 'bignumber.js'
 import { createPortal } from 'react-dom'
 
@@ -31,10 +29,8 @@ const CouponWidget = ({
 )
 
 export const CouponUserBalanceModal = ({
-  chainId,
   coupons,
 }: {
-  chainId: number
   coupons: {
     date: string
     balance: bigint
@@ -81,16 +77,12 @@ export const CouponUserBalanceModal = ({
                               ({coupon.date})
                             </div>
                           </div>
-                          <Link
-                            target="_blank"
-                            href={`https://app.clober.io/limit?chain=${chainId}&market=${getAddress(
-                              coupon.marketAddress,
-                            )}`}
-                          >
-                            <div className="flex items-center gap-1 text-sm text-green-500">
-                              Market <RightBracketAngleSvg />
+                          <button disabled={true} className="group">
+                            <div className="flex items-center gap-1 text-sm text-green-500 group-disabled:text-gray-500">
+                              Market{' '}
+                              <RightBracketAngleSvg className="stroke-green-500 group-disabled:stroke-gray-500" />
                             </div>
-                          </Link>
+                          </button>
                         </div>
                       </div>
                     ))}

@@ -1,6 +1,6 @@
-import React, { SVGProps } from 'react'
+import React from 'react'
 
-export const RightBracketAngleSvg = (props: SVGProps<SVGSVGElement>) => (
+export const RightBracketAngleSvg = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="16"
@@ -9,11 +9,6 @@ export const RightBracketAngleSvg = (props: SVGProps<SVGSVGElement>) => (
     fill="none"
     {...props}
   >
-    <path
-      d="M5.5 3L10.5 8L5.5 13"
-      stroke="#22C55E"
-      strokeWidth="1.5"
-      strokeLinecap="square"
-    />
+    <path d="M5.5 3L10.5 8L5.5 13" strokeWidth="1.5" strokeLinecap="square" />
   </svg>
 )
