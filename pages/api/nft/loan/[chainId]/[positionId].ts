@@ -10,6 +10,6 @@ export default async function handler(
     id: positionId,
     name: `Loan #${positionId}`,
     description: 'Coupon Finance Loan',
-    image: `https://coupon.finance/api/nft/loan/${chainId}/images/${positionId}`,
+    image: `https://coupon.finance/api/nft/loan/${chainId}/${positionId}/image`,
   })
 }
