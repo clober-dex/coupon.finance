@@ -80,13 +80,13 @@ export async function fetchPrices(
 export async function fetchBalances(
   chainId: CHAIN_IDS,
   userAddress: `0x${string}`,
-  etherBalance: bigint,
   currencyAddresses: `0x${string}`[],
 ): Promise<Balances> {
   const publicClient = createPublicClient({
     chain: CHAINS[chainId as CHAIN_IDS],
     transport: http(),
   })
+  const etherBalance = await publicClient.getBalance({ address: userAddress })
   const results = await publicClient.multicall({
     contracts: currencyAddresses.map((currencyAddress) => ({
       address: currencyAddress,

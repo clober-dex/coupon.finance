@@ -128,7 +128,6 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
       return fetchBalances(
         selectedChain.id,
         userAddress,
-        balance?.value ?? 0n,
         currencies.map((currency) => currency.address),
       )
     },
