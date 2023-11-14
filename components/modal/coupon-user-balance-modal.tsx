@@ -1,6 +1,4 @@
 import React, { useState } from 'react'
-import Link from 'next/link'
-import { getAddress } from 'viem'
 import BigNumber from 'bignumber.js'
 import { createPortal } from 'react-dom'
 
@@ -31,10 +29,8 @@ const CouponWidget = ({
 )
 
 export const CouponUserBalanceModal = ({
-  chainId,
   coupons,
 }: {
-  chainId: number
   coupons: {
     date: string
     balance: bigint

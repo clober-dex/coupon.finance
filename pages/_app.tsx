@@ -28,7 +28,7 @@ import {
 } from '../contexts/currency-context'
 import { TransactionProvider } from '../contexts/transaction-context'
 import { supportChains } from '../constants/chain'
-import { ChainProvider, useChainContext } from '../contexts/chain-context'
+import { ChainProvider } from '../contexts/chain-context'
 import { Footer } from '../components/footer'
 import { CouponUserBalanceModal } from '../components/modal/coupon-user-balance-modal'
 
@@ -110,14 +110,9 @@ const HeaderWrapper = () => {
 
 const CouponWidgetWrapper = () => {
   const { address } = useAccount()
-  const { selectedChain } = useChainContext()
   const { coupons } = useCurrencyContext()
 
-  return address ? (
-    <CouponUserBalanceModal chainId={selectedChain.id} coupons={coupons} />
-  ) : (
-    <></>
-  )
+  return address ? <CouponUserBalanceModal coupons={coupons} /> : <></>
 }
 
 function MyApp({ Component, pageProps }: AppProps) {
