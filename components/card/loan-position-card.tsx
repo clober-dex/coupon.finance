@@ -140,14 +140,14 @@ export const LoanPositionCard = ({
                 {formatUnits(
                   position.collateralAmount,
                   position.collateral.underlying.decimals,
-                  price,
+                  collateralPrice,
                 )}{' '}
                 <span className="text-gray-500 text-xs">
                   (
                   {formatDollarValue(
                     position.collateralAmount,
                     position.collateral.underlying.decimals,
-                    price,
+                    collateralPrice,
                   )}
                   )
                 </span>
