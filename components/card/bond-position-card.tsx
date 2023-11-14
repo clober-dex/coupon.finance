@@ -115,10 +115,10 @@ export const BondPositionCard = ({
         </div>
         {position.toEpoch.endTimestamp < now ? (
           <button
-            className="w-full bg-blue-500 bg-opacity-10 text-blue-500 font-bold px-3 py-2 rounded text-xs"
+            className="w-full bg-blue-500 bg-opacity-10 hover:bg-opacity-20 text-blue-500 font-bold px-3 py-2 rounded text-sm"
             onClick={onCollect}
           >
-            Claim Interest
+            Collect Deposit
           </button>
         ) : (
           <button
