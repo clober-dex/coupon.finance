@@ -51,8 +51,6 @@ export const Default: Story = {
       { date: '24/12/31', apy: 30 },
       { date: '25/06/30', apy: 40 },
     ],
-    showCollateralSelect: false,
-    setShowCollateralSelect: () => {},
     collateral: undefined,
     setCollateral: () => {},
     collateralValue: '0',
@@ -121,8 +119,6 @@ export const SelectCollateral: Story = {
       { date: '24/12/31', apy: 30 },
       { date: '25/06/30', apy: 40 },
     ],
-    showCollateralSelect: false,
-    setShowCollateralSelect: () => {},
     collateral: {
       underlying: {
         address: '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f',
