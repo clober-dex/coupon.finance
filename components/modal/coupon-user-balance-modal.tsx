@@ -1,9 +1,8 @@
 import React, { useState } from 'react'
-import BigNumber from 'bignumber.js'
 import { createPortal } from 'react-dom'
 
 import { Currency } from '../../model/currency'
-import { formatUnits } from '../../utils/numbers'
+import { formatUnits, toPlacesString } from '../../utils/numbers'
 import { CouponSvg } from '../svg/coupon-svg'
 import { RightBracketAngleSvg } from '../svg/right-bracket-angle-svg'
 import { ZIndices } from '../../utils/z-indices'
@@ -65,12 +64,12 @@ export const CouponUserBalanceModal = ({
                           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 flex-grow shrink-0 basis-0 text-sm">
                             <div className="text-black dark:text-white">
                               +
-                              {new BigNumber(
+                              {toPlacesString(
                                 formatUnits(
                                   coupon.balance,
                                   coupon.coupon.decimals,
                                 ),
-                              ).toFixed(4)}{' '}
+                              )}{' '}
                               {coupon.coupon.symbol}
                             </div>
                             <div className="text-gray-500 dark:text-gray-300">
