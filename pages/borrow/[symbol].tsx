@@ -32,7 +32,6 @@ const Borrow = () => {
   const [collateral, setCollateral] = useState<Collateral | undefined>(
     undefined,
   )
-  const [showCollateralSelect, setShowCollateralSelect] = useState(false)
 
   const router = useRouter()
   const asset = useMemo(() => {
@@ -182,8 +181,6 @@ const Borrow = () => {
                       }))
                     : undefined
                 }
-                showCollateralSelect={showCollateralSelect}
-                setShowCollateralSelect={setShowCollateralSelect}
                 collateral={collateral}
                 setCollateral={setCollateral}
                 collateralValue={collateralValue}

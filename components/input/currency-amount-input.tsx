@@ -4,7 +4,6 @@ import Image from 'next/image'
 
 import { Currency, getLogo } from '../../model/currency'
 import { BigDecimal, formatDollarValue, formatUnits } from '../../utils/numbers'
-import DownSvg from '../svg/down-svg'
 
 import NumberInput from './number-input'
 
@@ -14,7 +13,7 @@ const CurrencyAmountInput = ({
   onValueChange,
   availableAmount,
   price,
-  onCurrencyClick,
+  children,
   ...props
 }: {
   currency?: Currency
@@ -22,11 +21,11 @@ const CurrencyAmountInput = ({
   onValueChange: (value: string) => void
   availableAmount: bigint
   price?: BigDecimal
-  onCurrencyClick?: () => void
 } & React.DetailedHTMLProps<
   React.InputHTMLAttributes<HTMLInputElement>,
   HTMLInputElement
->) => {
+> &
+  React.PropsWithChildren) => {
   const decimals = useMemo(() => currency?.decimals ?? 18, [currency])
 
   const onBlur = useCallback(() => {
@@ -53,25 +52,8 @@ const CurrencyAmountInput = ({
           placeholder="0.0000"
           {...props}
         />
-        {onCurrencyClick ? (
-          currency ? (
-            <button
-              className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2"
-              onClick={onCurrencyClick}
-            >
-              <div className="w-5 h-5 relative">
-                <Image src={getLogo(currency)} alt={currency.name} fill />
-              </div>
-              <div className="text-sm sm:text-base">{currency.symbol}</div>
-            </button>
-          ) : (
-            <button
-              className="w-fit flex items-center rounded-full bg-green-500 text-white pl-3 pr-2 py-1 gap-2 text-sm sm:text-base"
-              onClick={onCurrencyClick}
-            >
-              Select token <DownSvg />
-            </button>
-          )
+        {children ? (
+          children
         ) : currency ? (
           <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
             <div className="w-5 h-5 relative">
