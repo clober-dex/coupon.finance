@@ -126,12 +126,17 @@ const DepositContainer = ({
               .filter((assetStatus) => assetStatus.epoch.id === epoch.id)
               .filter((assetStatus) => assetStatus.totalDepositAvailable !== 0n)
               .map((assetStatus, index) => {
-                const assetStatusesByAsset = assetStatuses.filter(({ asset }) =>
-                  isAddressEqual(
-                    asset.underlying.address,
-                    assetStatus.asset.underlying.address,
-                  ),
-                )
+                const assetStatusesByAsset = assetStatuses
+                  .filter(({ asset }) =>
+                    isAddressEqual(
+                      asset.underlying.address,
+                      assetStatus.asset.underlying.address,
+                    ),
+                  )
+                  .filter(
+                    ({ epoch }) =>
+                      Number(epoch.endTimestamp) > currentTimestamp,
+                  )
                 return (
                   <DepositCard
                     currency={assetStatus.asset.underlying}
