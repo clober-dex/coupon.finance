@@ -163,7 +163,8 @@ export const LoanPositionCard = ({
             </div>
             <div className="text-sm sm:text-base">
               {calculateApy(
-                Number(position.interest) / Number(position.amount),
+                Number(position.interest) /
+                  Number(position.amount + position.liquidationRepaidAmount),
                 position.toEpoch.endTimestamp - position.createdAt,
               ).toFixed(2)}
               %
