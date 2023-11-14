@@ -150,15 +150,7 @@ export const LoanPositionCard = ({
                   position.collateral.underlying.decimals,
                   collateralPrice,
                 )}{' '}
-                <span className="text-gray-500 text-xs">
-                  (
-                  {formatDollarValue(
-                    position.collateralAmount,
-                    position.collateral.underlying.decimals,
-                    collateralPrice,
-                  )}
-                  )
-                </span>
+                {position.collateral.underlying.symbol}
               </div>
               <button>
                 <EditSvg onClick={onEditCollateral} />
