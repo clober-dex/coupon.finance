@@ -31,6 +31,7 @@ export const Default: Story = {
     slippage: '0.5',
     setSlippage: () => {},
     repayAmount: dummyLoanPosition.amount,
+    dust: dummyLoanPosition.amount - 500000n,
     maxRepayableAmount: dummyLoanPosition.amount - 500000n,
     currentLtv: 60,
     expectedLtv: 10,
