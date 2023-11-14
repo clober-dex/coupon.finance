@@ -91,7 +91,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
-  const { calculateETHValue } = useCurrencyContext()
+  const { calculateETHValue, prices } = useCurrencyContext()
 
   const { data: positions } = useQuery(
     ['loan-positions', userAddress, selectedChain],
@@ -141,13 +141,18 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               value: formatUnits(
                 collateralAmount,
                 collateral.underlying.decimals,
+                prices[collateral.underlying.address],
               ),
             },
             {
               direction: 'out',
               currency: loanAsset.underlying,
               label: loanAsset.underlying.symbol,
-              value: formatUnits(loanAmount, loanAsset.underlying.decimals),
+              value: formatUnits(
+                loanAmount,
+                loanAsset.underlying.decimals,
+                prices[loanAsset.underlying.address],
+              ),
             },
           ],
         })
@@ -231,7 +236,11 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               direction: 'in',
               currency: position.underlying,
               label: position.underlying.symbol,
-              value: formatUnits(amount, position.underlying.decimals),
+              value: formatUnits(
+                amount,
+                position.underlying.decimals,
+                prices[position.underlying.address],
+              ),
             },
           ],
         })
@@ -306,7 +315,11 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           {
             currency: position.collateral.underlying,
             label: `Use ${position.collateral.underlying.symbol}`,
-            value: formatUnits(amount, position.collateral.underlying.decimals),
+            value: formatUnits(
+              amount,
+              position.collateral.underlying.decimals,
+              prices[position.collateral.underlying.address],
+            ),
           },
           {
             currency: position.underlying,
@@ -314,6 +327,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             value: formatUnits(
               mightBoughtDebtAmount,
               position.underlying.decimals,
+              prices[position.underlying.address],
             ),
           },
         ]
@@ -331,6 +345,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
                     value: formatUnits(
                       refundAmountAfterSwap,
                       position.underlying.decimals,
+                      prices[position.underlying.address],
                     ),
                   },
                 ]
@@ -391,7 +406,11 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               direction: 'out',
               currency: position.underlying,
               label: position.underlying.symbol,
-              value: formatUnits(amount, position.underlying.decimals),
+              value: formatUnits(
+                amount,
+                position.underlying.decimals,
+                prices[position.underlying.address],
+              ),
             },
           ],
         })
@@ -460,7 +479,11 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               direction: 'in',
               currency: underlying,
               label: underlying.symbol,
-              value: formatUnits(expectedInterest, underlying.decimals),
+              value: formatUnits(
+                expectedInterest,
+                underlying.decimals,
+                prices[underlying.address],
+              ),
             },
           ],
         })
@@ -539,7 +562,11 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               direction: 'out',
               currency: underlying,
               label: underlying.symbol,
-              value: formatUnits(expectedProceeds, underlying.decimals),
+              value: formatUnits(
+                expectedProceeds,
+                underlying.decimals,
+                prices[underlying.address],
+              ),
             },
           ],
         })
@@ -600,6 +627,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               value: formatUnits(
                 amount,
                 position.collateral.underlying.decimals,
+                prices[position.collateral.underlying.address],
               ),
             },
           ],
@@ -675,6 +703,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               value: formatUnits(
                 amount,
                 position.collateral.underlying.decimals,
+                prices[position.collateral.underlying.address],
               ),
             },
           ],
