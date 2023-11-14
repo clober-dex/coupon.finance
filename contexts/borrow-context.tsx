@@ -188,12 +188,13 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       return hash
     },
     [
+      walletClient,
+      selectedChain.id,
+      calculateETHValue,
+      setConfirmation,
+      prices,
       publicClient,
       queryClient,
-      setConfirmation,
-      calculateETHValue,
-      walletClient,
-      selectedChain,
     ],
   )
 
@@ -277,12 +278,13 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
     },
     [
+      walletClient,
+      selectedChain.id,
+      calculateETHValue,
+      setConfirmation,
+      prices,
       publicClient,
       queryClient,
-      setConfirmation,
-      calculateETHValue,
-      walletClient,
-      selectedChain,
     ],
   )
 
@@ -374,7 +376,14 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [publicClient, queryClient, setConfirmation, walletClient, selectedChain],
+    [
+      walletClient,
+      selectedChain.id,
+      prices,
+      setConfirmation,
+      publicClient,
+      queryClient,
+    ],
   )
 
   const borrowMore = useCallback(
@@ -435,7 +444,14 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [publicClient, queryClient, setConfirmation, walletClient, selectedChain],
+    [
+      walletClient,
+      selectedChain.id,
+      setConfirmation,
+      prices,
+      publicClient,
+      queryClient,
+    ],
   )
 
   const extendLoanDuration = useCallback(
@@ -522,12 +538,13 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
     },
     [
+      walletClient,
+      selectedChain.id,
+      calculateETHValue,
+      setConfirmation,
+      prices,
       publicClient,
       queryClient,
-      setConfirmation,
-      calculateETHValue,
-      walletClient,
-      selectedChain,
     ],
   )
 
@@ -586,7 +603,14 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [publicClient, queryClient, setConfirmation, walletClient, selectedChain],
+    [
+      walletClient,
+      selectedChain.id,
+      setConfirmation,
+      prices,
+      publicClient,
+      queryClient,
+    ],
   )
 
   const addCollateral = useCallback(
@@ -665,12 +689,13 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
     },
     [
+      walletClient,
+      selectedChain.id,
+      calculateETHValue,
+      setConfirmation,
+      prices,
       publicClient,
       queryClient,
-      setConfirmation,
-      calculateETHValue,
-      walletClient,
-      selectedChain,
     ],
   )
 
@@ -724,7 +749,14 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [publicClient, queryClient, setConfirmation, walletClient, selectedChain],
+    [
+      walletClient,
+      selectedChain.id,
+      setConfirmation,
+      prices,
+      publicClient,
+      queryClient,
+    ],
   )
 
   return (
