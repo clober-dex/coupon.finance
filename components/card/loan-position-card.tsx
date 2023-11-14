@@ -49,7 +49,7 @@ export const LoanPositionCard = ({
     <div className="flex w-full pb-4 flex-col items-center gap-3 shrink-0  bg-white dark:bg-gray-800 rounded-xl">
       <div className="flex p-4 items-center self-stretch">
         <div className="flex items-center gap-3 flex-grow shrink-0 basis-0">
-          <div className="w-10 h-10 relative">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 relative">
             <Image
               src={getLogo(position.underlying)}
               alt={position.underlying.name}
@@ -93,7 +93,7 @@ export const LoanPositionCard = ({
             <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
               Borrowed
             </div>
-            <div className="text-base">
+            <div className="text-sm sm:text-base">
               {formatUnits(
                 position.amount - position.interest,
                 position.underlying.decimals,
@@ -114,7 +114,7 @@ export const LoanPositionCard = ({
             <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
               Interest Charged
             </div>
-            <div className="text-base">
+            <div className="text-sm sm:text-base">
               {formatUnits(
                 position.interest,
                 position.underlying.decimals,
@@ -136,7 +136,7 @@ export const LoanPositionCard = ({
               Collateral
             </div>
             <div className="flex gap-1">
-              <div className="text-base">
+              <div className="text-sm sm:text-base">
                 {formatUnits(
                   position.collateralAmount,
                   position.collateral.underlying.decimals,
@@ -161,33 +161,37 @@ export const LoanPositionCard = ({
             <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
               APY
             </div>
-            {calculateApy(
-              Number(position.interest) / Number(position.amount),
-              position.toEpoch.endTimestamp - position.createdAt,
-            ).toFixed(2)}
-            %
+            <div className="text-sm sm:text-base">
+              {calculateApy(
+                Number(position.interest) / Number(position.amount),
+                position.toEpoch.endTimestamp - position.createdAt,
+              ).toFixed(2)}
+              %
+            </div>
           </div>
           <div className="flex items-center gap-1 self-stretch">
             <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
               Current / Liq. LTV
             </div>
-            {currentLtv.toFixed(2)}% /{'  '}
-            {(
-              (Number(position.collateral.liquidationThreshold) * 100) /
-              Number(position.collateral.ltvPrecision)
-            ).toFixed(2)}
-            %
+            <div className="text-sm sm:text-base">
+              {currentLtv.toFixed(2)}% /{'  '}
+              {(
+                (Number(position.collateral.liquidationThreshold) * 100) /
+                Number(position.collateral.ltvPrecision)
+              ).toFixed(2)}
+              %
+            </div>
           </div>
         </div>
         <div className="flex items-start gap-3 self-stretch">
           <button
-            className="flex-1 bg-green-500 bg-opacity-10 hover:bg-opacity-20 text-green-500 font-bold px-3 py-2 rounded text-xs"
+            className="flex-1 bg-green-500 bg-opacity-10 hover:bg-opacity-20 text-green-500 font-bold px-3 py-2 rounded text-sm"
             onClick={onBorrowMore}
           >
             Borrow More
           </button>
           <button
-            className="flex-1 bg-green-500 bg-opacity-10 hover:bg-opacity-20 text-green-500 font-bold px-3 py-2 rounded text-xs"
+            className="flex-1 bg-green-500 bg-opacity-10 hover:bg-opacity-20 text-green-500 font-bold px-3 py-2 rounded text-sm"
             onClick={onRepay}
           >
             Repay

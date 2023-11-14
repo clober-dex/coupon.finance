@@ -23,7 +23,7 @@ export const BondPositionCard = ({
     <div className="flex w-full pb-4 flex-col items-center gap-3 shrink-0 bg-white dark:bg-gray-800 rounded-xl">
       <div className="flex p-4 items-center self-stretch">
         <div className="flex items-center gap-3 flex-grow flex-shrink basis-0">
-          <div className="w-10 h-10 relative">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 relative">
             <Image
               src={getLogo(position.underlying)}
               alt={position.underlying.name}
@@ -62,7 +62,7 @@ export const BondPositionCard = ({
             <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
               Deposited
             </div>
-            <div className="text-base">
+            <div className="text-sm sm:text-base">
               {formatUnits(
                 position.amount,
                 position.underlying.decimals,
@@ -83,7 +83,7 @@ export const BondPositionCard = ({
             <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
               Earned Interest
             </div>
-            <div className="text-base">
+            <div className="text-sm sm:text-base">
               {formatUnits(
                 position.interest,
                 position.underlying.decimals,
@@ -104,7 +104,7 @@ export const BondPositionCard = ({
             <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
               APY
             </div>
-            <div className="text-base">
+            <div className="text-sm sm:text-base">
               {calculateApy(
                 Number(position.interest) / Number(position.amount),
                 position.toEpoch.endTimestamp - position.createdAt,
@@ -122,7 +122,7 @@ export const BondPositionCard = ({
           </button>
         ) : (
           <button
-            className="w-full bg-green-500 bg-opacity-10 hover:bg-opacity-20 text-green-500 font-bold px-3 py-2 rounded text-xs"
+            className="w-full bg-green-500 bg-opacity-10 hover:bg-opacity-20 text-green-500 font-bold px-3 py-2 rounded text-sm"
             onClick={onWithdraw}
           >
             Withdraw
