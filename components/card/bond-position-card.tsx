@@ -60,14 +60,44 @@ export const BondPositionCard = ({
         <div className="flex flex-col items-start gap-3 self-stretch">
           <div className="flex items-center gap-1 self-stretch">
             <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
+              Deposited
+            </div>
+            <div className="text-base">
+              {formatUnits(
+                position.amount,
+                position.underlying.decimals,
+                price,
+              )}{' '}
+              <span className="text-gray-500 text-xs">
+                (
+                {formatDollarValue(
+                  position.amount,
+                  position.underlying.decimals,
+                  price,
+                )}
+                )
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-1 self-stretch">
+            <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
               Earned Interest
             </div>
-            <div className="text-base font-bold">
-              {formatDollarValue(
+            <div className="text-base">
+              {formatUnits(
                 position.interest,
                 position.underlying.decimals,
                 price,
-              )}
+              )}{' '}
+              <span className="text-gray-500 text-xs">
+                (
+                {formatDollarValue(
+                  position.interest,
+                  position.underlying.decimals,
+                  price,
+                )}
+                )
+              </span>
             </div>
           </div>
           <div className="flex items-center gap-1 self-stretch">
@@ -80,28 +110,6 @@ export const BondPositionCard = ({
                 position.toEpoch.endTimestamp - position.createdAt,
               ).toFixed(2)}
               %
-            </div>
-          </div>
-          <div className="flex items-center gap-1 self-stretch">
-            <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
-              Deposited
-            </div>
-            <div className="text-base">
-              {formatUnits(
-                position.amount,
-                position.underlying.decimals,
-                price,
-              )}{' '}
-              {position.underlying.symbol}{' '}
-              <span className="text-gray-500 text-xs">
-                (
-                {formatDollarValue(
-                  position.amount,
-                  position.underlying.decimals,
-                  price,
-                )}
-                )
-              </span>
             </div>
           </div>
         </div>
