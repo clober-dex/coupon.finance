@@ -78,7 +78,7 @@ export const CouponUserBalanceModal = ({
                           </div>
                           <button disabled={true} className="group">
                             <div className="flex items-center gap-1 text-sm text-green-500 group-disabled:text-gray-500">
-                              Market{' '}
+                              Sell{' '}
                               <RightBracketAngleSvg className="stroke-green-500 group-disabled:stroke-gray-500" />
                             </div>
                           </button>

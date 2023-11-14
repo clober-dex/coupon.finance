@@ -25,6 +25,7 @@ const BorrowContainer = ({
   assetStatuses: AssetStatus[]
   epochs: Epoch[]
 }) => {
+  const { removeCollateral } = useBorrowContext()
   const { prices } = useCurrencyContext()
   const { positions } = useBorrowContext()
   const [repayPosition, setRepayPosition] = useState<LoanPosition | null>(null)
@@ -106,6 +107,9 @@ const BorrowContainer = ({
                     prices[position.collateral.underlying.address]
                   }
                   onRepay={() => setRepayPosition(position)}
+                  onCollect={async () => {
+                    await removeCollateral(position, position.collateralAmount)
+                  }}
                   onBorrowMore={() => setBorrowMorePosition(position)}
                   onEditCollateral={() => setEditCollateralPosition(position)}
                   onEditExpiry={() => setEditExpiryPosition(position)}

@@ -21,6 +21,7 @@ export const LoanPositionCard = ({
   price,
   collateralPrice,
   onRepay,
+  onCollect,
   onBorrowMore,
   onEditCollateral,
   onEditExpiry,
@@ -29,6 +30,7 @@ export const LoanPositionCard = ({
   price?: BigDecimal
   collateralPrice?: BigDecimal
   onRepay: () => void
+  onCollect: () => void
   onBorrowMore: () => void
   onEditCollateral: () => void
   onEditExpiry: () => void
@@ -46,6 +48,11 @@ export const LoanPositionCard = ({
           ),
         ),
     [collateralPrice, position, price],
+  )
+
+  const isExpired = useMemo(
+    () => now >= Number(position.toEpoch.endTimestamp),
+    [now, position.toEpoch.endTimestamp],
   )
 
   return (
@@ -70,7 +77,7 @@ export const LoanPositionCard = ({
         </div>
         <div className="flex flex-col justify-center items-end gap-0.5 font-bold">
           <div>
-            {now < Number(position.toEpoch.endTimestamp) ? (
+            {!isExpired ? (
               <>
                 <div className="flex text-xs text-gray-500 dark:text-gray-400 justify-end font-normal">
                   Expires
@@ -152,9 +159,13 @@ export const LoanPositionCard = ({
                 )}{' '}
                 {position.collateral.underlying.symbol}
               </div>
-              <button>
-                <EditSvg onClick={onEditCollateral} />
-              </button>
+              {!isExpired ? (
+                <button>
+                  <EditSvg onClick={onEditCollateral} />
+                </button>
+              ) : (
+                <></>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-1 self-stretch">
@@ -172,17 +183,21 @@ export const LoanPositionCard = ({
           </div>
         </div>
         <div className="flex items-start gap-3 self-stretch">
+          {!isExpired ? (
+            <button
+              className="flex-1 bg-green-500 bg-opacity-10 hover:bg-opacity-20 text-green-500 font-bold px-3 py-2 rounded text-sm"
+              onClick={onBorrowMore}
+            >
+              Borrow More
+            </button>
+          ) : (
+            <></>
+          )}
           <button
             className="flex-1 bg-green-500 bg-opacity-10 hover:bg-opacity-20 text-green-500 font-bold px-3 py-2 rounded text-sm"
-            onClick={onBorrowMore}
+            onClick={!isExpired ? onRepay : onCollect}
           >
-            Borrow More
-          </button>
-          <button
-            className="flex-1 bg-green-500 bg-opacity-10 hover:bg-opacity-20 text-green-500 font-bold px-3 py-2 rounded text-sm"
-            onClick={onRepay}
-          >
-            Repay
+            {!isExpired ? 'Repay' : 'Collect Collateral'}
           </button>
         </div>
       </div>

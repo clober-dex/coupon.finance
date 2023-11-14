@@ -124,7 +124,6 @@ const DepositContainer = ({
           <div className="flex flex-1 flex-col w-full h-full sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 mb-8 justify-center">
             {assetStatuses
               .filter((assetStatus) => assetStatus.epoch.id === epoch.id)
-              .filter((assetStatus) => assetStatus.totalDepositAvailable !== 0n)
               .map((assetStatus, index) => {
                 const assetStatusesByAsset = assetStatuses
                   .filter(({ asset }) =>
