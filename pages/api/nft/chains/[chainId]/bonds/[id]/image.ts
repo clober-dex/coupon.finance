@@ -1,10 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { formatDate } from '@storybook/blocks'
 
-import { fetchPrices } from '../../../../../../apis/currency'
-import { formatUnits } from '../../../../../../utils/numbers'
-import { fetchBondPosition } from '../../../../../../apis/bond-position'
-import bondSvg from '../../bond-svg'
-import { formatDate } from '../../../../../../utils/date'
+import { fetchBondPosition } from '../../../../../../../apis/bond-position'
+import { fetchPrices } from '../../../../../../../apis/currency'
+import { formatUnits } from '../../../../../../../utils/numbers'
+
+import bondSvg from './bond-svg'
 
 export default async function handler(
   req: NextApiRequest,
@@ -12,24 +13,21 @@ export default async function handler(
 ) {
   try {
     const query = req.query
-    const { positionId, chainId } = query
+    const { id, chainId } = query
 
     if (
-      !positionId ||
+      !id ||
       !chainId ||
-      typeof positionId !== 'string' ||
+      typeof id !== 'string' ||
       typeof chainId !== 'string'
     ) {
       res.json({
         status: 'error',
-        message: 'URL should be /api/nft/bond/[positionId]?chainId=[chainId]',
+        message: 'URL should be /api/nft/chains/[chainId]/bonds/[id]',
       })
       return
     }
-    const bondPosition = await fetchBondPosition(
-      Number(chainId),
-      BigInt(positionId),
-    )
+    const bondPosition = await fetchBondPosition(Number(chainId), BigInt(id))
     if (!bondPosition) {
       res.json({
         status: 'error',

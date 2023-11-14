@@ -5,11 +5,11 @@ export default async function handler(
   res: NextApiResponse<any>,
 ) {
   const query = req.query
-  const { positionId, chainId } = query
+  const { id, chainId } = query
   res.json({
-    id: positionId,
-    name: `Loan #${positionId}`,
+    id,
+    name: `Loan #${id}`,
     description: 'Coupon Finance Loan',
-    image: `https://coupon.finance/api/nft/loan/${chainId}/${positionId}/image`,
+    image: `https://coupon.finance/api/nft/chains/${chainId}/loans/${id}/image`,
   })
 }
