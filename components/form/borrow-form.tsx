@@ -17,6 +17,7 @@ import {
 } from '../../utils/date'
 import Slider from '../slider/slider'
 import { DotSvg } from '../svg/dot-svg'
+import { getLTVTextColor } from '../../utils/ltv'
 
 export const BorrowForm = ({
   borrowCurrency,
@@ -199,7 +200,13 @@ export const BorrowForm = ({
             </div>
             <div className="flex w-full">
               <div className="text-gray-400 text-base">LTV</div>
-              <div className="ml-auto">{borrowLTV.toFixed(2)}%</div>
+              <div
+                className={`ml-auto ${
+                  collateral ? getLTVTextColor(borrowLTV, collateral) : ''
+                }`}
+              >
+                {borrowLTV.toFixed(2)}%
+              </div>
             </div>
             <div className="flex w-full">
               <div className="text-gray-400 text-base">Liquidation LTV</div>

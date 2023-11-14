@@ -6,6 +6,7 @@ import { BigDecimal } from '../../utils/numbers'
 import { ActionButton, ActionButtonProps } from '../button/action-button'
 import { Collateral } from '../../model/collateral'
 import { Arrow } from '../svg/arrow'
+import { getLTVTextColor } from '../../utils/ltv'
 
 const EditCollateralModal = ({
   collateral,
@@ -63,15 +64,13 @@ const EditCollateralModal = ({
       <div className="flex text-sm gap-3 mb-8">
         <div className="text-gray-500">LTV</div>
         <div className="flex items-center gap-1">
-          <span>{currentLtv.toFixed(2)}%</span>
+          <span className={`${getLTVTextColor(currentLtv, collateral)}`}>
+            {currentLtv.toFixed(2)}%
+          </span>
           {value ? (
             <>
               <Arrow />
-              <span
-                className={
-                  expectedLtv < currentLtv ? 'text-green-500' : 'text-red-500'
-                }
-              >
+              <span className={`${getLTVTextColor(expectedLtv, collateral)}`}>
                 {expectedLtv.toFixed(2)}%
               </span>
             </>

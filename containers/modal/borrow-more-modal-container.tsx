@@ -92,6 +92,7 @@ const BorrowMoreModalContainer = ({
   return (
     <BorrowMoreModal
       debtCurrency={position.underlying}
+      collateral={position.collateral}
       onClose={onClose}
       value={value}
       setValue={setValue}

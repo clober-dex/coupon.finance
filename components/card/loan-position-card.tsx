@@ -10,7 +10,11 @@ import {
 } from '../../utils/numbers'
 import { getLogo } from '../../model/currency'
 import { EditSvg } from '../svg/edit-svg'
-import { currentTimestampInSeconds, formatDate } from '../../utils/date'
+import {
+  currentTimestampInSeconds,
+  formatDate,
+  getExpirationDateTextColor,
+} from '../../utils/date'
 
 export const LoanPositionCard = ({
   position,
@@ -71,7 +75,12 @@ export const LoanPositionCard = ({
                 <div className="flex text-xs text-gray-500 dark:text-gray-400 justify-end font-normal">
                   Expires
                 </div>
-                <div className="flex gap-1">
+                <div
+                  className={`flex gap-1 ${getExpirationDateTextColor(
+                    position.toEpoch.endTimestamp,
+                    now,
+                  )}`}
+                >
                   {formatDate(
                     new Date(Number(position.toEpoch.endTimestamp) * 1000),
                   )}

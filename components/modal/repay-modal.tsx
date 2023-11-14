@@ -10,6 +10,7 @@ import { max } from '../../utils/bigint'
 import { ActionButton, ActionButtonProps } from '../button/action-button'
 import { Currency } from '../../model/currency'
 import { Collateral } from '../../model/collateral'
+import { getLTVTextColor } from '../../utils/ltv'
 
 const RepayModal = ({
   debtCurrency,
@@ -163,11 +164,13 @@ const RepayModal = ({
         <div className="flex gap-3 justify-between sm:justify-start">
           <div className="text-gray-500">LTV</div>
           <div className="flex items-center gap-1">
-            <span className="text-green-500">{currentLtv.toFixed(2)}%</span>
+            <span className={`${getLTVTextColor(currentLtv, collateral)}`}>
+              {currentLtv.toFixed(2)}%
+            </span>
             {value ? (
               <>
                 <Arrow />
-                <span className="text-green-500">
+                <span className={`${getLTVTextColor(expectedLtv, collateral)}`}>
                   {expectedLtv.toFixed(2)}%
                 </span>
               </>
