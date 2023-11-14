@@ -153,6 +153,7 @@ const RepayModalContainer = ({
       value={value}
       setValue={setValue}
       repayAmount={repayAmount}
+      dust={isUseCollateral ? repayAmount - position.amount : 0n}
       maxRepayableAmount={min(
         position.amount - maxRefund,
         balances[position.underlying.address],
@@ -192,7 +193,8 @@ const RepayModalContainer = ({
           repayAmount === 0n ||
           (!isUseCollateral &&
             repayAmount > balances[position.underlying.address]) ||
-          repayAmount > position.amount - maxRefund ||
+          (!isUseCollateral && repayAmount > position.amount - maxRefund) ||
+          (isUseCollateral && amount > position.collateralAmount) ||
           isExpectedDebtSizeLessThanMinDebtSize,
         onClick: async () => {
           if (!userAddress) {
@@ -209,6 +211,7 @@ const RepayModalContainer = ({
               repayAmount,
               refund,
               swapData,
+              repayAmount - position.amount,
             )
           } else if (!isUseCollateral) {
             await repay(position, amount, repayAll ? maxRefund : refund)
@@ -222,8 +225,10 @@ const RepayModalContainer = ({
             : !isUseCollateral &&
               repayAmount > balances[position.underlying.address]
             ? `Insufficient ${position.underlying.symbol} balance`
-            : repayAmount > position.amount - maxRefund
+            : !isUseCollateral && repayAmount > position.amount - maxRefund
             ? `Cannot repay more than remaining debt`
+            : isUseCollateral && amount > position.collateralAmount
+            ? `Cannot use more than collateral amount`
             : isExpectedDebtSizeLessThanMinDebtSize
             ? `Remaining debt must be ≥ ${minDebtSizeInEth.toFixed(
                 3,

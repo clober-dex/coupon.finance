@@ -5,10 +5,13 @@ import Modal from '../../components/modal/modal'
 import { BigDecimal, formatUnits } from '../../utils/numbers'
 import { ActionButton, ActionButtonProps } from '../button/action-button'
 import { Currency } from '../../model/currency'
+import { Arrow } from '../svg/arrow'
+import { max } from '../../utils/bigint'
 
 const WithdrawModal = ({
   depositCurrency,
-  depositAmount,
+  depositedAmount,
+  withdrawAmount,
   onClose,
   value,
   setValue,
@@ -18,7 +21,8 @@ const WithdrawModal = ({
   depositAssetPrice,
 }: {
   depositCurrency: Currency
-  depositAmount: bigint
+  depositedAmount: bigint
+  withdrawAmount: bigint
   onClose: () => void
   value: string
   setValue: (value: string) => void
@@ -49,12 +53,29 @@ const WithdrawModal = ({
       </div>
       <div className="flex text-xs sm:text-sm gap-3 mb-2 sm:mb-3 justify-between sm:justify-start">
         <span className="text-gray-500">Your deposit amount</span>
-        {formatUnits(
-          depositAmount,
-          depositCurrency.decimals,
-          depositAssetPrice,
-        )}{' '}
-        {depositCurrency.symbol}
+        <div className="flex items-center gap-1">
+          {formatUnits(
+            depositedAmount,
+            depositCurrency.decimals,
+            depositAssetPrice,
+          )}{' '}
+          {depositCurrency.symbol}
+          {value ? (
+            <>
+              <Arrow />
+              <span>
+                {formatUnits(
+                  max(depositedAmount - withdrawAmount - repurchaseFee, 0n),
+                  depositCurrency.decimals,
+                  depositAssetPrice,
+                )}{' '}
+                {depositCurrency.symbol}
+              </span>
+            </>
+          ) : (
+            <></>
+          )}
+        </div>
       </div>
       <div className="flex text-xs sm:text-sm gap-3 mb-6 sm:mb-8 justify-between sm:justify-start">
         <span className="text-gray-500">Coupon repurchase fee</span>

@@ -64,6 +64,7 @@ type BorrowContext = {
     mightBoughtDebtAmount: bigint,
     expectedProceeds: bigint,
     swapData: `0x${string}`,
+    refundAmountAfterSwap: bigint,
   ) => Promise<void>
   addCollateral: (position: LoanPosition, amount: bigint) => Promise<void>
   removeCollateral: (position: LoanPosition, amount: bigint) => Promise<void>
@@ -134,6 +135,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           body: 'Please confirm in your wallet.',
           fields: [
             {
+              direction: 'in',
               currency: collateral.underlying,
               label: collateral.underlying.symbol,
               value: formatUnits(
@@ -142,6 +144,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               ),
             },
             {
+              direction: 'out',
               currency: loanAsset.underlying,
               label: loanAsset.underlying.symbol,
               value: formatUnits(loanAmount, loanAsset.underlying.decimals),
@@ -225,6 +228,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           body: 'Please confirm in your wallet.',
           fields: [
             {
+              direction: 'in',
               currency: position.underlying,
               label: position.underlying.symbol,
               value: formatUnits(amount, position.underlying.decimals),
@@ -280,6 +284,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       mightBoughtDebtAmount: bigint,
       expectedProceeds: bigint,
       swapData: `0x${string}`,
+      refundAmountAfterSwap: bigint,
     ): Promise<void> => {
       if (!walletClient) {
         // TODO: alert wallet connect
@@ -297,27 +302,39 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           tomorrowTimestampInSeconds(),
         )
 
+        const fields = [
+          {
+            currency: position.collateral.underlying,
+            label: `Use ${position.collateral.underlying.symbol}`,
+            value: formatUnits(amount, position.collateral.underlying.decimals),
+          },
+          {
+            currency: position.underlying,
+            label: `Repay ${position.underlying.symbol}`,
+            value: formatUnits(
+              mightBoughtDebtAmount,
+              position.underlying.decimals,
+            ),
+          },
+        ]
         setConfirmation({
           title: `Repay with collateral ${position.underlying.symbol}`,
           body: 'Please confirm in your wallet.',
-          fields: [
-            {
-              currency: position.collateral.underlying,
-              label: position.collateral.underlying.symbol,
-              value: formatUnits(
-                amount,
-                position.collateral.underlying.decimals,
-              ),
-            },
-            {
-              currency: position.underlying,
-              label: position.underlying.symbol,
-              value: formatUnits(
-                mightBoughtDebtAmount,
-                position.underlying.decimals,
-              ),
-            },
-          ],
+          fields:
+            refundAmountAfterSwap > 0
+              ? [
+                  ...fields,
+                  {
+                    direction: 'out',
+                    currency: position.underlying,
+                    label: position.underlying.symbol,
+                    value: formatUnits(
+                      refundAmountAfterSwap,
+                      position.underlying.decimals,
+                    ),
+                  },
+                ]
+              : fields,
         })
 
         await writeContract(publicClient, walletClient, {
@@ -371,6 +388,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           body: 'Please confirm in your wallet.',
           fields: [
             {
+              direction: 'out',
               currency: position.underlying,
               label: position.underlying.symbol,
               value: formatUnits(amount, position.underlying.decimals),
@@ -439,6 +457,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           body: 'Please confirm in your wallet.',
           fields: [
             {
+              direction: 'in',
               currency: underlying,
               label: underlying.symbol,
               value: formatUnits(expectedInterest, underlying.decimals),
@@ -517,6 +536,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           body: 'Please confirm in your wallet.',
           fields: [
             {
+              direction: 'out',
               currency: underlying,
               label: underlying.symbol,
               value: formatUnits(expectedProceeds, underlying.decimals),
@@ -574,6 +594,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           body: 'Please confirm in your wallet.',
           fields: [
             {
+              direction: 'in',
               currency: position.collateral.underlying,
               label: position.collateral.underlying.symbol,
               value: formatUnits(
@@ -648,6 +669,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           body: 'Please confirm in your wallet.',
           fields: [
             {
+              direction: 'out',
               currency: position.collateral.underlying,
               label: position.collateral.underlying.symbol,
               value: formatUnits(

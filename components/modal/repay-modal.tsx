@@ -25,6 +25,7 @@ const RepayModal = ({
   slippage,
   setSlippage,
   repayAmount,
+  dust,
   maxRepayableAmount,
   currentLtv,
   expectedLtv,
@@ -46,6 +47,7 @@ const RepayModal = ({
   slippage: string
   setSlippage: React.Dispatch<React.SetStateAction<string>>
   repayAmount: bigint
+  dust: bigint
   maxRepayableAmount: bigint
   currentLtv: number
   expectedLtv: number
@@ -174,6 +176,17 @@ const RepayModal = ({
             )}
           </div>
         </div>
+        {dust > 0n ? (
+          <div className="flex gap-3 justify-between sm:justify-start">
+            <div className="text-gray-500">Dust</div>
+            <div className="flex items-center gap-1">
+              {formatUnits(dust, debtCurrency.decimals, debtAssetPrice)}{' '}
+              {debtCurrency.symbol}
+            </div>
+          </div>
+        ) : (
+          <></>
+        )}
       </div>
       <ActionButton {...actionButtonProps} />
     </Modal>

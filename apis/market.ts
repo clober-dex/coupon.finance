@@ -145,7 +145,7 @@ export async function fetchBorrowApyByEpochsBorrowed(
     })
 }
 
-export async function fetchCouponAmountByEpochsBorrowed(
+export async function fetchInterestOrRefundCouponAmountByEpochs(
   chainId: CHAIN_IDS,
   substitute: Currency,
   debtAmount: bigint,

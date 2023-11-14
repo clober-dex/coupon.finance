@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useQuery } from 'wagmi'
 
 import { LoanPosition } from '../../model/loan-position'
-import { fetchCouponAmountByEpochsBorrowed } from '../../apis/market'
+import { fetchInterestOrRefundCouponAmountByEpochs } from '../../apis/market'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import EditExpiryModal from '../../components/modal/edit-expiry-modal'
@@ -24,7 +24,7 @@ const EditExpiryModalContainer = ({
   const { data } = useQuery(
     ['edit-expiry-simulate', position, selectedChain],
     () =>
-      fetchCouponAmountByEpochsBorrowed(
+      fetchInterestOrRefundCouponAmountByEpochs(
         selectedChain.id,
         position.substitute,
         position.amount,

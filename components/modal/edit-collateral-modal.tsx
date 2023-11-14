@@ -5,6 +5,7 @@ import Modal from '../../components/modal/modal'
 import { BigDecimal } from '../../utils/numbers'
 import { ActionButton, ActionButtonProps } from '../button/action-button'
 import { Collateral } from '../../model/collateral'
+import { Arrow } from '../svg/arrow'
 
 const EditCollateralModal = ({
   collateral,
@@ -15,6 +16,7 @@ const EditCollateralModal = ({
   setIsWithdrawCollateral,
   availableCollateralAmount,
   currentLtv,
+  expectedLtv,
   actionButtonProps,
   collateralPrice,
 }: {
@@ -26,6 +28,7 @@ const EditCollateralModal = ({
   setIsWithdrawCollateral: (value: boolean) => void
   availableCollateralAmount: bigint
   currentLtv: number
+  expectedLtv: number
   actionButtonProps: ActionButtonProps
   collateralPrice?: BigDecimal
 }) => {
@@ -58,8 +61,24 @@ const EditCollateralModal = ({
         />
       </div>
       <div className="flex text-sm gap-3 mb-8">
-        <span className="text-gray-500">LTV</span>
-        {currentLtv.toFixed(2)}%
+        <div className="text-gray-500">LTV</div>
+        <div className="flex items-center gap-1">
+          <span>{currentLtv.toFixed(2)}%</span>
+          {value ? (
+            <>
+              <Arrow />
+              <span
+                className={
+                  expectedLtv < currentLtv ? 'text-green-500' : 'text-red-500'
+                }
+              >
+                {expectedLtv.toFixed(2)}%
+              </span>
+            </>
+          ) : (
+            <></>
+          )}
+        </div>
       </div>
       <ActionButton {...actionButtonProps} />
     </Modal>

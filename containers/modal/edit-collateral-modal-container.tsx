@@ -73,6 +73,19 @@ const EditCollateralModalContainer = ({
               position.amount,
               position.collateral,
               prices[position.collateral.underlying.address],
+              position.collateralAmount,
+            )
+          : 0
+      }
+      expectedLtv={
+        prices[position.underlying.address] &&
+        prices[position.collateral.underlying.address]
+          ? calculateLtv(
+              position.underlying,
+              prices[position.underlying.address],
+              position.amount,
+              position.collateral,
+              prices[position.collateral.underlying.address],
               position.collateralAmount +
                 (isWithdrawCollateral ? -amount : amount),
             )
