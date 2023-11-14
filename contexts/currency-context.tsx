@@ -4,7 +4,7 @@ import { readContracts } from '@wagmi/core'
 import { getAddress } from 'viem'
 
 import { IERC20__factory } from '../typechain'
-import { fetchCurrencies, fetchPrices } from '../apis/currency'
+import { fetchBalances, fetchCurrencies, fetchPrices } from '../apis/currency'
 import { Currency } from '../model/currency'
 import { fetchAssets, fetchAssetStatuses } from '../apis/asset'
 import { fetchEpochs } from '../apis/epoch'
@@ -125,23 +125,11 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
       if (!userAddress) {
         return {}
       }
-      const results = await readContracts({
-        contracts: currencies.map((currency) => ({
-          address: currency.address,
-          abi: IERC20__factory.abi,
-          functionName: 'balanceOf',
-          args: [userAddress],
-        })),
-      })
-      return results.reduce((acc, { result }, index) => {
-        const currency = currencies[index]
-        return {
-          ...acc,
-          [currency.address]: isEther(currency)
-            ? (result ?? 0n) + (balance?.value ?? 0n)
-            : result,
-        }
-      }, {})
+      return fetchBalances(
+        selectedChain.id,
+        userAddress,
+        currencies.map((currency) => currency.address),
+      )
     },
     {
       refetchInterval: 5 * 1000,
