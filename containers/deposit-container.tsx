@@ -137,6 +137,7 @@ const DepositContainer = ({
                     ({ epoch }) =>
                       Number(epoch.endTimestamp) > currentTimestamp,
                   )
+                  .slice(0, 4)
                 return (
                   <DepositCard
                     currency={assetStatus.asset.underlying}

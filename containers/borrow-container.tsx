@@ -137,6 +137,7 @@ const BorrowContainer = ({
                     ({ epoch }) =>
                       Number(epoch.endTimestamp) > currentTimestamp,
                   )
+                  .slice(0, 4)
                 return (
                   <BorrowCard
                     currency={assetStatus.asset.underlying}
