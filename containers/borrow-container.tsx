@@ -59,7 +59,6 @@ const BorrowContainer = ({
             <div className="flex justify-between gap-3">
               <div className="text-gray-500">Total Borrow Amount</div>
               <div className="font-bold">
-                $
                 {toDollarString(
                   positions.reduce(
                     (acc, { underlying, amount }) =>
@@ -76,7 +75,6 @@ const BorrowContainer = ({
             <div className="flex justify-between gap-3">
               <div className="text-gray-500">Total Collateral</div>
               <div className="font-bold">
-                $
                 {toDollarString(
                   positions.reduce(
                     (acc, { collateral, collateralAmount }) =>

@@ -53,7 +53,6 @@ const DepositContainer = ({
                 Total Deposit
               </div>
               <div className="font-bold">
-                $
                 {toDollarString(
                   positions.reduce(
                     (acc, { underlying, amount }) =>
@@ -72,7 +71,6 @@ const DepositContainer = ({
                 Total Earned
               </div>
               <div className="font-bold">
-                $
                 {toDollarString(
                   positions.reduce(
                     (acc, { underlying, interest }) =>
