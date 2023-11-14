@@ -4,7 +4,7 @@ import { isAddressEqual } from 'viem'
 
 import { useBorrowContext } from '../contexts/borrow-context'
 import { AssetStatus } from '../model/asset'
-import { dollarValue } from '../utils/numbers'
+import { dollarValue, toCommaSeparated } from '../utils/numbers'
 import { Epoch } from '../model/epoch'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { LoanPosition } from '../model/loan-position'
@@ -60,34 +60,38 @@ const BorrowContainer = ({
               <div className="text-gray-500">Total Borrow Amount</div>
               <div className="font-bold">
                 $
-                {positions
-                  .reduce(
-                    (acc, { underlying, amount }) =>
-                      dollarValue(
-                        amount,
-                        underlying.decimals,
-                        prices[underlying.address],
-                      ).plus(acc),
-                    new BigNumber(0),
-                  )
-                  .toFixed(2)}
+                {toCommaSeparated(
+                  positions
+                    .reduce(
+                      (acc, { underlying, amount }) =>
+                        dollarValue(
+                          amount,
+                          underlying.decimals,
+                          prices[underlying.address],
+                        ).plus(acc),
+                      new BigNumber(0),
+                    )
+                    .toFixed(2),
+                )}
               </div>
             </div>
             <div className="flex justify-between gap-3">
               <div className="text-gray-500">Total Collateral</div>
               <div className="font-bold">
                 $
-                {positions
-                  .reduce(
-                    (acc, { collateral, collateralAmount }) =>
-                      dollarValue(
-                        collateralAmount,
-                        collateral.underlying.decimals,
-                        prices[collateral.underlying.address],
-                      ).plus(acc),
-                    new BigNumber(0),
-                  )
-                  .toFixed(2)}
+                {toCommaSeparated(
+                  positions
+                    .reduce(
+                      (acc, { collateral, collateralAmount }) =>
+                        dollarValue(
+                          collateralAmount,
+                          collateral.underlying.decimals,
+                          prices[collateral.underlying.address],
+                        ).plus(acc),
+                      new BigNumber(0),
+                    )
+                    .toFixed(2),
+                )}
               </div>
             </div>
           </div>

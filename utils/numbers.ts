@@ -25,7 +25,7 @@ export const formatDollarValue = (
   decimals: number,
   price?: BigDecimal,
 ): string => {
-  return `$${dollarValue(value, decimals, price).toFixed(2)}`
+  return `$${toCommaSeparated(dollarValue(value, decimals, price).toFixed(2))}`
 }
 
 export const formatUnits = (
@@ -40,7 +40,9 @@ export const formatUnits = (
   const priceValue = Number(price.value) / 10 ** price.decimals
   const underHalfPennyDecimals =
     Math.floor(Math.max(-Math.log10(0.005 / priceValue), 0) / 2) * 2
-  const fixed = new BigNumber(formatted).toFixed(underHalfPennyDecimals)
+  const fixed = toCommaSeparated(
+    new BigNumber(formatted).toFixed(underHalfPennyDecimals),
+  )
   return +fixed === 0 ? formatted : fixed
 }
 
@@ -66,4 +68,8 @@ export const getDecimalPlaces = (
 export const toPlacesString = (number: BigNumber.Value, places: number = 4) => {
   const value = new BigNumber(number)
   return value.toFixed(Number(getDecimalPlaces(number, places)))
+}
+
+export const toCommaSeparated = (number: string) => {
+  return number.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ',')
 }

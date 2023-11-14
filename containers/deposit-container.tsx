@@ -6,7 +6,7 @@ import { useDepositContext } from '../contexts/deposit-context'
 import { AssetStatus } from '../model/asset'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { BondPosition } from '../model/bond-position'
-import { dollarValue } from '../utils/numbers'
+import { dollarValue, toCommaSeparated } from '../utils/numbers'
 import { Epoch } from '../model/epoch'
 import { BondPositionCard } from '../components/card/bond-position-card'
 import { DepositCard } from '../components/card/deposit-card'
@@ -54,17 +54,19 @@ const DepositContainer = ({
               </div>
               <div className="font-bold">
                 $
-                {positions
-                  .reduce(
-                    (acc, { underlying, amount }) =>
-                      dollarValue(
-                        amount,
-                        underlying.decimals,
-                        prices[underlying.address],
-                      ).plus(acc),
-                    new BigNumber(0),
-                  )
-                  .toFixed(2)}
+                {toCommaSeparated(
+                  positions
+                    .reduce(
+                      (acc, { underlying, amount }) =>
+                        dollarValue(
+                          amount,
+                          underlying.decimals,
+                          prices[underlying.address],
+                        ).plus(acc),
+                      new BigNumber(0),
+                    )
+                    .toFixed(2),
+                )}
               </div>
             </div>
             <div className="flex justify-between gap-3">
@@ -73,17 +75,19 @@ const DepositContainer = ({
               </div>
               <div className="font-bold">
                 $
-                {positions
-                  .reduce(
-                    (acc, { underlying, interest }) =>
-                      dollarValue(
-                        interest,
-                        underlying.decimals,
-                        prices[underlying.address],
-                      ).plus(acc),
-                    new BigNumber(0),
-                  )
-                  .toFixed(2)}
+                {toCommaSeparated(
+                  positions
+                    .reduce(
+                      (acc, { underlying, interest }) =>
+                        dollarValue(
+                          interest,
+                          underlying.decimals,
+                          prices[underlying.address],
+                        ).plus(acc),
+                      new BigNumber(0),
+                    )
+                    .toFixed(2),
+                )}
               </div>
             </div>
           </div>
