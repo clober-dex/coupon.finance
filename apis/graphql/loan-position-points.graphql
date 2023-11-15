@@ -1,12 +1,12 @@
-query getLoanPositionPoints($userAddress: String!) {
-  loanPositionPoints(where: { user: $userAddress }) {
-    id
-    user
-    collateralAmount
-    collateralDecimals
-    collateralPrice
-    collateralPriceDecimals
-    accumulatedPoint
-    updatedAt
-  }
-}
+#query getLoanPositionPoints($userAddress: String!) {
+#  loanPositionPoints(where: { user: $userAddress }) {
+#    id
+#    user
+#    collateralAmount
+#    collateralDecimals
+#    collateralPrice
+#    collateralPriceDecimals
+#    accumulatedPoint
+#    updatedAt
+#  }
+#}
