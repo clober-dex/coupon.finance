@@ -88,7 +88,7 @@ export const BorrowCard = ({
                         ),
                     )
                     .map((collateral) => (
-                      <React.Fragment key={collateral.underlying.symbol}>
+                      <React.Fragment key={collateral.underlying.address}>
                         <div className="w-6 h-6 relative">
                           <Image
                             src={getLogo(collateral.underlying)}
@@ -107,8 +107,8 @@ export const BorrowCard = ({
                     Array(4 - apys.length).fill({ date: '', apy: Number.NaN }),
                   )
                 : apys
-              ).map(({ date, apy }, i) => (
-                <div className="flex items-start self-stretch" key={i}>
+              ).map(({ date, apy }, index) => (
+                <div className="flex items-start self-stretch" key={index}>
                   <div className="felx flex-grow shrink-0 basis-0 font-bold">
                     {!Number.isNaN(apy)
                       ? `${apy.toFixed(2)}%`
