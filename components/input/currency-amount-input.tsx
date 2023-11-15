@@ -1,9 +1,9 @@
 import React, { useCallback, useMemo } from 'react'
 import { parseUnits } from 'viem'
-import Image from 'next/image'
 
-import { Currency, getLogo } from '../../model/currency'
+import { Currency } from '../../model/currency'
 import { BigDecimal, formatDollarValue, formatUnits } from '../../utils/numbers'
+import { CurrencyIcon } from '../icon/currency-icon'
 
 import NumberInput from './number-input'
 
@@ -56,9 +56,7 @@ const CurrencyAmountInput = ({
           children
         ) : currency ? (
           <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
-            <div className="w-5 h-5 relative">
-              <Image src={getLogo(currency)} alt={currency.name} fill />
-            </div>
+            <CurrencyIcon currency={currency} className="w-5 h-5" />
             <div className="text-sm sm:text-base">{currency.symbol}</div>
           </div>
         ) : (

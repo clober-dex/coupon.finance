@@ -1,12 +1,12 @@
 import React from 'react'
-import Image from 'next/image'
 
-import { Currency, getLogo } from '../../model/currency'
+import { Currency } from '../../model/currency'
 import { formatDollarValue, formatUnits } from '../../utils/numbers'
 import { Balances } from '../../model/balances'
 import { Prices } from '../../model/prices'
 import LeftSvg from '../svg/left-svg'
 import SearchSvg from '../svg/search-svg'
+import { CurrencyIcon } from '../icon/currency-icon'
 
 const CurrencySelect = ({
   currencies,
@@ -53,14 +53,10 @@ const CurrencySelect = ({
               onClick={() => onCurrencySelect(currency)}
             >
               <div className="flex items-center gap-3">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 relative">
-                  <Image
-                    src={getLogo(currency)}
-                    alt={currency.name}
-                    className="w-6 h-6 sm:w-8 sm:h-8"
-                    fill
-                  />
-                </div>
+                <CurrencyIcon
+                  currency={currency}
+                  className="w-6 h-6 sm:w-8 sm:h-8"
+                />
                 <div>
                   <div className="text-sm sm:text-base font-bold">
                     {currency.symbol}

@@ -1,11 +1,10 @@
 import React from 'react'
-import Image from 'next/image'
 
 import { BondPosition } from '../../model/bond-position'
 import { BigDecimal, formatDollarValue, formatUnits } from '../../utils/numbers'
-import { getLogo } from '../../model/currency'
 import { calculateApy } from '../../utils/apy'
 import { currentTimestampInSeconds, formatDate } from '../../utils/date'
+import { CurrencyIcon } from '../icon/currency-icon'
 
 export const BondPositionCard = ({
   position,
@@ -23,13 +22,10 @@ export const BondPositionCard = ({
     <div className="flex w-full pb-4 flex-col items-center gap-3 shrink-0 bg-white dark:bg-gray-800 rounded-xl">
       <div className="flex p-4 items-center self-stretch">
         <div className="flex items-center gap-3 flex-grow flex-shrink basis-0">
-          <div className="w-8 h-8 sm:w-10 sm:h-10 relative">
-            <Image
-              src={getLogo(position.underlying)}
-              alt={position.underlying.name}
-              fill
-            />
-          </div>
+          <CurrencyIcon
+            currency={position.underlying}
+            className="w-8 h-8 sm:w-10 sm:h-10"
+          />
           <div className="flex flex-col">
             <div className="text-xs text-gray-500 dark:text-gray-400">
               Deposit

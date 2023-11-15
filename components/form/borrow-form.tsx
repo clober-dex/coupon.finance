@@ -1,11 +1,10 @@
 import { isAddressEqual } from 'viem'
 import React from 'react'
-import Image from 'next/image'
 
 import CurrencyAmountInput from '../input/currency-amount-input'
 import { formatUnits } from '../../utils/numbers'
 import { ActionButton, ActionButtonProps } from '../button/action-button'
-import { Currency, getLogo } from '../../model/currency'
+import { Currency } from '../../model/currency'
 import { Collateral } from '../../model/collateral'
 import { Balances } from '../../model/balances'
 import { Prices } from '../../model/prices'
@@ -20,6 +19,7 @@ import { DotSvg } from '../svg/dot-svg'
 import { getLTVTextColor } from '../../utils/ltv'
 import DownSvg from '../svg/down-svg'
 import { CurrencyDropdown } from '../dropdown/currency-dropdown'
+import { CurrencyIcon } from '../icon/currency-icon'
 
 export const BorrowForm = ({
   borrowCurrency,
@@ -107,13 +107,10 @@ export const BorrowForm = ({
             >
               {collateral ? (
                 <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
-                  <div className="w-5 h-5 relative">
-                    <Image
-                      src={getLogo(collateral.underlying)}
-                      alt={collateral.underlying.name}
-                      fill
-                    />
-                  </div>
+                  <CurrencyIcon
+                    currency={collateral.underlying}
+                    className="w-5 h-5"
+                  />
                   <div className="text-sm sm:text-base">
                     {collateral.underlying.symbol}
                   </div>

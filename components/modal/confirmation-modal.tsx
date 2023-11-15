@@ -1,10 +1,9 @@
 import React from 'react'
 import { createPortal } from 'react-dom'
-import Image from 'next/image'
 
 import { Confirmation } from '../../contexts/transaction-context'
-import { getLogo } from '../../model/currency'
 import { ZIndices } from '../../utils/z-indices'
+import { CurrencyIcon } from '../icon/currency-icon'
 
 const ConfirmationModal = ({
   confirmation,
@@ -55,13 +54,10 @@ const ConfirmationModal = ({
               <div className="flex w-full items-center justify-between bg-white dark:bg-gray-700 px-3 py-2 text-sm sm:text-base rounded-lg">
                 <div className="flex items-center gap-2">
                   {field.currency ? (
-                    <div className="w-5 h-5 relative">
-                      <Image
-                        src={getLogo(field.currency)}
-                        alt={field.currency.name}
-                        fill
-                      />
-                    </div>
+                    <CurrencyIcon
+                      currency={field.currency}
+                      className="w-5 h-5"
+                    />
                   ) : (
                     <></>
                   )}

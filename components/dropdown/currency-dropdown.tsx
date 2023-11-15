@@ -1,10 +1,10 @@
 import React from 'react'
-import Image from 'next/image'
 import { CheckIcon } from '@heroicons/react/20/solid'
 import { isAddressEqual } from 'viem'
 
-import { Currency, getLogo } from '../../model/currency'
+import { Currency } from '../../model/currency'
 import useDropdown from '../../hooks/useDropdown'
+import { CurrencyIcon } from '../icon/currency-icon'
 
 export const CurrencyDropdown = ({
   selectedCurrency,
@@ -34,9 +34,7 @@ export const CurrencyDropdown = ({
                   setShowDropdown(false)
                 }}
               >
-                <div className="w-6 h-6 relative">
-                  <Image src={getLogo(currency)} alt={currency.name} fill />
-                </div>
+                <CurrencyIcon currency={currency} className="w-6 h-6" />
                 <span>{currency.symbol}</span>
                 {selectedCurrency &&
                 isAddressEqual(currency.address, selectedCurrency.address) ? (
