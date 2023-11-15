@@ -9,12 +9,15 @@ import { Prices } from '../../model/prices'
 import { Asset } from '../../model/asset'
 import { GreenCircleSvg } from '../svg/green-circle-svg'
 import { OrangeCircleSvg } from '../svg/orange-circle-svg'
+import { formatAddress } from '../../utils/string'
 
 export const RiskSidebar = ({
+  chainExplorer,
   asset,
   prices,
   ...props
 }: {
+  chainExplorer: string
   asset: Asset
   prices: Prices
 } & React.DetailedHTMLProps<
@@ -101,7 +104,11 @@ export const RiskSidebar = ({
                         key={index}
                         className="flex flex-row items-center w-full"
                       >
-                        <div className="flex flex-[1.4] items-center sm:flex-[1.6] gap-3 shrink-0">
+                        <Link
+                          href={`${chainExplorer}/token/${underlying.address}`}
+                          target="_blank"
+                          className="flex flex-[1.4] items-center sm:flex-[1.6] gap-3 shrink-0"
+                        >
                           <div className="flex w-8 h-8 relative">
                             <Image
                               src={getLogo(underlying)}
@@ -114,10 +121,10 @@ export const RiskSidebar = ({
                               {underlying.symbol}
                             </div>
                             <div className="text-xs font-medium	text-gray-500 hidden sm:inline-flex">
-                              {underlying.name}
+                              {formatAddress(underlying.address)}
                             </div>
                           </div>
-                        </div>
+                        </Link>
                         <div className="flex flex-1 text-sm justify-start items-center text-gray-950 dark:text-white">
                           {(
                             (Number(liquidationThreshold) * 100) /

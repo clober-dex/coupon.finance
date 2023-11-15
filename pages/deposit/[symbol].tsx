@@ -117,7 +117,14 @@ const Deposit = () => {
                 }}
                 depositAssetPrice={prices[asset.underlying.address]}
               />
-              <RiskSidebar asset={asset} prices={prices} />
+              <RiskSidebar
+                chainExplorer={
+                  selectedChain.blockExplorers?.default.url ??
+                  'https://arbiscan.io'
+                }
+                asset={asset}
+                prices={prices}
+              />
             </div>
           </div>
         </main>
