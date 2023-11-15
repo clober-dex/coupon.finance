@@ -114,7 +114,7 @@ export const RiskSidebar = ({
                               {underlying.symbol}
                             </div>
                             <div className="text-xs font-medium	text-gray-500 hidden sm:inline-flex">
-                              {underlying.name.split(' ').slice(0, 2).join(' ')}
+                              {underlying.name}
                             </div>
                           </div>
                         </div>
