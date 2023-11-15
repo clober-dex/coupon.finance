@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react'
-import Head from 'next/head'
 import { useRouter } from 'next/router'
 
 import DepositContainer from '../containers/deposit-container'
@@ -18,9 +17,6 @@ const Home = () => {
 
   return (
     <div className="flex flex-1">
-      <Head>
-        <title>Coupon Finance</title>
-      </Head>
       <div className="fixed w-full flex gap-16 items-end justify-center pb-1 bg-white dark:bg-gray-900 z-10 h-12 md:hidden">
         <button
           onClick={() => {
