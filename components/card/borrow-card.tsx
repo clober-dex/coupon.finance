@@ -39,7 +39,11 @@ export const BorrowCard = ({
             <div className="flex flex-col justify-center items-end ml-auto group-hover:hidden">
               <div className="text-xs sm:text-sm text-gray-400">As low as</div>
               <div className="text-base sm:text-xl font-bold">
-                {!Number.isNaN(apy) ? `${apy.toFixed(2)}%` : '-'}
+                {!Number.isNaN(apy)
+                  ? Number.isFinite(apy)
+                    ? `${apy.toFixed(2)}%`
+                    : '-'
+                  : '-'}
               </div>
             </div>
             <div className="text-gray-400 text-sm ml-auto hidden group-hover:block">
