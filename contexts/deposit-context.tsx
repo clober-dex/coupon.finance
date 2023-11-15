@@ -175,6 +175,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         )
         await queryClient.invalidateQueries(['bond-positions'])
       } catch (e) {
+        setPendingPositions([])
         console.error(e)
       } finally {
         await queryClient.invalidateQueries(['balances'])

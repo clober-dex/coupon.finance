@@ -219,6 +219,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         )
         await queryClient.invalidateQueries(['loan-positions'])
       } catch (e) {
+        setPendingPositions([])
         console.error(e)
       } finally {
         await queryClient.invalidateQueries(['balances'])
