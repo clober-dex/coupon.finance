@@ -7,7 +7,6 @@ import {
 } from '../.graphclient'
 import { SUBGRAPH_URL } from '../constants/subgraph-url'
 import { CHAIN_IDS } from '../constants/chain'
-import { currentTimestampInSeconds } from '../utils/date'
 
 import { toCurrency } from './asset'
 
@@ -16,7 +15,6 @@ const { getBondPositions, getBondPosition } = getBuiltGraphSDK()
 export async function fetchBondPositions(
   chainId: CHAIN_IDS,
   userAddress: `0x${string}`,
-  pendingBondPositions?: BondPosition[],
 ): Promise<BondPosition[]> {
   const { bondPositions } = await getBondPositions(
     {
@@ -26,15 +24,7 @@ export async function fetchBondPositions(
       url: SUBGRAPH_URL[chainId],
     },
   )
-  const positions = bondPositions.map((bondPosition) =>
-    toBondPosition(bondPosition),
-  )
-  const now = currentTimestampInSeconds()
-  return positions.concat(
-    (pendingBondPositions ?? []).filter(
-      (pendingBondPosition) => now - pendingBondPosition.createdAt < 10,
-    ),
-  )
+  return bondPositions.map((bondPosition) => toBondPosition(bondPosition))
 }
 
 export async function fetchBondPosition(

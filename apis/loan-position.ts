@@ -9,7 +9,6 @@ import {
 import { LIQUIDATION_TARGET_LTV_PRECISION } from '../utils/ltv'
 import { SUBGRAPH_URL } from '../constants/subgraph-url'
 import { CHAIN_IDS } from '../constants/chain'
-import { currentTimestampInSeconds } from '../utils/date'
 
 import { toCurrency } from './asset'
 
@@ -18,7 +17,6 @@ const { getLoanPositions, getLoanPosition } = getBuiltGraphSDK()
 export async function fetchLoanPositions(
   chainId: CHAIN_IDS,
   userAddress: `0x${string}`,
-  pendingLoanPositions?: LoanPosition[],
 ): Promise<LoanPosition[]> {
   const { loanPositions } = await getLoanPositions(
     {
@@ -28,15 +26,7 @@ export async function fetchLoanPositions(
       url: SUBGRAPH_URL[chainId],
     },
   )
-  const positions = loanPositions.map((loanPosition) =>
-    toLoanPosition(loanPosition),
-  )
-  const now = currentTimestampInSeconds()
-  return positions.concat(
-    (pendingLoanPositions ?? []).filter(
-      (pendingLoanPosition) => now - pendingLoanPosition.createdAt < 10,
-    ),
-  )
+  return loanPositions.map((loanPosition) => toLoanPosition(loanPosition))
 }
 
 export async function fetchLoanPosition(
