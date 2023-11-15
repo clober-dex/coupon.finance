@@ -4,7 +4,7 @@ export const SUBGRAPH_URL: {
   [chain in CHAIN_IDS]: string
 } = {
   [CHAIN_IDS.ARBITRUM]:
-    'https://api.studio.thegraph.com/query/49804/coupon-subgraph/v1.0.1',
+    'https://gateway-arbitrum.network.thegraph.com/api/fcc06361a7a29c6b6ae424ffc0ec0fcd/subgraphs/id/CzPPwtF5e6i1JRC3iQNGqoVvcV6BNUsopxL6uymMpVCn',
   [CHAIN_IDS.COUPON_FINANCE_CHAIN]:
     'https://dev-subgraph.coupon.finance/subgraphs/name/coupon-subgraph',
 }
