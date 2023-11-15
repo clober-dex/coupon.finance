@@ -20,7 +20,7 @@ import { Currency } from '../model/currency'
 import { permit721 } from '../utils/permit721'
 import { writeContract } from '../utils/wallet'
 import { CHAIN_IDS } from '../constants/chain'
-import { tomorrowTimestampInSeconds } from '../utils/date'
+import { getDeadlineTimestampInSeconds } from '../utils/date'
 
 import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -128,7 +128,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
           collateralAmount -
             calculateETHValue(collateral.underlying, collateralAmount),
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
         setConfirmation({
           title: `Borrowing ${loanAsset.underlying.symbol}`,
@@ -217,7 +217,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           position.id,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
         const debtPermitResult = await permit20(
           selectedChain.id,
@@ -226,7 +226,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
           amount - calculateETHValue(position.underlying, amount),
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
 
         setConfirmation({
@@ -310,7 +310,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           position.id,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].OdosRepayAdapter,
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
 
         const fields = [
@@ -405,7 +405,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           position.id,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
         setConfirmation({
           title: `Borrowing more ${position.underlying.symbol}`,
@@ -474,7 +474,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           positionId,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
 
         const debtPermitResult = await permit20(
@@ -484,7 +484,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
           expectedInterest - calculateETHValue(underlying, expectedInterest),
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
 
         setConfirmation({
@@ -568,7 +568,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           positionId,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
 
         setConfirmation({
@@ -628,7 +628,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           position.id,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
         const debtPermitResult = await permit20(
           selectedChain.id,
@@ -637,7 +637,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
           amount - calculateETHValue(position.collateral.underlying, amount),
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
 
         setConfirmation({
@@ -714,7 +714,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           position.id,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
 
         setConfirmation({

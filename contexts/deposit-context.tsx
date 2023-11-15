@@ -19,7 +19,7 @@ import { permit721 } from '../utils/permit721'
 import { Currency } from '../model/currency'
 import { writeContract } from '../utils/wallet'
 import { CHAIN_IDS } from '../constants/chain'
-import { tomorrowTimestampInSeconds } from '../utils/date'
+import { getDeadlineTimestampInSeconds } from '../utils/date'
 
 import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -92,7 +92,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
           amount - calculateETHValue(asset.underlying, amount),
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
         setConfirmation({
           title: 'Making Deposit',
@@ -174,7 +174,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           tokenId,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
         setConfirmation({
           title: 'Making Withdrawal',
@@ -225,7 +225,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           tokenId,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
         setConfirmation({
           title: 'Collecting',
