@@ -7,6 +7,7 @@ import { isEther } from '../contexts/currency-context'
 import { LIQUIDATION_TARGET_LTV_PRECISION } from '../utils/ltv'
 import { SUBGRAPH_URL } from '../constants/subgraph-url'
 import { CHAIN_IDS } from '../constants/chain'
+import { adjustCurrencyName, adjustCurrencySymbol } from '../utils/asset'
 
 const { getAssets, getAssetStatuses } = getBuiltGraphSDK()
 
@@ -14,8 +15,8 @@ let cache: Asset[] | null = null
 
 export const toCurrency = (
   token: Pick<Token, 'id' | 'symbol' | 'name' | 'decimals'>,
-) =>
-  isEther({
+) => {
+  const currency = isEther({
     address: getAddress(token.id),
     ...token,
   })
@@ -31,6 +32,12 @@ export const toCurrency = (
         symbol: token.symbol,
         decimals: token.decimals,
       }
+  return {
+    ...currency,
+    name: adjustCurrencyName(currency),
+    symbol: adjustCurrencySymbol(currency),
+  }
+}
 
 export async function fetchAssets(chainId: CHAIN_IDS): Promise<Asset[]> {
   if (cache) {
