@@ -2,11 +2,11 @@ sources:
   - name: coupon-finance
     handler:
       graphql:
-        endpoint: '{context.url:http://dev-subgraph.coupon.finance:8000/subgraphs/name/coupon-subgraph-prod}'
+        endpoint: '{context.url:https://dev-subgraph.coupon.finance/subgraphs/name/coupon-subgraph-prod}'
   - name: coupon-finance-point
     handler:
       graphql:
-        endpoint: '{context.url:http://dev-subgraph.coupon.finance:8000/subgraphs/name/coupon-point-subgraph-prod}'
+        endpoint: '{context.url:https://dev-subgraph.coupon.finance/subgraphs/name/coupon-point-subgraph-prod}'
 
 documents:
   - ./apis/**/*.graphql
