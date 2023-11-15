@@ -53,7 +53,7 @@ export const DepositForm = ({
           (proceedsByEpochsDeposited ? proceedsByEpochsDeposited.length : 1))) *
     100
   return (
-    <div className="relative z-10">
+    <div className="relative">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col bg-white gap-4 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 sm:pb-4 w-full sm:w-[480px]">
           <div className="flex flex-col gap-4">
