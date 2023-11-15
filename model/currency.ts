@@ -11,5 +11,6 @@ export function getLogo(currency?: Currency): string {
   }
   return `https://assets.odos.xyz/tokens/${currency.symbol
     .toUpperCase()
-    .replace('WST', 'wst')}.webp`
+    .replace('WST', 'wst')
+    .replace('USDC.E', 'USDC')}.webp`
 }
