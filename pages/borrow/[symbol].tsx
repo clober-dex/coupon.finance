@@ -3,12 +3,10 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { parseUnits, zeroAddress } from 'viem'
 import { useQuery } from 'wagmi'
-import Image from 'next/image'
 import Link from 'next/link'
 import BigNumber from 'bignumber.js'
 
 import BackSvg from '../../components/svg/back-svg'
-import { getLogo } from '../../model/currency'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { fetchBorrowApyByEpochsBorrowed } from '../../apis/market'
 import { useBorrowContext } from '../../contexts/borrow-context'
@@ -20,6 +18,7 @@ import { useChainContext } from '../../contexts/chain-context'
 import { MIN_DEBT_SIZE_IN_ETH } from '../../constants/debt'
 import { CHAIN_IDS } from '../../constants/chain'
 import { ethValue } from '../../utils/currency'
+import { CurrencyIcon } from '../../components/icon/currency-icon'
 
 const Borrow = () => {
   const { selectedChain } = useChainContext()
@@ -136,13 +135,10 @@ const Borrow = () => {
               <BackSvg className="w-4 h-4 sm:w-8 sm:h-8" />
               Borrow
               <div className="flex gap-2">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 relative">
-                  <Image
-                    src={getLogo(asset.underlying)}
-                    alt={asset.underlying.name}
-                    fill
-                  />
-                </div>
+                <CurrencyIcon
+                  currency={asset.underlying}
+                  className="w-6 h-6 sm:w-8 sm:h-8"
+                />
                 <div>{asset.underlying.symbol}</div>
               </div>
             </Link>

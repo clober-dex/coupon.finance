@@ -1,11 +1,11 @@
 import React from 'react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { isAddressEqual } from 'viem'
 
-import { Currency, getLogo } from '../../model/currency'
+import { Currency } from '../../model/currency'
 import { BigDecimal, formatUnits } from '../../utils/numbers'
 import { Collateral } from '../../model/collateral'
+import { CurrencyIcon } from '../icon/currency-icon'
 
 export const DepositCard = ({
   currency,
@@ -30,9 +30,10 @@ export const DepositCard = ({
       <div className="transition ease-in-out delay-150 duration-300 sm:hover:-translate-y-1 sm:hover:scale-105 group flex flex-col w-full p-4 justify-center items-center gap-4 bg-white dark:bg-gray-800 rounded-xl">
         <div className="flex flex-col items-start gap-6 self-stretch">
           <div className="flex items-center gap-3 self-stretch">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 relative">
-              <Image src={getLogo(currency)} alt={currency.name} fill />
-            </div>
+            <CurrencyIcon
+              currency={currency}
+              className="w-8 h-8 sm:w-10 sm:h-10"
+            />
             <div className="font-bold text-xl sm:text-2xl">
               {currency.symbol}
             </div>
@@ -89,13 +90,10 @@ export const DepositCard = ({
                     )
                     .map((collateral) => (
                       <React.Fragment key={collateral.underlying.address}>
-                        <div className="w-6 h-6 relative">
-                          <Image
-                            src={getLogo(collateral.underlying)}
-                            alt={collateral.underlying.name}
-                            fill
-                          />
-                        </div>
+                        <CurrencyIcon
+                          currency={collateral.underlying}
+                          className="w-6 h-6"
+                        />
                       </React.Fragment>
                     ))}
                 </div>
