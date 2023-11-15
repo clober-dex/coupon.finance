@@ -19,7 +19,7 @@ export const BondPositionCard = ({
 } & React.HTMLAttributes<HTMLDivElement>) => {
   const now = currentTimestampInSeconds()
   return (
-    <div className="flex w-full pb-4 flex-col items-center gap-3 shrink-0 bg-white dark:bg-gray-800 rounded-xl">
+    <div className="relative flex w-full pb-4 flex-col items-center gap-3 shrink-0 bg-white dark:bg-gray-800 rounded-xl">
       <div className="flex p-4 items-center self-stretch">
         <div className="flex items-center gap-3 flex-grow flex-shrink basis-0">
           <CurrencyIcon
@@ -111,15 +111,17 @@ export const BondPositionCard = ({
         </div>
         {position.toEpoch.endTimestamp < now ? (
           <button
-            className="w-full bg-blue-500 bg-opacity-10 hover:bg-opacity-20 text-blue-500 font-bold px-3 py-2 rounded text-sm"
+            className="w-full bg-blue-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-blue-500 font-bold px-3 py-2 rounded text-sm"
             onClick={onCollect}
+            disabled={position.isPending}
           >
             Collect Deposit
           </button>
         ) : (
           <button
-            className="w-full bg-green-500 bg-opacity-10 hover:bg-opacity-20 text-green-500 font-bold px-3 py-2 rounded text-sm"
+            className="w-full bg-green-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-green-500 font-bold px-3 py-2 rounded text-sm"
             onClick={onWithdraw}
+            disabled={position.isPending}
           >
             Withdraw
           </button>
