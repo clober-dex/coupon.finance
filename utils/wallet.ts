@@ -19,8 +19,18 @@ export async function writeContract(
     const { request } = await publicClient.simulateContract(
       args as SimulateContractParameters,
     )
-    return walletClient.writeContract(request)
+    const hash = await walletClient.writeContract(request)
+    await publicClient.waitForTransactionReceipt({
+      hash,
+    })
+    return hash
   } else {
-    return walletClient.writeContract(args as WriteContractParameters)
+    const hash = await walletClient.writeContract(
+      args as WriteContractParameters,
+    )
+    await publicClient.waitForTransactionReceipt({
+      hash,
+    })
+    return hash
   }
 }
