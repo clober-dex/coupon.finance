@@ -24,11 +24,11 @@ export const getExpirationDateTextColor = (
   return ''
 }
 
-export const currentTimestampInSeconds = (): number => 1702454065 // TODO: revert it
+export const currentTimestampInSeconds = (): number =>
+  Math.floor(new Date().getTime() / 1000)
 
-// TODO: adjust deadline for permit20
-export const tomorrowTimestampInSeconds = (): bigint => {
-  return BigInt(4702454065)
+export const getDeadlineTimestampInSeconds = (): bigint => {
+  return BigInt(Math.floor(currentTimestampInSeconds() + 60 * 5))
 }
 
 export const getNextMonthStartTimestamp = (now: number): number => {

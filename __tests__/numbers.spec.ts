@@ -10,13 +10,13 @@ describe('formatUnits', () => {
       '123456789.123456789123456789',
     )
     expect(formatUnits(123456789123456789123456789n, 18, PRICE_1)).toEqual(
-      '123456789.12',
+      '123,456,789.12',
     )
     expect(formatUnits(123456789123456789123456789n, 18, PRICE_1_02)).toEqual(
-      '123456789.12',
+      '123,456,789.12',
     )
     expect(formatUnits(123456789123456789123456789n, 18, PRICE_0_98)).toEqual(
-      '123456789.12',
+      '123,456,789.12',
     )
 
     expect(formatUnits(1n, 18)).toEqual('0.000000000000000001')
@@ -25,9 +25,9 @@ describe('formatUnits', () => {
     expect(formatUnits(1n, 18, PRICE_0_98)).toEqual('0.000000000000000001')
 
     expect(formatUnits(123456123456n, 6)).toEqual('123456.123456')
-    expect(formatUnits(123456123456n, 6, PRICE_1)).toEqual('123456.12')
-    expect(formatUnits(123456123456n, 6, PRICE_1_02)).toEqual('123456.12')
-    expect(formatUnits(123456123456n, 6, PRICE_0_98)).toEqual('123456.12')
+    expect(formatUnits(123456123456n, 6, PRICE_1)).toEqual('123,456.12')
+    expect(formatUnits(123456123456n, 6, PRICE_1_02)).toEqual('123,456.12')
+    expect(formatUnits(123456123456n, 6, PRICE_0_98)).toEqual('123,456.12')
 
     expect(formatUnits(1n, 6)).toEqual('0.000001')
     expect(formatUnits(1n, 6, PRICE_1)).toEqual('0.000001')
@@ -82,13 +82,13 @@ describe('formatUnits', () => {
       '123456789.123456789123456789',
     )
     expect(formatUnits(123456789123456789123456789n, 18, PRICE_0_1)).toEqual(
-      '123456789',
+      '123,456,789',
     )
     expect(formatUnits(123456789123456789123456789n, 18, PRICE_0_01)).toEqual(
-      '123456789',
+      '123,456,789',
     )
     expect(formatUnits(123456789123456789123456789n, 18, PRICE_0_001)).toEqual(
-      '123456789',
+      '123,456,789',
     )
   })
 })

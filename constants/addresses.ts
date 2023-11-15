@@ -13,18 +13,18 @@ export const CONTRACT_ADDRESSES: {
 } = {
   [CHAIN_IDS.ARBITRUM]: {
     BondPositionManager:
-      '0x0000000000000000000000000000000000000000' as `0x${string}`,
+      '0x0Cf91Bc7a67B063142C029a69fF9C8ccd93476E2' as `0x${string}`,
     BorrowController:
-      '0x0000000000000000000000000000000000000000' as `0x${string}`,
+      '0x13055e05c713b15911cC2509B3C573478b0cd3E2' as `0x${string}`,
     CouponManager:
-      '0x0000000000000000000000000000000000000000' as `0x${string}`,
-    CouponOracle: '0x0000000000000000000000000000000000000000' as `0x${string}`,
+      '0x8bbcA766D175aDbffB073832262990df1c5ef748' as `0x${string}`,
+    CouponOracle: '0xF8e9ab02b057978c29Ca57c7E086D46983764A13' as `0x${string}`,
     DepositController:
-      '0x0000000000000000000000000000000000000000' as `0x${string}`,
+      '0x377d954cd4b29931b09d3943F070B28b968F034f' as `0x${string}`,
     LoanPositionManager:
-      '0x0000000000000000000000000000000000000000' as `0x${string}`,
+      '0x03d65411684ae7B5440E11a6063881a774C733dF' as `0x${string}`,
     OdosRepayAdapter:
-      '0x0000000000000000000000000000000000000000' as `0x${string}`,
+      '0xc8905F37a05B60981A9be741B7B1B6fe1AF60A3F' as `0x${string}`,
   },
   [CHAIN_IDS.COUPON_FINANCE_CHAIN]: {
     BondPositionManager:

@@ -12,6 +12,7 @@ import { getEpoch } from '../utils/epoch'
 import { SUBGRAPH_URL } from '../constants/subgraph-url'
 import { CHAIN_IDS } from '../constants/chain'
 import { currentTimestampInSeconds, formatDate } from '../utils/date'
+import { MAX_VISIBLE_MARKETS } from '../utils/market'
 const { getMarkets } = getBuiltGraphSDK()
 
 type DepthDto = {
@@ -89,6 +90,7 @@ export async function fetchDepositInfosByEpochsDeposited(
       isAddressEqual(market.quoteToken.address, substitute.address),
     )
     .sort((a, b) => Number(a.epoch) - Number(b.epoch))
+    .slice(0, MAX_VISIBLE_MARKETS)
 
   const currentTimestamp = currentTimestampInSeconds()
   return markets
@@ -123,6 +125,7 @@ export async function fetchBorrowApyByEpochsBorrowed(
       isAddressEqual(market.quoteToken.address, substitute.address),
     )
     .sort((a, b) => Number(a.epoch) - Number(b.epoch))
+    .slice(0, MAX_VISIBLE_MARKETS)
 
   const currentTimestamp = currentTimestampInSeconds()
   return markets
@@ -158,6 +161,7 @@ export async function fetchInterestOrRefundCouponAmountByEpochs(
       isAddressEqual(market.quoteToken.address, substitute.address),
     )
     .sort((a, b) => Number(a.epoch) - Number(b.epoch))
+    .slice(0, MAX_VISIBLE_MARKETS)
 
   return markets.map((market) => {
     const interest =

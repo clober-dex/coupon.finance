@@ -7,10 +7,11 @@ import {
 } from '../model/market'
 import { getEpoch } from '../utils/epoch'
 
-const ONE_ETH = 10n ** 9n
+const ONE_ETH = 1000000000n
 const market = new Market(
   zeroAddress,
   zeroAddress,
+  0n,
   0n,
   10n ** 9n,
   1,
@@ -33,7 +34,7 @@ const market = new Market(
   [],
   [],
 )
-const price = 10n ** 17n // 10%
+const price = 100000000000000000n // 10%
 
 describe('Deposit controller', () => {
   it('check deposit to 1 market', () => {
@@ -161,11 +162,11 @@ describe('Deposit controller', () => {
 
   it('check date util functions', () => {
     expect(getEpoch(1)).toEqual(0n)
-    expect(getEpoch(1688169601)).toEqual(107n)
-    expect(getEpoch(1704067198)).toEqual(107n)
-    expect(getEpoch(1704067201)).toEqual(108n)
-    expect(getEpoch(1719792001)).toEqual(109n)
-    expect(getEpoch(1735689601)).toEqual(110n)
+    expect(Number(getEpoch(1700019698))).toEqual(646)
+    expect(Number(getEpoch(1702470130))).toEqual(647)
+    expect(Number(getEpoch(1705290098))).toEqual(648)
+    expect(Number(getEpoch(1707968498))).toEqual(649)
+    expect(Number(getEpoch(1710474098))).toEqual(650)
   })
 
   it('check deposit apy', () => {
@@ -173,6 +174,7 @@ describe('Deposit controller', () => {
       new Market(
         zeroAddress,
         zeroAddress,
+        0n,
         0n,
         10n ** 9n,
         107,
@@ -204,6 +206,7 @@ describe('Deposit controller', () => {
       new Market(
         zeroAddress,
         zeroAddress,
+        0n,
         0n,
         10n ** 9n,
         108,
