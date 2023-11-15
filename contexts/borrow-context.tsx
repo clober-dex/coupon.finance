@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useRef } from 'react'
 import { Hash } from 'viem'
 import {
   useAccount,
@@ -93,20 +93,40 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
   const { calculateETHValue, prices } = useCurrencyContext()
-  const [pendingLoanPositions, setPendingLoanPositions] = React.useState<
+  const [pendingPositions, setPendingPositions] = React.useState<
     LoanPosition[]
   >([])
+  const previousConformationPositions = useRef<LoanPosition[] | undefined>(
+    undefined,
+  )
 
   const { data: positions } = useQuery(
-    ['loan-positions', userAddress, selectedChain, pendingLoanPositions],
-    () =>
-      userAddress
-        ? fetchLoanPositions(
-            selectedChain.id,
-            userAddress,
-            pendingLoanPositions,
-          )
-        : [],
+    ['loan-positions', userAddress, selectedChain, pendingPositions],
+    async () => {
+      if (!userAddress) {
+        return []
+      }
+      const conformationPositions = await fetchLoanPositions(
+        selectedChain.id,
+        userAddress,
+      )
+      // pending positions flush conditions:
+      // 1) pending positions are not empty
+      // 2) current conformation positions is updated compared to previous conformation positions
+      if (
+        pendingPositions.length > 0 &&
+        previousConformationPositions.current !== undefined &&
+        conformationPositions.length !==
+          previousConformationPositions.current.length
+      ) {
+        setPendingPositions([])
+        previousConformationPositions.current = conformationPositions
+        return conformationPositions
+      } else {
+        previousConformationPositions.current = conformationPositions
+        return [...conformationPositions, ...pendingPositions]
+      }
+    },
     {
       refetchIntervalInBackground: true,
       refetchInterval: 5 * 1000,
@@ -167,14 +187,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             },
           ],
         })
-        setPendingLoanPositions(
-          (prevState) =>
-            [
-              ...(pendingPosition ? [pendingPosition] : []),
-              ...prevState,
-            ] as LoanPosition[],
-        )
-        await queryClient.invalidateQueries(['loan-positions'])
         hash = await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
@@ -197,6 +209,14 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           value: calculateETHValue(collateral.underlying, collateralAmount),
           account: walletClient.account,
         })
+        previousConformationPositions.current = []
+        setPendingPositions(
+          (prevState) =>
+            [
+              ...(pendingPosition ? [pendingPosition] : []),
+              ...prevState,
+            ] as LoanPosition[],
+        )
         await queryClient.invalidateQueries(['loan-positions'])
       } catch (e) {
         console.error(e)

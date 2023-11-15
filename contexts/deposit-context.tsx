@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useRef } from 'react'
 import {
   useAccount,
   usePublicClient,
@@ -60,20 +60,39 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
   const { calculateETHValue, prices } = useCurrencyContext()
-  const [pendingBondPositions, setPendingBondPositions] = React.useState<
+  const [pendingPositions, setPendingPositions] = React.useState<
     BondPosition[]
   >([])
+  const previousConformationPositions = useRef<BondPosition[] | undefined>(
+    undefined,
+  )
 
   const { data: positions } = useQuery(
-    ['bond-positions', userAddress, selectedChain, pendingBondPositions],
-    () => {
-      return userAddress
-        ? fetchBondPositions(
-            selectedChain.id,
-            userAddress,
-            pendingBondPositions,
-          )
-        : []
+    ['bond-positions', userAddress, selectedChain, pendingPositions],
+    async () => {
+      if (!userAddress) {
+        return []
+      }
+      const conformationPositions = await fetchBondPositions(
+        selectedChain.id,
+        userAddress,
+      )
+      // pending positions flush conditions:
+      // 1) pending positions are not empty
+      // 2) current conformation positions is updated compared to previous conformation positions
+      if (
+        pendingPositions.length > 0 &&
+        previousConformationPositions.current !== undefined &&
+        conformationPositions.length !==
+          previousConformationPositions.current.length
+      ) {
+        setPendingPositions([])
+        previousConformationPositions.current = conformationPositions
+        return conformationPositions
+      } else {
+        previousConformationPositions.current = conformationPositions
+        return [...conformationPositions, ...pendingPositions]
+      }
     },
     {
       refetchIntervalInBackground: true,
@@ -122,14 +141,6 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
             },
           ],
         })
-        setPendingBondPositions(
-          (prevState) =>
-            [
-              ...(pendingPosition ? [pendingPosition] : []),
-              ...prevState,
-            ] as BondPosition[],
-        )
-        await queryClient.invalidateQueries(['bond-positions'])
         hash = await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
@@ -154,6 +165,14 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           value: calculateETHValue(asset.underlying, amount),
           account: walletClient.account,
         })
+        previousConformationPositions.current = []
+        setPendingPositions(
+          (prevState) =>
+            [
+              ...(pendingPosition ? [pendingPosition] : []),
+              ...prevState,
+            ] as BondPosition[],
+        )
         await queryClient.invalidateQueries(['bond-positions'])
       } catch (e) {
         console.error(e)
