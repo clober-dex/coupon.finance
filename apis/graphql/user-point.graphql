@@ -1,7 +1,7 @@
-#query getUserPoint($user: ID!) {
-#  userPoint(id: $user) {
-#    id
-#    point
-#    updatedAt
-#  }
-#}
+query getUserPoint($user: ID!) {
+  userPoint(id: $user) {
+    id
+    point
+    updatedAt
+  }
+}
