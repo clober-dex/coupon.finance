@@ -32,7 +32,7 @@ type DepositContext = {
     amount: bigint,
     epochs: number,
     expectedProceeds: bigint,
-    expectedPendingPosition?: BondPosition,
+    pendingPosition?: BondPosition,
   ) => Promise<Hash | undefined>
   withdraw: (
     asset: Currency,
@@ -88,7 +88,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       amount: bigint,
       epochs: number,
       expectedProceeds: bigint,
-      expectedPendingPosition?: BondPosition,
+      pendingPosition?: BondPosition,
     ): Promise<Hash | undefined> => {
       if (!walletClient) {
         // TODO: alert wallet connect
@@ -125,7 +125,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setPendingBondPositions(
           (prevState) =>
             [
-              ...(expectedPendingPosition ? [expectedPendingPosition] : []),
+              ...(pendingPosition ? [pendingPosition] : []),
               ...prevState,
             ] as BondPosition[],
         )

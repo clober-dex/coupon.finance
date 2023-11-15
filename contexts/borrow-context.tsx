@@ -35,7 +35,7 @@ type BorrowContext = {
     loanAmount: bigint,
     epochs: number,
     expectedInterest: bigint,
-    expectedPendingPosition?: LoanPosition,
+    pendingPosition?: LoanPosition,
   ) => Promise<Hash | undefined>
   extendLoanDuration: (
     underlying: Currency,
@@ -122,7 +122,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       loanAmount: bigint,
       epochs: number,
       expectedInterest: bigint,
-      expectedPendingPosition?: LoanPosition,
+      pendingPosition?: LoanPosition,
     ): Promise<Hash | undefined> => {
       if (!walletClient) {
         // TODO: alert wallet connect
@@ -170,7 +170,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setPendingLoanPositions(
           (prevState) =>
             [
-              ...(expectedPendingPosition ? [expectedPendingPosition] : []),
+              ...(pendingPosition ? [pendingPosition] : []),
               ...prevState,
             ] as LoanPosition[],
         )
