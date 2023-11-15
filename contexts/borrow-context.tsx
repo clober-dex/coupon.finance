@@ -35,6 +35,7 @@ type BorrowContext = {
     loanAmount: bigint,
     epochs: number,
     expectedInterest: bigint,
+    expectedPendingPosition?: LoanPosition,
   ) => Promise<Hash | undefined>
   extendLoanDuration: (
     underlying: Currency,
@@ -92,11 +93,20 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
   const { calculateETHValue, prices } = useCurrencyContext()
+  const [pendingLoanPositions, setPendingLoanPositions] = React.useState<
+    LoanPosition[]
+  >([])
 
   const { data: positions } = useQuery(
-    ['loan-positions', userAddress, selectedChain],
+    ['loan-positions', userAddress, selectedChain, pendingLoanPositions],
     () =>
-      userAddress ? fetchLoanPositions(selectedChain.id, userAddress) : [],
+      userAddress
+        ? fetchLoanPositions(
+            selectedChain.id,
+            userAddress,
+            pendingLoanPositions,
+          )
+        : [],
     {
       refetchIntervalInBackground: true,
       refetchInterval: 5 * 1000,
@@ -112,6 +122,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       loanAmount: bigint,
       epochs: number,
       expectedInterest: bigint,
+      expectedPendingPosition?: LoanPosition,
     ): Promise<Hash | undefined> => {
       if (!walletClient) {
         // TODO: alert wallet connect
@@ -156,6 +167,14 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             },
           ],
         })
+        setPendingLoanPositions(
+          (prevState) =>
+            [
+              ...(expectedPendingPosition ? [expectedPendingPosition] : []),
+              ...prevState,
+            ] as LoanPosition[],
+        )
+        await queryClient.invalidateQueries(['loan-positions'])
         hash = await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,

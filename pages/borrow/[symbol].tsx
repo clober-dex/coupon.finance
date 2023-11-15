@@ -19,6 +19,7 @@ import { MIN_DEBT_SIZE_IN_ETH } from '../../constants/debt'
 import { CHAIN_IDS } from '../../constants/chain'
 import { ethValue } from '../../utils/currency'
 import { CurrencyIcon } from '../../components/icon/currency-icon'
+import { currentTimestampInSeconds } from '../../utils/date'
 
 const Borrow = () => {
   const { selectedChain } = useChainContext()
@@ -92,7 +93,7 @@ const Borrow = () => {
     },
   )
 
-  const [apy, available, interest, maxInterest] = useMemo(
+  const [apy, available, interest, maxInterest, endTimestamp] = useMemo(
     () =>
       epochs &&
       interestsByEpochsBorrowed &&
@@ -102,8 +103,9 @@ const Borrow = () => {
             interestsByEpochsBorrowed[epochs - 1].available ?? 0n,
             interestsByEpochsBorrowed[epochs - 1].interest ?? 0n,
             interestsByEpochsBorrowed[epochs - 1].maxInterest ?? 0n,
+            interestsByEpochsBorrowed[epochs - 1].endTimestamp ?? 0,
           ]
-        : [0, 0n, 0n, 0n],
+        : [0, 0n, 0n, 0n, 0],
     [epochs, interestsByEpochsBorrowed],
   )
 
@@ -208,6 +210,29 @@ const Borrow = () => {
                       borrowAmount,
                       epochs,
                       min(interest, maxInterest),
+                      asset
+                        ? {
+                            id: -1n,
+                            substitute: asset.substitutes[0],
+                            underlying: asset.underlying,
+                            collateral,
+                            interest: min(interest, maxInterest),
+                            amount: borrowAmount,
+                            collateralAmount,
+                            fromEpoch: {
+                              id: -1,
+                              startTimestamp: -1,
+                              endTimestamp: -1,
+                            },
+                            toEpoch: {
+                              id: -1,
+                              startTimestamp: -1,
+                              endTimestamp,
+                            },
+                            createdAt: currentTimestampInSeconds(),
+                            isPending: true,
+                          }
+                        : undefined,
                     )
                     if (hash) {
                       await router.replace('/?mode=borrow')
