@@ -70,5 +70,6 @@ function toBondPosition(
       endTimestamp: Number(bondPosition.toEpoch.endTimestamp),
     },
     createdAt: Number(bondPosition.createdAt),
+    isPending: false,
   }
 }

@@ -13,4 +13,5 @@ export type LoanPosition = {
   fromEpoch: Epoch
   toEpoch: Epoch
   createdAt: number
+  isPending: boolean
 }

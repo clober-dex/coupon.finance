@@ -96,5 +96,6 @@ function toLoanPosition(
       endTimestamp: Number(loanPosition.toEpoch.endTimestamp),
     },
     createdAt: Number(loanPosition.createdAt),
+    isPending: false,
   }
 }
