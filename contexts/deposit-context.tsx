@@ -32,6 +32,7 @@ type DepositContext = {
     amount: bigint,
     epochs: number,
     expectedProceeds: bigint,
+    expectedPendingPosition?: BondPosition,
   ) => Promise<Hash | undefined>
   withdraw: (
     asset: Currency,
@@ -59,11 +60,21 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
   const { calculateETHValue, prices } = useCurrencyContext()
+  const [pendingBondPositions, setPendingBondPositions] = React.useState<
+    BondPosition[]
+  >([])
 
   const { data: positions } = useQuery(
-    ['bond-positions', userAddress, selectedChain],
-    () =>
-      userAddress ? fetchBondPositions(selectedChain.id, userAddress) : [],
+    ['bond-positions', userAddress, selectedChain, pendingBondPositions],
+    () => {
+      return userAddress
+        ? fetchBondPositions(
+            selectedChain.id,
+            userAddress,
+            pendingBondPositions,
+          )
+        : []
+    },
     {
       refetchIntervalInBackground: true,
       refetchInterval: 5 * 1000,
@@ -77,6 +88,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       amount: bigint,
       epochs: number,
       expectedProceeds: bigint,
+      expectedPendingPosition?: BondPosition,
     ): Promise<Hash | undefined> => {
       if (!walletClient) {
         // TODO: alert wallet connect
@@ -110,6 +122,14 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
             },
           ],
         })
+        setPendingBondPositions(
+          (prevState) =>
+            [
+              ...(expectedPendingPosition ? [expectedPendingPosition] : []),
+              ...prevState,
+            ] as BondPosition[],
+        )
+        await queryClient.invalidateQueries(['bond-positions'])
         hash = await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,

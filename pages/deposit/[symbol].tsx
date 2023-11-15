@@ -13,6 +13,7 @@ import BackSvg from '../../components/svg/back-svg'
 import { useChainContext } from '../../contexts/chain-context'
 import { RiskSidebar } from '../../components/bar/risk-sidebar'
 import { CurrencyIcon } from '../../components/icon/currency-icon'
+import { currentTimestampInSeconds } from '../../utils/date'
 
 const Deposit = () => {
   const { selectedChain } = useChainContext()
@@ -50,7 +51,7 @@ const Deposit = () => {
     },
   )
 
-  const [apy, proceed, remainingCoupons] = useMemo(() => {
+  const [apy, proceed, remainingCoupons, endTimestamp] = useMemo(() => {
     return epochs &&
       depositInfosByEpochsDeposited &&
       depositInfosByEpochsDeposited.length > 0
@@ -58,8 +59,9 @@ const Deposit = () => {
           depositInfosByEpochsDeposited[epochs - 1].apy ?? 0,
           depositInfosByEpochsDeposited[epochs - 1].proceeds ?? 0n,
           depositInfosByEpochsDeposited[epochs - 1].remainingCoupons ?? [],
+          depositInfosByEpochsDeposited[epochs - 1].endTimestamp,
         ]
-      : [0, 0n, []]
+      : [0, 0n, [], 0]
   }, [epochs, depositInfosByEpochsDeposited])
 
   return (
@@ -101,7 +103,33 @@ const Deposit = () => {
                   disabled:
                     amount === 0n || epochs === 0 || amount > maxDepositAmount,
                   onClick: async () => {
-                    const hash = await deposit(asset, amount, epochs, proceed)
+                    const hash = await deposit(
+                      asset,
+                      amount,
+                      epochs,
+                      proceed,
+                      asset
+                        ? {
+                            tokenId: -1n,
+                            substitute: asset.substitutes[0],
+                            underlying: asset.underlying,
+                            interest: proceed,
+                            amount: amount,
+                            fromEpoch: {
+                              id: -1,
+                              startTimestamp: -1,
+                              endTimestamp: -1,
+                            },
+                            toEpoch: {
+                              id: -1,
+                              startTimestamp: -1,
+                              endTimestamp,
+                            },
+                            createdAt: currentTimestampInSeconds(),
+                            isPending: true,
+                          }
+                        : undefined,
+                    )
                     if (hash) {
                       await router.replace('/?mode=deposit')
                     }
