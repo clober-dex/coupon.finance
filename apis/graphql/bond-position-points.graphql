@@ -1,12 +1,12 @@
-#query getBondPositionPoints($userAddress: String!) {
-#  bondPositionPoints(where: { user: $userAddress }) {
-#    id
-#    user
-#    amount
-#    decimals
-#    price
-#    priceDecimals
-#    accumulatedPoint
-#    updatedAt
-#  }
-#}
+query getBondPositionPoints($userAddress: String!) {
+  bondPositionPoints(where: { user: $userAddress }) {
+    id
+    user
+    amount
+    decimals
+    price
+    priceDecimals
+    accumulatedPoint
+    updatedAt
+  }
+}

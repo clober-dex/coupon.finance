@@ -3,10 +3,10 @@ sources:
     handler:
       graphql:
         endpoint: '{context.url:https://dev-subgraph.coupon.finance/subgraphs/name/coupon-subgraph-prod}'
-#  - name: coupon-finance-point
-#    handler:
-#      graphql:
-#        endpoint: '{context.url:https://api.studio.thegraph.com/query/49804/coupon-point-subgraph/v1}'
+  - name: coupon-finance-point
+    handler:
+      graphql:
+        endpoint: '{context.url:https://dev-subgraph.coupon.finance/subgraphs/name/coupon-point-subgraph-prod}'
 
 documents:
   - ./apis/**/*.graphql
