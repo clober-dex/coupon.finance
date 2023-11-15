@@ -18,24 +18,24 @@ const Line = ({ position }: { position: number }) => {
 
 const Slider = ({
   length,
-  leftPaddingPercentage = 0,
+  minPosition = 0,
   value,
   onValueChange,
   disabled,
   children,
 }: {
   length: number
-  leftPaddingPercentage?: number
+  minPosition?: number
   value: number
   onValueChange: (value: number) => void
   disabled?: boolean
 } & React.HTMLAttributes<HTMLDivElement> &
   React.PropsWithChildren) => {
-  leftPaddingPercentage = Math.min(100, leftPaddingPercentage)
+  minPosition = Math.min(100, minPosition)
   const sliderRef = useRef<HTMLDivElement | null>(null)
   const thumbRef = useRef<HTMLDivElement | null>(null)
   const diff = useRef<number>(0)
-  const unit = (100 - leftPaddingPercentage) / (length - 1)
+  const unit = (100 - minPosition) / (length - 1)
 
   const [position, _setPosition] = React.useState<number>(0)
   const setPosition = useCallback(
@@ -61,12 +61,10 @@ const Slider = ({
       if (newX > end) {
         newX = end
       }
-      const newPosition = Math.ceil(
-        (newX / end) * (100 - leftPaddingPercentage),
-      )
-      setPosition(Math.round(newPosition / unit) * unit + leftPaddingPercentage)
+      const newPosition = Math.ceil((newX / end) * (100 - minPosition))
+      setPosition(Math.round(newPosition / unit) * unit + minPosition)
     },
-    [disabled, leftPaddingPercentage, setPosition, unit],
+    [disabled, minPosition, setPosition, unit],
   )
 
   useEffect(() => {
@@ -77,8 +75,8 @@ const Slider = ({
 
   useEffect(() => {
     const newPosition = unit * (value - 1)
-    setPosition(Math.round(newPosition / unit) * unit + leftPaddingPercentage)
-  }, [leftPaddingPercentage, setPosition, unit, value])
+    setPosition(Math.round(newPosition / unit) * unit + minPosition)
+  }, [minPosition, setPosition, unit, value])
 
   useEffect(() => {
     if (disabled) {

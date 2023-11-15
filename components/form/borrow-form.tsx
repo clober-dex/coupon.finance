@@ -63,7 +63,7 @@ export const BorrowForm = ({
   const currentTimestamp = currentTimestampInSeconds()
   const leftMonthInSecond =
     getNextMonthStartTimestamp(currentTimestamp) - currentTimestamp
-  const leftPaddingPercentage =
+  const minPosition =
     (leftMonthInSecond /
       (leftMonthInSecond +
         SECONDS_IN_MONTH *
@@ -151,7 +151,7 @@ export const BorrowForm = ({
               <div className="sm:px-6 sm:mb-2 mr-4 sm:mr-0">
                 <div>
                   <Slider
-                    leftPaddingPercentage={leftPaddingPercentage}
+                    minPosition={minPosition}
                     length={interestsByEpochsBorrowed?.length ?? 0}
                     value={epochs}
                     onValueChange={setEpochs}

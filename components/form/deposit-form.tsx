@@ -46,7 +46,7 @@ export const DepositForm = ({
   const currentTimestamp = currentTimestampInSeconds()
   const leftMonthInSecond =
     getNextMonthStartTimestamp(currentTimestamp) - currentTimestamp
-  const leftPaddingPercentage =
+  const minPosition =
     (leftMonthInSecond /
       (leftMonthInSecond +
         SECONDS_IN_MONTH *
@@ -94,7 +94,7 @@ export const DepositForm = ({
                   <div>
                     <Slider
                       length={proceedsByEpochsDeposited?.length ?? 0}
-                      leftPaddingPercentage={leftPaddingPercentage}
+                      minPosition={minPosition}
                       value={epochs}
                       onValueChange={setEpochs}
                     >
