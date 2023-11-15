@@ -37,7 +37,7 @@ const EditExpiryModal = ({
   const currentTimestamp = currentTimestampInSeconds()
   const leftMonthInSecond =
     getNextMonthStartTimestamp(currentTimestamp) - currentTimestamp
-  const leftPaddingPercentage =
+  const minPosition =
     (leftMonthInSecond /
       (leftMonthInSecond +
         SECONDS_IN_MONTH * (dateList ? dateList.length : 1))) *
@@ -66,7 +66,7 @@ const EditExpiryModal = ({
               <div className="sm:px-6 sm:mb-2 my-8 sm:my-0">
                 <div>
                   <Slider
-                    leftPaddingPercentage={leftPaddingPercentage}
+                    minPosition={minPosition}
                     length={dateList?.length ?? 0}
                     value={epochs}
                     onValueChange={setEpochs}

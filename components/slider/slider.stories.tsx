@@ -27,7 +27,7 @@ type Story = StoryObj<typeof Slider>
 export const Default: Story = {
   args: {
     length: 4,
-    leftPaddingPercentage: 10,
+    minPosition: 10,
     children: (
       <div className="flex w-[96px] flex-col items-center gap-2 shrink-0">
         <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-white text-xs">
@@ -45,7 +45,7 @@ export const Default: Story = {
 export const ZeroPercentage: Story = {
   args: {
     length: 4,
-    leftPaddingPercentage: 0,
+    minPosition: 0,
     children: (
       <div className="flex w-[96px] flex-col items-center gap-2 shrink-0">
         <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-gray-100 text-gray-400 text-xs">
@@ -63,7 +63,7 @@ export const ZeroPercentage: Story = {
 export const SmallPercentage: Story = {
   args: {
     length: 4,
-    leftPaddingPercentage: 1,
+    minPosition: 1,
     children: (
       <div className="flex w-[96px] flex-col items-center gap-2 shrink-0">
         <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-gray-100 text-gray-400 text-xs">
