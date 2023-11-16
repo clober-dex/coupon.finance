@@ -103,17 +103,17 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       if (!userAddress) {
         return []
       }
-      const conformationPositions = await fetchLoanPositions(
+      const confirmationPositions = await fetchLoanPositions(
         selectedChain.id,
         userAddress,
       )
-      const latestConformationTimestamp =
-        conformationPositions.sort((a, b) => b.updatedAt - a.updatedAt).at(0)
+      const latestConfirmationTimestamp =
+        confirmationPositions.sort((a, b) => b.updatedAt - a.updatedAt).at(0)
           ?.updatedAt ?? 0
       return [
-        ...conformationPositions,
+        ...confirmationPositions,
         ...pendingPositions.filter(
-          (position) => position.updatedAt > latestConformationTimestamp,
+          (position) => position.updatedAt > latestConfirmationTimestamp,
         ),
       ]
     },
