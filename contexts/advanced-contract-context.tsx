@@ -7,6 +7,7 @@ import { formatUnits } from '../utils/numbers'
 import { writeContract } from '../utils/wallet'
 import { ISubstitute__factory, IWETH9__factory } from '../typechain'
 import { approve20 } from '../utils/approve20'
+import { toWrapETH } from '../utils/currency'
 
 import { useTransactionContext } from './transaction-context'
 import { useCurrencyContext } from './currency-context'
@@ -50,7 +51,7 @@ export const AdvancedContractProvider = ({
   children,
 }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient()
-  const { prices } = useCurrencyContext()
+  const { prices, calculateETHValue } = useCurrencyContext()
   const { selectedChain } = useChainContext()
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
@@ -187,13 +188,15 @@ export const AdvancedContractProvider = ({
       }
 
       try {
+        const ethValue = calculateETHValue(underlying, amount)
+        const permitAmount = amount - ethValue
         await approve20(
           selectedChain.id,
           walletClient,
           underlying,
           walletClient.account.address,
           substitute.address,
-          amount,
+          permitAmount,
         )
         setConfirmation({
           title: 'Minting Substitute',
@@ -201,11 +204,24 @@ export const AdvancedContractProvider = ({
           fields: [
             {
               direction: 'in',
-              currency: underlying,
-              label: underlying.symbol,
+              currency: toWrapETH(underlying),
+              label: toWrapETH(underlying).symbol,
               value: formatUnits(
-                amount,
+                permitAmount,
                 underlying.decimals,
+                prices[underlying.address],
+              ),
+            },
+            {
+              direction: 'in',
+              currency: {
+                address: zeroAddress,
+                ...selectedChain.nativeCurrency,
+              },
+              label: selectedChain.nativeCurrency.symbol,
+              value: formatUnits(
+                ethValue,
+                selectedChain.nativeCurrency.decimals,
                 prices[underlying.address],
               ),
             },
@@ -236,10 +252,12 @@ export const AdvancedContractProvider = ({
       }
     },
     [
+      calculateETHValue,
       prices,
       publicClient,
       queryClient,
       selectedChain.id,
+      selectedChain.nativeCurrency,
       setConfirmation,
       walletClient,
     ],

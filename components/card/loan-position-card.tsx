@@ -24,6 +24,7 @@ export const LoanPositionCard = ({
   onBorrowMore,
   onEditCollateral,
   onEditExpiry,
+  children,
 }: {
   position: LoanPosition
   price?: BigDecimal
@@ -181,6 +182,7 @@ export const LoanPositionCard = ({
               %
             </div>
           </div>
+          {children}
         </div>
         <div className="flex items-start gap-3 self-stretch">
           {!isExpired ? (

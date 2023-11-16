@@ -189,8 +189,9 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
     },
     [
       walletClient,
-      selectedChain.id,
       calculateETHValue,
+      selectedChain.id,
+      selectedChain.nativeCurrency,
       setConfirmation,
       prices,
       publicClient,
