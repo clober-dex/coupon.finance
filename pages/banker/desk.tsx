@@ -5,8 +5,10 @@ import { parseUnits } from 'viem'
 import { Currency } from '../../model/currency'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { SwapForm } from '../../components/form/swap-form'
+import { useAdvancedContractContext } from '../../contexts/advanced-contract-context'
 
 const Desk = () => {
+  const { mintSubstitute, burnSubstitute } = useAdvancedContractContext()
   const { assets, prices, balances, coupons } = useCurrencyContext()
   const [mode, _setMode] = useState<'substitute' | 'coupon'>('substitute')
   const [inputCurrency, setInputCurrency] = useState<Currency | undefined>(
@@ -137,7 +139,7 @@ const Desk = () => {
                   setShowOutputCurrencySelect={setShowOutputCurrencySelect}
                   outputCurrency={outputCurrency}
                   setOutputCurrency={setOutputCurrency}
-                  outputCurrencyAmount={''}
+                  outputCurrencyAmount={inputCurrencyAmount}
                   actionButtonProps={{
                     disabled:
                       buttonText === 'Cannot Convert' ||
@@ -146,7 +148,31 @@ const Desk = () => {
                         inputCurrencyAmount,
                         inputCurrency?.decimals ?? 18,
                       ) === 0n,
-                    onClick: async () => {},
+                    onClick: async () => {
+                      if (!inputCurrency || !outputCurrency) {
+                        return
+                      }
+
+                      if (buttonText === 'Burn Substitute') {
+                        await burnSubstitute(
+                          inputCurrency,
+                          outputCurrency,
+                          parseUnits(
+                            inputCurrencyAmount,
+                            inputCurrency?.decimals ?? 18,
+                          ),
+                        )
+                      } else if (buttonText === 'Mint Substitute') {
+                        await mintSubstitute(
+                          inputCurrency,
+                          outputCurrency,
+                          parseUnits(
+                            inputCurrencyAmount,
+                            inputCurrency?.decimals ?? 18,
+                          ),
+                        )
+                      }
+                    },
                     text: buttonText,
                   }}
                 />

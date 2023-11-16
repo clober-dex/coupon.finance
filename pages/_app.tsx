@@ -31,6 +31,7 @@ import { supportChains } from '../constants/chain'
 import { ChainProvider } from '../contexts/chain-context'
 import { Footer } from '../components/footer'
 import { CouponUserBalanceModal } from '../components/modal/coupon-user-balance-modal'
+import { AdvancedContractProvider } from '../contexts/advanced-contract-context'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -158,16 +159,18 @@ function MyApp({ Component, pageProps }: AppProps) {
                 <CurrencyProvider>
                   <DepositProvider>
                     <BorrowProvider>
-                      <div
-                        className={`${inter.className} flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white`}
-                      >
-                        <HeaderWrapper />
-                        <div className="mb-auto pt-12 md:pt-16">
-                          <Component {...pageProps} />
-                          <CouponWidgetWrapper />
+                      <AdvancedContractProvider>
+                        <div
+                          className={`${inter.className} flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white`}
+                        >
+                          <HeaderWrapper />
+                          <div className="mb-auto pt-12 md:pt-16">
+                            <Component {...pageProps} />
+                            <CouponWidgetWrapper />
+                          </div>
+                          <Footer />
                         </div>
-                        <Footer />
-                      </div>
+                      </AdvancedContractProvider>
                     </BorrowProvider>
                   </DepositProvider>
                 </CurrencyProvider>
