@@ -33,6 +33,25 @@ export const calculateLtv = (
       )
 }
 
+export const getLTVTextColor = (
+  ltv: number,
+  collateral: Collateral,
+): string => {
+  const liquidationThreshold =
+    (Number(collateral.liquidationThreshold) * 100) /
+    Number(collateral.ltvPrecision)
+  const liquidationTargetLtv =
+    (Number(collateral.liquidationTargetLtv) * 100) /
+    Number(collateral.ltvPrecision)
+
+  if (ltv >= liquidationThreshold - 0.5) {
+    return 'text-red-500'
+  } else if (liquidationThreshold - 0.5 > ltv && ltv > liquidationTargetLtv) {
+    return 'text-yellow-500'
+  }
+  return 'text-green-500'
+}
+
 export const calculateMaxLoanableAmount = (
   loanCurrency: Currency,
   loanAssetPrice: BigDecimal,

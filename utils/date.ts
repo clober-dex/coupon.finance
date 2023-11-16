@@ -10,12 +10,25 @@ export const formatDate = (date: Date): string =>
     .format(date.setDate(date.getDate() - 1))
     .replace(',', '')
 
+export const getExpirationDateTextColor = (
+  expirationDate: number,
+  now: number,
+): string => {
+  const daysLeft = getDaysBetweenDates(
+    new Date(now * 1000),
+    new Date(expirationDate * 1000),
+  )
+  if (daysLeft <= 3) {
+    return 'text-red-500'
+  }
+  return ''
+}
+
 export const currentTimestampInSeconds = (): number =>
   Math.floor(new Date().getTime() / 1000)
 
-// TODO: adjust deadline for permit20
-export const tomorrowTimestampInSeconds = (): bigint => {
-  return BigInt(Math.floor(new Date().getTime() / 1000 + 60 * 60 * 24))
+export const getDeadlineTimestampInSeconds = (): bigint => {
+  return BigInt(Math.floor(currentTimestampInSeconds() + 60 * 5))
 }
 
 export const getNextMonthStartTimestamp = (now: number): number => {

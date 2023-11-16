@@ -1,7 +1,6 @@
 import { isAddressEqual } from 'viem'
 import React from 'react'
 
-import CurrencySelect from '../selector/currency-select'
 import CurrencyAmountInput from '../input/currency-amount-input'
 import { formatUnits } from '../../utils/numbers'
 import { ActionButton, ActionButtonProps } from '../button/action-button'
@@ -17,6 +16,10 @@ import {
 } from '../../utils/date'
 import Slider from '../slider/slider'
 import { DotSvg } from '../svg/dot-svg'
+import { getLTVTextColor } from '../../utils/ltv'
+import DownSvg from '../svg/down-svg'
+import { CurrencyDropdown } from '../dropdown/currency-dropdown'
+import { CurrencyIcon } from '../icon/currency-icon'
 
 export const BorrowForm = ({
   borrowCurrency,
@@ -26,8 +29,6 @@ export const BorrowForm = ({
   borrowApy,
   borrowLTV,
   interestsByEpochsBorrowed,
-  showCollateralSelect,
-  setShowCollateralSelect,
   collateral,
   setCollateral,
   collateralValue,
@@ -47,8 +48,6 @@ export const BorrowForm = ({
   borrowApy: number
   borrowLTV: number
   interestsByEpochsBorrowed?: { date: string; apy: number }[]
-  showCollateralSelect: boolean
-  setShowCollateralSelect: (show: boolean) => void
   collateral?: Collateral
   setCollateral: (collateral?: Collateral) => void
   collateralValue: string
@@ -70,27 +69,7 @@ export const BorrowForm = ({
         SECONDS_IN_MONTH *
           (interestsByEpochsBorrowed ? interestsByEpochsBorrowed.length : 1))) *
     100
-  return showCollateralSelect ? (
-    <CurrencySelect
-      currencies={availableCollaterals
-        .filter(
-          ({ underlying }) =>
-            !isAddressEqual(underlying.address, borrowCurrency.address),
-        )
-        .map((collateral) => collateral.underlying)}
-      onBack={() => setShowCollateralSelect(false)}
-      onCurrencySelect={(currency) => {
-        setCollateral(
-          availableCollaterals.find(({ underlying }) => {
-            return isAddressEqual(underlying.address, currency.address)
-          }),
-        )
-        setShowCollateralSelect(false)
-      }}
-      prices={prices}
-      balances={balances}
-    />
-  ) : (
+  return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col bg-white gap-4 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 sm:pb-8 w-full sm:w-[480px]">
         <div className="flex flex-col gap-4">
@@ -107,9 +86,42 @@ export const BorrowForm = ({
             price={
               collateral ? prices[collateral?.underlying.address] : undefined
             }
-            onCurrencyClick={() => setShowCollateralSelect(true)}
             disabled={!collateral}
-          />
+          >
+            <CurrencyDropdown
+              selectedCurrency={collateral?.underlying}
+              currencies={
+                availableCollaterals.map(
+                  (collateral) => collateral.underlying,
+                ) ?? []
+              }
+              onCurrencySelect={(currency) => {
+                const collateral = availableCollaterals.find((collateral) =>
+                  isAddressEqual(
+                    collateral.underlying.address,
+                    currency.address,
+                  ),
+                )
+                setCollateral(collateral)
+              }}
+            >
+              {collateral ? (
+                <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
+                  <CurrencyIcon
+                    currency={collateral.underlying}
+                    className="w-5 h-5"
+                  />
+                  <div className="text-sm sm:text-base">
+                    {collateral.underlying.symbol}
+                  </div>
+                </div>
+              ) : (
+                <div className="w-fit flex items-center rounded-full bg-green-500 text-white pl-3 pr-2 py-1 gap-2 text-sm sm:text-base">
+                  Select token <DownSvg />
+                </div>
+              )}
+            </CurrencyDropdown>
+          </CurrencyAmountInput>
         </div>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">
@@ -199,7 +211,13 @@ export const BorrowForm = ({
             </div>
             <div className="flex w-full">
               <div className="text-gray-400 text-base">LTV</div>
-              <div className="ml-auto">{borrowLTV.toFixed(2)}%</div>
+              <div
+                className={`ml-auto ${
+                  collateral ? getLTVTextColor(borrowLTV, collateral) : ''
+                }`}
+              >
+                {borrowLTV.toFixed(2)}%
+              </div>
             </div>
             <div className="flex w-full">
               <div className="text-gray-400 text-base">Liquidation LTV</div>

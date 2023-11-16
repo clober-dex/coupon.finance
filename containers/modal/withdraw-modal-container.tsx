@@ -78,7 +78,8 @@ const WithdrawModalContainer = ({
   return position ? (
     <WithdrawModal
       depositCurrency={position.underlying}
-      depositAmount={position.amount}
+      depositedAmount={position.amount}
+      withdrawAmount={amount}
       onClose={onClose}
       value={value}
       setValue={setValue}

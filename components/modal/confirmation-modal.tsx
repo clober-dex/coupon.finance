@@ -1,10 +1,9 @@
 import React from 'react'
 import { createPortal } from 'react-dom'
-import Image from 'next/image'
 
 import { Confirmation } from '../../contexts/transaction-context'
-import { getLogo } from '../../model/currency'
 import { ZIndices } from '../../utils/z-indices'
+import { CurrencyIcon } from '../icon/currency-icon'
 
 const ConfirmationModal = ({
   confirmation,
@@ -37,25 +36,35 @@ const ConfirmationModal = ({
         </div>
         <div className="flex flex-col gap-2">
           {confirmation.fields.map((field, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between bg-white dark:bg-gray-700 px-3 py-2 text-sm sm:text-base rounded-lg"
-            >
-              <div className="flex items-center gap-2">
-                {field.currency ? (
-                  <div className="w-5 h-5 relative">
-                    <Image
-                      src={getLogo(field.currency)}
-                      alt={field.currency.name}
-                      fill
+            <div key={index} className="flex flex-row gap-1">
+              {field.direction === 'in' ? (
+                <div className="flex text-sm w-9 items-center justify-center bg-green-500 bg-opacity-10 font-bold text-green-500 px-6 rounded-lg">
+                  IN
+                </div>
+              ) : (
+                <></>
+              )}
+              {field.direction === 'out' ? (
+                <div className="flex text-sm w-9 items-center justify-center bg-red-500 bg-opacity-10 font-bold text-red-500 px-6 rounded-lg">
+                  OUT
+                </div>
+              ) : (
+                <></>
+              )}
+              <div className="flex w-full items-center justify-between bg-white dark:bg-gray-700 px-3 py-2 text-sm sm:text-base rounded-lg">
+                <div className="flex items-center gap-2">
+                  {field.currency ? (
+                    <CurrencyIcon
+                      currency={field.currency}
+                      className="w-5 h-5"
                     />
-                  </div>
-                ) : (
-                  <></>
-                )}
-                <div>{field.label}</div>
+                  ) : (
+                    <></>
+                  )}
+                  <div>{field.label}</div>
+                </div>
+                <div>{field.value}</div>
               </div>
-              <div>{field.value}</div>
             </div>
           ))}
         </div>

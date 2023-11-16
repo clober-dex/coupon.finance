@@ -20,7 +20,7 @@ import { Currency } from '../model/currency'
 import { permit721 } from '../utils/permit721'
 import { writeContract } from '../utils/wallet'
 import { CHAIN_IDS } from '../constants/chain'
-import { tomorrowTimestampInSeconds } from '../utils/date'
+import { getDeadlineTimestampInSeconds } from '../utils/date'
 
 import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -64,6 +64,7 @@ type BorrowContext = {
     mightBoughtDebtAmount: bigint,
     expectedProceeds: bigint,
     swapData: `0x${string}`,
+    refundAmountAfterSwap: bigint,
   ) => Promise<void>
   addCollateral: (position: LoanPosition, amount: bigint) => Promise<void>
   removeCollateral: (position: LoanPosition, amount: bigint) => Promise<void>
@@ -90,7 +91,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
-  const { calculateETHValue } = useCurrencyContext()
+  const { calculateETHValue, prices } = useCurrencyContext()
 
   const { data: positions } = useQuery(
     ['loan-positions', userAddress, selectedChain],
@@ -127,24 +128,31 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
           collateralAmount -
             calculateETHValue(collateral.underlying, collateralAmount),
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
         setConfirmation({
           title: `Borrowing ${loanAsset.underlying.symbol}`,
           body: 'Please confirm in your wallet.',
           fields: [
             {
+              direction: 'in',
               currency: collateral.underlying,
               label: collateral.underlying.symbol,
               value: formatUnits(
                 collateralAmount,
                 collateral.underlying.decimals,
+                prices[collateral.underlying.address],
               ),
             },
             {
+              direction: 'out',
               currency: loanAsset.underlying,
               label: loanAsset.underlying.symbol,
-              value: formatUnits(loanAmount, loanAsset.underlying.decimals),
+              value: formatUnits(
+                loanAmount,
+                loanAsset.underlying.decimals,
+                prices[loanAsset.underlying.address],
+              ),
             },
           ],
         })
@@ -180,12 +188,13 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       return hash
     },
     [
+      walletClient,
+      selectedChain.id,
+      calculateETHValue,
+      setConfirmation,
+      prices,
       publicClient,
       queryClient,
-      setConfirmation,
-      calculateETHValue,
-      walletClient,
-      selectedChain,
     ],
   )
 
@@ -208,7 +217,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           position.id,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
         const debtPermitResult = await permit20(
           selectedChain.id,
@@ -217,7 +226,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
           amount - calculateETHValue(position.underlying, amount),
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
 
         setConfirmation({
@@ -225,9 +234,14 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           body: 'Please confirm in your wallet.',
           fields: [
             {
+              direction: 'in',
               currency: position.underlying,
               label: position.underlying.symbol,
-              value: formatUnits(amount, position.underlying.decimals),
+              value: formatUnits(
+                amount,
+                position.underlying.decimals,
+                prices[position.underlying.address],
+              ),
             },
           ],
         })
@@ -264,12 +278,13 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
     },
     [
+      walletClient,
+      selectedChain.id,
+      calculateETHValue,
+      setConfirmation,
+      prices,
       publicClient,
       queryClient,
-      setConfirmation,
-      calculateETHValue,
-      walletClient,
-      selectedChain,
     ],
   )
 
@@ -280,6 +295,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       mightBoughtDebtAmount: bigint,
       expectedProceeds: bigint,
       swapData: `0x${string}`,
+      refundAmountAfterSwap: bigint,
     ): Promise<void> => {
       if (!walletClient) {
         // TODO: alert wallet connect
@@ -294,30 +310,48 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           position.id,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].OdosRepayAdapter,
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
 
+        const fields = [
+          {
+            currency: position.collateral.underlying,
+            label: `Use ${position.collateral.underlying.symbol}`,
+            value: formatUnits(
+              amount,
+              position.collateral.underlying.decimals,
+              prices[position.collateral.underlying.address],
+            ),
+          },
+          {
+            currency: position.underlying,
+            label: `Repay ${position.underlying.symbol}`,
+            value: formatUnits(
+              mightBoughtDebtAmount,
+              position.underlying.decimals,
+              prices[position.underlying.address],
+            ),
+          },
+        ]
         setConfirmation({
           title: `Repay with collateral ${position.underlying.symbol}`,
           body: 'Please confirm in your wallet.',
-          fields: [
-            {
-              currency: position.collateral.underlying,
-              label: position.collateral.underlying.symbol,
-              value: formatUnits(
-                amount,
-                position.collateral.underlying.decimals,
-              ),
-            },
-            {
-              currency: position.underlying,
-              label: position.underlying.symbol,
-              value: formatUnits(
-                mightBoughtDebtAmount,
-                position.underlying.decimals,
-              ),
-            },
-          ],
+          fields:
+            refundAmountAfterSwap > 0
+              ? [
+                  ...fields,
+                  {
+                    direction: 'out',
+                    currency: position.underlying,
+                    label: position.underlying.symbol,
+                    value: formatUnits(
+                      refundAmountAfterSwap,
+                      position.underlying.decimals,
+                      prices[position.underlying.address],
+                    ),
+                  },
+                ]
+              : fields,
         })
 
         await writeContract(publicClient, walletClient, {
@@ -342,7 +376,14 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [publicClient, queryClient, setConfirmation, walletClient, selectedChain],
+    [
+      walletClient,
+      selectedChain.id,
+      prices,
+      setConfirmation,
+      publicClient,
+      queryClient,
+    ],
   )
 
   const borrowMore = useCallback(
@@ -364,16 +405,21 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           position.id,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
         setConfirmation({
           title: `Borrowing more ${position.underlying.symbol}`,
           body: 'Please confirm in your wallet.',
           fields: [
             {
+              direction: 'out',
               currency: position.underlying,
               label: position.underlying.symbol,
-              value: formatUnits(amount, position.underlying.decimals),
+              value: formatUnits(
+                amount,
+                position.underlying.decimals,
+                prices[position.underlying.address],
+              ),
             },
           ],
         })
@@ -398,7 +444,14 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [publicClient, queryClient, setConfirmation, walletClient, selectedChain],
+    [
+      walletClient,
+      selectedChain.id,
+      setConfirmation,
+      prices,
+      publicClient,
+      queryClient,
+    ],
   )
 
   const extendLoanDuration = useCallback(
@@ -421,7 +474,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           positionId,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
 
         const debtPermitResult = await permit20(
@@ -431,7 +484,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
           expectedInterest - calculateETHValue(underlying, expectedInterest),
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
 
         setConfirmation({
@@ -439,9 +492,14 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           body: 'Please confirm in your wallet.',
           fields: [
             {
+              direction: 'in',
               currency: underlying,
               label: underlying.symbol,
-              value: formatUnits(expectedInterest, underlying.decimals),
+              value: formatUnits(
+                expectedInterest,
+                underlying.decimals,
+                prices[underlying.address],
+              ),
             },
           ],
         })
@@ -480,12 +538,13 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
     },
     [
+      walletClient,
+      selectedChain.id,
+      calculateETHValue,
+      setConfirmation,
+      prices,
       publicClient,
       queryClient,
-      setConfirmation,
-      calculateETHValue,
-      walletClient,
-      selectedChain,
     ],
   )
 
@@ -509,7 +568,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           positionId,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
 
         setConfirmation({
@@ -517,9 +576,14 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           body: 'Please confirm in your wallet.',
           fields: [
             {
+              direction: 'out',
               currency: underlying,
               label: underlying.symbol,
-              value: formatUnits(expectedProceeds, underlying.decimals),
+              value: formatUnits(
+                expectedProceeds,
+                underlying.decimals,
+                prices[underlying.address],
+              ),
             },
           ],
         })
@@ -539,7 +603,14 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [publicClient, queryClient, setConfirmation, walletClient, selectedChain],
+    [
+      walletClient,
+      selectedChain.id,
+      setConfirmation,
+      prices,
+      publicClient,
+      queryClient,
+    ],
   )
 
   const addCollateral = useCallback(
@@ -557,7 +628,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           position.id,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
         const debtPermitResult = await permit20(
           selectedChain.id,
@@ -566,7 +637,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
           amount - calculateETHValue(position.collateral.underlying, amount),
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
 
         setConfirmation({
@@ -574,11 +645,13 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           body: 'Please confirm in your wallet.',
           fields: [
             {
+              direction: 'in',
               currency: position.collateral.underlying,
               label: position.collateral.underlying.symbol,
               value: formatUnits(
                 amount,
                 position.collateral.underlying.decimals,
+                prices[position.collateral.underlying.address],
               ),
             },
           ],
@@ -616,12 +689,13 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
     },
     [
+      walletClient,
+      selectedChain.id,
+      calculateETHValue,
+      setConfirmation,
+      prices,
       publicClient,
       queryClient,
-      setConfirmation,
-      calculateETHValue,
-      walletClient,
-      selectedChain,
     ],
   )
 
@@ -640,7 +714,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           position.id,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          tomorrowTimestampInSeconds(),
+          getDeadlineTimestampInSeconds(),
         )
 
         setConfirmation({
@@ -648,11 +722,13 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           body: 'Please confirm in your wallet.',
           fields: [
             {
+              direction: 'out',
               currency: position.collateral.underlying,
               label: position.collateral.underlying.symbol,
               value: formatUnits(
                 amount,
                 position.collateral.underlying.decimals,
+                prices[position.collateral.underlying.address],
               ),
             },
           ],
@@ -673,7 +749,14 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [publicClient, queryClient, setConfirmation, walletClient, selectedChain],
+    [
+      walletClient,
+      selectedChain.id,
+      setConfirmation,
+      prices,
+      publicClient,
+      queryClient,
+    ],
   )
 
   return (

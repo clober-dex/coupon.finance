@@ -5,6 +5,8 @@ import Modal from '../../components/modal/modal'
 import { BigDecimal } from '../../utils/numbers'
 import { ActionButton, ActionButtonProps } from '../button/action-button'
 import { Collateral } from '../../model/collateral'
+import { ArrowSvg } from '../svg/arrow-svg'
+import { getLTVTextColor } from '../../utils/ltv'
 
 const EditCollateralModal = ({
   collateral,
@@ -15,6 +17,7 @@ const EditCollateralModal = ({
   setIsWithdrawCollateral,
   availableCollateralAmount,
   currentLtv,
+  expectedLtv,
   actionButtonProps,
   collateralPrice,
 }: {
@@ -26,6 +29,7 @@ const EditCollateralModal = ({
   setIsWithdrawCollateral: (value: boolean) => void
   availableCollateralAmount: bigint
   currentLtv: number
+  expectedLtv: number
   actionButtonProps: ActionButtonProps
   collateralPrice?: BigDecimal
 }) => {
@@ -58,8 +62,22 @@ const EditCollateralModal = ({
         />
       </div>
       <div className="flex text-sm gap-3 mb-8">
-        <span className="text-gray-500">LTV</span>
-        {currentLtv.toFixed(2)}%
+        <div className="text-gray-500">LTV</div>
+        <div className="flex items-center gap-1">
+          <span className={`${getLTVTextColor(currentLtv, collateral)}`}>
+            {currentLtv.toFixed(2)}%
+          </span>
+          {value ? (
+            <>
+              <ArrowSvg />
+              <span className={`${getLTVTextColor(expectedLtv, collateral)}`}>
+                {expectedLtv.toFixed(2)}%
+              </span>
+            </>
+          ) : (
+            <></>
+          )}
+        </div>
       </div>
       <ActionButton {...actionButtonProps} />
     </Modal>

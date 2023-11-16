@@ -2,10 +2,11 @@ import { createPublicClient, http, zeroAddress } from 'viem'
 
 import { Currency } from '../model/currency'
 import { CONTRACT_ADDRESSES } from '../constants/addresses'
-import { CouponOracle__factory } from '../typechain'
+import { CouponOracle__factory, IERC20__factory } from '../typechain'
 import { CHAIN_IDS, CHAINS } from '../constants/chain'
 import { Prices } from '../model/prices'
 import { isEtherAddress } from '../contexts/currency-context'
+import { Balances } from '../model/balances'
 
 import { fetchAssets } from './asset'
 
@@ -17,7 +18,9 @@ export async function fetchCurrencies(chainId: CHAIN_IDS) {
         (acc: Currency[], asset) => [
           ...acc,
           asset.underlying,
+          ...asset.substitutes.map((substitute) => substitute),
           ...asset.collaterals.map((collateral) => collateral.underlying),
+          ...asset.collaterals.map((collateral) => collateral.substitute),
         ],
         [],
       )
@@ -72,6 +75,35 @@ export async function fetchPrices(
       }
     } else {
       return newAcc
+    }
+  }, {})
+}
+
+export async function fetchBalances(
+  chainId: CHAIN_IDS,
+  userAddress: `0x${string}`,
+  currencyAddresses: `0x${string}`[],
+): Promise<Balances> {
+  const publicClient = createPublicClient({
+    chain: CHAINS[chainId as CHAIN_IDS],
+    transport: http(),
+  })
+  const etherBalance = await publicClient.getBalance({ address: userAddress })
+  const results = await publicClient.multicall({
+    contracts: currencyAddresses.map((currencyAddress) => ({
+      address: currencyAddress,
+      abi: IERC20__factory.abi,
+      functionName: 'balanceOf',
+      args: [userAddress],
+    })),
+  })
+  return results.reduce((acc, { result }, index) => {
+    const currencyAddress = currencyAddresses[index]
+    return {
+      ...acc,
+      [currencyAddress]: isEtherAddress(currencyAddress)
+        ? (result ?? 0n) + etherBalance
+        : result,
     }
   }, {})
 }

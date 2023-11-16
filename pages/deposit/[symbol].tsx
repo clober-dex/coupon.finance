@@ -4,16 +4,15 @@ import { useRouter } from 'next/router'
 import { parseUnits } from 'viem'
 import { useQuery } from 'wagmi'
 import Link from 'next/link'
-import Image from 'next/image'
 
 import { useDepositContext } from '../../contexts/deposit-context'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { fetchDepositInfosByEpochsDeposited } from '../../apis/market'
 import { DepositForm } from '../../components/form/deposit-form'
 import BackSvg from '../../components/svg/back-svg'
-import { getLogo } from '../../model/currency'
 import { useChainContext } from '../../contexts/chain-context'
 import { RiskSidebar } from '../../components/bar/risk-sidebar'
+import { CurrencyIcon } from '../../components/icon/currency-icon'
 
 const Deposit = () => {
   const { selectedChain } = useChainContext()
@@ -79,13 +78,10 @@ const Deposit = () => {
               <BackSvg className="w-4 h-4 sm:w-8 sm:h-8" />
               Deposit
               <div className="flex items-center gap-2">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 relative">
-                  <Image
-                    src={getLogo(asset.underlying)}
-                    alt={asset.underlying.name}
-                    fill
-                  />
-                </div>
+                <CurrencyIcon
+                  currency={asset.underlying}
+                  className="w-6 h-6 sm:w-8 sm:h-8"
+                />
                 <div>{asset.underlying.symbol}</div>
               </div>
             </Link>
@@ -117,7 +113,14 @@ const Deposit = () => {
                 }}
                 depositAssetPrice={prices[asset.underlying.address]}
               />
-              <RiskSidebar asset={asset} prices={prices} />
+              <RiskSidebar
+                chainExplorer={
+                  selectedChain.blockExplorers?.default.url ??
+                  'https://arbiscan.io'
+                }
+                asset={asset}
+                prices={prices}
+              />
             </div>
           </div>
         </main>

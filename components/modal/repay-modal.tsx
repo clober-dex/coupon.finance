@@ -2,7 +2,7 @@ import React from 'react'
 
 import { BigDecimal, formatUnits } from '../../utils/numbers'
 import CurrencyAmountInput from '../input/currency-amount-input'
-import { Arrow } from '../svg/arrow'
+import { ArrowSvg } from '../svg/arrow-svg'
 import SwapSvg from '../svg/swap-svg'
 import SlippageSelect from '../selector/slippage-select'
 import Modal from '../../components/modal/modal'
@@ -10,6 +10,7 @@ import { max } from '../../utils/bigint'
 import { ActionButton, ActionButtonProps } from '../button/action-button'
 import { Currency } from '../../model/currency'
 import { Collateral } from '../../model/collateral'
+import { getLTVTextColor } from '../../utils/ltv'
 
 const RepayModal = ({
   debtCurrency,
@@ -25,6 +26,7 @@ const RepayModal = ({
   slippage,
   setSlippage,
   repayAmount,
+  dust,
   maxRepayableAmount,
   currentLtv,
   expectedLtv,
@@ -46,6 +48,7 @@ const RepayModal = ({
   slippage: string
   setSlippage: React.Dispatch<React.SetStateAction<string>>
   repayAmount: bigint
+  dust: bigint
   maxRepayableAmount: bigint
   currentLtv: number
   expectedLtv: number
@@ -143,7 +146,7 @@ const RepayModal = ({
             </span>
             {value ? (
               <>
-                <Arrow />
+                <ArrowSvg />
                 <span className="text-green-500">
                   {formatUnits(
                     max(remainingDebt - repayAmount, 0n),
@@ -161,11 +164,13 @@ const RepayModal = ({
         <div className="flex gap-3 justify-between sm:justify-start">
           <div className="text-gray-500">LTV</div>
           <div className="flex items-center gap-1">
-            <span className="text-green-500">{currentLtv.toFixed(2)}%</span>
+            <span className={`${getLTVTextColor(currentLtv, collateral)}`}>
+              {currentLtv.toFixed(2)}%
+            </span>
             {value ? (
               <>
-                <Arrow />
-                <span className="text-green-500">
+                <ArrowSvg />
+                <span className={`${getLTVTextColor(expectedLtv, collateral)}`}>
                   {expectedLtv.toFixed(2)}%
                 </span>
               </>
@@ -174,6 +179,17 @@ const RepayModal = ({
             )}
           </div>
         </div>
+        {dust > 0n ? (
+          <div className="flex gap-3 justify-between sm:justify-start">
+            <div className="text-gray-500">Dust</div>
+            <div className="flex items-center gap-1">
+              {formatUnits(dust, debtCurrency.decimals, debtAssetPrice)}{' '}
+              {debtCurrency.symbol}
+            </div>
+          </div>
+        ) : (
+          <></>
+        )}
       </div>
       <ActionButton {...actionButtonProps} />
     </Modal>

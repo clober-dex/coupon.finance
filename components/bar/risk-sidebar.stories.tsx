@@ -22,6 +22,7 @@ export default {
 type Story = StoryObj<typeof RiskSidebar>
 export const Default: Story = {
   args: {
+    chainExplorer: 'https://arbiscan.io',
     asset: {
       underlying: {
         address: '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f',

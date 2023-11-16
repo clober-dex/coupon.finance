@@ -1,11 +1,8 @@
 import React, { useState } from 'react'
-import Link from 'next/link'
-import { getAddress } from 'viem'
-import BigNumber from 'bignumber.js'
 import { createPortal } from 'react-dom'
 
 import { Currency } from '../../model/currency'
-import { formatUnits } from '../../utils/numbers'
+import { formatUnits, toPlacesString } from '../../utils/numbers'
 import { CouponSvg } from '../svg/coupon-svg'
 import { RightBracketAngleSvg } from '../svg/right-bracket-angle-svg'
 import { ZIndices } from '../../utils/z-indices'
@@ -31,10 +28,8 @@ const CouponWidget = ({
 )
 
 export const CouponUserBalanceModal = ({
-  chainId,
   coupons,
 }: {
-  chainId: number
   coupons: {
     date: string
     balance: bigint
@@ -69,28 +64,24 @@ export const CouponUserBalanceModal = ({
                           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 flex-grow shrink-0 basis-0 text-sm">
                             <div className="text-black dark:text-white">
                               +
-                              {new BigNumber(
+                              {toPlacesString(
                                 formatUnits(
                                   coupon.balance,
                                   coupon.coupon.decimals,
                                 ),
-                              ).toFixed(4)}{' '}
+                              )}{' '}
                               {coupon.coupon.symbol}
                             </div>
                             <div className="text-gray-500 dark:text-gray-300">
                               ({coupon.date})
                             </div>
                           </div>
-                          <Link
-                            target="_blank"
-                            href={`https://app.clober.io/limit?chain=${chainId}&market=${getAddress(
-                              coupon.marketAddress,
-                            )}`}
-                          >
-                            <div className="flex items-center gap-1 text-sm text-green-500">
-                              Market <RightBracketAngleSvg />
+                          <button disabled={true} className="group">
+                            <div className="flex items-center gap-1 text-sm text-green-500 group-disabled:text-gray-500">
+                              Sell{' '}
+                              <RightBracketAngleSvg className="stroke-green-500 group-disabled:stroke-gray-500" />
                             </div>
-                          </Link>
+                          </button>
                         </div>
                       </div>
                     ))}

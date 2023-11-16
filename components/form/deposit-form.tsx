@@ -1,5 +1,5 @@
 import CountUp from 'react-countup'
-import React from 'react'
+import React, { useCallback } from 'react'
 import { Tooltip } from 'react-tooltip'
 
 import { Currency } from '../../model/currency'
@@ -43,6 +43,16 @@ export const DepositForm = ({
   actionButtonProps: ActionButtonProps
   depositAssetPrice?: BigDecimal
 }) => {
+  const countUpFormatter = useCallback(
+    (value: number) =>
+      `${formatUnits(
+        BigInt(value),
+        depositCurrency.decimals,
+        depositAssetPrice,
+      )} ${depositCurrency.symbol}`,
+    [depositAssetPrice, depositCurrency.decimals, depositCurrency.symbol],
+  )
+
   const currentTimestamp = currentTimestampInSeconds()
   const leftMonthInSecond =
     getNextMonthStartTimestamp(currentTimestamp) - currentTimestamp
@@ -53,7 +63,7 @@ export const DepositForm = ({
           (proceedsByEpochsDeposited ? proceedsByEpochsDeposited.length : 1))) *
     100
   return (
-    <div className="relative z-10">
+    <div className="relative">
       <div className="flex flex-col gap-4">
         <div className="flex flex-col bg-white gap-4 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 sm:pb-4 w-full sm:w-[480px]">
           <div className="flex flex-col gap-4">
@@ -137,13 +147,7 @@ export const DepositForm = ({
                   <CountUp
                     end={Number(proceed)}
                     suffix={` ${depositCurrency.symbol}`}
-                    formattingFn={(value) =>
-                      `${formatUnits(
-                        BigInt(value),
-                        depositCurrency.decimals,
-                        depositAssetPrice,
-                      )} ${depositCurrency.symbol}`
-                    }
+                    formattingFn={countUpFormatter}
                     preserveValue
                   />
                 </div>

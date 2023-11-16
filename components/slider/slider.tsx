@@ -47,7 +47,6 @@ const Slider = ({
             return
           }
           const containerWidth = ref.current.getBoundingClientRect().width
-
           let value =
             startValue.current + (info.offset.x / containerWidth) * 100
           value = Math.min(value, 100)

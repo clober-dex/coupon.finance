@@ -4,7 +4,7 @@ import { isAddressEqual } from 'viem'
 
 import { useBorrowContext } from '../contexts/borrow-context'
 import { AssetStatus } from '../model/asset'
-import { dollarValue } from '../utils/numbers'
+import { dollarValue, toDollarString } from '../utils/numbers'
 import { Epoch } from '../model/epoch'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { LoanPosition } from '../model/loan-position'
@@ -25,6 +25,7 @@ const BorrowContainer = ({
   assetStatuses: AssetStatus[]
   epochs: Epoch[]
 }) => {
+  const { removeCollateral } = useBorrowContext()
   const { prices } = useCurrencyContext()
   const { positions } = useBorrowContext()
   const [repayPosition, setRepayPosition] = useState<LoanPosition | null>(null)
@@ -58,9 +59,8 @@ const BorrowContainer = ({
             <div className="flex justify-between gap-3">
               <div className="text-gray-500">Total Borrow Amount</div>
               <div className="font-bold">
-                $
-                {positions
-                  .reduce(
+                {toDollarString(
+                  positions.reduce(
                     (acc, { underlying, amount }) =>
                       dollarValue(
                         amount,
@@ -68,16 +68,15 @@ const BorrowContainer = ({
                         prices[underlying.address],
                       ).plus(acc),
                     new BigNumber(0),
-                  )
-                  .toFixed(2)}
+                  ),
+                )}
               </div>
             </div>
             <div className="flex justify-between gap-3">
               <div className="text-gray-500">Total Collateral</div>
               <div className="font-bold">
-                $
-                {positions
-                  .reduce(
+                {toDollarString(
+                  positions.reduce(
                     (acc, { collateral, collateralAmount }) =>
                       dollarValue(
                         collateralAmount,
@@ -85,8 +84,8 @@ const BorrowContainer = ({
                         prices[collateral.underlying.address],
                       ).plus(acc),
                     new BigNumber(0),
-                  )
-                  .toFixed(2)}
+                  ),
+                )}
               </div>
             </div>
           </div>
@@ -106,6 +105,9 @@ const BorrowContainer = ({
                     prices[position.collateral.underlying.address]
                   }
                   onRepay={() => setRepayPosition(position)}
+                  onCollect={async () => {
+                    await removeCollateral(position, position.collateralAmount)
+                  }}
                   onBorrowMore={() => setBorrowMorePosition(position)}
                   onEditCollateral={() => setEditCollateralPosition(position)}
                   onEditExpiry={() => setEditExpiryPosition(position)}
@@ -126,12 +128,18 @@ const BorrowContainer = ({
               .filter((assetStatus) => assetStatus.epoch.id === epoch.id)
               .filter((assetStatus) => assetStatus.totalBorrowAvailable !== 0n)
               .map((assetStatus, index) => {
-                const assetStatusesByAsset = assetStatuses.filter(({ asset }) =>
-                  isAddressEqual(
-                    asset.underlying.address,
-                    assetStatus.asset.underlying.address,
-                  ),
-                )
+                const assetStatusesByAsset = assetStatuses
+                  .filter(({ asset }) =>
+                    isAddressEqual(
+                      asset.underlying.address,
+                      assetStatus.asset.underlying.address,
+                    ),
+                  )
+                  .filter(
+                    ({ epoch }) =>
+                      Number(epoch.endTimestamp) > currentTimestamp,
+                  )
+                  .slice(0, 4)
                 return (
                   <BorrowCard
                     currency={assetStatus.asset.underlying}

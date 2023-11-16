@@ -9,5 +9,8 @@ export function getLogo(currency?: Currency): string {
   if (!currency) {
     return ''
   }
-  return `https://assets.odos.xyz/tokens/${currency.symbol.toUpperCase()}.webp`
+  return `https://assets.odos.xyz/tokens/${currency.symbol
+    .toUpperCase()
+    .replace('WST', 'wst')
+    .replace('USDC.E', 'USDC')}.webp`
 }

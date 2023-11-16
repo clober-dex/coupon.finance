@@ -6,7 +6,7 @@ import { useDepositContext } from '../contexts/deposit-context'
 import { AssetStatus } from '../model/asset'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { BondPosition } from '../model/bond-position'
-import { dollarValue } from '../utils/numbers'
+import { dollarValue, toDollarString } from '../utils/numbers'
 import { Epoch } from '../model/epoch'
 import { BondPositionCard } from '../components/card/bond-position-card'
 import { DepositCard } from '../components/card/deposit-card'
@@ -53,9 +53,8 @@ const DepositContainer = ({
                 Total Deposit
               </div>
               <div className="font-bold">
-                $
-                {positions
-                  .reduce(
+                {toDollarString(
+                  positions.reduce(
                     (acc, { underlying, amount }) =>
                       dollarValue(
                         amount,
@@ -63,8 +62,8 @@ const DepositContainer = ({
                         prices[underlying.address],
                       ).plus(acc),
                     new BigNumber(0),
-                  )
-                  .toFixed(2)}
+                  ),
+                )}
               </div>
             </div>
             <div className="flex justify-between gap-3">
@@ -72,9 +71,8 @@ const DepositContainer = ({
                 Total Earned
               </div>
               <div className="font-bold">
-                $
-                {positions
-                  .reduce(
+                {toDollarString(
+                  positions.reduce(
                     (acc, { underlying, interest }) =>
                       dollarValue(
                         interest,
@@ -82,8 +80,8 @@ const DepositContainer = ({
                         prices[underlying.address],
                       ).plus(acc),
                     new BigNumber(0),
-                  )
-                  .toFixed(2)}
+                  ),
+                )}
               </div>
             </div>
           </div>
@@ -124,14 +122,19 @@ const DepositContainer = ({
           <div className="flex flex-1 flex-col w-full h-full sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 mb-8 justify-center">
             {assetStatuses
               .filter((assetStatus) => assetStatus.epoch.id === epoch.id)
-              .filter((assetStatus) => assetStatus.totalDepositAvailable !== 0n)
               .map((assetStatus, index) => {
-                const assetStatusesByAsset = assetStatuses.filter(({ asset }) =>
-                  isAddressEqual(
-                    asset.underlying.address,
-                    assetStatus.asset.underlying.address,
-                  ),
-                )
+                const assetStatusesByAsset = assetStatuses
+                  .filter(({ asset }) =>
+                    isAddressEqual(
+                      asset.underlying.address,
+                      assetStatus.asset.underlying.address,
+                    ),
+                  )
+                  .filter(
+                    ({ epoch }) =>
+                      Number(epoch.endTimestamp) > currentTimestamp,
+                  )
+                  .slice(0, 4)
                 return (
                   <DepositCard
                     currency={assetStatus.asset.underlying}

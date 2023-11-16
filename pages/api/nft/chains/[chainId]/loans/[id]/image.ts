@@ -1,11 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
+import { formatDate } from '@storybook/blocks'
 
-import { fetchPrices } from '../../../../../apis/currency'
-import { formatUnits } from '../../../../../utils/numbers'
-import { calculateLtv } from '../../../../../utils/ltv'
-import { fetchLoanPosition } from '../../../../../apis/loan-position'
-import loanSvg from '../loan-svg'
-import { formatDate } from '../../../../../utils/date'
+import { fetchLoanPosition } from '../../../../../../../apis/loan-position'
+import { fetchPrices } from '../../../../../../../apis/currency'
+import { calculateLtv } from '../../../../../../../utils/ltv'
+import { formatUnits } from '../../../../../../../utils/numbers'
+
+import loanSvg from './loan-svg'
 
 export default async function handler(
   req: NextApiRequest,
@@ -13,23 +14,20 @@ export default async function handler(
 ) {
   try {
     const query = req.query
-    const { positionId, chainId } = query
+    const { id, chainId } = query
     if (
-      !positionId ||
+      !id ||
       !chainId ||
-      typeof positionId !== 'string' ||
+      typeof id !== 'string' ||
       typeof chainId !== 'string'
     ) {
       res.json({
         status: 'error',
-        message: 'URL should be /api/nft/bond/[positionId]?chainId=[chainId]',
+        message: 'URL should be /api/nft/bond/[id]?chainId=[chainId]',
       })
       return
     }
-    const loanPosition = await fetchLoanPosition(
-      Number(chainId),
-      BigInt(positionId),
-    )
+    const loanPosition = await fetchLoanPosition(Number(chainId), BigInt(id))
     if (!loanPosition) {
       res.json({
         status: 'error',

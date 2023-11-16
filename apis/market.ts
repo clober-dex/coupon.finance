@@ -12,6 +12,7 @@ import { getEpoch } from '../utils/epoch'
 import { SUBGRAPH_URL } from '../constants/subgraph-url'
 import { CHAIN_IDS } from '../constants/chain'
 import { currentTimestampInSeconds, formatDate } from '../utils/date'
+import { MAX_VISIBLE_MARKETS } from '../utils/market'
 const { getMarkets } = getBuiltGraphSDK()
 
 type DepthDto = {
@@ -23,6 +24,7 @@ type DepthDto = {
 export type MarketDto = {
   address: string
   orderToken: string
+  couponId: string
   takerFee: string
   quoteUnit: string
   epoch: {
@@ -47,6 +49,7 @@ export async function fetchMarkets(chainId: CHAIN_IDS): Promise<Market[]> {
     Market.fromDto({
       address: getAddress(market.id),
       orderToken: getAddress(market.orderToken),
+      couponId: market.couponId,
       takerFee: market.takerFee,
       quoteUnit: market.quoteUnit,
       epoch: {
@@ -87,6 +90,7 @@ export async function fetchDepositInfosByEpochsDeposited(
       isAddressEqual(market.quoteToken.address, substitute.address),
     )
     .sort((a, b) => Number(a.epoch) - Number(b.epoch))
+    .slice(0, MAX_VISIBLE_MARKETS)
 
   const currentTimestamp = currentTimestampInSeconds()
   return markets
@@ -121,6 +125,7 @@ export async function fetchBorrowApyByEpochsBorrowed(
       isAddressEqual(market.quoteToken.address, substitute.address),
     )
     .sort((a, b) => Number(a.epoch) - Number(b.epoch))
+    .slice(0, MAX_VISIBLE_MARKETS)
 
   const currentTimestamp = currentTimestampInSeconds()
   return markets
@@ -145,7 +150,7 @@ export async function fetchBorrowApyByEpochsBorrowed(
     })
 }
 
-export async function fetchCouponAmountByEpochsBorrowed(
+export async function fetchInterestOrRefundCouponAmountByEpochs(
   chainId: CHAIN_IDS,
   substitute: Currency,
   debtAmount: bigint,
@@ -156,6 +161,7 @@ export async function fetchCouponAmountByEpochsBorrowed(
       isAddressEqual(market.quoteToken.address, substitute.address),
     )
     .sort((a, b) => Number(a.epoch) - Number(b.epoch))
+    .slice(0, MAX_VISIBLE_MARKETS)
 
   return markets.map((market) => {
     const interest =
