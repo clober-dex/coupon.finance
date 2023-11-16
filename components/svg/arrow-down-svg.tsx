@@ -14,13 +14,13 @@ export const ArrowDownSvg = (props: SVGProps<SVGSVGElement>) => (
       strokeWidth="2.5"
       strokeLinecap="square"
       strokeLinejoin="round"
-      className="stroke-gray-950"
+      className="stroke-gray-950 dark:stroke-white"
     />
     <path
       d="M5.25 13.5L12 20.25L18.75 13.5"
       strokeWidth="2.5"
       strokeLinecap="square"
-      className="stroke-gray-950"
+      className="stroke-gray-950 dark:stroke-white"
     />
   </svg>
 )
