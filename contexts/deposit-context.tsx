@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback } from 'react'
 import {
   useAccount,
   usePublicClient,
@@ -63,9 +63,6 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const [pendingPositions, setPendingPositions] = React.useState<
     BondPosition[]
   >([])
-  const previousConformationPositions = useRef<BondPosition[] | undefined>(
-    undefined,
-  )
 
   const { data: positions } = useQuery(
     ['bond-positions', userAddress, selectedChain, pendingPositions],
@@ -77,22 +74,15 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         selectedChain.id,
         userAddress,
       )
-      // pending positions flush conditions:
-      // 1) pending positions are not empty
-      // 2) current conformation positions is updated compared to previous conformation positions
-      if (
-        pendingPositions.length > 0 &&
-        previousConformationPositions.current !== undefined &&
-        conformationPositions.length !==
-          previousConformationPositions.current.length
-      ) {
-        setPendingPositions([])
-        previousConformationPositions.current = conformationPositions
-        return conformationPositions
-      } else {
-        previousConformationPositions.current = conformationPositions
-        return [...conformationPositions, ...pendingPositions]
-      }
+      const latestConformationTimestamp =
+        conformationPositions.sort((a, b) => b.updatedAt - a.updatedAt).at(0)
+          ?.updatedAt ?? 0
+      return [
+        ...conformationPositions,
+        ...pendingPositions.filter(
+          (position) => position.updatedAt > latestConformationTimestamp,
+        ),
+      ]
     },
     {
       refetchIntervalInBackground: true,
