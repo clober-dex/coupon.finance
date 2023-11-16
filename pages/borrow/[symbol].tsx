@@ -19,6 +19,7 @@ import { MIN_DEBT_SIZE_IN_ETH } from '../../constants/debt'
 import { CHAIN_IDS } from '../../constants/chain'
 import { ethValue } from '../../utils/currency'
 import { CurrencyIcon } from '../../components/icon/currency-icon'
+import { buildPendingPosition } from '../../model/loan-position'
 
 const Borrow = () => {
   const { selectedChain } = useChainContext()
@@ -212,28 +213,16 @@ const Borrow = () => {
                       epochs,
                       min(interest, maxInterest),
                       asset
-                        ? {
-                            id: -1n,
-                            substitute: asset.substitutes[0],
-                            underlying: asset.underlying,
+                        ? buildPendingPosition(
+                            asset.substitutes[0],
+                            asset.underlying,
                             collateral,
-                            interest: min(interest, maxInterest),
-                            amount: borrowAmount,
+                            min(interest, maxInterest),
+                            borrowAmount,
                             collateralAmount,
-                            fromEpoch: {
-                              id: -1,
-                              startTimestamp: -1,
-                              endTimestamp: -1,
-                            },
-                            toEpoch: {
-                              id: -1,
-                              startTimestamp: -1,
-                              endTimestamp,
-                            },
-                            createdAt: Number(timestamp),
-                            updatedAt: Number(timestamp),
-                            isPending: true,
-                          }
+                            endTimestamp,
+                            Number(timestamp),
+                          )
                         : undefined,
                     )
                     if (hash) {

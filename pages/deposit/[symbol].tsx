@@ -13,6 +13,7 @@ import BackSvg from '../../components/svg/back-svg'
 import { useChainContext } from '../../contexts/chain-context'
 import { RiskSidebar } from '../../components/bar/risk-sidebar'
 import { CurrencyIcon } from '../../components/icon/currency-icon'
+import { buildPendingPosition } from '../../model/bond-position'
 
 const Deposit = () => {
   const { selectedChain } = useChainContext()
@@ -110,26 +111,14 @@ const Deposit = () => {
                       epochs,
                       proceed,
                       asset
-                        ? {
-                            tokenId: -1n,
-                            substitute: asset.substitutes[0],
-                            underlying: asset.underlying,
-                            interest: proceed,
-                            amount: amount,
-                            fromEpoch: {
-                              id: -1,
-                              startTimestamp: -1,
-                              endTimestamp: -1,
-                            },
-                            toEpoch: {
-                              id: -1,
-                              startTimestamp: -1,
-                              endTimestamp,
-                            },
-                            createdAt: Number(timestamp),
-                            updatedAt: Number(timestamp),
-                            isPending: true,
-                          }
+                        ? buildPendingPosition(
+                            asset.substitutes[0],
+                            asset.underlying,
+                            proceed,
+                            amount,
+                            endTimestamp,
+                            Number(timestamp),
+                          )
                         : undefined,
                     )
                     if (hash) {

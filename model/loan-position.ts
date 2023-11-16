@@ -16,3 +16,37 @@ export type LoanPosition = {
   updatedAt: number
   isPending: boolean
 }
+
+export const buildPendingPosition = (
+  substitute: Currency,
+  underlying: Currency,
+  collateral: Collateral,
+  interest: bigint,
+  amount: bigint,
+  collateralAmount: bigint,
+  endTimestamp: number,
+  currentTimestamp: number,
+) => {
+  return {
+    id: -1n,
+    substitute,
+    underlying,
+    collateral,
+    interest,
+    amount,
+    collateralAmount,
+    fromEpoch: {
+      id: -1,
+      startTimestamp: -1,
+      endTimestamp: -1,
+    },
+    toEpoch: {
+      id: -1,
+      startTimestamp: -1,
+      endTimestamp,
+    },
+    createdAt: currentTimestamp,
+    updatedAt: currentTimestamp,
+    isPending: true,
+  } as LoanPosition
+}
