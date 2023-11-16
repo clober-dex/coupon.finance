@@ -1,5 +1,6 @@
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import Head from 'next/head'
+import { isAddressEqual } from 'viem'
 
 import { Currency } from '../../model/currency'
 import { useCurrencyContext } from '../../contexts/currency-context'
@@ -18,9 +19,6 @@ const Desk = () => {
   const [outputCurrency, setOutputCurrency] = useState<Currency | undefined>(
     undefined,
   )
-  const [showInputCurrencySelect, setShowInputCurrencySelect] = useState(false)
-  const [showOutputCurrencySelect, setShowOutputCurrencySelect] =
-    useState(false)
 
   const currencies = useMemo(() => {
     return [
@@ -29,12 +27,9 @@ const Desk = () => {
             ...assets.map((asset) => asset.underlying),
             ...assets.map((asset) => asset.substitutes).flat(),
           ]
-        : [
-            ...assets.map((asset) => asset.underlying),
-            ...coupons.map(({ coupon }) => coupon),
-          ]),
+        : assets.map((asset) => asset.underlying)),
     ]
-  }, [assets, coupons, mode])
+  }, [assets, mode])
 
   const setMode = useCallback((mode: 'substitute' | 'coupon') => {
     _setMode(mode)
@@ -91,6 +86,25 @@ const Desk = () => {
     return 'Cannot Convert'
   }, [assets, coupons, inputCurrency, mode, outputCurrency])
 
+  useEffect(() => {
+    if (mode === 'substitute' && inputCurrency) {
+      setOutputCurrency(
+        currencies
+          .filter(
+            (currency) =>
+              !isAddressEqual(currency.address, inputCurrency.address),
+          )
+          .find((currency) => currency.symbol.includes(inputCurrency.symbol)) ||
+          currencies
+            .filter(
+              (currency) =>
+                !isAddressEqual(currency.address, inputCurrency.address),
+            )
+            .find((currency) => inputCurrency.symbol.includes(currency.symbol)),
+      )
+    }
+  }, [currencies, inputCurrency, inputCurrency?.address, mode])
+
   return (
     <div className="flex flex-1">
       <Head>
@@ -127,15 +141,7 @@ const Desk = () => {
               <div className="flex flex-col rounded-2xl p-6 sm:w-[528px] lg:w-[480px]">
                 <SwapForm
                   currencies={currencies}
-                  balances={coupons.reduce((acc, { coupon, balance }) => {
-                    return {
-                      ...acc,
-                      [coupon.address]: balance,
-                    }
-                  }, balances)}
                   prices={prices}
-                  showInputCurrencySelect={showInputCurrencySelect}
-                  setShowInputCurrencySelect={setShowInputCurrencySelect}
                   inputCurrency={inputCurrency}
                   setInputCurrency={setInputCurrency}
                   inputCurrencyAmount={inputCurrencyAmount}
@@ -143,8 +149,6 @@ const Desk = () => {
                   availableInputCurrencyBalance={
                     inputCurrency ? balances[inputCurrency.address] ?? 0n : 0n
                   }
-                  showOutputCurrencySelect={showOutputCurrencySelect}
-                  setShowOutputCurrencySelect={setShowOutputCurrencySelect}
                   outputCurrency={outputCurrency}
                   setOutputCurrency={setOutputCurrency}
                   outputCurrencyAmount={inputCurrencyAmount}
