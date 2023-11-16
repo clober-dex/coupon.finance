@@ -18,7 +18,9 @@ export async function fetchCurrencies(chainId: CHAIN_IDS) {
         (acc: Currency[], asset) => [
           ...acc,
           asset.underlying,
+          ...asset.substitutes.map((substitute) => substitute),
           ...asset.collaterals.map((collateral) => collateral.underlying),
+          ...asset.collaterals.map((collateral) => collateral.substitute),
         ],
         [],
       )
