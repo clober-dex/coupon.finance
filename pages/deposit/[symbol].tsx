@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { parseUnits } from 'viem'
 import { usePublicClient, useQuery } from 'wagmi'
 import Link from 'next/link'
 
@@ -14,6 +13,7 @@ import { useChainContext } from '../../contexts/chain-context'
 import { RiskSidebar } from '../../components/bar/risk-sidebar'
 import { CurrencyIcon } from '../../components/icon/currency-icon'
 import { buildPendingPosition } from '../../model/bond-position'
+import { parseUnits } from '../../utils/numbers'
 
 const Deposit = () => {
   const { selectedChain } = useChainContext()

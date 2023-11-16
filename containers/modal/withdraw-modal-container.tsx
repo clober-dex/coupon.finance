@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { isAddressEqual, parseUnits } from 'viem'
+import { isAddressEqual } from 'viem'
 import { useQuery } from 'wagmi'
 
 import { BondPosition } from '../../model/bond-position'
@@ -10,6 +10,7 @@ import { calculateCouponsToWithdraw } from '../../model/market'
 import WithdrawModal from '../../components/modal/withdraw-modal'
 import { min } from '../../utils/bigint'
 import { useChainContext } from '../../contexts/chain-context'
+import { parseUnits } from '../../utils/numbers'
 
 const WithdrawModalContainer = ({
   position,

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { useQuery } from 'wagmi'
-import { isAddressEqual, parseUnits } from 'viem'
+import { isAddressEqual } from 'viem'
 
 import { LoanPosition } from '../../model/loan-position'
 import { useCurrencyContext } from '../../contexts/currency-context'
@@ -11,6 +11,7 @@ import { useBorrowContext } from '../../contexts/borrow-context'
 import BorrowMoreModal from '../../components/modal/borrow-more-modal'
 import { calculateLtv, calculateMaxLoanableAmount } from '../../utils/ltv'
 import { useChainContext } from '../../contexts/chain-context'
+import { parseUnits } from '../../utils/numbers'
 
 const BorrowMoreModalContainer = ({
   position,

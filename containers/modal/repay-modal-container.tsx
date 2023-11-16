@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { useAccount, useFeeData, useQuery } from 'wagmi'
-import { isAddressEqual, parseUnits, zeroAddress } from 'viem'
+import { isAddressEqual, zeroAddress } from 'viem'
 import BigNumber from 'bignumber.js'
 
 import { LoanPosition } from '../../model/loan-position'
@@ -16,6 +16,7 @@ import { MIN_DEBT_SIZE_IN_ETH } from '../../constants/debt'
 import { CHAIN_IDS } from '../../constants/chain'
 import { ethValue } from '../../utils/currency'
 import { useChainContext } from '../../contexts/chain-context'
+import { parseUnits } from '../../utils/numbers'
 
 const RepayModalContainer = ({
   position,
