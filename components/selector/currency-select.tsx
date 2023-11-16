@@ -104,7 +104,7 @@ const CurrencySelect = ({
                   <div className="text-xs text-gray-500">{currency.name}</div>
                 </div>
               </div>
-              <div className="flex-1 text-sm text-end text-white">
+              <div className="flex-1 text-sm text-end">
                 <div>
                   {formatUnits(
                     balances[currency.address] ?? 0n,
