@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { parseUnits, zeroAddress } from 'viem'
-import { useQuery } from 'wagmi'
+import { usePublicClient, useQuery } from 'wagmi'
 import Link from 'next/link'
 import BigNumber from 'bignumber.js'
 
@@ -19,10 +19,10 @@ import { MIN_DEBT_SIZE_IN_ETH } from '../../constants/debt'
 import { CHAIN_IDS } from '../../constants/chain'
 import { ethValue } from '../../utils/currency'
 import { CurrencyIcon } from '../../components/icon/currency-icon'
-import { currentTimestampInSeconds } from '../../utils/date'
 
 const Borrow = () => {
   const { selectedChain } = useChainContext()
+  const publicClient = usePublicClient()
   const { balances, prices, assets } = useCurrencyContext()
   const { borrow } = useBorrowContext()
 
@@ -203,7 +203,7 @@ const Borrow = () => {
                     if (!collateral) {
                       return
                     }
-                    const now = currentTimestampInSeconds()
+                    const { timestamp } = await publicClient.getBlock()
                     const hash = await borrow(
                       collateral,
                       collateralAmount,
@@ -230,8 +230,8 @@ const Borrow = () => {
                               startTimestamp: -1,
                               endTimestamp,
                             },
-                            createdAt: now,
-                            updatedAt: now,
+                            createdAt: Number(timestamp),
+                            updatedAt: Number(timestamp),
                             isPending: true,
                           }
                         : undefined,

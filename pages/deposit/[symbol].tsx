@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import { parseUnits } from 'viem'
-import { useQuery } from 'wagmi'
+import { usePublicClient, useQuery } from 'wagmi'
 import Link from 'next/link'
 
 import { useDepositContext } from '../../contexts/deposit-context'
@@ -13,10 +13,10 @@ import BackSvg from '../../components/svg/back-svg'
 import { useChainContext } from '../../contexts/chain-context'
 import { RiskSidebar } from '../../components/bar/risk-sidebar'
 import { CurrencyIcon } from '../../components/icon/currency-icon'
-import { currentTimestampInSeconds } from '../../utils/date'
 
 const Deposit = () => {
   const { selectedChain } = useChainContext()
+  const publicClient = usePublicClient()
   const { balances, prices, assets } = useCurrencyContext()
   const { deposit } = useDepositContext()
 
@@ -103,7 +103,7 @@ const Deposit = () => {
                   disabled:
                     amount === 0n || epochs === 0 || amount > maxDepositAmount,
                   onClick: async () => {
-                    const now = currentTimestampInSeconds()
+                    const { timestamp } = await publicClient.getBlock()
                     const hash = await deposit(
                       asset,
                       amount,
@@ -126,8 +126,8 @@ const Deposit = () => {
                               startTimestamp: -1,
                               endTimestamp,
                             },
-                            createdAt: now,
-                            updatedAt: now,
+                            createdAt: Number(timestamp),
+                            updatedAt: Number(timestamp),
                             isPending: true,
                           }
                         : undefined,
