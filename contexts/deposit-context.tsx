@@ -106,8 +106,8 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
       let hash: Hash | undefined
       try {
-        const permitAmount =
-          amount - calculateETHValue(asset.underlying, amount)
+        const ethValue = calculateETHValue(asset.underlying, amount)
+        const permitAmount = amount - ethValue
         const { deadline, r, s, v } = await permit20(
           selectedChain.id,
           walletClient,
@@ -153,7 +153,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
               },
             },
           ],
-          value: calculateETHValue(asset.underlying, amount),
+          value: ethValue,
           account: walletClient.account,
         })
         setPendingPositions(

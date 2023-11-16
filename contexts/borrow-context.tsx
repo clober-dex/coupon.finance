@@ -141,9 +141,11 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
       let hash: Hash | undefined
       try {
-        const permitAmount =
-          collateralAmount -
-          calculateETHValue(collateral.underlying, collateralAmount)
+        const ethValue = calculateETHValue(
+          collateral.underlying,
+          collateralAmount,
+        )
+        const permitAmount = collateralAmount - ethValue
         const { deadline, r, s, v } = await permit20(
           selectedChain.id,
           walletClient,
@@ -196,7 +198,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               signature: { deadline, v, r, s },
             },
           ],
-          value: calculateETHValue(collateral.underlying, collateralAmount),
+          value: ethValue,
           account: walletClient.account,
         })
         setPendingPositions(
@@ -248,8 +250,8 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
           getDeadlineTimestampInSeconds(),
         )
-        const permitAmount =
-          amount - calculateETHValue(position.underlying, amount)
+        const ethValue = calculateETHValue(position.underlying, amount)
+        const permitAmount = amount - ethValue
         const debtPermitResult = await permit20(
           selectedChain.id,
           walletClient,
@@ -296,7 +298,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               },
             },
           ],
-          value: calculateETHValue(position.underlying, amount),
+          value: ethValue,
           account: walletClient.account,
         })
         await queryClient.invalidateQueries(['loan-positions'])
@@ -507,8 +509,8 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           getDeadlineTimestampInSeconds(),
         )
 
-        const permitAmount =
-          expectedInterest - calculateETHValue(underlying, expectedInterest)
+        const ethValue = calculateETHValue(underlying, expectedInterest)
+        const permitAmount = expectedInterest - ethValue
         const debtPermitResult = await permit20(
           selectedChain.id,
           walletClient,
@@ -556,7 +558,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               },
             },
           ],
-          value: calculateETHValue(underlying, expectedInterest),
+          value: ethValue,
           account: walletClient.account,
         })
         await queryClient.invalidateQueries(['loan-positions'])
@@ -661,8 +663,11 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           getDeadlineTimestampInSeconds(),
         )
 
-        const permitAmount =
-          amount - calculateETHValue(position.collateral.underlying, amount)
+        const ethValue = calculateETHValue(
+          position.collateral.underlying,
+          amount,
+        )
+        const permitAmount = amount - ethValue
         const debtPermitResult = await permit20(
           selectedChain.id,
           walletClient,
@@ -708,7 +713,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               },
             },
           ],
-          value: calculateETHValue(position.collateral.underlying, amount),
+          value: ethValue,
           account: walletClient.account,
         })
         await queryClient.invalidateQueries(['loan-positions'])
