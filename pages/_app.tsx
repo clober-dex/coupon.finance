@@ -122,34 +122,6 @@ function MyApp({ Component, pageProps }: AppProps) {
       <Head>
         <title>Coupon Finance</title>
         <link href="/favicon.svg" rel="icon" />
-        <meta
-          content="Lending, Fixed. Flexible fixed-rate lending protocol enabled by fully on-chain order books."
-          name="description"
-        />
-        {/* <!-- Facebook Meta Tags --> */}
-        <meta property="og:url" content="https://www.coupon.finance/" />
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content="Coupon Finance" />
-        <meta
-          property="og:description"
-          content="Lending, Fixed. Flexible fixed-rate lending enabled by fully on-chain order books."
-        />
-        <meta
-          property="og:image"
-          content="https://www.coupon.finance/card.png"
-        />
-        {/* <!-- Twitter Meta Tags --> */}
-        <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:site" content="@CouponFinance" />
-        <meta property="twitter:title" content="Coupon Finance" />
-        <meta
-          property="twitter:description"
-          content="Lending, Fixed. Flexible fixed-rate lending enabled by fully on-chain order books."
-        />
-        <meta
-          property="twitter:image"
-          content="https://www.coupon.finance/card.png"
-        />
       </Head>
       <ThemeProvider>
         <WalletProvider>
