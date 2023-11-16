@@ -1,13 +1,14 @@
-import React, { useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import Head from 'next/head'
+import { parseUnits } from 'viem'
 
 import { Currency } from '../../model/currency'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { SwapForm } from '../../components/form/swap-form'
 
 const Desk = () => {
-  const { prices, balances } = useCurrencyContext()
-  const [mode, setMode] = useState<'substitute' | 'coupon'>('substitute')
+  const { assets, prices, balances, coupons } = useCurrencyContext()
+  const [mode, _setMode] = useState<'substitute' | 'coupon'>('substitute')
   const [inputCurrency, setInputCurrency] = useState<Currency | undefined>(
     undefined,
   )
@@ -19,9 +20,68 @@ const Desk = () => {
   const [showOutputCurrencySelect, setShowOutputCurrencySelect] =
     useState(false)
 
-  // fetch coupon balances
+  const currencies = useMemo(() => {
+    return mode === 'substitute'
+      ? [
+          ...assets.map((asset) => asset.underlying),
+          ...assets.map((asset) => asset.substitutes).flat(),
+        ]
+      : [
+          ...assets.map((asset) => asset.underlying),
+          ...coupons.map(({ coupon }) => coupon),
+        ]
+  }, [assets, coupons, mode])
 
-  // fetch substitute balances
+  const setMode = useCallback((mode: 'substitute' | 'coupon') => {
+    _setMode(mode)
+    setInputCurrency(undefined)
+    setInputCurrencyAmount('')
+    setOutputCurrency(undefined)
+  }, [])
+
+  const buttonText = useMemo(() => {
+    if (!inputCurrency || !outputCurrency) {
+      return 'Select Token'
+    }
+    const underlyingAddresses = assets
+      .map((asset) => asset.underlying)
+      .map((currency) => currency.address)
+    if (mode === 'substitute') {
+      const substituteAddresses = assets
+        .map((asset) => asset.substitutes)
+        .flat()
+        .map((currency) => currency.address)
+      if (
+        substituteAddresses.includes(inputCurrency.address) &&
+        underlyingAddresses.includes(outputCurrency.address) &&
+        inputCurrency.symbol.includes(outputCurrency.symbol)
+      ) {
+        return 'Burn Substitute'
+      } else if (
+        underlyingAddresses.includes(inputCurrency.address) &&
+        substituteAddresses.includes(outputCurrency.address) &&
+        outputCurrency.symbol.includes(inputCurrency.symbol)
+      ) {
+        return 'Mint Substitute'
+      }
+    } else if (mode === 'coupon') {
+      const couponAddresses = coupons.map(({ coupon }) => coupon.address)
+      if (
+        couponAddresses.includes(inputCurrency.address) &&
+        underlyingAddresses.includes(outputCurrency.address) &&
+        inputCurrency.symbol.includes(outputCurrency.symbol)
+      ) {
+        return 'Burn Coupon'
+      } else if (
+        underlyingAddresses.includes(inputCurrency.address) &&
+        couponAddresses.includes(outputCurrency.address) &&
+        outputCurrency.symbol.includes(inputCurrency.symbol)
+      ) {
+        return 'Mint Coupon'
+      }
+    }
+    return 'Cannot Convert'
+  }, [assets, coupons, inputCurrency, mode, outputCurrency])
 
   return (
     <div className="flex flex-1">
@@ -58,8 +118,13 @@ const Desk = () => {
             <div className="flex flex-col w-full lg:flex-row gap-4">
               <div className="flex flex-col rounded-2xl p-6 sm:w-[528px] lg:w-[480px]">
                 <SwapForm
-                  currencies={[]}
-                  balances={balances}
+                  currencies={currencies}
+                  balances={coupons.reduce((acc, { coupon, balance }) => {
+                    return {
+                      ...acc,
+                      [coupon.address]: balance,
+                    }
+                  }, balances)}
                   prices={prices}
                   showInputCurrencySelect={showInputCurrencySelect}
                   setShowInputCurrencySelect={setShowInputCurrencySelect}
@@ -74,12 +139,15 @@ const Desk = () => {
                   setOutputCurrency={setOutputCurrency}
                   outputCurrencyAmount={''}
                   actionButtonProps={{
-                    disabled: true,
+                    disabled:
+                      buttonText === 'Cannot Convert' ||
+                      buttonText === 'Select Token' ||
+                      parseUnits(
+                        inputCurrencyAmount,
+                        inputCurrency?.decimals ?? 18,
+                      ) === 0n,
                     onClick: async () => {},
-                    text:
-                      mode === 'substitute'
-                        ? 'Convert Substitute'
-                        : 'Convert Coupon',
+                    text: buttonText,
                   }}
                 />
               </div>
