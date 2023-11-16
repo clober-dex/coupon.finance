@@ -107,11 +107,8 @@ const CouponUtilsForm = ({
         </div>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">
-            <div className="font-bold text-sm sm:text-lg">
-              How long you’d like to secure your deposit?
-            </div>
             <div className="text-gray-500 text-xs sm:text-sm">
-              You can exit your position anytime before expiry.
+              Select the number of days you want to deposit
             </div>
           </div>
           <div className="flex justify-between flex-col relative bg-white dark:bg-gray-900 rounded-lg p-4 pb-8 sm:pb-0 sm:h-[90px]">
@@ -134,7 +131,7 @@ const CouponUtilsForm = ({
                       </div>
                       <DotSvg />
                       <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-green-500 bg-opacity-10 text-xs text-green-500 font-bold">
-                        + 0.00
+                        {dates[epochs - 1]}
                       </div>
                     </div>
                   </Slider>
@@ -153,7 +150,7 @@ const CouponUtilsForm = ({
 
 const Desk = () => {
   const { selectedChain } = useChainContext()
-  const { positions } = useDepositContext()
+  const { positions, collect } = useDepositContext()
   const { mintSubstitute, burnSubstitute } = useAdvancedContractContext()
   const { assets, prices, balances, coupons } = useCurrencyContext()
   const [mode, _setMode] = useState<'substitute' | 'coupon'>('substitute')
@@ -288,7 +285,7 @@ const Desk = () => {
         </h1>
 
         <div className="flex w-full flex-col items-center gap-4 sm:gap-6 p-4 pb-0">
-          <div className="relative flex gap-4 mt-14">
+          <div className="relative flex gap-4 mt-8">
             <button
               className="disabled:text-gray-950 disabled:dark:text-white font-bold pb-1 border-b-2 border-solid disabled:border-b-gray-950 disabled:dark:border-b-white w-24 text-gray-400 dark:text-gray-500 border-b-transparent dark:border-b-transparent"
               onClick={() => {
@@ -308,9 +305,9 @@ const Desk = () => {
               Coupon
             </button>
           </div>
-          <div className="flex flex-col w-fit">
+          <div className="flex flex-col w-fit bg-white dark:bg-gray-900 rounded-lg">
             <div className="flex flex-col w-full lg:flex-row gap-4">
-              <div className="flex flex-col rounded-2xl p-6 pb-0 sm:w-[528px] lg:w-[480px]">
+              <div className="flex flex-col rounded-2xl p-10 sm:w-[528px] lg:w-[480px]">
                 {mode === 'substitute' ? (
                   <SwapForm
                     currencies={currencies}
@@ -397,8 +394,16 @@ const Desk = () => {
                         key={index}
                         position={position}
                         price={prices[position.underlying.address]}
-                        onWithdraw={() => {}}
-                        onCollect={() => {}}
+                        onWithdraw={() => {
+                          console.log('withdraw', position.tokenId)
+                        }}
+                        onCollect={async () => {
+                          await collect(
+                            position.underlying,
+                            position.tokenId,
+                            position.amount,
+                          )
+                        }}
                       />
                     ))}
                 </div>
