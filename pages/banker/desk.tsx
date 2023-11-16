@@ -1,12 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import Head from 'next/head'
 import { isAddressEqual } from 'viem'
+import { useQuery } from 'wagmi'
 
 import { Currency } from '../../model/currency'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { SwapForm } from '../../components/form/swap-form'
 import { useAdvancedContractContext } from '../../contexts/advanced-contract-context'
-import { BigDecimal, parseUnits } from '../../utils/numbers'
+import {
+  BigDecimal,
+  formatUnits,
+  parseUnits,
+  toPlacesString,
+} from '../../utils/numbers'
 import CurrencyAmountInput from '../../components/input/currency-amount-input'
 import Slider from '../../components/slider/slider'
 import {
@@ -172,7 +178,6 @@ const Desk = () => {
     undefined,
   )
   const [epochs, setEpochs] = useState(1)
-  const [dates, setDates] = useState<string[]>([])
 
   const currencies = useMemo(() => {
     return [
@@ -191,9 +196,17 @@ const Desk = () => {
     setInputCurrencyAmount('')
     setOutputCurrency(undefined)
   }, [])
-  const inputAmount = useMemo(
-    () => parseUnits(inputCurrencyAmount, inputCurrency?.decimals ?? 18),
-    [inputCurrency?.decimals, inputCurrencyAmount],
+
+  const [inputAmount, substitute] = useMemo(
+    () => [
+      parseUnits(inputCurrencyAmount, inputCurrency?.decimals ?? 18),
+      inputCurrency
+        ? assets.find((asset) =>
+            isAddressEqual(asset.underlying.address, inputCurrency.address),
+          )?.substitutes?.[0]
+        : undefined,
+    ],
+    [assets, inputCurrency, inputCurrencyAmount],
   )
 
   const buttonText = useMemo(() => {
@@ -265,30 +278,17 @@ const Desk = () => {
     }
   }, [currencies, inputCurrency, inputCurrency?.address, mode])
 
-  useEffect(() => {
-    if (!inputCurrency) {
-      return
-    }
-    const fetchDates = async () => {
-      const substitute = assets.find((asset) =>
-        isAddressEqual(asset.underlying.address, inputCurrency.address),
-      )?.substitutes?.[0]
-      if (substitute) {
-        const markets = (await fetchMarkets(selectedChain.id))
-          .filter((market) =>
-            isAddressEqual(market.quoteToken.address, substitute.address),
-          )
-          .sort((a, b) => Number(a.epoch) - Number(b.epoch))
-          .slice(0, MAX_VISIBLE_MARKETS)
-        setDates(
-          markets.map((market) =>
-            formatDate(new Date(Number(market.endTimestamp) * 1000)),
-          ),
-        )
-      }
-    }
-    fetchDates()
-  }, [assets, inputCurrency, selectedChain.id])
+  const { data: markets } = useQuery(
+    ['desk-markets', selectedChain],
+    async () => {
+      return fetchMarkets(selectedChain.id)
+    },
+    {
+      refetchInterval: 10 * 1000,
+      refetchIntervalInBackground: true,
+    },
+  )
+  const now = currentTimestampInSeconds()
 
   return (
     <div className="flex flex-1">
@@ -376,7 +376,27 @@ const Desk = () => {
                     maxDepositAmount={
                       inputCurrency ? balances[inputCurrency.address] ?? 0n : 0n
                     }
-                    dates={dates}
+                    dates={
+                      markets
+                        ? markets
+                            .filter(
+                              (market) =>
+                                substitute &&
+                                isAddressEqual(
+                                  substitute.address,
+                                  market.quoteToken.address,
+                                ),
+                            )
+                            .sort(
+                              (a, b) =>
+                                Number(a.endTimestamp) - Number(b.endTimestamp),
+                            )
+                            .slice(0, MAX_VISIBLE_MARKETS)
+                            .map(({ endTimestamp }) =>
+                              formatDate(new Date(endTimestamp * 1000)),
+                            )
+                        : []
+                    }
                     inputCurrencyAmount={inputCurrencyAmount}
                     setInputCurrencyAmount={setInputCurrencyAmount}
                     epochs={epochs}
@@ -391,9 +411,7 @@ const Desk = () => {
               </div>
             </div>
           </div>
-          {'coupon' === mode &&
-          positions.filter((position) => position.interest === 0n).length >
-            0 ? (
+          {'coupon' === mode ? (
             <div className="flex flex-1 flex-col w-full md:w-[640px] lg:w-[960px]">
               <div className="flex flex-col gap-6 mb-8 px-4 lg:p-0">
                 <div className="flex gap-2 sm:gap-3 items-center">
@@ -403,29 +421,89 @@ const Desk = () => {
                 </div>
                 <div className="flex flex-1 flex-col w-full h-full sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 mb-8 justify-center">
                   {positions
-                    .filter((position) => position.interest === 0n)
                     .sort(
                       (a, b) =>
                         Number(a.toEpoch.endTimestamp) -
                         Number(b.toEpoch.endTimestamp),
                     )
-                    .map((position, index) => (
-                      <BondPositionCard
-                        key={index}
-                        position={position}
-                        price={prices[position.underlying.address]}
-                        onWithdraw={() => {
-                          console.log('withdraw', position.tokenId)
-                        }}
-                        onCollect={async () => {
-                          await collect(
-                            position.underlying,
-                            position.tokenId,
-                            position.amount,
-                          )
-                        }}
-                      />
-                    ))}
+                    .map((position, index) => {
+                      const couponAddresses = (markets ?? [])
+                        .filter((market) =>
+                          isAddressEqual(
+                            market.quoteToken.address,
+                            position.substitute.address,
+                          ),
+                        )
+                        .filter(
+                          (market) =>
+                            position.toEpoch.endTimestamp >=
+                            market.endTimestamp,
+                        )
+                        .map(({ baseToken }) => baseToken.address)
+                      return (
+                        <BondPositionCard
+                          key={index}
+                          position={{
+                            ...position,
+                            isPending:
+                              now < position.toEpoch.endTimestamp &&
+                              couponAddresses.reduce((acc, couponAddress) => {
+                                return (
+                                  acc &&
+                                  balances[couponAddress] >= position.amount
+                                )
+                              }, true),
+                          }}
+                          price={prices[position.underlying.address]}
+                          onWithdraw={() => {
+                            console.log('withdraw', position.tokenId)
+                          }}
+                          onCollect={async () => {
+                            await collect(
+                              position.underlying,
+                              position.tokenId,
+                              position.amount,
+                            )
+                          }}
+                        >
+                          {couponAddresses.map((couponAddress, index) => {
+                            const coupon = coupons.find((coupon) =>
+                              isAddressEqual(
+                                coupon.coupon.address,
+                                couponAddress,
+                              ),
+                            )
+                            if (!coupon) {
+                              return <></>
+                            }
+                            return (
+                              <div
+                                key={index}
+                                className="flex items-center gap-1 self-stretch"
+                              >
+                                <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
+                                  {coupon.coupon.symbol}
+                                </div>
+                                <div
+                                  className={`text-sm sm:text-base font-bold ${
+                                    coupon.balance >= position.amount
+                                      ? 'text-green-500'
+                                      : 'text-red-500'
+                                  }`}
+                                >
+                                  {toPlacesString(
+                                    formatUnits(
+                                      coupon.balance,
+                                      coupon.coupon.decimals,
+                                    ),
+                                  )}
+                                </div>
+                              </div>
+                            )
+                          })}
+                        </BondPositionCard>
+                      )
+                    })}
                 </div>
               </div>
             </div>
