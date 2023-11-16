@@ -11,9 +11,9 @@ const LeftSvg = (props: SVGProps<any>) => (
   >
     <path
       d="M10 13L5 8L10 3"
-      stroke="#030712"
       strokeWidth="1.5"
       strokeLinecap="square"
+      className="stroke-gray-950 dark:stroke-white"
     />
   </svg>
 )

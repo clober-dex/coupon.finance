@@ -142,10 +142,15 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { data: coupons } = useQuery(
     ['coupons', userAddress],
     async () => {
-      if (!userAddress) {
-        return []
-      }
       const markets = await fetchMarkets(selectedChain.id)
+      if (!userAddress) {
+        return markets.map(({ address, baseToken, endTimestamp }) => ({
+          date: formatDate(new Date(Number(endTimestamp) * 1000)),
+          marketAddress: getAddress(address),
+          coupon: baseToken,
+          balance: 0n,
+        }))
+      }
       const erc20Results = await readContracts({
         contracts: markets.map(({ baseToken }) => ({
           address: baseToken.address,

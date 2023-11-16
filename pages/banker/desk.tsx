@@ -1,12 +1,25 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import Head from 'next/head'
-import { parseUnits } from 'viem'
+import { getAddress, isAddressEqual, parseUnits, zeroAddress } from 'viem'
+import { useAccount, useBalance } from 'wagmi'
 
 import { Currency } from '../../model/currency'
-import { useCurrencyContext } from '../../contexts/currency-context'
+import {
+  isEther,
+  isEtherAddress,
+  useCurrencyContext,
+} from '../../contexts/currency-context'
 import { SwapForm } from '../../components/form/swap-form'
+import { useAdvancedContractContext } from '../../contexts/advanced-contract-context'
+import { Balances } from '../../model/balances'
+import { useChainContext } from '../../contexts/chain-context'
 
 const Desk = () => {
+  const { wrap, unwrap, mintSubstitute, burnSubstitute } =
+    useAdvancedContractContext()
+  const { address: userAddress } = useAccount()
+  const { selectedChain } = useChainContext()
+  const { data: ethBalance } = useBalance({ address: userAddress })
   const { assets, prices, balances, coupons } = useCurrencyContext()
   const [mode, _setMode] = useState<'substitute' | 'coupon'>('substitute')
   const [inputCurrency, setInputCurrency] = useState<Currency | undefined>(
@@ -21,16 +34,45 @@ const Desk = () => {
     useState(false)
 
   const currencies = useMemo(() => {
-    return mode === 'substitute'
-      ? [
-          ...assets.map((asset) => asset.underlying),
-          ...assets.map((asset) => asset.substitutes).flat(),
-        ]
-      : [
-          ...assets.map((asset) => asset.underlying),
-          ...coupons.map(({ coupon }) => coupon),
-        ]
-  }, [assets, coupons, mode])
+    return [
+      ...(mode === 'substitute'
+        ? [
+            ...assets.map((asset) => asset.underlying),
+            ...assets.map((asset) => asset.substitutes).flat(),
+          ]
+        : [
+            ...assets.map((asset) => asset.underlying),
+            ...coupons.map(({ coupon }) => coupon),
+          ]
+      ).map((currency) =>
+        isEther(currency)
+          ? {
+              ...currency,
+              name: 'Wrapped Ether',
+              symbol: 'WETH',
+            }
+          : currency,
+      ),
+      {
+        address: zeroAddress,
+        ...selectedChain.nativeCurrency,
+      },
+    ]
+  }, [assets, coupons, mode, selectedChain.nativeCurrency])
+
+  const balanceWithETH = useMemo(
+    () =>
+      Object.entries(balances).reduce((acc, [address, balance]) => {
+        return {
+          ...acc,
+          [zeroAddress]: ethBalance?.value ?? 0n,
+          [getAddress(address)]: isEtherAddress(getAddress(address))
+            ? balance - (ethBalance?.value ?? 0n)
+            : balance,
+        }
+      }, {} as Balances),
+    [balances, ethBalance?.value],
+  )
 
   const setMode = useCallback((mode: 'substitute' | 'coupon') => {
     _setMode(mode)
@@ -38,10 +80,26 @@ const Desk = () => {
     setInputCurrencyAmount('')
     setOutputCurrency(undefined)
   }, [])
+  const inputAmount = useMemo(
+    () => parseUnits(inputCurrencyAmount, inputCurrency?.decimals ?? 18),
+    [inputCurrency?.decimals, inputCurrencyAmount],
+  )
 
   const buttonText = useMemo(() => {
     if (!inputCurrency || !outputCurrency) {
       return 'Select Token'
+    }
+    if (
+      isEther(inputCurrency) &&
+      isAddressEqual(outputCurrency.address, zeroAddress)
+    ) {
+      return 'Unwrap'
+    }
+    if (
+      isEther(outputCurrency) &&
+      isAddressEqual(inputCurrency.address, zeroAddress)
+    ) {
+      return 'Wrap'
     }
     const underlyingAddresses = assets
       .map((asset) => asset.underlying)
@@ -124,7 +182,7 @@ const Desk = () => {
                       ...acc,
                       [coupon.address]: balance,
                     }
-                  }, balances)}
+                  }, balanceWithETH)}
                   prices={prices}
                   showInputCurrencySelect={showInputCurrencySelect}
                   setShowInputCurrencySelect={setShowInputCurrencySelect}
@@ -132,21 +190,44 @@ const Desk = () => {
                   setInputCurrency={setInputCurrency}
                   inputCurrencyAmount={inputCurrencyAmount}
                   setInputCurrencyAmount={setInputCurrencyAmount}
-                  availableInputCurrencyBalance={0n}
+                  availableInputCurrencyBalance={
+                    inputCurrency
+                      ? balanceWithETH[inputCurrency.address] ?? 0n
+                      : 0n
+                  }
                   showOutputCurrencySelect={showOutputCurrencySelect}
                   setShowOutputCurrencySelect={setShowOutputCurrencySelect}
                   outputCurrency={outputCurrency}
                   setOutputCurrency={setOutputCurrency}
-                  outputCurrencyAmount={''}
+                  outputCurrencyAmount={inputCurrencyAmount}
                   actionButtonProps={{
                     disabled:
                       buttonText === 'Cannot Convert' ||
                       buttonText === 'Select Token' ||
-                      parseUnits(
-                        inputCurrencyAmount,
-                        inputCurrency?.decimals ?? 18,
-                      ) === 0n,
-                    onClick: async () => {},
+                      inputAmount === 0n,
+                    onClick: async () => {
+                      if (!inputCurrency || !outputCurrency) {
+                        return
+                      }
+
+                      if (buttonText === 'Wrap') {
+                        await wrap(outputCurrency, inputAmount)
+                      } else if (buttonText === 'Unwrap') {
+                        await unwrap(inputCurrency, inputAmount)
+                      } else if (buttonText === 'Burn Substitute') {
+                        await burnSubstitute(
+                          inputCurrency,
+                          outputCurrency,
+                          inputAmount,
+                        )
+                      } else if (buttonText === 'Mint Substitute') {
+                        await mintSubstitute(
+                          inputCurrency,
+                          outputCurrency,
+                          inputAmount,
+                        )
+                      }
+                    },
                     text: buttonText,
                   }}
                 />
