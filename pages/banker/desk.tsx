@@ -6,9 +6,154 @@ import { Currency } from '../../model/currency'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { SwapForm } from '../../components/form/swap-form'
 import { useAdvancedContractContext } from '../../contexts/advanced-contract-context'
-import { parseUnits } from '../../utils/numbers'
+import { BigDecimal, parseUnits } from '../../utils/numbers'
+import CurrencyAmountInput from '../../components/input/currency-amount-input'
+import Slider from '../../components/slider/slider'
+import {
+  currentTimestampInSeconds,
+  formatDate,
+  getDaysBetweenDates,
+  getNextMonthStartTimestamp,
+  SECONDS_IN_MONTH,
+} from '../../utils/date'
+import { DotSvg } from '../../components/svg/dot-svg'
+import {
+  ActionButton,
+  ActionButtonProps,
+} from '../../components/button/action-button'
+import { CurrencyDropdown } from '../../components/dropdown/currency-dropdown'
+import { CurrencyIcon } from '../../components/icon/currency-icon'
+import DownSvg from '../../components/svg/down-svg'
+import { MAX_VISIBLE_MARKETS } from '../../utils/market'
+import { fetchMarkets } from '../../apis/market'
+import { useChainContext } from '../../contexts/chain-context'
+import { BondPositionCard } from '../../components/card/bond-position-card'
+import { useDepositContext } from '../../contexts/deposit-context'
+
+const CouponUtilsForm = ({
+  currencies,
+  depositCurrency,
+  setDepositCurrency,
+  maxDepositAmount,
+  dates,
+  inputCurrencyAmount,
+  setInputCurrencyAmount,
+  epochs,
+  setEpochs,
+  actionButtonProps,
+  depositAssetPrice,
+}: {
+  currencies: Currency[]
+  depositCurrency?: Currency
+  setDepositCurrency: (currency: Currency) => void
+  maxDepositAmount: bigint
+  dates: string[]
+  inputCurrencyAmount: string
+  setInputCurrencyAmount: (value: string) => void
+  epochs: number
+  setEpochs: (value: number) => void
+  actionButtonProps: ActionButtonProps
+  depositAssetPrice?: BigDecimal
+}) => {
+  const currentTimestamp = currentTimestampInSeconds()
+  const leftMonthInSecond =
+    getNextMonthStartTimestamp(currentTimestamp) - currentTimestamp
+  const minPosition =
+    (leftMonthInSecond /
+      (leftMonthInSecond + SECONDS_IN_MONTH * dates.length)) *
+    100
+
+  return (
+    <>
+      <div className="flex flex-col bg-white gap-4 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 sm:pb-4 w-full sm:w-[480px]">
+        <div className="flex flex-col gap-4">
+          <div className="font-bold text-sm sm:text-lg">
+            How much would you like to deposit?
+          </div>
+          <CurrencyAmountInput
+            currency={depositCurrency}
+            value={inputCurrencyAmount}
+            onValueChange={setInputCurrencyAmount}
+            availableAmount={BigInt(
+              Math.floor(Number(maxDepositAmount) * 0.997),
+            )}
+            price={depositAssetPrice}
+            disabled={!depositCurrency}
+          >
+            <CurrencyDropdown
+              selectedCurrency={depositCurrency}
+              currencies={currencies}
+              onCurrencySelect={(currency) => {
+                setDepositCurrency(currency)
+              }}
+            >
+              {depositCurrency ? (
+                <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
+                  <CurrencyIcon
+                    currency={depositCurrency}
+                    className="w-5 h-5"
+                  />
+                  <div className="text-sm sm:text-base">
+                    {depositCurrency.symbol}
+                  </div>
+                </div>
+              ) : (
+                <div className="w-fit flex items-center rounded-full bg-green-500 text-white pl-3 pr-2 py-1 gap-2 text-sm sm:text-base">
+                  Select token <DownSvg />
+                </div>
+              )}
+            </CurrencyDropdown>
+          </CurrencyAmountInput>
+        </div>
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-2">
+            <div className="font-bold text-sm sm:text-lg">
+              How long you’d like to secure your deposit?
+            </div>
+            <div className="text-gray-500 text-xs sm:text-sm">
+              You can exit your position anytime before expiry.
+            </div>
+          </div>
+          <div className="flex justify-between flex-col relative bg-white dark:bg-gray-900 rounded-lg p-4 pb-8 sm:pb-0 sm:h-[90px]">
+            {dates.length > 0 ? (
+              <div className="sm:px-6 sm:mb-2 mr-4 sm:mr-0">
+                <div>
+                  <Slider
+                    length={dates.length}
+                    minPosition={minPosition}
+                    value={epochs}
+                    onValueChange={setEpochs}
+                  >
+                    <div className="flex w-[96px] flex-col items-center gap-3 shrink-0">
+                      <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-white text-xs font-bold">
+                        {getDaysBetweenDates(
+                          new Date(dates[epochs - 1]),
+                          new Date(currentTimestamp * 1000),
+                        )}{' '}
+                        Days
+                      </div>
+                      <DotSvg />
+                      <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-green-500 bg-opacity-10 text-xs text-green-500 font-bold">
+                        + 0.00
+                      </div>
+                    </div>
+                  </Slider>
+                </div>
+              </div>
+            ) : (
+              <></>
+            )}
+          </div>
+        </div>
+        <ActionButton {...actionButtonProps} />
+      </div>
+    </>
+  )
+}
 
 const Desk = () => {
+  const { selectedChain } = useChainContext()
+  const { positions } = useDepositContext()
   const { mintSubstitute, burnSubstitute } = useAdvancedContractContext()
   const { assets, prices, balances, coupons } = useCurrencyContext()
   const [mode, _setMode] = useState<'substitute' | 'coupon'>('substitute')
@@ -19,6 +164,8 @@ const Desk = () => {
   const [outputCurrency, setOutputCurrency] = useState<Currency | undefined>(
     undefined,
   )
+  const [epochs, setEpochs] = useState(1)
+  const [dates, setDates] = useState<string[]>([])
 
   const currencies = useMemo(() => {
     return [
@@ -105,6 +252,31 @@ const Desk = () => {
     }
   }, [currencies, inputCurrency, inputCurrency?.address, mode])
 
+  useEffect(() => {
+    if (!inputCurrency) {
+      return
+    }
+    const fetchDates = async () => {
+      const substitute = assets.find((asset) =>
+        isAddressEqual(asset.underlying.address, inputCurrency.address),
+      )?.substitutes?.[0]
+      if (substitute) {
+        const markets = (await fetchMarkets(selectedChain.id))
+          .filter((market) =>
+            isAddressEqual(market.quoteToken.address, substitute.address),
+          )
+          .sort((a, b) => Number(a.epoch) - Number(b.epoch))
+          .slice(0, MAX_VISIBLE_MARKETS)
+        setDates(
+          markets.map((market) =>
+            formatDate(new Date(Number(market.endTimestamp) * 1000)),
+          ),
+        )
+      }
+    }
+    fetchDates()
+  }, [assets, inputCurrency, selectedChain.id])
+
   return (
     <div className="flex flex-1">
       <Head>
@@ -136,48 +308,96 @@ const Desk = () => {
               Coupon
             </button>
           </div>
-          <div className="flex flex-col w-fit mb-4 sm:mb-6">
+          <div className="flex flex-col w-fit">
             <div className="flex flex-col w-full lg:flex-row gap-4">
-              <div className="flex flex-col rounded-2xl p-6 sm:w-[528px] lg:w-[480px]">
-                <SwapForm
-                  currencies={currencies}
-                  prices={prices}
-                  inputCurrency={inputCurrency}
-                  setInputCurrency={setInputCurrency}
-                  inputCurrencyAmount={inputCurrencyAmount}
-                  setInputCurrencyAmount={setInputCurrencyAmount}
-                  availableInputCurrencyBalance={
-                    inputCurrency ? balances[inputCurrency.address] ?? 0n : 0n
-                  }
-                  outputCurrency={outputCurrency}
-                  setOutputCurrency={setOutputCurrency}
-                  outputCurrencyAmount={inputCurrencyAmount}
-                  actionButtonProps={{
-                    disabled:
-                      buttonText === 'Cannot Convert' ||
-                      buttonText === 'Select Token' ||
-                      inputAmount === 0n,
-                    onClick: async () => {
-                      if (!inputCurrency || !outputCurrency) {
-                        return
-                      }
-                      if (buttonText === 'Burn Substitute') {
-                        await burnSubstitute(
-                          inputCurrency,
-                          outputCurrency,
-                          inputAmount,
-                        )
-                      } else if (buttonText === 'Mint Substitute') {
-                        await mintSubstitute(
-                          inputCurrency,
-                          outputCurrency,
-                          inputAmount,
-                        )
-                      }
-                    },
-                    text: buttonText,
-                  }}
-                />
+              <div className="flex flex-col rounded-2xl p-6 pb-0 sm:w-[528px] lg:w-[480px]">
+                {mode === 'substitute' ? (
+                  <SwapForm
+                    currencies={currencies}
+                    prices={prices}
+                    inputCurrency={inputCurrency}
+                    setInputCurrency={setInputCurrency}
+                    inputCurrencyAmount={inputCurrencyAmount}
+                    setInputCurrencyAmount={setInputCurrencyAmount}
+                    availableInputCurrencyBalance={
+                      inputCurrency ? balances[inputCurrency.address] ?? 0n : 0n
+                    }
+                    outputCurrency={outputCurrency}
+                    setOutputCurrency={setOutputCurrency}
+                    outputCurrencyAmount={inputCurrencyAmount}
+                    actionButtonProps={{
+                      disabled:
+                        buttonText === 'Cannot Convert' ||
+                        buttonText === 'Select Token' ||
+                        inputAmount === 0n,
+                      onClick: async () => {
+                        if (!inputCurrency || !outputCurrency) {
+                          return
+                        }
+                        if (buttonText === 'Burn Substitute') {
+                          await burnSubstitute(
+                            inputCurrency,
+                            outputCurrency,
+                            inputAmount,
+                          )
+                        } else if (buttonText === 'Mint Substitute') {
+                          await mintSubstitute(
+                            inputCurrency,
+                            outputCurrency,
+                            inputAmount,
+                          )
+                        }
+                      },
+                      text: buttonText,
+                    }}
+                  />
+                ) : (
+                  <CouponUtilsForm
+                    currencies={currencies}
+                    depositCurrency={inputCurrency}
+                    setDepositCurrency={setInputCurrency}
+                    maxDepositAmount={
+                      inputCurrency ? balances[inputCurrency.address] ?? 0n : 0n
+                    }
+                    dates={dates}
+                    inputCurrencyAmount={inputCurrencyAmount}
+                    setInputCurrencyAmount={setInputCurrencyAmount}
+                    epochs={epochs}
+                    setEpochs={setEpochs}
+                    actionButtonProps={{
+                      disabled: false,
+                      onClick: async () => {},
+                      text: 'Coming Soon',
+                    }}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-1 flex-col w-full md:w-[640px] lg:w-[960px]">
+            <div className="flex flex-col gap-6 mb-8 px-4 lg:p-0">
+              <div className="flex gap-2 sm:gap-3 items-center">
+                <h2 className="font-bold text-base sm:text-2xl">
+                  My Positions
+                </h2>
+              </div>
+              <div className="flex flex-1 flex-col w-full h-full sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 mb-8 justify-center">
+                {positions
+                  .filter((position) => position.interest === 0n)
+                  .sort(
+                    (a, b) =>
+                      Number(a.toEpoch.endTimestamp) -
+                      Number(b.toEpoch.endTimestamp),
+                  )
+                  .map((position, index) => (
+                    <BondPositionCard
+                      key={index}
+                      position={position}
+                      price={prices[position.underlying.address]}
+                      onWithdraw={() => {}}
+                      onCollect={() => {}}
+                    />
+                  ))}
               </div>
             </div>
           </div>
