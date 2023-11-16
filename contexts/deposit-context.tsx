@@ -6,7 +6,7 @@ import {
   useQueryClient,
   useWalletClient,
 } from 'wagmi'
-import { Hash } from 'viem'
+import { Hash, zeroAddress } from 'viem'
 
 import { CONTRACT_ADDRESSES } from '../constants/addresses'
 import { DepositController__factory } from '../typechain'
@@ -20,6 +20,7 @@ import { Currency } from '../model/currency'
 import { writeContract } from '../utils/wallet'
 import { CHAIN_IDS } from '../constants/chain'
 import { getDeadlineTimestampInSeconds } from '../utils/date'
+import { toWrapETH } from '../utils/currency'
 
 import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -106,13 +107,15 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
       let hash: Hash | undefined
       try {
+        const ethValue = calculateETHValue(asset.underlying, amount)
+        const permitAmount = amount - ethValue
         const { deadline, r, s, v } = await permit20(
           selectedChain.id,
           walletClient,
           asset.underlying,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
-          amount - calculateETHValue(asset.underlying, amount),
+          permitAmount,
           getDeadlineTimestampInSeconds(),
         )
         setConfirmation({
@@ -121,11 +124,24 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           fields: [
             {
               direction: 'in',
-              currency: asset.underlying,
-              label: asset.underlying.symbol,
+              currency: toWrapETH(asset.underlying),
+              label: toWrapETH(asset.underlying).symbol,
               value: formatUnits(
-                amount,
+                permitAmount,
                 asset.underlying.decimals,
+                prices[asset.underlying.address],
+              ),
+            },
+            {
+              direction: 'in',
+              currency: {
+                address: zeroAddress,
+                ...selectedChain.nativeCurrency,
+              },
+              label: selectedChain.nativeCurrency.symbol,
+              value: formatUnits(
+                ethValue,
+                selectedChain.nativeCurrency.decimals,
                 prices[asset.underlying.address],
               ),
             },
@@ -142,8 +158,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
             epochs,
             expectedProceeds,
             {
-              permitAmount:
-                amount - calculateETHValue(asset.underlying, amount),
+              permitAmount,
               signature: {
                 deadline,
                 v,
@@ -152,7 +167,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
               },
             },
           ],
-          value: calculateETHValue(asset.underlying, amount),
+          value: ethValue,
           account: walletClient.account,
         })
         setPendingPositions(

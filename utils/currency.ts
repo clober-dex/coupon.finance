@@ -29,3 +29,8 @@ export const ethValue = (
     ),
   )
 }
+
+export const toWrapETH = (currency: Currency): Currency =>
+  isEther(currency)
+    ? { ...currency, name: 'Wrapped Ether', symbol: 'WETH' }
+    : currency
