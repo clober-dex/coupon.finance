@@ -317,47 +317,51 @@ const Desk = () => {
           </div>
           <div className="flex flex-col w-fit bg-white dark:bg-gray-900 rounded-lg">
             <div className="flex flex-col w-full lg:flex-row gap-4">
-              <div className="flex flex-col rounded-2xl p-10 sm:w-[528px] lg:w-[480px]">
+              <div className="flex flex-col">
                 {mode === 'substitute' ? (
-                  <SwapForm
-                    currencies={currencies}
-                    prices={prices}
-                    inputCurrency={inputCurrency}
-                    setInputCurrency={setInputCurrency}
-                    inputCurrencyAmount={inputCurrencyAmount}
-                    setInputCurrencyAmount={setInputCurrencyAmount}
-                    availableInputCurrencyBalance={
-                      inputCurrency ? balances[inputCurrency.address] ?? 0n : 0n
-                    }
-                    outputCurrency={outputCurrency}
-                    setOutputCurrency={setOutputCurrency}
-                    outputCurrencyAmount={inputCurrencyAmount}
-                    actionButtonProps={{
-                      disabled:
-                        buttonText === 'Cannot Convert' ||
-                        buttonText === 'Select Token' ||
-                        inputAmount === 0n,
-                      onClick: async () => {
-                        if (!inputCurrency || !outputCurrency) {
-                          return
-                        }
-                        if (buttonText === 'Burn Substitute') {
-                          await burnSubstitute(
-                            inputCurrency,
-                            outputCurrency,
-                            inputAmount,
-                          )
-                        } else if (buttonText === 'Mint Substitute') {
-                          await mintSubstitute(
-                            inputCurrency,
-                            outputCurrency,
-                            inputAmount,
-                          )
-                        }
-                      },
-                      text: buttonText,
-                    }}
-                  />
+                  <div className="flex flex-col rounded-2xl px-6 py-8 sm:w-[528px] lg:w-[480px]">
+                    <SwapForm
+                      currencies={currencies}
+                      prices={prices}
+                      inputCurrency={inputCurrency}
+                      setInputCurrency={setInputCurrency}
+                      inputCurrencyAmount={inputCurrencyAmount}
+                      setInputCurrencyAmount={setInputCurrencyAmount}
+                      availableInputCurrencyBalance={
+                        inputCurrency
+                          ? balances[inputCurrency.address] ?? 0n
+                          : 0n
+                      }
+                      outputCurrency={outputCurrency}
+                      setOutputCurrency={setOutputCurrency}
+                      outputCurrencyAmount={inputCurrencyAmount}
+                      actionButtonProps={{
+                        disabled:
+                          buttonText === 'Cannot Convert' ||
+                          buttonText === 'Select Token' ||
+                          inputAmount === 0n,
+                        onClick: async () => {
+                          if (!inputCurrency || !outputCurrency) {
+                            return
+                          }
+                          if (buttonText === 'Burn Substitute') {
+                            await burnSubstitute(
+                              inputCurrency,
+                              outputCurrency,
+                              inputAmount,
+                            )
+                          } else if (buttonText === 'Mint Substitute') {
+                            await mintSubstitute(
+                              inputCurrency,
+                              outputCurrency,
+                              inputAmount,
+                            )
+                          }
+                        },
+                        text: buttonText,
+                      }}
+                    />
+                  </div>
                 ) : (
                   <CouponUtilsForm
                     currencies={currencies}
