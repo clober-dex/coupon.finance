@@ -46,7 +46,7 @@ export const DepositForm = ({
   const currentTimestamp = currentTimestampInSeconds()
   const leftMonthInSecond =
     getNextMonthStartTimestamp(currentTimestamp) - currentTimestamp
-  const leftPaddingPercentage =
+  const minPosition =
     (leftMonthInSecond /
       (leftMonthInSecond +
         SECONDS_IN_MONTH *
@@ -93,17 +93,15 @@ export const DepositForm = ({
                 <div className="sm:px-6 sm:mb-2 mr-4 sm:mr-0">
                   <div>
                     <Slider
-                      length={proceedsByEpochsDeposited?.length ?? 0}
-                      leftPaddingPercentage={leftPaddingPercentage}
+                      segments={proceedsByEpochsDeposited?.length ?? 0}
+                      minPosition={minPosition}
                       value={epochs}
                       onValueChange={setEpochs}
                     >
                       <div className="flex w-[96px] flex-col items-center gap-3 shrink-0">
                         <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-white text-xs font-bold">
                           {getDaysBetweenDates(
-                            new Date(
-                              proceedsByEpochsDeposited[epochs - 1].date,
-                            ),
+                            new Date(proceedsByEpochsDeposited[epochs].date),
                             new Date(currentTimestamp * 1000),
                           )}{' '}
                           Days
@@ -111,10 +109,10 @@ export const DepositForm = ({
                         <DotSvg />
                         <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-green-500 bg-opacity-10 text-xs text-green-500 font-bold">
                           +
-                          {proceedsByEpochsDeposited[epochs - 1].proceeds === 0n
+                          {proceedsByEpochsDeposited[epochs].proceeds === 0n
                             ? '0.00'
                             : formatUnits(
-                                proceedsByEpochsDeposited[epochs - 1].proceeds,
+                                proceedsByEpochsDeposited[epochs].proceeds,
                                 depositCurrency.decimals,
                                 depositAssetPrice,
                               )}

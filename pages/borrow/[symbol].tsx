@@ -26,7 +26,7 @@ const Borrow = () => {
   const { balances, prices, assets } = useCurrencyContext()
   const { borrow } = useBorrowContext()
 
-  const [epochs, setEpochs] = useState(1)
+  const [epochs, setEpochs] = useState(0)
   const [collateralValue, setCollateralValue] = useState('')
   const [borrowValue, setBorrowValue] = useState('')
   const [collateral, setCollateral] = useState<Collateral | undefined>(

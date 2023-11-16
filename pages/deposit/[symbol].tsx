@@ -20,7 +20,7 @@ const Deposit = () => {
   const { balances, prices, assets } = useCurrencyContext()
   const { deposit } = useDepositContext()
 
-  const [epochs, setEpochs] = useState(1)
+  const [epochs, setEpochs] = useState(0)
 
   const [value, setValue] = useState('')
 

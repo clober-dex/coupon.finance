@@ -14,7 +14,7 @@ export default {
   },
   render: ({ ...args }) => {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [value, setValue] = useState(1)
+    const [value, setValue] = useState(-1)
     return (
       <div className="w-96">
         <Slider {...args} value={value} onValueChange={setValue} />
@@ -25,52 +25,27 @@ export default {
 
 type Story = StoryObj<typeof Slider>
 export const Default: Story = {
+  args: {},
+}
+
+export const Segments: Story = {
   args: {
-    length: 4,
-    leftPaddingPercentage: 10,
-    children: (
-      <div className="flex w-[96px] flex-col items-center gap-2 shrink-0">
-        <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-white text-xs">
-          90 Days
-        </div>
-        <DotSvg />
-        <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-green-500 bg-opacity-10 text-sm text-green-500 font-bold">
-          +$23.64
-        </div>
-      </div>
-    ),
+    segments: 3,
+    segmentsVisible: true,
+    minPosition: 15,
   },
 }
 
-export const ZeroPercentage: Story = {
+export const RenderControl: Story = {
   args: {
-    length: 4,
-    leftPaddingPercentage: 0,
-    children: (
+    minPosition: 25,
+    renderControl: () => (
       <div className="flex w-[96px] flex-col items-center gap-2 shrink-0">
-        <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-gray-100 text-gray-400 text-xs">
+        <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-gray-100 text-gray-400 text-xs font-bold">
           90 Days
         </div>
         <DotSvg />
-        <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-green-500 bg-opacity-10 text-sm text-green-500 font-bold">
-          +$23.64
-        </div>
-      </div>
-    ),
-  },
-}
-
-export const SmallPercentage: Story = {
-  args: {
-    length: 4,
-    leftPaddingPercentage: 1,
-    children: (
-      <div className="flex w-[96px] flex-col items-center gap-2 shrink-0">
-        <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-gray-100 text-gray-400 text-xs">
-          90 Days
-        </div>
-        <DotSvg />
-        <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-green-500 bg-opacity-10 text-sm text-green-500 font-bold">
+        <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-green-500 bg-opacity-10 text-xs text-green-500 font-bold">
           +$23.64
         </div>
       </div>

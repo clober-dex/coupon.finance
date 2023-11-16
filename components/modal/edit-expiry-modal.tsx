@@ -37,7 +37,7 @@ const EditExpiryModal = ({
   const currentTimestamp = currentTimestampInSeconds()
   const leftMonthInSecond =
     getNextMonthStartTimestamp(currentTimestamp) - currentTimestamp
-  const leftPaddingPercentage =
+  const minPosition =
     (leftMonthInSecond /
       (leftMonthInSecond +
         SECONDS_IN_MONTH * (dateList ? dateList.length : 1))) *
@@ -66,22 +66,22 @@ const EditExpiryModal = ({
               <div className="sm:px-6 sm:mb-2 my-8 sm:my-0">
                 <div>
                   <Slider
-                    leftPaddingPercentage={leftPaddingPercentage}
-                    length={dateList?.length ?? 0}
+                    minPosition={minPosition}
+                    segments={dateList?.length ?? 0}
                     value={epochs}
                     onValueChange={setEpochs}
                   >
                     <div className="flex w-[110px] flex-col items-center gap-2 shrink-0">
                       <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-gray-100 text-gray-400 text-xs font-bold">
                         {getDaysBetweenDates(
-                          new Date(dateList[epochs - 1]),
+                          new Date(dateList[epochs]),
                           new Date(currentTimestamp * 1000),
                         )}{' '}
                         Days
                       </div>
                       <DotSvg />
                       <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-green-500 bg-opacity-10 text-xs text-green-500 font-bold">
-                        {dateList[epochs - 1]}
+                        {dateList[epochs]}
                       </div>
                     </div>
                   </Slider>

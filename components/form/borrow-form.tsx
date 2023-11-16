@@ -64,7 +64,7 @@ export const BorrowForm = ({
   const currentTimestamp = currentTimestampInSeconds()
   const leftMonthInSecond =
     getNextMonthStartTimestamp(currentTimestamp) - currentTimestamp
-  const leftPaddingPercentage =
+  const minPosition =
     (leftMonthInSecond /
       (leftMonthInSecond +
         SECONDS_IN_MONTH *
@@ -136,22 +136,22 @@ export const BorrowForm = ({
               <div className="sm:px-6 sm:mb-2 mr-4 sm:mr-0">
                 <div>
                   <Slider
-                    leftPaddingPercentage={leftPaddingPercentage}
-                    length={interestsByEpochsBorrowed?.length ?? 0}
+                    minPosition={minPosition}
+                    segments={interestsByEpochsBorrowed?.length ?? 0}
                     value={epochs}
                     onValueChange={setEpochs}
                   >
                     <div className="flex w-[110px] flex-col items-center gap-2 shrink-0">
                       <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-white text-xs font-bold">
                         {getDaysBetweenDates(
-                          new Date(interestsByEpochsBorrowed[epochs - 1].date),
+                          new Date(interestsByEpochsBorrowed[epochs].date),
                           new Date(currentTimestamp * 1000),
                         )}{' '}
                         Days
                       </div>
                       <DotSvg />
                       <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-green-500 bg-opacity-10 text-xs text-green-500 font-bold">
-                        {interestsByEpochsBorrowed[epochs - 1].date}
+                        {interestsByEpochsBorrowed[epochs].date}
                       </div>
                     </div>
                   </Slider>
