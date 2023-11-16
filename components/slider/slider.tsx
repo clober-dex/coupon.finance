@@ -86,7 +86,7 @@ const Slider = ({
             borderRadius: 2,
           }}
           animate={{
-            height: dragged || hovered ? 24 : 4,
+            height: dragged || hovered ? 14 : 4,
             borderRadius: dragged || hovered ? 14 : 4,
           }}
         >
