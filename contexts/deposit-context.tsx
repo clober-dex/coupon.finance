@@ -6,7 +6,7 @@ import {
   useQueryClient,
   useWalletClient,
 } from 'wagmi'
-import { Hash } from 'viem'
+import { Hash, zeroAddress } from 'viem'
 
 import { CONTRACT_ADDRESSES } from '../constants/addresses'
 import { DepositController__factory } from '../typechain'
@@ -20,6 +20,7 @@ import { Currency } from '../model/currency'
 import { writeContract } from '../utils/wallet'
 import { CHAIN_IDS } from '../constants/chain'
 import { getDeadlineTimestampInSeconds } from '../utils/date'
+import { toWrapETH } from '../utils/currency'
 
 import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -123,11 +124,24 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           fields: [
             {
               direction: 'in',
-              currency: asset.underlying,
-              label: asset.underlying.symbol,
+              currency: toWrapETH(asset.underlying),
+              label: toWrapETH(asset.underlying).symbol,
               value: formatUnits(
-                amount,
+                permitAmount,
                 asset.underlying.decimals,
+                prices[asset.underlying.address],
+              ),
+            },
+            {
+              direction: 'in',
+              currency: {
+                address: zeroAddress,
+                ...selectedChain.nativeCurrency,
+              },
+              label: selectedChain.nativeCurrency.symbol,
+              value: formatUnits(
+                ethValue,
+                selectedChain.nativeCurrency.decimals,
                 prices[asset.underlying.address],
               ),
             },

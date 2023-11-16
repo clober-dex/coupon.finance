@@ -13,6 +13,7 @@ import { SwapForm } from '../../components/form/swap-form'
 import { useAdvancedContractContext } from '../../contexts/advanced-contract-context'
 import { Balances } from '../../model/balances'
 import { useChainContext } from '../../contexts/chain-context'
+import { toWrapETH } from '../../utils/currency'
 
 const Desk = () => {
   const { wrap, unwrap, mintSubstitute, burnSubstitute } =
@@ -44,15 +45,7 @@ const Desk = () => {
             ...assets.map((asset) => asset.underlying),
             ...coupons.map(({ coupon }) => coupon),
           ]
-      ).map((currency) =>
-        isEther(currency)
-          ? {
-              ...currency,
-              name: 'Wrapped Ether',
-              symbol: 'WETH',
-            }
-          : currency,
-      ),
+      ).map((currency) => toWrapETH(currency)),
       {
         address: zeroAddress,
         ...selectedChain.nativeCurrency,

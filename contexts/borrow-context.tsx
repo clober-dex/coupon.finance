@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import { Hash } from 'viem'
+import { Hash, zeroAddress } from 'viem'
 import {
   useAccount,
   usePublicClient,
@@ -21,6 +21,7 @@ import { permit721 } from '../utils/permit721'
 import { writeContract } from '../utils/wallet'
 import { CHAIN_IDS } from '../constants/chain'
 import { getDeadlineTimestampInSeconds } from '../utils/date'
+import { toWrapETH } from '../utils/currency'
 
 import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -161,11 +162,24 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           fields: [
             {
               direction: 'in',
-              currency: collateral.underlying,
-              label: collateral.underlying.symbol,
+              currency: toWrapETH(collateral.underlying),
+              label: toWrapETH(collateral.underlying).symbol,
               value: formatUnits(
-                collateralAmount,
+                permitAmount,
                 collateral.underlying.decimals,
+                prices[collateral.underlying.address],
+              ),
+            },
+            {
+              direction: 'in',
+              currency: {
+                address: zeroAddress,
+                ...selectedChain.nativeCurrency,
+              },
+              label: selectedChain.nativeCurrency.symbol,
+              value: formatUnits(
+                ethValue,
+                selectedChain.nativeCurrency.decimals,
                 prices[collateral.underlying.address],
               ),
             },
@@ -220,8 +234,9 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
     },
     [
       walletClient,
-      selectedChain.id,
       calculateETHValue,
+      selectedChain.id,
+      selectedChain.nativeCurrency,
       setConfirmation,
       prices,
       publicClient,
@@ -268,11 +283,24 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           fields: [
             {
               direction: 'in',
-              currency: position.underlying,
-              label: position.underlying.symbol,
+              currency: toWrapETH(position.underlying),
+              label: toWrapETH(position.underlying).symbol,
               value: formatUnits(
-                amount,
+                permitAmount,
                 position.underlying.decimals,
+                prices[position.underlying.address],
+              ),
+            },
+            {
+              direction: 'in',
+              currency: {
+                address: zeroAddress,
+                ...selectedChain.nativeCurrency,
+              },
+              label: selectedChain.nativeCurrency.symbol,
+              value: formatUnits(
+                ethValue,
+                selectedChain.nativeCurrency.decimals,
                 prices[position.underlying.address],
               ),
             },
@@ -312,6 +340,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
     [
       walletClient,
       selectedChain.id,
+      selectedChain.nativeCurrency,
       calculateETHValue,
       setConfirmation,
       prices,
@@ -527,11 +556,24 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           fields: [
             {
               direction: 'in',
-              currency: underlying,
-              label: underlying.symbol,
+              currency: toWrapETH(underlying),
+              label: toWrapETH(underlying).symbol,
               value: formatUnits(
-                expectedInterest,
+                permitAmount,
                 underlying.decimals,
+                prices[underlying.address],
+              ),
+            },
+            {
+              direction: 'in',
+              currency: {
+                address: zeroAddress,
+                ...selectedChain.nativeCurrency,
+              },
+              label: selectedChain.nativeCurrency.symbol,
+              value: formatUnits(
+                ethValue,
+                selectedChain.nativeCurrency.decimals,
                 prices[underlying.address],
               ),
             },
@@ -572,6 +614,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
     [
       walletClient,
       selectedChain.id,
+      selectedChain.nativeCurrency,
       calculateETHValue,
       setConfirmation,
       prices,
@@ -684,11 +727,24 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           fields: [
             {
               direction: 'in',
-              currency: position.collateral.underlying,
-              label: position.collateral.underlying.symbol,
+              currency: toWrapETH(position.collateral.underlying),
+              label: toWrapETH(position.collateral.underlying).symbol,
               value: formatUnits(
-                amount,
+                permitAmount,
                 position.collateral.underlying.decimals,
+                prices[position.collateral.underlying.address],
+              ),
+            },
+            {
+              direction: 'in',
+              currency: {
+                address: zeroAddress,
+                ...selectedChain.nativeCurrency,
+              },
+              label: selectedChain.nativeCurrency.symbol,
+              value: formatUnits(
+                ethValue,
+                selectedChain.nativeCurrency.decimals,
                 prices[position.collateral.underlying.address],
               ),
             },
@@ -727,6 +783,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
     [
       walletClient,
       selectedChain.id,
+      selectedChain.nativeCurrency,
       calculateETHValue,
       setConfirmation,
       prices,
