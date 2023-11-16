@@ -24,7 +24,7 @@ export const CurrencyDropdown = ({
       </button>
       <div className="relative">
         {showDropdown ? (
-          <div className="absolute rounded-xl hover:rounded-xl items-start flex flex-col top-2 sm:top-3 right-0 bg-white dark:bg-gray-800 shadow-xl">
+          <div className="absolute rounded-xl hover:rounded-xl items-start flex flex-col top-2 sm:top-3 right-0 bg-white dark:bg-gray-800 shadow-xl z-10">
             {currencies.map((currency) => (
               <div
                 key={currency.address}

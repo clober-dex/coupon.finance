@@ -5,7 +5,7 @@ import Modal from '../../components/modal/modal'
 import { BigDecimal } from '../../utils/numbers'
 import { ActionButton, ActionButtonProps } from '../button/action-button'
 import { Collateral } from '../../model/collateral'
-import { Arrow } from '../svg/arrow'
+import { ArrowSvg } from '../svg/arrow-svg'
 import { getLTVTextColor } from '../../utils/ltv'
 
 const EditCollateralModal = ({
@@ -69,7 +69,7 @@ const EditCollateralModal = ({
           </span>
           {value ? (
             <>
-              <Arrow />
+              <ArrowSvg />
               <span className={`${getLTVTextColor(expectedLtv, collateral)}`}>
                 {expectedLtv.toFixed(2)}%
               </span>

@@ -2,7 +2,7 @@ import React from 'react'
 
 import { BigDecimal, formatUnits } from '../../utils/numbers'
 import CurrencyAmountInput from '../input/currency-amount-input'
-import { Arrow } from '../svg/arrow'
+import { ArrowSvg } from '../svg/arrow-svg'
 import SwapSvg from '../svg/swap-svg'
 import SlippageSelect from '../selector/slippage-select'
 import Modal from '../../components/modal/modal'
@@ -146,7 +146,7 @@ const RepayModal = ({
             </span>
             {value ? (
               <>
-                <Arrow />
+                <ArrowSvg />
                 <span className="text-green-500">
                   {formatUnits(
                     max(remainingDebt - repayAmount, 0n),
@@ -169,7 +169,7 @@ const RepayModal = ({
             </span>
             {value ? (
               <>
-                <Arrow />
+                <ArrowSvg />
                 <span className={`${getLTVTextColor(expectedLtv, collateral)}`}>
                   {expectedLtv.toFixed(2)}%
                 </span>

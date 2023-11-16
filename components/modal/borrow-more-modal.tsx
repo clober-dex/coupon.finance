@@ -2,7 +2,7 @@ import React from 'react'
 
 import { BigDecimal, formatUnits } from '../../utils/numbers'
 import CurrencyAmountInput from '../input/currency-amount-input'
-import { Arrow } from '../svg/arrow'
+import { ArrowSvg } from '../svg/arrow-svg'
 import { ActionButton, ActionButtonProps } from '../button/action-button'
 import { Currency } from '../../model/currency'
 import { getLTVTextColor } from '../../utils/ltv'
@@ -58,7 +58,7 @@ const BorrowMoreModal = ({
             </span>
             {value ? (
               <>
-                <Arrow />
+                <ArrowSvg />
                 <span className={`${getLTVTextColor(expectedLtv, collateral)}`}>
                   {expectedLtv.toFixed(2)}%
                 </span>

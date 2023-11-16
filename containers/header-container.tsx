@@ -24,6 +24,9 @@ const HeaderContainer = ({
   const { point } = useCurrencyContext()
   const router = useRouter()
   const selected = useMemo(() => {
+    if (router.route.includes('banker')) {
+      return 'banker'
+    }
     if (router.query.mode === 'deposit' || router.route.includes('deposit')) {
       return 'deposit'
     }

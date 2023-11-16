@@ -5,7 +5,7 @@ import Modal from '../../components/modal/modal'
 import { BigDecimal, formatUnits } from '../../utils/numbers'
 import { ActionButton, ActionButtonProps } from '../button/action-button'
 import { Currency } from '../../model/currency'
-import { Arrow } from '../svg/arrow'
+import { ArrowSvg } from '../svg/arrow-svg'
 import { max } from '../../utils/bigint'
 
 const WithdrawModal = ({
@@ -62,7 +62,7 @@ const WithdrawModal = ({
           {depositCurrency.symbol}
           {value ? (
             <>
-              <Arrow />
+              <ArrowSvg />
               <span>
                 {formatUnits(
                   max(depositedAmount - withdrawAmount - repurchaseFee, 0n),
