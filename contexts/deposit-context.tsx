@@ -106,13 +106,15 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
       let hash: Hash | undefined
       try {
+        const permitAmount =
+          amount - calculateETHValue(asset.underlying, amount)
         const { deadline, r, s, v } = await permit20(
           selectedChain.id,
           walletClient,
           asset.underlying,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
-          amount - calculateETHValue(asset.underlying, amount),
+          permitAmount,
           getDeadlineTimestampInSeconds(),
         )
         setConfirmation({
@@ -142,8 +144,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
             epochs,
             expectedProceeds,
             {
-              permitAmount:
-                amount - calculateETHValue(asset.underlying, amount),
+              permitAmount,
               signature: {
                 deadline,
                 v,
