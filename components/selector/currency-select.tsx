@@ -24,99 +24,108 @@ const CurrencySelect = ({
 } & React.HTMLAttributes<HTMLDivElement>) => {
   const [value, setValue] = React.useState('')
   return (
-    <div className="flex flex-col flex-1 p-4 mt-2 sm:mt-0 items-center sm:justify-center">
-      <div className="flex flex-col shadow-md bg-gray-50 dark:bg-gray-900 rounded-xl sm:rounded-3xl w-full sm:w-[480px]">
-        <div className="flex flex-col p-4 rounded-t-xl sm:rounded-t-3xl gap-4">
-          <div className="flex text-sm sm:text-xl font-bold items-center justify-between">
-            <button onClick={onBack}>
-              <LeftSvg className=" w-4 h-4 sm:w-6 sm:h-6" />
-            </button>
-            Select a token
-            <LeftSvg className="invisible" />
-          </div>
-          <div className="relative rounded shadow-sm">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <SearchSvg className="h-4 w-4" />
-            </div>
-            <input
-              type="search"
-              name="search"
-              id="search"
-              className="block w-full rounded-md border-0 py-3 pl-10 text-gray-900 dark:bg-gray-800 placeholder:text-gray-400 text-xs sm:text-sm"
-              placeholder="Search by token name, symbol, or address"
-              onChange={(event) => setValue(event.target.value)}
-            />
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-center">
+        <div className="w-6 h-6 cursor-pointer relative" onClick={onBack}>
+          <LeftSvg />
+        </div>
+        <div className="flex flex-1 items-center justify-center text-base sm:text-xl font-bold">
+          Select a token
+        </div>
+      </div>
+      <div className="flex flex-col relative rounded shadow-sm">
+        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+          <div className="relative h-4 w-4">
+            <SearchSvg />
           </div>
         </div>
-        <div className="flex flex-col h-72 overflow-y-auto bg-white dark:bg-gray-900 rounded-b-xl sm:rounded-b-3xl">
-          {currencies
-            .filter(
-              (currency) =>
-                (isAddress(value) &&
-                  isAddressEqual(currency.address, getAddress(value))) ||
-                currency.name.toLowerCase().includes(value.toLowerCase()) ||
-                currency.symbol.toLowerCase().includes(value.toLowerCase()),
-            )
-            .sort((a, b) => {
-              const aValue =
-                Number(balances[a.address] ?? 0n) *
-                (prices[a.address]
-                  ? Number(
-                      formatUnits(
-                        prices[a.address].value,
-                        prices[a.address].decimals,
-                      ),
-                    )
-                  : 0.00000001)
-              const bValue =
-                Number(balances[b.address] ?? 0n) *
-                (prices[b.address]
-                  ? Number(
-                      formatUnits(
-                        prices[b.address].value,
-                        prices[b.address].decimals,
-                      ),
-                    )
-                  : 0.00000001)
-              return aValue > bValue ? -1 : aValue < bValue ? 1 : 0
-            })
-            .map((currency) => (
-              <button
-                key={currency.address}
-                className="flex w-full px-4 py-2 items-center justify-between text-start"
-                onClick={() => onCurrencySelect(currency)}
-              >
-                <div className="flex items-center gap-3">
-                  <CurrencyIcon
-                    currency={currency}
-                    className="w-6 h-6 sm:w-8 sm:h-8"
-                  />
-                  <div>
-                    <div className="text-sm sm:text-base font-bold">
-                      {currency.symbol}
-                    </div>
-                    <div className="text-xs text-gray-500">{currency.name}</div>
+        <div className="inline-block">
+          <div className="invisible h-0 mx-[29px]" aria-hidden="true">
+            Search by token name, symbol, or address
+          </div>
+          <input
+            type="search"
+            name="search"
+            id="search"
+            className="inline w-full rounded-md border-0 pl-10 py-3 text-gray-900 dark:bg-gray-800 placeholder:text-gray-400 text-xs sm:text-sm"
+            placeholder="Search by token name, symbol, or address"
+            value={value}
+            onChange={(event) => setValue(event.target.value)}
+          />
+        </div>
+      </div>
+      <div className="flex flex-col h-72 overflow-y-auto bg-white dark:bg-gray-900 rounded-b-xl sm:rounded-b-3xl">
+        {currencies
+          .filter(
+            (currency) =>
+              (isAddress(value) &&
+                isAddressEqual(currency.address, getAddress(value))) ||
+              currency.name.toLowerCase().includes(value.toLowerCase()) ||
+              currency.symbol.toLowerCase().includes(value.toLowerCase()),
+          )
+          .sort((a, b) => {
+            const aValue =
+              Number(balances[a.address] ?? 0n) *
+              (prices[a.address]
+                ? Number(
+                    formatUnits(
+                      prices[a.address].value,
+                      prices[a.address].decimals,
+                    ),
+                  )
+                : 0.00000001)
+            const bValue =
+              Number(balances[b.address] ?? 0n) *
+              (prices[b.address]
+                ? Number(
+                    formatUnits(
+                      prices[b.address].value,
+                      prices[b.address].decimals,
+                    ),
+                  )
+                : 0.00000001)
+            return aValue > bValue ? -1 : aValue < bValue ? 1 : 0
+          })
+          .map((currency) => (
+            <button
+              key={currency.address}
+              className="flex w-full px-4 py-2 items-center justify-between text-start"
+              onClick={() => onCurrencySelect(currency)}
+            >
+              <div className="flex items-center gap-3">
+                <CurrencyIcon
+                  currency={currency}
+                  className="w-6 h-6 sm:w-8 sm:h-8"
+                />
+                <div>
+                  <div className="text-sm sm:text-base font-bold">
+                    {currency.symbol}
                   </div>
+                  <div className="text-xs text-gray-500">{currency.name}</div>
                 </div>
-                <div className="text-sm text-end">
-                  <div>
-                    {formatUnits(
-                      balances[currency.address] ?? 0n,
-                      currency.decimals,
-                      prices[currency.address],
-                    )}
-                  </div>
+              </div>
+              <div className="flex-1 text-sm text-end text-white">
+                <div>
+                  {formatUnits(
+                    balances[currency.address] ?? 0n,
+                    currency.decimals,
+                    prices[currency.address] ?? 0,
+                  )}
+                </div>
+                {prices[currency.address] ? (
                   <div className="text-gray-500 text-xs">
                     {formatDollarValue(
                       balances[currency.address] ?? 0n,
                       currency.decimals,
-                      prices[currency.address],
+                      prices[currency.address] ?? 0,
                     )}
                   </div>
-                </div>
-              </button>
-            ))}
-        </div>
+                ) : (
+                  <></>
+                )}
+              </div>
+            </button>
+          ))}
       </div>
     </div>
   )
