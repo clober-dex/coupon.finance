@@ -122,7 +122,7 @@ const CouponUtilsForm = ({
             ) : (
               <></>
             )}
-            {dates.length > 0 ? (
+            {depositCurrency && dates.length > 0 ? (
               <div className="sm:px-6 sm:mb-2 mr-4 sm:mr-0">
                 <div>
                   <Slider
@@ -239,6 +239,12 @@ const Desk = () => {
     }
     return 'Cannot Convert'
   }, [assets, coupons, inputCurrency, mode, outputCurrency])
+
+  useEffect(() => {
+    setInputCurrency(undefined)
+    setInputCurrencyAmount('')
+    setOutputCurrency(undefined)
+  }, [mode])
 
   useEffect(() => {
     if (mode === 'substitute' && inputCurrency) {
