@@ -374,33 +374,39 @@ const Desk = () => {
               </div>
             </div>
           </div>
-          <div className="flex flex-1 flex-col w-full md:w-[640px] lg:w-[960px]">
-            <div className="flex flex-col gap-6 mb-8 px-4 lg:p-0">
-              <div className="flex gap-2 sm:gap-3 items-center">
-                <h2 className="font-bold text-base sm:text-2xl">
-                  My Positions
-                </h2>
-              </div>
-              <div className="flex flex-1 flex-col w-full h-full sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 mb-8 justify-center">
-                {positions
-                  .filter((position) => position.interest === 0n)
-                  .sort(
-                    (a, b) =>
-                      Number(a.toEpoch.endTimestamp) -
-                      Number(b.toEpoch.endTimestamp),
-                  )
-                  .map((position, index) => (
-                    <BondPositionCard
-                      key={index}
-                      position={position}
-                      price={prices[position.underlying.address]}
-                      onWithdraw={() => {}}
-                      onCollect={() => {}}
-                    />
-                  ))}
+          {'coupon' === mode &&
+          positions.filter((position) => position.interest === 0n).length >
+            0 ? (
+            <div className="flex flex-1 flex-col w-full md:w-[640px] lg:w-[960px]">
+              <div className="flex flex-col gap-6 mb-8 px-4 lg:p-0">
+                <div className="flex gap-2 sm:gap-3 items-center">
+                  <h2 className="font-bold text-base sm:text-2xl">
+                    My Positions
+                  </h2>
+                </div>
+                <div className="flex flex-1 flex-col w-full h-full sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 mb-8 justify-center">
+                  {positions
+                    .filter((position) => position.interest === 0n)
+                    .sort(
+                      (a, b) =>
+                        Number(a.toEpoch.endTimestamp) -
+                        Number(b.toEpoch.endTimestamp),
+                    )
+                    .map((position, index) => (
+                      <BondPositionCard
+                        key={index}
+                        position={position}
+                        price={prices[position.underlying.address]}
+                        onWithdraw={() => {}}
+                        onCollect={() => {}}
+                      />
+                    ))}
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            <></>
+          )}
         </div>
       </main>
     </div>
