@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import Head from 'next/head'
-import { getAddress, isAddressEqual, parseUnits, zeroAddress } from 'viem'
+import { getAddress, isAddressEqual, zeroAddress } from 'viem'
 import { useAccount, useBalance } from 'wagmi'
 
 import { Currency } from '../../model/currency'
@@ -14,6 +14,7 @@ import { useAdvancedContractContext } from '../../contexts/advanced-contract-con
 import { Balances } from '../../model/balances'
 import { useChainContext } from '../../contexts/chain-context'
 import { toWrapETH } from '../../utils/currency'
+import { parseUnits } from '../../utils/numbers'
 
 const Desk = () => {
   const { wrap, unwrap, mintSubstitute, burnSubstitute } =

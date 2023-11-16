@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { parseUnits, zeroAddress } from 'viem'
+import { zeroAddress } from 'viem'
 import { usePublicClient, useQuery } from 'wagmi'
 import Link from 'next/link'
 import BigNumber from 'bignumber.js'
@@ -20,6 +20,7 @@ import { CHAIN_IDS } from '../../constants/chain'
 import { ethValue } from '../../utils/currency'
 import { CurrencyIcon } from '../../components/icon/currency-icon'
 import { buildPendingPosition } from '../../model/loan-position'
+import { parseUnits } from '../../utils/numbers'
 
 const Borrow = () => {
   const { selectedChain } = useChainContext()

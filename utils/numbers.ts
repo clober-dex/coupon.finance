@@ -1,4 +1,4 @@
-import { formatUnits as _formatUnits } from 'viem'
+import { formatUnits as _formatUnits, parseUnits as _parseUnits } from 'viem'
 import BigNumber from 'bignumber.js'
 
 export type BigDecimal = {
@@ -50,6 +50,10 @@ export const toDollarString = (dollarValue: BigNumber): string => {
     suffix = 'K'
   }
   return `$${toCommaSeparated(abbreviatedDollarValue.toFixed(2))}${suffix}`
+}
+
+export const parseUnits = (value: string, decimals: number): bigint => {
+  return _parseUnits(value.replace(/,/g, ''), decimals)
 }
 
 export const formatUnits = (
