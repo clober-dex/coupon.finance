@@ -15,7 +15,8 @@ import { Balances } from '../../model/balances'
 import { useChainContext } from '../../contexts/chain-context'
 
 const Desk = () => {
-  const { mintSubstitute, burnSubstitute } = useAdvancedContractContext()
+  const { wrap, unwrap, mintSubstitute, burnSubstitute } =
+    useAdvancedContractContext()
   const { address: userAddress } = useAccount()
   const { selectedChain } = useChainContext()
   const { data: ethBalance } = useBalance({ address: userAddress })
@@ -79,6 +80,10 @@ const Desk = () => {
     setInputCurrencyAmount('')
     setOutputCurrency(undefined)
   }, [])
+  const inputAmount = useMemo(
+    () => parseUnits(inputCurrencyAmount, inputCurrency?.decimals ?? 18),
+    [inputCurrency?.decimals, inputCurrencyAmount],
+  )
 
   const buttonText = useMemo(() => {
     if (!inputCurrency || !outputCurrency) {
@@ -199,32 +204,27 @@ const Desk = () => {
                     disabled:
                       buttonText === 'Cannot Convert' ||
                       buttonText === 'Select Token' ||
-                      parseUnits(
-                        inputCurrencyAmount,
-                        inputCurrency?.decimals ?? 18,
-                      ) === 0n,
+                      inputAmount === 0n,
                     onClick: async () => {
                       if (!inputCurrency || !outputCurrency) {
                         return
                       }
 
-                      if (buttonText === 'Burn Substitute') {
+                      if (buttonText === 'Wrap') {
+                        await wrap(outputCurrency, inputAmount)
+                      } else if (buttonText === 'Unwrap') {
+                        await unwrap(inputCurrency, inputAmount)
+                      } else if (buttonText === 'Burn Substitute') {
                         await burnSubstitute(
                           inputCurrency,
                           outputCurrency,
-                          parseUnits(
-                            inputCurrencyAmount,
-                            inputCurrency?.decimals ?? 18,
-                          ),
+                          inputAmount,
                         )
                       } else if (buttonText === 'Mint Substitute') {
                         await mintSubstitute(
                           inputCurrency,
                           outputCurrency,
-                          parseUnits(
-                            inputCurrencyAmount,
-                            inputCurrency?.decimals ?? 18,
-                          ),
+                          inputAmount,
                         )
                       }
                     },
