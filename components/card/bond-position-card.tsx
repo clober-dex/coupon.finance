@@ -11,6 +11,7 @@ export const BondPositionCard = ({
   price,
   onWithdraw,
   onCollect,
+  children,
 }: {
   position: BondPosition
   price?: BigDecimal
@@ -108,6 +109,7 @@ export const BondPositionCard = ({
               %
             </div>
           </div>
+          {children}
         </div>
         {position.toEpoch.endTimestamp < now ? (
           <button
