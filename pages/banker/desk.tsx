@@ -1,27 +1,14 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import Head from 'next/head'
-import { getAddress, isAddressEqual, zeroAddress } from 'viem'
-import { useAccount, useBalance } from 'wagmi'
 
 import { Currency } from '../../model/currency'
-import {
-  isEther,
-  isEtherAddress,
-  useCurrencyContext,
-} from '../../contexts/currency-context'
+import { useCurrencyContext } from '../../contexts/currency-context'
 import { SwapForm } from '../../components/form/swap-form'
 import { useAdvancedContractContext } from '../../contexts/advanced-contract-context'
-import { Balances } from '../../model/balances'
-import { useChainContext } from '../../contexts/chain-context'
-import { toWrapETH } from '../../utils/currency'
 import { parseUnits } from '../../utils/numbers'
 
 const Desk = () => {
-  const { wrap, unwrap, mintSubstitute, burnSubstitute } =
-    useAdvancedContractContext()
-  const { address: userAddress } = useAccount()
-  const { selectedChain } = useChainContext()
-  const { data: ethBalance } = useBalance({ address: userAddress })
+  const { mintSubstitute, burnSubstitute } = useAdvancedContractContext()
   const { assets, prices, balances, coupons } = useCurrencyContext()
   const [mode, _setMode] = useState<'substitute' | 'coupon'>('substitute')
   const [inputCurrency, setInputCurrency] = useState<Currency | undefined>(
@@ -45,28 +32,9 @@ const Desk = () => {
         : [
             ...assets.map((asset) => asset.underlying),
             ...coupons.map(({ coupon }) => coupon),
-          ]
-      ).map((currency) => toWrapETH(currency)),
-      {
-        address: zeroAddress,
-        ...selectedChain.nativeCurrency,
-      },
+          ]),
     ]
-  }, [assets, coupons, mode, selectedChain.nativeCurrency])
-
-  const balanceWithETH = useMemo(
-    () =>
-      Object.entries(balances).reduce((acc, [address, balance]) => {
-        return {
-          ...acc,
-          [zeroAddress]: ethBalance?.value ?? 0n,
-          [getAddress(address)]: isEtherAddress(getAddress(address))
-            ? balance - (ethBalance?.value ?? 0n)
-            : balance,
-        }
-      }, {} as Balances),
-    [balances, ethBalance?.value],
-  )
+  }, [assets, coupons, mode])
 
   const setMode = useCallback((mode: 'substitute' | 'coupon') => {
     _setMode(mode)
@@ -82,18 +50,6 @@ const Desk = () => {
   const buttonText = useMemo(() => {
     if (!inputCurrency || !outputCurrency) {
       return 'Select Token'
-    }
-    if (
-      isEther(inputCurrency) &&
-      isAddressEqual(outputCurrency.address, zeroAddress)
-    ) {
-      return 'Unwrap'
-    }
-    if (
-      isEther(outputCurrency) &&
-      isAddressEqual(inputCurrency.address, zeroAddress)
-    ) {
-      return 'Wrap'
     }
     const underlyingAddresses = assets
       .map((asset) => asset.underlying)
@@ -176,7 +132,7 @@ const Desk = () => {
                       ...acc,
                       [coupon.address]: balance,
                     }
-                  }, balanceWithETH)}
+                  }, balances)}
                   prices={prices}
                   showInputCurrencySelect={showInputCurrencySelect}
                   setShowInputCurrencySelect={setShowInputCurrencySelect}
@@ -185,9 +141,7 @@ const Desk = () => {
                   inputCurrencyAmount={inputCurrencyAmount}
                   setInputCurrencyAmount={setInputCurrencyAmount}
                   availableInputCurrencyBalance={
-                    inputCurrency
-                      ? balanceWithETH[inputCurrency.address] ?? 0n
-                      : 0n
+                    inputCurrency ? balances[inputCurrency.address] ?? 0n : 0n
                   }
                   showOutputCurrencySelect={showOutputCurrencySelect}
                   setShowOutputCurrencySelect={setShowOutputCurrencySelect}
@@ -203,12 +157,7 @@ const Desk = () => {
                       if (!inputCurrency || !outputCurrency) {
                         return
                       }
-
-                      if (buttonText === 'Wrap') {
-                        await wrap(outputCurrency, inputAmount)
-                      } else if (buttonText === 'Unwrap') {
-                        await unwrap(inputCurrency, inputAmount)
-                      } else if (buttonText === 'Burn Substitute') {
+                      if (buttonText === 'Burn Substitute') {
                         await burnSubstitute(
                           inputCurrency,
                           outputCurrency,
