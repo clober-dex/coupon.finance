@@ -18,6 +18,9 @@ const Slider = ({
 } & React.HTMLAttributes<HTMLDivElement> &
   React.PropsWithChildren) => {
   value = Math.max(value, 0)
+  if (segments) {
+    segments -= 1
+  }
 
   const ref = useRef<HTMLDivElement>(null)
   const startValue = useRef(value)
