@@ -165,7 +165,6 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           value: calculateETHValue(asset.underlying, amount),
           account: walletClient.account,
         })
-        previousConformationPositions.current = []
         setPendingPositions(
           (prevState) =>
             [

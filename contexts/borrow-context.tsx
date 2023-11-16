@@ -209,7 +209,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           value: calculateETHValue(collateral.underlying, collateralAmount),
           account: walletClient.account,
         })
-        previousConformationPositions.current = []
         setPendingPositions(
           (prevState) =>
             [
