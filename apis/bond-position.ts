@@ -45,7 +45,7 @@ export async function fetchBondPosition(
 function toBondPosition(
   bondPosition: Pick<
     GraphqlBondPosition,
-    'id' | 'user' | 'amount' | 'principal' | 'createdAt'
+    'id' | 'user' | 'amount' | 'principal' | 'createdAt' | 'updatedAt'
   > & {
     substitute: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
     underlying: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
@@ -70,6 +70,7 @@ function toBondPosition(
       endTimestamp: Number(bondPosition.toEpoch.endTimestamp),
     },
     createdAt: Number(bondPosition.createdAt),
+    updatedAt: Number(bondPosition.updatedAt),
     isPending: false,
   }
 }

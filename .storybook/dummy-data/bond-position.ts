@@ -27,5 +27,6 @@ export const dummyBondPosition: BondPosition = {
     endTimestamp: 1704067199,
   },
   createdAt: 1693325759,
+  updatedAt: 1693325759,
   isPending: false,
 }

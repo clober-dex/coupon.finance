@@ -203,6 +203,7 @@ const Borrow = () => {
                     if (!collateral) {
                       return
                     }
+                    const now = currentTimestampInSeconds()
                     const hash = await borrow(
                       collateral,
                       collateralAmount,
@@ -229,7 +230,8 @@ const Borrow = () => {
                               startTimestamp: -1,
                               endTimestamp,
                             },
-                            createdAt: currentTimestampInSeconds(),
+                            createdAt: now,
+                            updatedAt: now,
                             isPending: true,
                           }
                         : undefined,

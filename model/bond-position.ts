@@ -10,5 +10,6 @@ export type BondPosition = {
   fromEpoch: Epoch
   toEpoch: Epoch
   createdAt: number
+  updatedAt: number
   isPending: boolean
 }

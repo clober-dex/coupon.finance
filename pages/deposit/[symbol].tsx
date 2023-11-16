@@ -103,6 +103,7 @@ const Deposit = () => {
                   disabled:
                     amount === 0n || epochs === 0 || amount > maxDepositAmount,
                   onClick: async () => {
+                    const now = currentTimestampInSeconds()
                     const hash = await deposit(
                       asset,
                       amount,
@@ -125,7 +126,8 @@ const Deposit = () => {
                               startTimestamp: -1,
                               endTimestamp,
                             },
-                            createdAt: currentTimestampInSeconds(),
+                            createdAt: now,
+                            updatedAt: now,
                             isPending: true,
                           }
                         : undefined,

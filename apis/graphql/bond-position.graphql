@@ -27,5 +27,6 @@ query getBondPosition($positionId: ID!) {
       endTimestamp
     }
     createdAt
+    updatedAt
   }
 }
