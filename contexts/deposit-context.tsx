@@ -32,6 +32,7 @@ type DepositContext = {
     amount: bigint,
     epochs: number,
     expectedProceeds: bigint,
+    pendingPosition?: BondPosition,
   ) => Promise<Hash | undefined>
   withdraw: (
     asset: Currency,
@@ -59,11 +60,30 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
   const { calculateETHValue, prices } = useCurrencyContext()
+  const [pendingPositions, setPendingPositions] = React.useState<
+    BondPosition[]
+  >([])
 
   const { data: positions } = useQuery(
-    ['bond-positions', userAddress, selectedChain],
-    () =>
-      userAddress ? fetchBondPositions(selectedChain.id, userAddress) : [],
+    ['bond-positions', userAddress, selectedChain, pendingPositions],
+    async () => {
+      if (!userAddress) {
+        return []
+      }
+      const confirmationPositions = await fetchBondPositions(
+        selectedChain.id,
+        userAddress,
+      )
+      const latestConfirmationTimestamp =
+        confirmationPositions.sort((a, b) => b.updatedAt - a.updatedAt).at(0)
+          ?.updatedAt ?? 0
+      return [
+        ...confirmationPositions,
+        ...pendingPositions.filter(
+          (position) => position.updatedAt > latestConfirmationTimestamp,
+        ),
+      ]
+    },
     {
       refetchIntervalInBackground: true,
       refetchInterval: 5 * 1000,
@@ -77,6 +97,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       amount: bigint,
       epochs: number,
       expectedProceeds: bigint,
+      pendingPosition?: BondPosition,
     ): Promise<Hash | undefined> => {
       if (!walletClient) {
         // TODO: alert wallet connect
@@ -134,8 +155,16 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           value: calculateETHValue(asset.underlying, amount),
           account: walletClient.account,
         })
+        setPendingPositions(
+          (prevState) =>
+            [
+              ...(pendingPosition ? [pendingPosition] : []),
+              ...prevState,
+            ] as BondPosition[],
+        )
         await queryClient.invalidateQueries(['bond-positions'])
       } catch (e) {
+        setPendingPositions([])
         console.error(e)
       } finally {
         await queryClient.invalidateQueries(['balances'])

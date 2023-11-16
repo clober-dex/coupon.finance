@@ -87,9 +87,13 @@ export const LoanPositionCard = ({
                   {formatDate(
                     new Date(Number(position.toEpoch.endTimestamp) * 1000),
                   )}
-                  <button>
-                    <EditSvg onClick={onEditExpiry} />
-                  </button>
+                  {!position.isPending ? (
+                    <button>
+                      <EditSvg onClick={onEditExpiry} />
+                    </button>
+                  ) : (
+                    <></>
+                  )}
                 </div>
               </>
             ) : (
@@ -155,7 +159,7 @@ export const LoanPositionCard = ({
                 )}{' '}
                 {position.collateral.underlying.symbol}
               </div>
-              {!isExpired ? (
+              {!isExpired && !position.isPending ? (
                 <button>
                   <EditSvg onClick={onEditCollateral} />
                 </button>
@@ -181,8 +185,9 @@ export const LoanPositionCard = ({
         <div className="flex items-start gap-3 self-stretch">
           {!isExpired ? (
             <button
-              className="flex-1 bg-green-500 bg-opacity-10 hover:bg-opacity-20 text-green-500 font-bold px-3 py-2 rounded text-sm"
+              className="flex-1 bg-green-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-green-500 font-bold px-3 py-2 rounded text-sm"
               onClick={onBorrowMore}
+              disabled={position.isPending}
             >
               Borrow More
             </button>
@@ -190,8 +195,9 @@ export const LoanPositionCard = ({
             <></>
           )}
           <button
-            className="flex-1 bg-green-500 bg-opacity-10 hover:bg-opacity-20 text-green-500 font-bold px-3 py-2 rounded text-sm"
+            className="flex-1 bg-green-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-green-500 font-bold px-3 py-2 rounded text-sm"
             onClick={!isExpired ? onRepay : onCollect}
+            disabled={position.isPending}
           >
             {!isExpired ? 'Repay' : 'Collect Collateral'}
           </button>

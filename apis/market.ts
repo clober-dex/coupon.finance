@@ -106,6 +106,7 @@ export async function fetchDepositInfosByEpochsDeposited(
         date: formatDate(
           new Date(Number(markets.at(-1)?.endTimestamp ?? 0n) * 1000),
         ),
+        endTimestamp: Number(markets.at(-1)?.endTimestamp ?? 0n),
         proceeds,
         apy,
         remainingCoupons,
@@ -142,6 +143,7 @@ export async function fetchBorrowApyByEpochsBorrowed(
         date: formatDate(
           new Date(Number(markets.at(-1)?.endTimestamp ?? 0n) * 1000),
         ),
+        endTimestamp: Number(markets.at(-1)?.endTimestamp ?? 0n),
         interest,
         maxInterest,
         apy,

@@ -35,6 +35,7 @@ type BorrowContext = {
     loanAmount: bigint,
     epochs: number,
     expectedInterest: bigint,
+    pendingPosition?: LoanPosition,
   ) => Promise<Hash | undefined>
   extendLoanDuration: (
     underlying: Currency,
@@ -92,11 +93,30 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
   const { calculateETHValue, prices } = useCurrencyContext()
+  const [pendingPositions, setPendingPositions] = React.useState<
+    LoanPosition[]
+  >([])
 
   const { data: positions } = useQuery(
-    ['loan-positions', userAddress, selectedChain],
-    () =>
-      userAddress ? fetchLoanPositions(selectedChain.id, userAddress) : [],
+    ['loan-positions', userAddress, selectedChain, pendingPositions],
+    async () => {
+      if (!userAddress) {
+        return []
+      }
+      const confirmationPositions = await fetchLoanPositions(
+        selectedChain.id,
+        userAddress,
+      )
+      const latestConfirmationTimestamp =
+        confirmationPositions.sort((a, b) => b.updatedAt - a.updatedAt).at(0)
+          ?.updatedAt ?? 0
+      return [
+        ...confirmationPositions,
+        ...pendingPositions.filter(
+          (position) => position.updatedAt > latestConfirmationTimestamp,
+        ),
+      ]
+    },
     {
       refetchIntervalInBackground: true,
       refetchInterval: 5 * 1000,
@@ -112,6 +132,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       loanAmount: bigint,
       epochs: number,
       expectedInterest: bigint,
+      pendingPosition?: LoanPosition,
     ): Promise<Hash | undefined> => {
       if (!walletClient) {
         // TODO: alert wallet connect
@@ -178,8 +199,16 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           value: calculateETHValue(collateral.underlying, collateralAmount),
           account: walletClient.account,
         })
+        setPendingPositions(
+          (prevState) =>
+            [
+              ...(pendingPosition ? [pendingPosition] : []),
+              ...prevState,
+            ] as LoanPosition[],
+        )
         await queryClient.invalidateQueries(['loan-positions'])
       } catch (e) {
+        setPendingPositions([])
         console.error(e)
       } finally {
         await queryClient.invalidateQueries(['balances'])

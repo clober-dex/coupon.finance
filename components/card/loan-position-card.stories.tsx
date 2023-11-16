@@ -34,6 +34,20 @@ export const Default: Story = {
   },
 }
 
+export const isPendingPosition: Story = {
+  args: {
+    position: { ...dummyLoanPosition, isPending: true },
+    price: {
+      value: 990000000n,
+      decimals: 8,
+    },
+    collateralPrice: {
+      value: 176800000000n,
+      decimals: 8,
+    },
+  },
+}
+
 // @ts-ignore
 BigInt.prototype.toJSON = function () {
   return this.toString()

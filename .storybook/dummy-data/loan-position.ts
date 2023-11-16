@@ -47,4 +47,6 @@ export const dummyLoanPosition: LoanPosition = {
     endTimestamp: 1719791999,
   },
   createdAt: 1694497281,
+  updatedAt: 1694497281,
+  isPending: false,
 }
