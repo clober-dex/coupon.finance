@@ -12,6 +12,7 @@ import { LoanPositionCard } from '../components/card/loan-position-card'
 import { calculateApy } from '../utils/apy'
 import { BorrowCard } from '../components/card/borrow-card'
 import { currentTimestampInSeconds, formatDate } from '../utils/date'
+import { MAX_VISIBLE_MARKETS } from '../utils/market'
 
 import EditCollateralModalContainer from './modal/edit-collateral-modal-container'
 import RepayModalContainer from './modal/repay-modal-container'
@@ -139,7 +140,7 @@ const BorrowContainer = ({
                     ({ epoch }) =>
                       Number(epoch.endTimestamp) > currentTimestamp,
                   )
-                  .slice(0, 4)
+                  .slice(0, MAX_VISIBLE_MARKETS)
                 return (
                   <BorrowCard
                     currency={assetStatus.asset.underlying}
