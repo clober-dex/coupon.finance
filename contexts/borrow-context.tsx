@@ -1,19 +1,13 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { Hash, zeroAddress } from 'viem'
-import {
-  useAccount,
-  usePublicClient,
-  useQuery,
-  useQueryClient,
-  useWalletClient,
-} from 'wagmi'
+import { usePublicClient, useQueryClient, useWalletClient } from 'wagmi'
 
 import { Asset } from '../model/asset'
 import { permit20 } from '../utils/permit20'
 import { CONTRACT_ADDRESSES } from '../constants/addresses'
 import { formatUnits } from '../utils/numbers'
 import { BorrowController__factory, RepayAdapter__factory } from '../typechain'
-import { fetchLoanPositions } from '../apis/loan-position'
+import { extractLoanPositions } from '../apis/loan-position'
 import { Collateral } from '../model/collateral'
 import { LoanPosition } from '../model/loan-position'
 import { Currency } from '../model/currency'
@@ -26,6 +20,7 @@ import { toWrapETH } from '../utils/currency'
 import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
 import { useChainContext } from './chain-context'
+import { useSubgraphContext } from './subgraph-context'
 
 type BorrowContext = {
   positions: LoanPosition[]
@@ -87,7 +82,7 @@ const Context = React.createContext<BorrowContext>({
 export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient()
 
-  const { address: userAddress } = useAccount()
+  const { integratedPositions } = useSubgraphContext()
   const { selectedChain } = useChainContext()
 
   const { data: walletClient } = useWalletClient()
@@ -98,32 +93,21 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
     LoanPosition[]
   >([])
 
-  const { data: positions } = useQuery(
-    ['loan-positions', userAddress, selectedChain, pendingPositions],
-    async () => {
-      if (!userAddress) {
-        return []
-      }
-      const confirmationPositions = await fetchLoanPositions(
-        selectedChain.id,
-        userAddress,
-      )
-      const latestConfirmationTimestamp =
-        confirmationPositions.sort((a, b) => b.updatedAt - a.updatedAt).at(0)
-          ?.updatedAt ?? 0
-      return [
-        ...confirmationPositions,
-        ...pendingPositions.filter(
-          (position) => position.updatedAt > latestConfirmationTimestamp,
-        ),
-      ]
-    },
-    {
-      refetchIntervalInBackground: true,
-      refetchInterval: 5 * 1000,
-      initialData: [],
-    },
-  )
+  const positions = useMemo(() => {
+    if (!integratedPositions) {
+      return []
+    }
+    const confirmationPositions = extractLoanPositions(integratedPositions)
+    const latestConfirmationTimestamp =
+      confirmationPositions.sort((a, b) => b.updatedAt - a.updatedAt).at(0)
+        ?.updatedAt ?? 0
+    return [
+      ...confirmationPositions,
+      ...pendingPositions.filter(
+        (position) => position.updatedAt > latestConfirmationTimestamp,
+      ),
+    ]
+  }, [integratedPositions, pendingPositions])
 
   const borrow = useCallback(
     async (

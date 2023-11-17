@@ -1,5 +1,5 @@
 import { Epoch } from '../model/epoch'
-import { getBuiltGraphSDK } from '../.graphclient'
+import { getBuiltGraphSDK, getIntegratedQuery } from '../.graphclient'
 import { SUBGRAPH_URL } from '../constants/subgraph-url'
 import { CHAIN_IDS } from '../constants/chain'
 import { currentTimestampInSeconds } from '../utils/date'
@@ -15,6 +15,22 @@ export async function fetchEpochs(chainId: CHAIN_IDS): Promise<Epoch[]> {
       url: SUBGRAPH_URL[chainId],
     },
   )
+  return epoches
+    .map((epoch) => ({
+      id: +epoch.id,
+      startTimestamp: +epoch.startTimestamp,
+      endTimestamp: +epoch.endTimestamp,
+    }))
+    .sort((a, b) => a.endTimestamp - b.endTimestamp)
+}
+
+export function extractEpochs(
+  integrated: getIntegratedQuery | undefined,
+): Epoch[] {
+  if (!integrated) {
+    return []
+  }
+  const { epoches } = integrated
   return epoches
     .map((epoch) => ({
       id: +epoch.id,

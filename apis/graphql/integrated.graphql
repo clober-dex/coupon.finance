@@ -1,0 +1,110 @@
+query getIntegrated($timestamp: BigInt!) {
+    assetStatuses {
+        id
+        asset {
+            underlying {
+                id
+                symbol
+                name
+                decimals
+            }
+            substitutes {
+                id
+                symbol
+                name
+                decimals
+            }
+            collaterals {
+                underlying {
+                    id
+                    symbol
+                    name
+                    decimals
+                }
+                substitute {
+                    id
+                    symbol
+                    name
+                    decimals
+                }
+                liquidationThreshold
+                liquidationTargetLtv
+                totalCollateralized
+                totalBorrowed
+            }
+        }
+        epoch {
+            id
+            startTimestamp
+            endTimestamp
+        }
+        market {
+            id
+            couponId
+            orderToken
+            takerFee
+            quoteUnit
+            epoch {
+                id
+                startTimestamp
+                endTimestamp
+            }
+            quoteToken {
+                id
+                name
+                symbol
+                decimals
+            }
+            baseToken {
+                id
+                name
+                symbol
+                decimals
+            }
+            depths {
+                price
+                rawAmount
+                isBid
+            }
+        }
+        totalDeposited
+        totalBorrowed
+    }
+    assets {
+        underlying {
+            id
+            symbol
+            name
+            decimals
+        }
+        substitutes {
+            id
+            symbol
+            name
+            decimals
+        }
+        collaterals {
+            underlying {
+                id
+                symbol
+                name
+                decimals
+            }
+            substitute {
+                id
+                symbol
+                name
+                decimals
+            }
+            liquidationThreshold
+            liquidationTargetLtv
+            totalCollateralized
+            totalBorrowed
+        }
+    }
+    epoches (where: {endTimestamp_gte: $timestamp}) {
+        id
+        startTimestamp
+        endTimestamp
+    }
+}
