@@ -28,8 +28,8 @@ export const DepositCard = ({
   )
   return (
     <Link href={`/deposit/${currency.symbol}`}>
-      <div className="transition ease-in-out delay-150 duration-300 sm:hover:-translate-y-1 sm:hover:scale-105 group flex flex-col w-full p-4 justify-center items-center gap-4 bg-white dark:bg-gray-800 rounded-xl">
-        <div className="flex flex-col items-start gap-6 self-stretch">
+      <div className="h-[300px] transition ease-in-out delay-150 duration-300 sm:hover:-translate-y-1 sm:hover:scale-105 group flex flex-col w-full px-4 py-6 justify-center items-center gap-4 bg-white dark:bg-gray-800 rounded-xl">
+        <div className="flex flex-col items-start gap-6 hover:gap-4 self-stretch">
           <div className="flex items-center gap-3 self-stretch">
             <CurrencyIcon
               currency={currency}
@@ -52,7 +52,7 @@ export const DepositCard = ({
               Fixed APY
             </div>
           </div>
-          <div className="group flex flex-col items-start gap-3 self-stretch">
+          <div className="group flex flex-col items-start gap-6 self-stretch">
             <div className="flex flex-col items-start gap-4 self-stretch group-hover:hidden">
               <div className="flex items-center self-stretch">
                 <div className="flex flex-col items-start gap-1 flex-grow flex-shrink-0 basis-0">
@@ -111,7 +111,7 @@ export const DepositCard = ({
                 : apys
               ).map(({ date, apy }, index) => (
                 <div
-                  className="flex-grow flex-shrink basis-1/2 pb-2.5 flex flex-col gap-1"
+                  className="flex-grow flex-shrink basis-1/2 pb-1 flex flex-col gap-1"
                   key={index}
                 >
                   <div className="felx flex-grow shrink-0 basis-0 font-bold text-lg">

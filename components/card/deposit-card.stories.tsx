@@ -13,7 +13,7 @@ export default {
   },
   render: ({ ...args }) => {
     return (
-      <div className="w-[400px]">
+      <div className="w-[296px]">
         <DepositCard {...args} />
       </div>
     )
@@ -32,6 +32,9 @@ export const Default: Story = {
     apys: [
       { date: '01 Jun 2024', apy: 12.1 },
       { date: '01 Dec 2024', apy: 10.1 },
+      { date: '01 Jun 2023', apy: 2.1 },
+      { date: '01 Jun 2023', apy: 2.1 },
+      { date: '01 Jun 2023', apy: 2.1 },
       { date: '01 Jun 2023', apy: 2.1 },
     ],
     available: 100000000000000000000n,
