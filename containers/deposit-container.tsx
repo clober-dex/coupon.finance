@@ -12,6 +12,7 @@ import { BondPositionCard } from '../components/card/bond-position-card'
 import { DepositCard } from '../components/card/deposit-card'
 import { currentTimestampInSeconds, formatDate } from '../utils/date'
 import { calculateApy } from '../utils/apy'
+import { MAX_VISIBLE_MARKETS } from '../utils/market'
 
 import WithdrawModalContainer from './modal/withdraw-modal-container'
 
@@ -134,7 +135,7 @@ const DepositContainer = ({
                     ({ epoch }) =>
                       Number(epoch.endTimestamp) > currentTimestamp,
                   )
-                  .slice(0, 4)
+                  .slice(0, MAX_VISIBLE_MARKETS)
                 return (
                   <DepositCard
                     currency={assetStatus.asset.underlying}
