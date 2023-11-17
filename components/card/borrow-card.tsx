@@ -6,6 +6,7 @@ import { Currency } from '../../model/currency'
 import { BigDecimal, formatUnits } from '../../utils/numbers'
 import { Collateral } from '../../model/collateral'
 import { CurrencyIcon } from '../icon/currency-icon'
+import { MAX_VISIBLE_MARKETS } from '../../utils/market'
 
 export const BorrowCard = ({
   currency,
@@ -51,7 +52,7 @@ export const BorrowCard = ({
               Fixed APY
             </div>
           </div>
-          <div className="group flex flex-col items-start gap-6 self-stretch">
+          <div className="group flex flex-col items-start gap-3 self-stretch">
             <div className="flex flex-col items-start gap-4 self-stretch group-hover:hidden">
               <div className="flex items-center self-stretch">
                 <div className="flex flex-col items-start gap-1 flex-grow flex-shrink-0 basis-0">
@@ -99,22 +100,28 @@ export const BorrowCard = ({
                 </div>
               </div>
             </div>
-            <div className="flex-col items-start self-stretch gap-3 hidden group-hover:flex">
-              {(apys.length < 4
+            <div className="flex-wrap items-start hidden group-hover:flex">
+              {(apys.length < MAX_VISIBLE_MARKETS
                 ? apys.concat(
-                    Array(4 - apys.length).fill({ date: '', apy: Number.NaN }),
+                    Array(MAX_VISIBLE_MARKETS - apys.length).fill({
+                      date: '',
+                      apy: Number.NaN,
+                    }),
                   )
                 : apys
               ).map(({ date, apy }, index) => (
-                <div className="flex items-start self-stretch" key={index}>
-                  <div className="felx flex-grow shrink-0 basis-0 font-bold">
+                <div
+                  className="flex-grow flex-shrink basis-1/2 pb-2.5 flex flex-col gap-1"
+                  key={index}
+                >
+                  <div className="felx flex-grow shrink-0 basis-0 font-bold text-lg">
                     {!Number.isNaN(apy)
                       ? `${apy.toFixed(2)}%`
                       : date
                       ? '-'
                       : '\uFEFF'}
                   </div>
-                  <div className="text-gray-500 text-base">{date}</div>
+                  <div className="text-gray-500 text-xs">{date}</div>
                 </div>
               ))}
             </div>
