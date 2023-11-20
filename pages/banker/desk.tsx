@@ -327,7 +327,8 @@ const Desk = () => {
                 {mode === 'substitute' ? (
                   <div className="flex flex-col rounded-2xl px-6 py-8 sm:w-[528px] lg:w-[480px] bg-white dark:bg-gray-900">
                     <SwapForm
-                      currencies={currencies}
+                      inputCurrencies={currencies}
+                      outputCurrencies={[]}
                       balances={balances}
                       prices={prices}
                       showInputCurrencySelect={showInputCurrencySelect}

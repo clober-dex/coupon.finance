@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useAccount, useQuery } from 'wagmi'
+import { isAddressEqual } from 'viem'
 
 import { SwapButton } from '../components/button/swap-button'
 import { Currency } from '../model/currency'
@@ -13,8 +14,10 @@ import { Balances } from '../model/balances'
 import { Prices } from '../model/prices'
 import Modal from '../components/modal/modal'
 import { SwapForm } from '../components/form/swap-form'
+import { useCurrencyContext } from '../contexts/currency-context'
 
 const SwapContainer = () => {
+  const { assets } = useCurrencyContext()
   const { address: userAddress } = useAccount()
   const { selectedChain } = useChainContext()
 
@@ -86,7 +89,19 @@ const SwapContainer = () => {
           }}
         >
           <SwapForm
-            currencies={currencies}
+            inputCurrencies={currencies}
+            outputCurrencies={[
+              ...assets.map((asset) => asset.underlying),
+              ...assets
+                .map((asset) => asset.collaterals)
+                .flat()
+                .map((collateral) => collateral.underlying),
+            ].filter(
+              (currency, index, self) =>
+                self.findIndex((c) =>
+                  isAddressEqual(c.address, currency.address),
+                ) === index,
+            )}
             prices={prices}
             balances={balances}
             showInputCurrencySelect={showInputCurrencySelect}

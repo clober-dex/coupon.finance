@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react'
 import BigNumber from 'bignumber.js'
-import { isAddressEqual } from 'viem'
 
 import CurrencyAmountInput from '../input/currency-amount-input'
 import { Currency } from '../../model/currency'
@@ -16,7 +15,8 @@ import CurrencySelect from '../selector/currency-select'
 import { Balances } from '../../model/balances'
 
 export const SwapForm = ({
-  currencies,
+  inputCurrencies,
+  outputCurrencies,
   balances,
   prices,
   showInputCurrencySelect,
@@ -38,7 +38,8 @@ export const SwapForm = ({
   gasEstimateValue,
   actionButtonProps,
 }: {
-  currencies: Currency[]
+  inputCurrencies: Currency[]
+  outputCurrencies: Currency[]
   balances: Balances
   prices: Prices
   showInputCurrencySelect: boolean
@@ -78,14 +79,7 @@ export const SwapForm = ({
 
   return showInputCurrencySelect ? (
     <CurrencySelect
-      currencies={
-        outputCurrency
-          ? currencies.filter(
-              (currency) =>
-                !isAddressEqual(currency.address, outputCurrency.address),
-            )
-          : currencies
-      }
+      currencies={inputCurrencies}
       balances={balances}
       prices={prices}
       onBack={() => setShowInputCurrencySelect(false)}
@@ -96,14 +90,7 @@ export const SwapForm = ({
     />
   ) : showOutputCurrencySelect ? (
     <CurrencySelect
-      currencies={
-        inputCurrency
-          ? currencies.filter(
-              (currency) =>
-                !isAddressEqual(currency.address, inputCurrency.address),
-            )
-          : currencies
-      }
+      currencies={outputCurrencies}
       balances={balances}
       prices={prices}
       onBack={() => setShowOutputCurrencySelect(false)}
