@@ -4,7 +4,6 @@ import DepositContainer from '../containers/deposit-container'
 import BorrowContainer from '../containers/borrow-container'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { useModeContext } from '../contexts/mode-context'
-import SwapContainer from '../containers/swap-container'
 
 const Home = () => {
   const { assetStatuses, epochs } = useCurrencyContext()
