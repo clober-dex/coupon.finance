@@ -41,7 +41,7 @@ export const SubgraphProvider = ({ children }: React.PropsWithChildren<{}>) => {
   )
 
   const { data: integratedPositions } = useQuery(
-    ['integratedPositions', selectedChain, userAddress],
+    ['integrated-positions', selectedChain, userAddress],
     async () => {
       if (!userAddress) {
         return undefined
@@ -56,7 +56,7 @@ export const SubgraphProvider = ({ children }: React.PropsWithChildren<{}>) => {
   )
 
   const { data: integratedPoint } = useQuery(
-    ['integratedPoint', selectedChain, userAddress],
+    ['integrated-point', selectedChain, userAddress],
     async () => {
       if (!userAddress) {
         return undefined
