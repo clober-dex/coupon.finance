@@ -14,6 +14,8 @@ import SlippageSelect from '../selector/slippage-select'
 import { formatUnits, parseUnits, toPlacesString } from '../../utils/numbers'
 import CurrencySelect from '../selector/currency-select'
 import { Balances } from '../../model/balances'
+import { PathViz } from '../../model/pathviz'
+import OdosPathViz from '../odos-path-viz'
 
 export const SwapForm = ({
   inputCurrencies,
@@ -37,6 +39,7 @@ export const SwapForm = ({
   slippage,
   setSlippage,
   gasEstimateValue,
+  pathVizData,
   actionButtonProps,
 }: {
   inputCurrencies: Currency[]
@@ -60,6 +63,7 @@ export const SwapForm = ({
   slippage?: string
   setSlippage?: React.Dispatch<React.SetStateAction<string>>
   gasEstimateValue?: number
+  pathVizData?: PathViz
   actionButtonProps: ActionButtonProps
 }) => {
   const exchangeRate =
@@ -246,6 +250,9 @@ export const SwapForm = ({
           <></>
         )}
         <ActionButton {...actionButtonProps} />
+      </div>
+      <div className="flex flex-col rounded-2xl bg-white dark:bg-gray-800 p-6 mt-4">
+        <OdosPathViz pathVizData={pathVizData} />
       </div>
     </>
   )

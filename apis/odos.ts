@@ -162,7 +162,7 @@ export async function fetchAmountOutByOdos({
       userAddr: userAddress,
       slippageLimitPercent,
       sourceBlacklist: [],
-      pathViz: false,
+      pathViz: true,
     }),
   })
   return {

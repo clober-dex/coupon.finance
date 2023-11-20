@@ -29,6 +29,7 @@ export default function OdosPathViz({
 }: {
   pathVizData?: PathViz
 }) {
+  console.log('pathVizData', pathVizData)
   return (
     <ReactFlowProvider>
       <_PathViz pathVizData={pathVizData} />
@@ -49,9 +50,7 @@ const _PathViz = ({ pathVizData }: { pathVizData?: PathViz }) => {
 
   if (!pathVizData || !pathVizData.nodes) {
     return (
-      <div
-        className={`flex flex-col bg-gray-900 overflow-hidden rounded-2xl min-h-[280px] w-full md:w-[480px] lg:w-[504px]`}
-      ></div>
+      <div className="flex flex-col bg-transparent overflow-hidden rounded-2xl h-48 w-full md:w-[480px] lg:w-[504px]" />
     )
   }
 
@@ -111,9 +110,7 @@ const _PathViz = ({ pathVizData }: { pathVizData?: PathViz }) => {
   })
 
   return (
-    <div
-      className={`flex flex-col bg-gray-900 overflow-hidden rounded-2xl min-h-[280px] w-full md:w-[480px] lg:w-[504px]`}
-    >
+    <div className="flex flex-col bg-transparent overflow-hidden rounded-2xl h-48 w-full md:w-[480px] lg:w-[504px]">
       <ReactFlow
         nodeTypes={nodeTypes}
         nodes={nodes}

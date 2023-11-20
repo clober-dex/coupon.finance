@@ -85,7 +85,7 @@ const SwapContainer = () => {
   }
 
   const {
-    data: { amountOut, pathId, gasLimit },
+    data: { amountOut, pathId, gasLimit, pathViz },
   } = useQuery(
     [
       'odos-swap-simulate',
@@ -106,19 +106,21 @@ const SwapContainer = () => {
         outputCurrency &&
         amount > 0n
       ) {
-        const { amountOut, pathId, gasLimit } = await fetchAmountOutByOdos({
-          chainId: selectedChain.id,
-          amountIn: amount.toString(),
-          tokenIn: inputCurrency.address,
-          tokenOut: outputCurrency.address,
-          slippageLimitPercent: Number(slippage),
-          userAddress,
-          gasPrice: Number(feeData.gasPrice),
-        })
+        const { amountOut, pathId, gasLimit, pathViz } =
+          await fetchAmountOutByOdos({
+            chainId: selectedChain.id,
+            amountIn: amount.toString(),
+            tokenIn: inputCurrency.address,
+            tokenOut: outputCurrency.address,
+            slippageLimitPercent: Number(slippage),
+            userAddress,
+            gasPrice: Number(feeData.gasPrice),
+          })
         return {
           amountOut,
           pathId,
           gasLimit,
+          pathViz,
         }
       }
       return {
@@ -208,6 +210,7 @@ const SwapContainer = () => {
                 ),
               )
             }
+            pathVizData={pathViz}
             actionButtonProps={{
               disabled: false,
               text: 'Swap',
