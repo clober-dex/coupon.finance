@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useMemo } from 'react'
+import BigNumber from 'bignumber.js'
 
 import CurrencyAmountInput from '../input/currency-amount-input'
 import { Currency } from '../../model/currency'
@@ -8,6 +9,9 @@ import DownSvg from '../svg/down-svg'
 import { ActionButton, ActionButtonProps } from '../button/action-button'
 import { CurrencyIcon } from '../icon/currency-icon'
 import { CurrencyDropdown } from '../dropdown/currency-dropdown'
+import { GasSvg } from '../svg/gas-svg'
+import SlippageSelect from '../selector/slippage-select'
+import { formatUnits, parseUnits, toPlacesString } from '../../utils/numbers'
 
 export const SwapForm = ({
   currencies,
@@ -20,6 +24,11 @@ export const SwapForm = ({
   outputCurrency,
   setOutputCurrency,
   outputCurrencyAmount,
+  showSlippageSelect,
+  setShowSlippageSelect,
+  slippage,
+  setSlippage,
+  gasEstimateValue,
   actionButtonProps,
 }: {
   currencies: Currency[]
@@ -32,10 +41,31 @@ export const SwapForm = ({
   outputCurrency: Currency | undefined
   setOutputCurrency: (outputCurrency: Currency | undefined) => void
   outputCurrencyAmount: string
+  showSlippageSelect?: boolean
+  setShowSlippageSelect?: React.Dispatch<React.SetStateAction<boolean>>
+  slippage?: string
+  setSlippage?: React.Dispatch<React.SetStateAction<string>>
+  gasEstimateValue?: number
   actionButtonProps: ActionButtonProps
 }) => {
+  const exchangeRate =
+    !new BigNumber(inputCurrencyAmount).isNaN() &&
+    !new BigNumber(outputCurrencyAmount).isNaN()
+      ? new BigNumber(outputCurrencyAmount).dividedBy(
+          new BigNumber(inputCurrencyAmount),
+        )
+      : new BigNumber(0)
+  const isLoadingResults = useMemo(() => {
+    return !!(
+      inputCurrency &&
+      outputCurrency &&
+      parseUnits(inputCurrencyAmount, inputCurrency?.decimals ?? 18) > 0n &&
+      parseUnits(outputCurrencyAmount, outputCurrency?.decimals ?? 18) === 0n
+    )
+  }, [inputCurrency, inputCurrencyAmount, outputCurrency, outputCurrencyAmount])
+
   return (
-    <>
+    <div className="flex flex-col rounded-2xl px-6 py-8 sm:w-[528px] lg:w-[480px] bg-white dark:bg-gray-900">
       <div className="flex flex-col relative gap-2 sm:gap-4 mb-3 sm:mb-4">
         <CurrencyAmountInput
           currency={inputCurrency}
@@ -111,7 +141,69 @@ export const SwapForm = ({
           </button>
         </div>
       </div>
-      <ActionButton {...actionButtonProps} />
-    </>
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-between items-center">
+          <div className="flex text-xs sm:text-sm">
+            1 {inputCurrency?.symbol ?? 'IN'} ={'  '}
+            {isLoadingResults ? (
+              <span className="w-[100px] mx-1 rounded animate-pulse bg-gray-500" />
+            ) : (
+              <>
+                {exchangeRate ? toPlacesString(exchangeRate) : '? '}
+                {'  '}
+                {outputCurrency?.symbol ?? 'OUT'}
+                <span className="text-gray-500">
+                  (~$
+                  {toPlacesString(
+                    exchangeRate &&
+                      outputCurrency &&
+                      prices[outputCurrency.address]
+                      ? exchangeRate.multipliedBy(
+                          formatUnits(
+                            prices[outputCurrency.address].value,
+                            prices[outputCurrency.address].decimals,
+                          ) ?? 0,
+                        )
+                      : 0,
+                    2,
+                  )}
+                  )
+                </span>
+              </>
+            )}
+          </div>
+          {gasEstimateValue !== undefined ? (
+            <div className="flex relative items-center text-xs sm:text-sm">
+              <div className="flex items-center h-full mr-0.5">
+                <GasSvg />
+              </div>
+              {isLoadingResults ? (
+                <span className="w-[50px] h-[20px] mx-1 rounded animate-pulse bg-gray-500" />
+              ) : (
+                <div className="flex text-xs sm:text-sm">
+                  ${toPlacesString(gasEstimateValue, 2)}
+                </div>
+              )}
+            </div>
+          ) : (
+            <></>
+          )}
+        </div>
+        {showSlippageSelect !== undefined &&
+        setShowSlippageSelect &&
+        slippage !== undefined &&
+        setSlippage ? (
+          <SlippageSelect
+            show={showSlippageSelect}
+            setShow={setShowSlippageSelect}
+            slippage={slippage}
+            setSlippage={setSlippage}
+          />
+        ) : (
+          <></>
+        )}
+        <ActionButton {...actionButtonProps} />
+      </div>
+    </div>
   )
 }
