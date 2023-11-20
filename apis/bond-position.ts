@@ -3,6 +3,7 @@ import {
   BondPosition as GraphqlBondPosition,
   Epoch,
   getBuiltGraphSDK,
+  getIntegratedPositionsQuery,
   Token,
 } from '../.graphclient'
 import { SUBGRAPH_URL } from '../constants/subgraph-url'
@@ -24,6 +25,16 @@ export async function fetchBondPositions(
       url: SUBGRAPH_URL[chainId],
     },
   )
+  return bondPositions.map((bondPosition) => toBondPosition(bondPosition))
+}
+
+export function extractBondPositions(
+  integratedPositions: getIntegratedPositionsQuery | undefined,
+): BondPosition[] {
+  if (!integratedPositions) {
+    return []
+  }
+  const { bondPositions } = integratedPositions
   return bondPositions.map((bondPosition) => toBondPosition(bondPosition))
 }
 

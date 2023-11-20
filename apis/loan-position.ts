@@ -5,6 +5,7 @@ import {
   getBuiltGraphSDK,
   Token,
   LoanPosition as GraphqlLoanPosition,
+  getIntegratedPositionsQuery,
 } from '../.graphclient'
 import { LIQUIDATION_TARGET_LTV_PRECISION } from '../utils/ltv'
 import { SUBGRAPH_URL } from '../constants/subgraph-url'
@@ -26,6 +27,16 @@ export async function fetchLoanPositions(
       url: SUBGRAPH_URL[chainId],
     },
   )
+  return loanPositions.map((loanPosition) => toLoanPosition(loanPosition))
+}
+
+export function extractLoanPositions(
+  integratedPositions: getIntegratedPositionsQuery | undefined,
+): LoanPosition[] {
+  if (!integratedPositions) {
+    return []
+  }
+  const { loanPositions } = integratedPositions
   return loanPositions.map((loanPosition) => toLoanPosition(loanPosition))
 }
 

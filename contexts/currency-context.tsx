@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useAccount, useBalance, useQuery } from 'wagmi'
 import { readContracts } from '@wagmi/core'
 import { getAddress } from 'viem'
@@ -6,8 +6,13 @@ import { getAddress } from 'viem'
 import { IERC1155__factory, IERC20__factory } from '../typechain'
 import { fetchBalances, fetchCurrencies, fetchPrices } from '../apis/currency'
 import { Currency } from '../model/currency'
-import { fetchAssets, fetchAssetStatuses } from '../apis/asset'
-import { fetchEpochs } from '../apis/epoch'
+import {
+  extractAssets,
+  extractAssetStatuses,
+  fetchAssets,
+  fetchAssetStatuses,
+} from '../apis/asset'
+import { extractEpochs, fetchEpochs } from '../apis/epoch'
 import { Asset, AssetStatus } from '../model/asset'
 import { Epoch } from '../model/epoch'
 import { Balances } from '../model/balances'
@@ -15,12 +20,13 @@ import { Prices } from '../model/prices'
 import { max } from '../utils/bigint'
 import { fetchMarkets } from '../apis/market'
 import { formatDate } from '../utils/date'
-import { fetchPoints } from '../apis/point'
+import { extractPoints, fetchPoints } from '../apis/point'
 import { getCurrentPoint } from '../utils/point'
 import { CONTRACT_ADDRESSES } from '../constants/addresses'
 import { CHAIN_IDS } from '../constants/chain'
 
 import { useChainContext } from './chain-context'
+import { useSubgraphContext } from './subgraph-context'
 
 type CurrencyContext = {
   coupons: {
@@ -66,36 +72,8 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { address: userAddress } = useAccount()
   const { data: balance } = useBalance({ address: userAddress })
   const { selectedChain } = useChainContext()
-
-  const { data: assets } = useQuery(
-    ['assets', selectedChain],
-    async () => {
-      return fetchAssets(selectedChain.id)
-    },
-    {
-      initialData: [],
-    },
-  )
-
-  const { data: assetStatuses } = useQuery(
-    ['assetStatuses', selectedChain],
-    async () => {
-      return fetchAssetStatuses(selectedChain.id)
-    },
-    {
-      initialData: [],
-    },
-  )
-
-  const { data: epochs } = useQuery(
-    ['epochs', selectedChain],
-    async () => {
-      return fetchEpochs(selectedChain.id)
-    },
-    {
-      initialData: [],
-    },
-  )
+  const { integrated, integratedPositions, integratedPoint } =
+    useSubgraphContext()
 
   const { data: currencies } = useQuery(
     ['currencies', selectedChain],
@@ -184,24 +162,6 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
     },
   ) as { data: CurrencyContext['coupons'] }
 
-  const { data: point } = useQuery(
-    ['point', selectedChain, userAddress],
-    async () => {
-      if (!userAddress) {
-        return 0n
-      }
-      const points = await fetchPoints(selectedChain.id, userAddress)
-      if (points.length === 0) {
-        return 0n
-      }
-      return getCurrentPoint(points)
-    },
-    {
-      refetchInterval: 5 * 1000,
-      refetchIntervalInBackground: true,
-    },
-  )
-
   const calculateETHValue = useCallback(
     (currency: Currency, willPayAmount: bigint) => {
       if (!balance || !balances || !isEther(currency)) {
@@ -213,16 +173,30 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
     [balance, balances],
   )
 
+  const assets = useMemo(() => extractAssets(integrated), [integrated])
+  const assetStatuses = useMemo(
+    () => extractAssetStatuses(integrated),
+    [integrated],
+  )
+  const epochs = useMemo(() => extractEpochs(integrated), [integrated])
+  const point = useMemo(() => {
+    const points = extractPoints(integratedPoint)
+    if (points.length === 0) {
+      return 0n
+    }
+    return getCurrentPoint(points)
+  }, [integratedPoint])
+
   return (
     <Context.Provider
       value={{
         coupons: coupons ?? [],
         prices: prices ?? {},
         balances: balances ?? {},
-        assets: assets ?? [],
-        assetStatuses: assetStatuses ?? [],
-        epochs: epochs ?? [],
-        point: point ?? 0n,
+        assets: assets,
+        assetStatuses: assetStatuses,
+        epochs: epochs,
+        point: point,
         calculateETHValue: calculateETHValue,
       }}
     >

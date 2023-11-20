@@ -1,18 +1,12 @@
-import React, { useCallback } from 'react'
-import {
-  useAccount,
-  usePublicClient,
-  useQuery,
-  useQueryClient,
-  useWalletClient,
-} from 'wagmi'
+import React, { useCallback, useMemo } from 'react'
+import { usePublicClient, useQueryClient, useWalletClient } from 'wagmi'
 import { Hash, zeroAddress } from 'viem'
 
 import { CONTRACT_ADDRESSES } from '../constants/addresses'
 import { DepositController__factory } from '../typechain'
 import { Asset } from '../model/asset'
 import { permit20 } from '../utils/permit20'
-import { fetchBondPositions } from '../apis/bond-position'
+import { extractBondPositions } from '../apis/bond-position'
 import { BondPosition } from '../model/bond-position'
 import { formatUnits } from '../utils/numbers'
 import { permit721 } from '../utils/permit721'
@@ -25,6 +19,7 @@ import { toWrapETH } from '../utils/currency'
 import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
 import { useChainContext } from './chain-context'
+import { useSubgraphContext } from './subgraph-context'
 
 type DepositContext = {
   positions: BondPosition[]
@@ -54,8 +49,9 @@ const Context = React.createContext<DepositContext>({
 export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient()
 
-  const { address: userAddress } = useAccount()
   const { selectedChain } = useChainContext()
+
+  const { integratedPositions } = useSubgraphContext()
 
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
@@ -65,32 +61,21 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
     BondPosition[]
   >([])
 
-  const { data: positions } = useQuery(
-    ['bond-positions', userAddress, selectedChain, pendingPositions],
-    async () => {
-      if (!userAddress) {
-        return []
-      }
-      const confirmationPositions = await fetchBondPositions(
-        selectedChain.id,
-        userAddress,
-      )
-      const latestConfirmationTimestamp =
-        confirmationPositions.sort((a, b) => b.updatedAt - a.updatedAt).at(0)
-          ?.updatedAt ?? 0
-      return [
-        ...confirmationPositions,
-        ...pendingPositions.filter(
-          (position) => position.updatedAt > latestConfirmationTimestamp,
-        ),
-      ]
-    },
-    {
-      refetchIntervalInBackground: true,
-      refetchInterval: 5 * 1000,
-      initialData: [],
-    },
-  )
+  const positions = useMemo(() => {
+    if (!integratedPositions) {
+      return []
+    }
+    const confirmationPositions = extractBondPositions(integratedPositions)
+    const latestConfirmationTimestamp =
+      confirmationPositions.sort((a, b) => b.updatedAt - a.updatedAt).at(0)
+        ?.updatedAt ?? 0
+    return [
+      ...confirmationPositions,
+      ...pendingPositions.filter(
+        (position) => position.updatedAt > latestConfirmationTimestamp,
+      ),
+    ]
+  }, [integratedPositions, pendingPositions])
 
   const deposit = useCallback(
     async (
