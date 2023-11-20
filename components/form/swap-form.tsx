@@ -125,7 +125,12 @@ export const SwapForm = ({
           price={inputCurrency ? prices[inputCurrency.address] : undefined}
           disabled={!inputCurrency}
         >
-          <button onClick={() => setShowInputCurrencySelect(true)}>
+          <button
+            onClick={() => {
+              setShowInputCurrencySelect(true)
+              setInputCurrencyAmount('')
+            }}
+          >
             {inputCurrency ? (
               <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
                 <CurrencyIcon currency={inputCurrency} className="w-5 h-5" />
@@ -143,10 +148,12 @@ export const SwapForm = ({
         <CurrencyAmountInput
           currency={outputCurrency}
           value={outputCurrencyAmount}
-          onValueChange={() => {}}
+          onValueChange={() => {
+            setInputCurrencyAmount('')
+          }}
           availableAmount={0n}
           price={outputCurrency ? prices[outputCurrency.address] : undefined}
-          disabled={!outputCurrency}
+          disabled={true}
         >
           <button onClick={() => setShowOutputCurrencySelect(true)}>
             {outputCurrency ? (

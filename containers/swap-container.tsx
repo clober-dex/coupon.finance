@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
-import { useAccount, useQuery } from 'wagmi'
-import { isAddressEqual } from 'viem'
+import { useAccount, useFeeData, useQuery } from 'wagmi'
+import { isAddressEqual, zeroAddress } from 'viem'
 
 import { SwapButton } from '../components/button/swap-button'
 import { Currency } from '../model/currency'
 import { useChainContext } from '../contexts/chain-context'
 import {
+  fetchAmountOutByOdos,
   fetchBalancesByOdos,
   fetchCurrenciesByOdos,
   fetchPricesByOdos,
@@ -15,8 +16,11 @@ import { Prices } from '../model/prices'
 import Modal from '../components/modal/modal'
 import { SwapForm } from '../components/form/swap-form'
 import { useCurrencyContext } from '../contexts/currency-context'
+import { formatUnits, parseUnits } from '../utils/numbers'
+import { toWrapETH } from '../utils/currency'
 
 const SwapContainer = () => {
+  const { data: feeData } = useFeeData()
   const { assets } = useCurrencyContext()
   const { address: userAddress } = useAccount()
   const { selectedChain } = useChainContext()
@@ -29,6 +33,8 @@ const SwapContainer = () => {
   const [outputCurrency, setOutputCurrency] = useState<Currency | undefined>(
     undefined,
   )
+  const [slippage, setSlippage] = useState('1')
+  const [showSlippageSelect, setShowSlippageSelect] = useState(false)
 
   const [showInputCurrencySelect, setShowInputCurrencySelect] = useState(false)
   const [showOutputCurrencySelect, setShowOutputCurrencySelect] =
@@ -78,6 +84,60 @@ const SwapContainer = () => {
     data: Balances
   }
 
+  const {
+    data: { amountOut, pathId, gasLimit },
+  } = useQuery(
+    [
+      'odos-swap-simulate',
+      inputCurrency?.address,
+      outputCurrency?.address,
+      inputCurrencyAmount,
+    ],
+    async () => {
+      const amount = parseUnits(
+        inputCurrencyAmount,
+        inputCurrency?.decimals ?? 18,
+      )
+      if (
+        feeData?.gasPrice &&
+        userAddress &&
+        selectedChain &&
+        inputCurrency &&
+        outputCurrency &&
+        amount > 0n
+      ) {
+        const { amountOut, pathId, gasLimit } = await fetchAmountOutByOdos({
+          chainId: selectedChain.id,
+          amountIn: amount.toString(),
+          tokenIn: inputCurrency.address,
+          tokenOut: outputCurrency.address,
+          slippageLimitPercent: Number(slippage),
+          userAddress,
+          gasPrice: Number(feeData.gasPrice),
+        })
+        return {
+          amountOut,
+          pathId,
+          gasLimit,
+        }
+      }
+      return {
+        amountOut: 0n,
+        pathId: undefined,
+        gasLimit: 0n,
+      }
+    },
+    {
+      refetchInterval: 5 * 1000,
+      keepPreviousData: true,
+      initialData: {
+        amountOut: 0n,
+        pathId: undefined,
+        gasLimit: 0n,
+      },
+    },
+  )
+
   return (
     <>
       <SwapButton setShowSwapModal={setShowSwapModal} />
@@ -91,17 +151,25 @@ const SwapContainer = () => {
           <SwapForm
             inputCurrencies={currencies}
             outputCurrencies={[
-              ...assets.map((asset) => asset.underlying),
-              ...assets
-                .map((asset) => asset.collaterals)
-                .flat()
-                .map((collateral) => collateral.underlying),
-            ].filter(
-              (currency, index, self) =>
-                self.findIndex((c) =>
-                  isAddressEqual(c.address, currency.address),
-                ) === index,
-            )}
+              ...[
+                ...assets.map((asset) => asset.underlying),
+                ...assets
+                  .map((asset) => asset.collaterals)
+                  .flat()
+                  .map((collateral) => collateral.underlying),
+              ]
+                .filter(
+                  (currency, index, self) =>
+                    self.findIndex((c) =>
+                      isAddressEqual(c.address, currency.address),
+                    ) === index,
+                )
+                .map((currency) => toWrapETH(currency)),
+              {
+                address: zeroAddress,
+                ...selectedChain.nativeCurrency,
+              },
+            ]}
             prices={prices}
             balances={balances}
             showInputCurrencySelect={showInputCurrencySelect}
@@ -110,12 +178,36 @@ const SwapContainer = () => {
             setInputCurrency={setInputCurrency}
             inputCurrencyAmount={inputCurrencyAmount}
             setInputCurrencyAmount={setInputCurrencyAmount}
-            availableInputCurrencyBalance={0n}
+            availableInputCurrencyBalance={
+              inputCurrency ? balances[inputCurrency.address] : 0n
+            }
             showOutputCurrencySelect={showOutputCurrencySelect}
             setShowOutputCurrencySelect={setShowOutputCurrencySelect}
             outputCurrency={outputCurrency}
             setOutputCurrency={setOutputCurrency}
-            outputCurrencyAmount={'1'}
+            outputCurrencyAmount={
+              outputCurrency && amountOut > 0n
+                ? formatUnits(amountOut, outputCurrency.decimals)
+                : ''
+            }
+            showSlippageSelect={showSlippageSelect}
+            setShowSlippageSelect={setShowSlippageSelect}
+            slippage={slippage}
+            setSlippage={setSlippage}
+            gasEstimateValue={
+              parseFloat(
+                formatUnits(
+                  BigInt(gasLimit ?? 0n) * BigInt(feeData?.gasPrice ?? 0n),
+                  selectedChain.nativeCurrency.decimals,
+                ),
+              ) *
+              parseFloat(
+                formatUnits(
+                  prices[zeroAddress].value,
+                  prices[zeroAddress].decimals,
+                ),
+              )
+            }
             actionButtonProps={{
               disabled: false,
               text: 'Swap',

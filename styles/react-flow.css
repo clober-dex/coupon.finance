@@ -1,0 +1,11 @@
+.react-flow__controls {
+    display: none;
+}
+
+.react-flow__attribution {
+    display: none;
+}
+
+.react-flow__edge {
+    pointer-events: none !important;
+}
