@@ -15,6 +15,6 @@ type Story = StoryObj<typeof SwapButton>
 
 export const Default: Story = {
   args: {
-    openSwapModal: () => {},
+    setShowSwapModal: () => {},
   },
 }
