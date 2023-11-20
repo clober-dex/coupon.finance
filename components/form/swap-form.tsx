@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react'
 import BigNumber from 'bignumber.js'
+import { isAddressEqual } from 'viem'
 
 import CurrencyAmountInput from '../input/currency-amount-input'
 import { Currency } from '../../model/currency'
@@ -79,7 +80,14 @@ export const SwapForm = ({
 
   return showInputCurrencySelect ? (
     <CurrencySelect
-      currencies={inputCurrencies}
+      currencies={
+        outputCurrency
+          ? inputCurrencies.filter(
+              (currency) =>
+                !isAddressEqual(currency.address, outputCurrency.address),
+            )
+          : inputCurrencies
+      }
       balances={balances}
       prices={prices}
       onBack={() => setShowInputCurrencySelect(false)}
@@ -90,7 +98,14 @@ export const SwapForm = ({
     />
   ) : showOutputCurrencySelect ? (
     <CurrencySelect
-      currencies={outputCurrencies}
+      currencies={
+        inputCurrency
+          ? outputCurrencies.filter(
+              (currency) =>
+                !isAddressEqual(currency.address, inputCurrency.address),
+            )
+          : outputCurrencies
+      }
       balances={balances}
       prices={prices}
       onBack={() => setShowOutputCurrencySelect(false)}
