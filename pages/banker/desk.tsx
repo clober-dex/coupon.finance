@@ -176,8 +176,6 @@ const Desk = () => {
     undefined,
   )
   const [showInputCurrencySelect, setShowInputCurrencySelect] = useState(false)
-  const [showOutputCurrencySelect, setShowOutputCurrencySelect] =
-    useState(false)
 
   const [epochs, setEpochs] = useState(1)
 
@@ -343,8 +341,8 @@ const Desk = () => {
                           ? balances[inputCurrency.address] ?? 0n
                           : 0n
                       }
-                      showOutputCurrencySelect={showOutputCurrencySelect}
-                      setShowOutputCurrencySelect={setShowOutputCurrencySelect}
+                      showOutputCurrencySelect={false}
+                      setShowOutputCurrencySelect={() => {}}
                       outputCurrency={outputCurrency}
                       setOutputCurrency={setOutputCurrency}
                       outputCurrencyAmount={inputCurrencyAmount}
