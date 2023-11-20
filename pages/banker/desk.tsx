@@ -80,9 +80,7 @@ const CouponUtilsForm = ({
             currency={depositCurrency}
             value={inputCurrencyAmount}
             onValueChange={setInputCurrencyAmount}
-            availableAmount={BigInt(
-              Math.floor(Number(maxDepositAmount) * 0.997),
-            )}
+            availableAmount={maxDepositAmount}
             price={depositAssetPrice}
             disabled={!depositCurrency}
           >
