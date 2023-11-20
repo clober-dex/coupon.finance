@@ -11,28 +11,28 @@ export const ArrowLeftRightSvg = (props: SVGProps<any>) => (
   >
     <path
       d="M12 9L14 11L12 13"
-      stroke="black"
+      className="stroke-gray-950 dark:stroke-white"
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <path
       d="M2 11H14"
-      stroke="black"
+      className="stroke-gray-950 dark:stroke-white"
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <path
       d="M4 7L2 5L4 3"
-      stroke="black"
+      className="stroke-gray-950 dark:stroke-white"
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     />
     <path
       d="M14 5H2"
-      stroke="black"
+      className="stroke-gray-950 dark:stroke-white"
       strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
