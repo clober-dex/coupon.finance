@@ -27,13 +27,6 @@ const Home = () => {
         >
           Strategies
         </button>
-        <button
-          onClick={() => onSelectedModeChange('swap')}
-          disabled={selectedMode === 'swap'}
-          className="disabled:text-gray-950 disabled:dark:text-white font-bold pb-1 border-b-2 border-solid disabled:border-b-gray-950 disabled:dark:border-b-white w-24 text-gray-400 dark:text-gray-500 border-b-transparent dark:border-b-transparent"
-        >
-          Swap
-        </button>
       </div>
 
       <main className="flex flex-1 flex-col justify-center items-center pt-12 md:pt-0">
@@ -41,8 +34,6 @@ const Home = () => {
           <DepositContainer assetStatuses={assetStatuses} epochs={epochs} />
         ) : selectedMode === 'borrow' ? (
           <BorrowContainer assetStatuses={assetStatuses} epochs={epochs} />
-        ) : selectedMode === 'swap' ? (
-          <SwapContainer />
         ) : (
           <></>
         )}

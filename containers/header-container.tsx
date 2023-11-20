@@ -48,13 +48,6 @@ const HeaderContainer = ({
             >
               Strategies
             </button>
-            <button
-              onClick={() => onSelectedModeChange('swap')}
-              disabled={selectedMode === 'swap'}
-              className="h-full hover:text-gray-950 dark:hover:text-gray-100 disabled:text-gray-950 disabled:dark:text-white text-gray-400"
-            >
-              Swap
-            </button>
             <button className="relative h-full items-center text-gray-400 group dark:hover:text-gray-100 hover:text-gray-950 hidden lg:flex">
               Community
               <div className="hidden group-hover:flex">
