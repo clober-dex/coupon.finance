@@ -81,15 +81,6 @@ const Panel = ({
                         >
                           Strategies
                         </button>
-                        <button
-                          disabled={router.query.mode === 'swap'}
-                          onClick={async () => {
-                            setOpen(false)
-                            await onSelectedModeChange('swap')
-                          }}
-                        >
-                          Swap
-                        </button>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="192"
