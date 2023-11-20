@@ -23,5 +23,6 @@ export const Default: Story = {
         mode: 'borrow',
       },
     },
+    selectedMode: 'deposit',
   },
 }
