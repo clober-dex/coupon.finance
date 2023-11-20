@@ -12,7 +12,8 @@ import { UserPointButton } from '../components/button/user-point-button'
 import { ZIndices } from '../utils/z-indices'
 import { useModeContext } from '../contexts/mode-context'
 import { useCurrencyContext } from '../contexts/currency-context'
-import { SwapButton } from '../components/button/swap-button'
+
+import SwapContainer from './swap-container'
 
 const HeaderContainer = ({
   onMenuClick,
@@ -62,7 +63,7 @@ const HeaderContainer = ({
             <ThemeToggleButton setTheme={setTheme} />
           </div>
           {address ? <UserPointButton score={Number(point)} /> : <></>}
-          <SwapButton openSwapModal={() => {}} />
+          <SwapContainer />
           <WalletSelector address={address} status={status} />
           <button
             className="w-8 h-8 hover:bg-gray-100 md:hover:bg-gray-200 dark:hover:bg-gray-700 rounded sm:rounded-lg flex items-center justify-center lg:hidden "
