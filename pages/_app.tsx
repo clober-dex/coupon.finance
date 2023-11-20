@@ -14,8 +14,8 @@ import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { identify } from '@web3analytic/funnel-sdk'
 import Head from 'next/head'
 import dynamic from 'next/dynamic'
-import { useRouter } from 'next/router'
 import { Inter } from 'next/font/google'
+import { useRouter } from 'next/router'
 
 import HeaderContainer from '../containers/header-container'
 import { ThemeProvider, useThemeContext } from '../contexts/theme-context'
@@ -33,6 +33,7 @@ import { Footer } from '../components/footer'
 import { CouponUserBalanceModal } from '../components/modal/coupon-user-balance-modal'
 import { AdvancedContractProvider } from '../contexts/advanced-contract-context'
 import { SubgraphProvider } from '../contexts/subgraph-context'
+import { ModeProvider, useModeContext } from '../contexts/mode-context'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -97,6 +98,7 @@ const HeaderWrapper = () => {
   const [open, setOpen] = useState(false)
   const { setTheme } = useThemeContext()
   const router = useRouter()
+  const { selectedMode, onSelectedModeChange } = useModeContext()
   return (
     <>
       <Panel
@@ -104,6 +106,8 @@ const HeaderWrapper = () => {
         setOpen={setOpen}
         setTheme={setTheme}
         router={router}
+        selectedMode={selectedMode}
+        onSelectedModeChange={onSelectedModeChange}
       />
       <HeaderContainer onMenuClick={() => setOpen(true)} setTheme={setTheme} />
     </>
@@ -134,16 +138,18 @@ function MyApp({ Component, pageProps }: AppProps) {
                     <DepositProvider>
                       <BorrowProvider>
                         <AdvancedContractProvider>
-                          <div
-                            className={`${inter.className} flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white`}
-                          >
-                            <HeaderWrapper />
-                            <div className="mb-auto pt-12 md:pt-16">
-                              <Component {...pageProps} />
-                              <CouponWidgetWrapper />
+                          <ModeProvider>
+                            <div
+                              className={`${inter.className} flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white`}
+                            >
+                              <HeaderWrapper />
+                              <div className="mb-auto pt-12 md:pt-16">
+                                <Component {...pageProps} />
+                                <CouponWidgetWrapper />
+                              </div>
+                              <Footer />
                             </div>
-                            <Footer />
-                          </div>
+                          </ModeProvider>
                         </AdvancedContractProvider>
                       </BorrowProvider>
                     </DepositProvider>
