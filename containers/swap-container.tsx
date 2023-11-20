@@ -1,12 +1,22 @@
 import React, { useState } from 'react'
+import { useAccount, useQuery } from 'wagmi'
 
 import { SwapButton } from '../components/button/swap-button'
-import { SwapModal } from '../components/modal/swap-modal'
 import { Currency } from '../model/currency'
-import { useCurrencyContext } from '../contexts/currency-context'
+import { useChainContext } from '../contexts/chain-context'
+import {
+  fetchBalancesByOdos,
+  fetchCurrenciesByOdos,
+  fetchPricesByOdos,
+} from '../apis/odos'
+import { Balances } from '../model/balances'
+import { Prices } from '../model/prices'
+import Modal from '../components/modal/modal'
+import { SwapForm } from '../components/form/swap-form'
 
 const SwapContainer = () => {
-  const { prices, balances } = useCurrencyContext()
+  const { address: userAddress } = useAccount()
+  const { selectedChain } = useChainContext()
 
   const [showSwapModal, setShowSwapModal] = useState(false)
   const [inputCurrency, setInputCurrency] = useState<Currency | undefined>(
@@ -21,66 +31,83 @@ const SwapContainer = () => {
   const [showOutputCurrencySelect, setShowOutputCurrencySelect] =
     useState(false)
 
+  const { data: currencies } = useQuery(
+    ['swap-currencies', selectedChain],
+    async () =>
+      fetchCurrenciesByOdos({
+        chainId: selectedChain.id,
+      }),
+    {
+      initialData: [],
+    },
+  )
+
+  const { data: prices } = useQuery(
+    ['swap-prices', selectedChain],
+    async () => {
+      return fetchPricesByOdos({
+        chainId: selectedChain.id,
+      })
+    },
+    {
+      initialData: {} as Prices,
+      refetchInterval: 10 * 1000,
+      refetchIntervalInBackground: true,
+    },
+  )
+
+  const { data: balances } = useQuery(
+    ['swap-balances', selectedChain, userAddress],
+    async () => {
+      return userAddress
+        ? fetchBalancesByOdos({
+            chainId: selectedChain.id,
+            userAddress,
+          })
+        : []
+    },
+    {
+      initialData: [],
+      refetchInterval: 10 * 1000,
+      refetchIntervalInBackground: true,
+    },
+  ) as {
+    data: Balances
+  }
+
   return (
     <>
       <SwapButton setShowSwapModal={setShowSwapModal} />
       {showSwapModal ? (
-        <SwapModal
+        <Modal
+          show
           onClose={() => {
             setShowSwapModal(false)
           }}
-          currencies={[
-            {
-              address: '0x0000000000000000000000000000000000000001',
-              name: 'USDC',
-              symbol: 'USDC',
-              decimals: 6,
-            },
-            {
-              address: '0x0000000000000000000000000000000000000002',
-              name: 'WBTC',
-              symbol: 'WBTC',
-              decimals: 8,
-            },
-            {
-              address: '0x0000000000000000000000000000000000000003',
-              name: 'WETH',
-              symbol: 'WETH',
-              decimals: 18,
-            },
-            {
-              address: '0x0000000000000000000000000000000000000004',
-              name: 'USDT',
-              symbol: 'USDT',
-              decimals: 6,
-            },
-            {
-              address: '0x0000000000000000000000000000000000000005',
-              name: 'DAI',
-              symbol: 'DAI',
-              decimals: 18,
-            },
-          ]}
-          prices={prices}
-          balances={balances}
-          showInputCurrencySelect={showInputCurrencySelect}
-          setShowInputCurrencySelect={setShowInputCurrencySelect}
-          inputCurrency={inputCurrency}
-          setInputCurrency={setInputCurrency}
-          inputCurrencyAmount={inputCurrencyAmount}
-          setInputCurrencyAmount={setInputCurrencyAmount}
-          availableInputCurrencyBalance={0n}
-          showOutputCurrencySelect={showOutputCurrencySelect}
-          setShowOutputCurrencySelect={setShowOutputCurrencySelect}
-          outputCurrency={outputCurrency}
-          setOutputCurrency={setOutputCurrency}
-          outputCurrencyAmount={'1'}
-          actionButtonProps={{
-            disabled: false,
-            text: 'Swap',
-            onClick: () => {},
-          }}
-        />
+        >
+          <SwapForm
+            currencies={currencies}
+            prices={prices}
+            balances={balances}
+            showInputCurrencySelect={showInputCurrencySelect}
+            setShowInputCurrencySelect={setShowInputCurrencySelect}
+            inputCurrency={inputCurrency}
+            setInputCurrency={setInputCurrency}
+            inputCurrencyAmount={inputCurrencyAmount}
+            setInputCurrencyAmount={setInputCurrencyAmount}
+            availableInputCurrencyBalance={0n}
+            showOutputCurrencySelect={showOutputCurrencySelect}
+            setShowOutputCurrencySelect={setShowOutputCurrencySelect}
+            outputCurrency={outputCurrency}
+            setOutputCurrency={setOutputCurrency}
+            outputCurrencyAmount={'1'}
+            actionButtonProps={{
+              disabled: false,
+              text: 'Swap',
+              onClick: () => {},
+            }}
+          />
+        </Modal>
       ) : (
         <></>
       )}
