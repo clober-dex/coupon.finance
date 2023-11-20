@@ -4,6 +4,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline'
 import { NextRouter } from 'next/router'
 
 import { ZIndices } from '../utils/z-indices'
+import { ModeContext } from '../contexts/mode-context'
 
 import ThemeToggleButton from './button/theme-toggle-button'
 
@@ -12,11 +13,15 @@ const Panel = ({
   setOpen,
   setTheme,
   router,
+  selectedMode,
+  onSelectedModeChange,
 }: {
   open: boolean
   setOpen: (open: boolean) => void
   setTheme: (theme: 'light' | 'dark') => void
   router: NextRouter
+  selectedMode: ModeContext['selectedMode']
+  onSelectedModeChange: ModeContext['onSelectedModeChange']
 }) => {
   return (
     <Transition.Root show={open} as={Fragment}>
@@ -59,27 +64,31 @@ const Panel = ({
                     <div className="flex flex-col text-gray-950 dark:text-white justify-center text-base font-bold relative mb-6 flex-1 pl-6 pr-16 gap-8">
                       <div className="flex flex-col gap-4 items-start w-[192px]">
                         <button
-                          disabled={
-                            !router.query.mode ||
-                            router.query.mode === 'deposit'
-                          }
-                          onClick={() => {
+                          disabled={selectedMode === 'deposit'}
+                          onClick={async () => {
                             setOpen(false)
-                            router.replace('/', undefined, { shallow: true })
+                            await onSelectedModeChange('deposit')
                           }}
                         >
                           Earn
                         </button>
                         <button
                           disabled={router.query.mode === 'borrow'}
-                          onClick={() => {
+                          onClick={async () => {
                             setOpen(false)
-                            router.replace('/?mode=borrow', undefined, {
-                              shallow: true,
-                            })
+                            await onSelectedModeChange('borrow')
                           }}
                         >
                           Strategies
+                        </button>
+                        <button
+                          disabled={router.query.mode === 'swap'}
+                          onClick={async () => {
+                            setOpen(false)
+                            await onSelectedModeChange('swap')
+                          }}
+                        >
+                          Swap
                         </button>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
