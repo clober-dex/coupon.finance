@@ -194,7 +194,7 @@ export const SwapForm = ({
           <div className="flex text-xs sm:text-sm">
             1 {inputCurrency?.symbol ?? 'IN'} ={'  '}
             {isLoadingResults ? (
-              <span className="w-[100px] mx-1 rounded animate-pulse bg-gray-500" />
+              <span className="w-[100px] mx-1 rounded animate-pulse bg-gray-300 dark:bg-gray-500" />
             ) : (
               <>
                 {exchangeRate ? toPlacesString(exchangeRate) : '? '}
@@ -226,7 +226,7 @@ export const SwapForm = ({
                 <GasSvg />
               </div>
               {isLoadingResults ? (
-                <span className="w-[50px] h-[20px] mx-1 rounded animate-pulse bg-gray-500" />
+                <span className="w-[50px] h-[20px] mx-1 rounded animate-pulse bg-gray-300 dark:bg-gray-500" />
               ) : (
                 <div className="flex text-xs sm:text-sm">
                   ${toPlacesString(gasEstimateValue, 2)}
@@ -253,7 +253,7 @@ export const SwapForm = ({
           <></>
         )}
         {isLoadingResults ? (
-          <div className="flex flex-col animate-pulse h-44 bg-gray-500 overflow-hidden rounded-2xl w-full" />
+          <div className="flex flex-col animate-pulse h-44 bg-gray-300 dark:bg-gray-500 overflow-hidden rounded-2xl w-full" />
         ) : (
           <div className="flex flex-col rounded-2xl bg-white dark:bg-gray-800 p-6">
             <OdosPathViz pathVizData={pathVizData} />

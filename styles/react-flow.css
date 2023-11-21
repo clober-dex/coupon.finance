@@ -1,3 +1,11 @@
+.react-flow__handle-left {
+    @apply invisible
+}
+
+.react-flow__handle-right {
+    @apply invisible
+}
+
 .react-flow__controls {
     display: none;
 }
