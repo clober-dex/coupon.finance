@@ -240,12 +240,14 @@ export const SwapForm = ({
         setShowSlippageSelect &&
         slippage !== undefined &&
         setSlippage ? (
-          <SlippageSelect
-            show={showSlippageSelect}
-            setShow={setShowSlippageSelect}
-            slippage={slippage}
-            setSlippage={setSlippage}
-          />
+          <div className="ml-auto">
+            <SlippageSelect
+              show={showSlippageSelect}
+              setShow={setShowSlippageSelect}
+              slippage={slippage}
+              setSlippage={setSlippage}
+            />
+          </div>
         ) : (
           <></>
         )}
