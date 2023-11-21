@@ -6,13 +6,8 @@ import { getAddress } from 'viem'
 import { IERC1155__factory, IERC20__factory } from '../typechain'
 import { fetchBalances, fetchCurrencies, fetchPrices } from '../apis/currency'
 import { Currency } from '../model/currency'
-import {
-  extractAssets,
-  extractAssetStatuses,
-  fetchAssets,
-  fetchAssetStatuses,
-} from '../apis/asset'
-import { extractEpochs, fetchEpochs } from '../apis/epoch'
+import { extractAssets, extractAssetStatuses } from '../apis/asset'
+import { extractEpochs } from '../apis/epoch'
 import { Asset, AssetStatus } from '../model/asset'
 import { Epoch } from '../model/epoch'
 import { Balances } from '../model/balances'
@@ -20,7 +15,7 @@ import { Prices } from '../model/prices'
 import { max } from '../utils/bigint'
 import { fetchMarkets } from '../apis/market'
 import { formatDate } from '../utils/date'
-import { extractPoints, fetchPoints } from '../apis/point'
+import { extractPoints } from '../apis/point'
 import { getCurrentPoint } from '../utils/point'
 import { CONTRACT_ADDRESSES } from '../constants/addresses'
 import { CHAIN_IDS } from '../constants/chain'
@@ -72,8 +67,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { address: userAddress } = useAccount()
   const { data: balance } = useBalance({ address: userAddress })
   const { selectedChain } = useChainContext()
-  const { integrated, integratedPositions, integratedPoint } =
-    useSubgraphContext()
+  const { integrated, integratedPoint } = useSubgraphContext()
 
   const { data: currencies } = useQuery(
     ['currencies', selectedChain],

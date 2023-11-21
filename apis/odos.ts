@@ -1,4 +1,12 @@
+import { getAddress } from 'viem'
+import BigNumber from 'bignumber.js'
+
 import { CHAIN_IDS } from '../constants/chain'
+import { Currency } from '../model/currency'
+import { Prices } from '../model/prices'
+import { Balances } from '../model/balances'
+import { PathViz } from '../model/pathviz'
+import { Transaction } from '../model/transaction'
 
 export async function fetchOdosApi<T>(
   path: string,
@@ -6,7 +14,7 @@ export async function fetchOdosApi<T>(
 ): Promise<T> {
   const endpoint = process.env.NEXT_PUBLIC_ODOS_API_BASE_URL
     ? `${process.env.NEXT_PUBLIC_ODOS_API_BASE_URL}/${path}`
-    : `/api/mock/${path}`
+    : `https://api.odos.xyz/${path}`
   const response = await fetch(endpoint, options)
 
   if (response.ok) {
@@ -18,16 +26,82 @@ export async function fetchOdosApi<T>(
   }
 }
 
+export async function fetchCurrenciesByOdos({
+  chainId,
+}: {
+  chainId: CHAIN_IDS
+}): Promise<Currency[]> {
+  return Object.entries(
+    (
+      await fetchOdosApi<{
+        tokenMap: Currency[]
+      }>(`info/tokens/${chainId}`)
+    ).tokenMap,
+  ).map(([address, currency]) => ({
+    address: getAddress(address),
+    name: currency.name,
+    symbol: currency.symbol,
+    decimals: currency.decimals,
+  }))
+}
+
+export async function fetchPricesByOdos({
+  chainId,
+}: {
+  chainId: CHAIN_IDS
+}): Promise<Prices> {
+  return Object.entries(
+    (
+      await fetchOdosApi<{
+        tokenPrices: { [key in `0x${string}`]: number }
+      }>(`pricing/token/${chainId}`)
+    ).tokenPrices,
+  ).reduce((acc, [address, price]) => {
+    acc[getAddress(address)] = {
+      value: BigInt(new BigNumber(10).pow(8).times(price).toFixed(0)),
+      decimals: 8,
+    }
+    return acc
+  }, {} as Prices)
+}
+
+export async function fetchBalancesByOdos({
+  chainId,
+  userAddress,
+}: {
+  chainId: CHAIN_IDS
+  userAddress: `0x${string}`
+}): Promise<Balances> {
+  return Object.values(
+    (
+      await fetchOdosApi<{
+        balances: { address: string; balance: string }[]
+      }>(`balances/${userAddress}/${chainId}`)
+    ).balances,
+  ).reduce((acc, { address, balance }) => {
+    return {
+      ...acc,
+      [getAddress(address)]: BigInt(balance),
+    }
+  }, {} as Balances)
+}
+
 export async function fetchCallDataByOdos({
   pathId,
   userAddress,
 }: {
   pathId: string
-  userAddress: string
-}): Promise<`0x${string}`> {
+  userAddress: `0x${string}`
+}): Promise<Transaction> {
   const { transaction } = await fetchOdosApi<{
     transaction: {
       data: `0x${string}`
+      gas: number
+      value: string
+      to: string
+      from: string
+      nonce: number
+      gasPrice: bigint
     }
   }>('sor/assemble', {
     method: 'POST',
@@ -41,7 +115,15 @@ export async function fetchCallDataByOdos({
       userAddr: userAddress,
     }),
   })
-  return transaction.data
+  return {
+    data: transaction.data,
+    gasLimit: BigInt(transaction.gas),
+    value: BigInt(transaction.value),
+    from: getAddress(transaction.from),
+    to: getAddress(transaction.to),
+    nonce: transaction.nonce,
+    gasPrice: BigInt(transaction.gasPrice),
+  }
 }
 
 export async function fetchAmountOutByOdos({
@@ -62,11 +144,15 @@ export async function fetchAmountOutByOdos({
   gasPrice: number
 }): Promise<{
   amountOut: bigint
+  gasLimit: bigint
+  pathViz: PathViz | undefined
   pathId: string
 }> {
   const result: {
     outAmounts: string[]
+    pathViz: PathViz
     pathId: string
+    gasEstimate: number
   } = await fetchOdosApi('sor/quote/v2', {
     method: 'POST',
     headers: {
@@ -91,11 +177,13 @@ export async function fetchAmountOutByOdos({
       userAddr: userAddress,
       slippageLimitPercent,
       sourceBlacklist: [],
-      pathViz: false,
+      pathViz: true,
     }),
   })
   return {
     amountOut: BigInt(result.outAmounts[0]),
+    gasLimit: BigInt(result.gasEstimate),
+    pathViz: result.pathViz,
     pathId: result.pathId,
   }
 }

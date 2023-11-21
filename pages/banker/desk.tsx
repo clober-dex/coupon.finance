@@ -80,9 +80,7 @@ const CouponUtilsForm = ({
             currency={depositCurrency}
             value={inputCurrencyAmount}
             onValueChange={setInputCurrencyAmount}
-            availableAmount={BigInt(
-              Math.floor(Number(maxDepositAmount) * 0.997),
-            )}
+            availableAmount={maxDepositAmount}
             price={depositAssetPrice}
             disabled={!depositCurrency}
           >
@@ -177,6 +175,8 @@ const Desk = () => {
   const [outputCurrency, setOutputCurrency] = useState<Currency | undefined>(
     undefined,
   )
+  const [showInputCurrencySelect, setShowInputCurrencySelect] = useState(false)
+
   const [epochs, setEpochs] = useState(1)
 
   const currencies = useMemo(() => {
@@ -321,14 +321,18 @@ const Desk = () => {
               Coupon
             </button>
           </div>
-          <div className="flex flex-col w-fit bg-white dark:bg-gray-900 rounded-lg">
+          <div className="flex flex-col w-fit">
             <div className="flex flex-col w-full lg:flex-row gap-4">
               <div className="flex flex-col">
                 {mode === 'substitute' ? (
-                  <div className="flex flex-col rounded-2xl px-6 py-8 sm:w-[528px] lg:w-[480px]">
+                  <div className="flex flex-col rounded-2xl px-6 py-8 sm:w-[528px] lg:w-[480px] bg-white dark:bg-gray-900">
                     <SwapForm
-                      currencies={currencies}
+                      inputCurrencies={currencies}
+                      outputCurrencies={[]}
+                      balances={balances}
                       prices={prices}
+                      showInputCurrencySelect={showInputCurrencySelect}
+                      setShowInputCurrencySelect={setShowInputCurrencySelect}
                       inputCurrency={inputCurrency}
                       setInputCurrency={setInputCurrency}
                       inputCurrencyAmount={inputCurrencyAmount}
@@ -338,9 +342,12 @@ const Desk = () => {
                           ? balances[inputCurrency.address] ?? 0n
                           : 0n
                       }
+                      showOutputCurrencySelect={false}
+                      setShowOutputCurrencySelect={() => {}}
                       outputCurrency={outputCurrency}
                       setOutputCurrency={setOutputCurrency}
                       outputCurrencyAmount={inputCurrencyAmount}
+                      showSlippageSelect={false}
                       actionButtonProps={{
                         disabled:
                           buttonText === 'Cannot Convert' ||

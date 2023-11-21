@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 
 import { Currency, getLogo } from '../../model/currency'
@@ -10,6 +10,9 @@ export const CurrencyIcon = ({
   currency: Currency
 } & React.ImgHTMLAttributes<HTMLImageElement>) => {
   const [useFallbackSrc, setUseFallbackSrc] = useState(false)
+  useEffect(() => {
+    setUseFallbackSrc(false)
+  }, [currency])
   return (
     <div className="flex relative">
       <div {...props}>

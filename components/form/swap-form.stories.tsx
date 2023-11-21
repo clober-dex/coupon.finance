@@ -2,10 +2,13 @@ import { Meta, StoryObj } from '@storybook/react'
 
 import '../../styles/globals.css'
 
+import { dummyCurrencies } from '../../.storybook/dummy-data/currencies'
+import { dummyPathVizData } from '../../.storybook/dummy-data/path-viz'
+
 import { SwapForm } from './swap-form'
 
 export default {
-  title: 'SubstituteConvertForm',
+  title: 'SwapForm',
   component: SwapForm,
   parameters: {
     layout: 'centered',
@@ -15,46 +18,64 @@ export default {
 type Story = StoryObj<typeof SwapForm>
 export const Default: Story = {
   args: {
-    currencies: [
-      {
-        address: '0x0000000000000000000000000000000000000001',
-        name: 'USDC',
-        symbol: 'USDC',
-        decimals: 6,
-      },
-      {
-        address: '0x0000000000000000000000000000000000000002',
-        name: 'WBTC',
-        symbol: 'WBTC',
-        decimals: 8,
-      },
-      {
-        address: '0x0000000000000000000000000000000000000003',
-        name: 'WETH',
-        symbol: 'WETH',
-        decimals: 18,
-      },
-      {
-        address: '0x0000000000000000000000000000000000000004',
-        name: 'USDT',
-        symbol: 'USDT',
-        decimals: 6,
-      },
-      {
-        address: '0x0000000000000000000000000000000000000005',
-        name: 'DAI',
-        symbol: 'DAI',
-        decimals: 18,
-      },
-    ],
+    inputCurrencies: dummyCurrencies,
+    outputCurrencies: dummyCurrencies,
     prices: {},
-    inputCurrency: undefined,
+    inputCurrency: {
+      address: '0x0000000000000000000000000000000000000003',
+      name: 'WETH',
+      symbol: 'WETH',
+      decimals: 18,
+    },
     setInputCurrency: () => {},
     inputCurrencyAmount: '0.1',
     setInputCurrencyAmount: () => {},
     availableInputCurrencyBalance: 10000000000000000000n,
-    outputCurrency: undefined,
+    outputCurrency: {
+      address: '0x0000000000000000000000000000000000000004',
+      name: 'USDT',
+      symbol: 'USDT',
+      decimals: 6,
+    },
     setOutputCurrency: () => {},
     outputCurrencyAmount: '0.1',
+    pathVizData: dummyPathVizData,
   },
+}
+
+export const SwapWithSlippage: Story = {
+  args: {
+    inputCurrencies: dummyCurrencies,
+    outputCurrencies: dummyCurrencies,
+    prices: {},
+    inputCurrency: {
+      address: '0x0000000000000000000000000000000000000003',
+      name: 'WETH',
+      symbol: 'WETH',
+      decimals: 18,
+    },
+    setInputCurrency: () => {},
+    inputCurrencyAmount: '0.1',
+    setInputCurrencyAmount: () => {},
+    availableInputCurrencyBalance: 10000000000000000000n,
+    outputCurrency: {
+      address: '0x0000000000000000000000000000000000000004',
+      name: 'USDT',
+      symbol: 'USDT',
+      decimals: 6,
+    },
+    setOutputCurrency: () => {},
+    showSlippageSelect: false,
+    setShowSlippageSelect: () => {},
+    slippage: '1',
+    setSlippage: () => {},
+    outputCurrencyAmount: '0.1',
+    gasEstimateValue: 100,
+    pathVizData: dummyPathVizData,
+  },
+}
+
+// @ts-ignore
+BigInt.prototype.toJSON = function () {
+  return this.toString()
 }
