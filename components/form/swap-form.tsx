@@ -252,9 +252,13 @@ export const SwapForm = ({
         ) : (
           <></>
         )}
-        <div className="flex flex-col rounded-2xl bg-white dark:bg-gray-800 p-6">
-          <OdosPathViz pathVizData={pathVizData} />
-        </div>
+        {isLoadingResults ? (
+          <div className="flex flex-col animate-pulse h-44 bg-gray-500 overflow-hidden rounded-2xl w-full" />
+        ) : (
+          <div className="flex flex-col rounded-2xl bg-white dark:bg-gray-800 p-6">
+            <OdosPathViz pathVizData={pathVizData} />
+          </div>
+        )}
         <div>
           <ActionButton {...actionButtonProps} />
           <div className="text-xs text-gray-400 mt-3">
