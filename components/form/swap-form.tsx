@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import BigNumber from 'bignumber.js'
 import { isAddressEqual } from 'viem'
+import Link from 'next/link'
 
 import CurrencyAmountInput from '../input/currency-amount-input'
 import { Currency } from '../../model/currency'
@@ -254,7 +255,19 @@ export const SwapForm = ({
         <div className="flex flex-col rounded-2xl bg-white dark:bg-gray-800 p-6">
           <OdosPathViz pathVizData={pathVizData} />
         </div>
-        <ActionButton {...actionButtonProps} />
+        <div>
+          <ActionButton {...actionButtonProps} />
+          <div className="text-xs text-gray-400 mt-3">
+            Powered by{' '}
+            <Link
+              href="https://app.odos.xyz/"
+              target="_blank"
+              className="text-blue-500"
+            >
+              Odos
+            </Link>
+          </div>
+        </div>
       </div>
     </>
   )
