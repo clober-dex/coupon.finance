@@ -70,7 +70,7 @@ export async function fetchPoints(
 }
 
 export function extractPoints(
-  integratedPoint: getIntegratedPointQuery | undefined,
+  integratedPoint: getIntegratedPointQuery | null,
 ): Point[] {
   if (!integratedPoint) {
     return []
