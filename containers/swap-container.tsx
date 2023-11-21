@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useAccount, useFeeData, useQuery } from 'wagmi'
 import { isAddressEqual, zeroAddress } from 'viem'
 
@@ -34,6 +34,16 @@ const SwapContainer = () => {
   const [showInputCurrencySelect, setShowInputCurrencySelect] = useState(false)
   const [showOutputCurrencySelect, setShowOutputCurrencySelect] =
     useState(false)
+
+  const [amountIn, availableInputCurrencyBalance] = useMemo(
+    () => [
+      inputCurrency
+        ? parseUnits(inputCurrencyAmount, inputCurrency.decimals)
+        : 0n,
+      inputCurrency ? balances[inputCurrency.address] ?? 0n : 0n,
+    ],
+    [inputCurrency, inputCurrencyAmount, balances],
+  )
 
   const {
     data: { amountOut, pathId, gasLimit, pathViz },
@@ -131,9 +141,7 @@ const SwapContainer = () => {
             setInputCurrency={setInputCurrency}
             inputCurrencyAmount={inputCurrencyAmount}
             setInputCurrencyAmount={setInputCurrencyAmount}
-            availableInputCurrencyBalance={
-              inputCurrency ? balances[inputCurrency.address] ?? 0n : 0n
-            }
+            availableInputCurrencyBalance={availableInputCurrencyBalance}
             showOutputCurrencySelect={showOutputCurrencySelect}
             setShowOutputCurrencySelect={setShowOutputCurrencySelect}
             outputCurrency={outputCurrency}
@@ -168,8 +176,12 @@ const SwapContainer = () => {
                 !outputCurrency ||
                 amountOut === 0n ||
                 !pathId ||
-                !userAddress,
-              text: 'Swap',
+                !userAddress ||
+                amountIn > availableInputCurrencyBalance,
+              text:
+                amountIn > availableInputCurrencyBalance
+                  ? `Insufficient ${inputCurrency?.symbol}`
+                  : 'Swap',
               onClick: async () => {
                 if (
                   !userAddress ||
@@ -186,7 +198,7 @@ const SwapContainer = () => {
                 await swap(
                   inputCurrency,
                   outputCurrency,
-                  parseUnits(inputCurrencyAmount, inputCurrency.decimals),
+                  amountIn,
                   amountOut,
                   transaction,
                 )
