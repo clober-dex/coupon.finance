@@ -134,6 +134,8 @@ const SwapContainer = () => {
     },
     {
       refetchInterval: 5 * 1000,
+      refetchIntervalInBackground: true,
+      keepPreviousData: true,
       initialData: {
         amountOut: 0n,
         pathId: undefined,

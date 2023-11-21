@@ -85,6 +85,8 @@ const RepayModalContainer = ({
     },
     {
       refetchInterval: 5 * 1000,
+      refetchIntervalInBackground: true,
+      keepPreviousData: true,
       initialData: {
         repayAmount: 0n,
         pathId: undefined,
