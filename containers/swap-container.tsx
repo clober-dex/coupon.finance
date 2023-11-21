@@ -8,6 +8,7 @@ import { useChainContext } from '../contexts/chain-context'
 import {
   fetchAmountOutByOdos,
   fetchBalancesByOdos,
+  fetchCallDataByOdos,
   fetchCurrenciesByOdos,
   fetchPricesByOdos,
 } from '../apis/odos'
@@ -18,8 +19,10 @@ import { SwapForm } from '../components/form/swap-form'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { formatUnits, parseUnits } from '../utils/numbers'
 import { toWrapETH } from '../utils/currency'
+import { useAdvancedContractContext } from '../contexts/advanced-contract-context'
 
 const SwapContainer = () => {
+  const { swap } = useAdvancedContractContext()
   const { data: feeData } = useFeeData()
   const { assets } = useCurrencyContext()
   const { address: userAddress } = useAccount()
@@ -131,7 +134,6 @@ const SwapContainer = () => {
     },
     {
       refetchInterval: 5 * 1000,
-      keepPreviousData: true,
       initialData: {
         amountOut: 0n,
         pathId: undefined,
@@ -212,9 +214,34 @@ const SwapContainer = () => {
             }
             pathVizData={pathViz}
             actionButtonProps={{
-              disabled: false,
+              disabled:
+                !inputCurrency ||
+                !outputCurrency ||
+                amountOut === 0n ||
+                !pathId ||
+                !userAddress,
               text: 'Swap',
-              onClick: () => {},
+              onClick: async () => {
+                if (
+                  !userAddress ||
+                  !pathId ||
+                  !inputCurrency ||
+                  !outputCurrency
+                ) {
+                  return
+                }
+                const transaction = await fetchCallDataByOdos({
+                  pathId,
+                  userAddress,
+                })
+                await swap(
+                  inputCurrency,
+                  outputCurrency,
+                  parseUnits(inputCurrencyAmount, inputCurrency.decimals),
+                  amountOut,
+                  transaction,
+                )
+              },
             }}
           />
         </Modal>

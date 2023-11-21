@@ -6,6 +6,7 @@ import { Currency } from '../model/currency'
 import { Prices } from '../model/prices'
 import { Balances } from '../model/balances'
 import { PathViz } from '../model/pathviz'
+import { Transaction } from '../model/transaction'
 
 export async function fetchOdosApi<T>(
   path: string,
@@ -90,11 +91,17 @@ export async function fetchCallDataByOdos({
   userAddress,
 }: {
   pathId: string
-  userAddress: string
-}): Promise<`0x${string}`> {
+  userAddress: `0x${string}`
+}): Promise<Transaction> {
   const { transaction } = await fetchOdosApi<{
     transaction: {
       data: `0x${string}`
+      gas: number
+      value: string
+      to: string
+      from: string
+      nonce: number
+      gasPrice: bigint
     }
   }>('sor/assemble', {
     method: 'POST',
@@ -108,7 +115,15 @@ export async function fetchCallDataByOdos({
       userAddr: userAddress,
     }),
   })
-  return transaction.data
+  return {
+    data: transaction.data,
+    gasLimit: BigInt(transaction.gas),
+    value: BigInt(transaction.value),
+    from: getAddress(transaction.from),
+    to: getAddress(transaction.to),
+    nonce: transaction.nonce,
+    gasPrice: BigInt(transaction.gasPrice),
+  }
 }
 
 export async function fetchAmountOutByOdos({

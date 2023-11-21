@@ -85,7 +85,6 @@ const RepayModalContainer = ({
     },
     {
       refetchInterval: 5 * 1000,
-      keepPreviousData: true,
       initialData: {
         repayAmount: 0n,
         pathId: undefined,
@@ -202,7 +201,7 @@ const RepayModalContainer = ({
             return
           }
           if (isUseCollateral && pathId) {
-            const swapData = await fetchCallDataByOdos({
+            const { data: swapData } = await fetchCallDataByOdos({
               pathId,
               userAddress,
             })

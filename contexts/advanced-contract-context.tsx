@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react'
 import { usePublicClient, useQueryClient, useWalletClient } from 'wagmi'
-import { zeroAddress } from 'viem'
+import { isAddressEqual, zeroAddress } from 'viem'
 
 import { Currency } from '../model/currency'
 import { formatUnits } from '../utils/numbers'
@@ -8,12 +8,20 @@ import { writeContract } from '../utils/wallet'
 import { ISubstitute__factory, IWETH9__factory } from '../typechain'
 import { approve20 } from '../utils/approve20'
 import { toWrapETH } from '../utils/currency'
+import { Transaction } from '../model/transaction'
 
 import { useTransactionContext } from './transaction-context'
 import { useCurrencyContext } from './currency-context'
 import { useChainContext } from './chain-context'
 
 type AdvancedContractContext = {
+  swap: (
+    inputCurrency: Currency,
+    outputCurrency: Currency,
+    amountIn: bigint,
+    expectedAmountOut: bigint,
+    transaction: Transaction,
+  ) => Promise<void>
   wrap: (currency: Currency, amount: bigint) => Promise<void>
   unwrap: (currency: Currency, amount: bigint) => Promise<void>
   mintSubstitute: (
@@ -39,6 +47,7 @@ type AdvancedContractContext = {
 }
 
 const Context = React.createContext<AdvancedContractContext>({
+  swap: () => Promise.resolve(),
   wrap: () => Promise.resolve(),
   unwrap: () => Promise.resolve(),
   mintSubstitute: () => Promise.resolve(),
@@ -56,6 +65,102 @@ export const AdvancedContractProvider = ({
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
+
+  const swap = useCallback(
+    async (
+      inputCurrency: Currency,
+      outputCurrency: Currency,
+      amountIn: bigint,
+      expectedAmountOut: bigint,
+      transaction: Transaction,
+    ) => {
+      if (!walletClient) {
+        // TODO: alert wallet connect
+        return
+      }
+
+      try {
+        if (!isAddressEqual(inputCurrency.address, zeroAddress)) {
+          setConfirmation({
+            title: 'Approve',
+            body: 'Please confirm in your wallet.',
+            fields: [
+              {
+                currency: inputCurrency,
+                label: inputCurrency.symbol,
+                value: formatUnits(
+                  amountIn,
+                  inputCurrency.decimals,
+                  prices[inputCurrency.address],
+                ),
+              },
+            ],
+          })
+          const hash = await approve20(
+            selectedChain.id,
+            walletClient,
+            inputCurrency,
+            transaction.from,
+            transaction.to,
+            amountIn,
+          )
+          if (hash) {
+            await publicClient.waitForTransactionReceipt({
+              hash,
+            })
+          }
+        }
+
+        setConfirmation({
+          title: 'Swap',
+          body: 'Please confirm in your wallet.',
+          fields: [
+            {
+              direction: 'in',
+              currency: inputCurrency,
+              label: inputCurrency.symbol,
+              value: formatUnits(
+                amountIn,
+                inputCurrency.decimals,
+                prices[inputCurrency.address],
+              ),
+            },
+            {
+              direction: 'out',
+              currency: outputCurrency,
+              label: outputCurrency.symbol,
+              value: formatUnits(
+                expectedAmountOut,
+                outputCurrency.decimals,
+                prices[outputCurrency.address],
+              ),
+            },
+          ],
+        })
+        await publicClient.waitForTransactionReceipt({
+          hash: await walletClient.sendTransaction({
+            data: transaction.data,
+            to: transaction.to,
+            value: transaction.value,
+            gas: transaction.gasLimit,
+          }),
+        })
+      } catch (e) {
+        console.error(e)
+      } finally {
+        await queryClient.invalidateQueries(['swap-balances'])
+        setConfirmation(undefined)
+      }
+    },
+    [
+      prices,
+      publicClient,
+      queryClient,
+      selectedChain.id,
+      setConfirmation,
+      walletClient,
+    ],
+  )
 
   const wrap = useCallback(
     async (currency: Currency, amount: bigint) => {
@@ -355,6 +460,7 @@ export const AdvancedContractProvider = ({
   return (
     <Context.Provider
       value={{
+        swap,
         wrap,
         unwrap,
         mintSubstitute,
