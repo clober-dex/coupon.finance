@@ -64,9 +64,7 @@ export async function fetchAssets(chainId: CHAIN_IDS): Promise<Asset[]> {
   return result
 }
 
-export function extractAssets(
-  integrated: getIntegratedQuery | undefined,
-): Asset[] {
+export function extractAssets(integrated: getIntegratedQuery | null): Asset[] {
   if (cache) {
     return cache
   }
@@ -94,7 +92,7 @@ export async function fetchAssetStatuses(
 }
 
 export function extractAssetStatuses(
-  integrated: getIntegratedQuery | undefined,
+  integrated: getIntegratedQuery | null,
 ): AssetStatus[] {
   if (!integrated) {
     return []

@@ -24,9 +24,7 @@ export async function fetchEpochs(chainId: CHAIN_IDS): Promise<Epoch[]> {
     .sort((a, b) => a.endTimestamp - b.endTimestamp)
 }
 
-export function extractEpochs(
-  integrated: getIntegratedQuery | undefined,
-): Epoch[] {
+export function extractEpochs(integrated: getIntegratedQuery | null): Epoch[] {
   if (!integrated) {
     return []
   }
