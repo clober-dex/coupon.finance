@@ -140,7 +140,7 @@ export async function fetchAmountOutByOdos({
   tokenIn: string
   tokenOut: string
   slippageLimitPercent: number
-  userAddress: string
+  userAddress?: string
   gasPrice: number
 }): Promise<{
   amountOut: bigint
