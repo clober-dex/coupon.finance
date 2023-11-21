@@ -124,12 +124,12 @@ const _PathViz = ({ pathVizData }: { pathVizData?: PathViz }) => {
       >
         {hoveredNode &&
           nodes[parseInt(hoveredNode.id)]?.data.targetConnected.length > 0 && (
-            <div className="absolute left-0 top-0 p-3 z-50 bg-gray-950 bg-opacity-90 overflow-hidden rounded-br-xl pointer-events-none">
+            <div className="absolute left-0 top-0 p-3 z-50 bg-white dark:bg-gray-950 bg-opacity-90 overflow-hidden rounded-br-xl pointer-events-none">
               <div className="flex flex-col gap-2">
                 {nodes[parseInt(hoveredNode.id)].data.targetConnected.map(
                   (x, i) => {
                     return (
-                      <div key={`${i}`} className="text-xs text-white">
+                      <div key={`${i}`} className="text-xs">
                         <div className="flex items-center gap-1.5">
                           <div
                             className="w-1.5 h-1.5 rounded-full"
@@ -186,7 +186,7 @@ const Node = ({
 }) => {
   return (
     <div
-      className="flex items-center p-1 lg:px-2 bg-gray-700 rounded-full gap-2"
+      className="flex items-center p-1 lg:px-2 bg-gray-200 dark:bg-gray-700 rounded-full gap-2"
       data-tooltip-id={id}
     >
       <div className="flex items-center rounded-full gap-2">
@@ -195,7 +195,7 @@ const Node = ({
           className="rounded-full w-5 h-5"
         />
         <div
-          className="text-sm text-white hidden lg:flex w-12"
+          className="text-sm hidden lg:flex w-12"
           style={{
             transform: `scale(${1 - (symbol.length - 4) / 10})`,
             transformOrigin: 'left',
