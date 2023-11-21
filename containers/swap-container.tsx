@@ -51,7 +51,6 @@ const SwapContainer = () => {
       )
       if (
         feeData?.gasPrice &&
-        userAddress &&
         selectedChain &&
         inputCurrency &&
         outputCurrency &&
@@ -133,7 +132,7 @@ const SwapContainer = () => {
             inputCurrencyAmount={inputCurrencyAmount}
             setInputCurrencyAmount={setInputCurrencyAmount}
             availableInputCurrencyBalance={
-              inputCurrency ? balances[inputCurrency.address] : 0n
+              inputCurrency ? balances[inputCurrency.address] ?? 0n : 0n
             }
             showOutputCurrencySelect={showOutputCurrencySelect}
             setShowOutputCurrencySelect={setShowOutputCurrencySelect}

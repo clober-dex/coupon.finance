@@ -85,10 +85,10 @@ export const SwapProvider = ({ children }: React.PropsWithChildren<{}>) => {
             chainId: selectedChain.id,
             userAddress,
           })
-        : []
+        : {}
     },
     {
-      initialData: [],
+      initialData: {} as Balances,
       refetchInterval: 10 * 1000,
       refetchIntervalInBackground: true,
     },
