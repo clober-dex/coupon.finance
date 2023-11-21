@@ -15,15 +15,15 @@ import {
 import { useChainContext } from './chain-context'
 
 type SubgraphContext = {
-  integrated: getIntegratedQuery | undefined
-  integratedPositions: getIntegratedPositionsQuery | undefined
-  integratedPoint: getIntegratedPointQuery | undefined
+  integrated: getIntegratedQuery | null
+  integratedPositions: getIntegratedPositionsQuery | null
+  integratedPoint: getIntegratedPointQuery | null
 }
 
 const Context = React.createContext<SubgraphContext>({
-  integrated: undefined,
-  integratedPositions: undefined,
-  integratedPoint: undefined,
+  integrated: null,
+  integratedPositions: null,
+  integratedPoint: null,
 })
 
 export const SubgraphProvider = ({ children }: React.PropsWithChildren<{}>) => {
@@ -36,7 +36,7 @@ export const SubgraphProvider = ({ children }: React.PropsWithChildren<{}>) => {
       return fetchIntegrated(selectedChain.id)
     },
     {
-      initialData: undefined,
+      initialData: null,
     },
   )
 
@@ -44,14 +44,14 @@ export const SubgraphProvider = ({ children }: React.PropsWithChildren<{}>) => {
     ['integrated-positions', selectedChain, userAddress],
     async () => {
       if (!userAddress) {
-        return undefined
+        return null
       }
       return fetchIntegratedPositions(selectedChain.id, userAddress)
     },
     {
       refetchInterval: 5 * 1000,
       refetchIntervalInBackground: true,
-      initialData: undefined,
+      initialData: null,
     },
   )
 
@@ -59,14 +59,14 @@ export const SubgraphProvider = ({ children }: React.PropsWithChildren<{}>) => {
     ['integrated-point', selectedChain, userAddress],
     async () => {
       if (!userAddress) {
-        return undefined
+        return null
       }
       return fetchIntegratedPoint(selectedChain.id, userAddress)
     },
     {
       refetchInterval: 5 * 1000,
       refetchIntervalInBackground: true,
-      initialData: undefined,
+      initialData: null,
     },
   )
 
