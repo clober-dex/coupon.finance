@@ -177,9 +177,9 @@ const SwapContainer = () => {
                 amountOut === 0n ||
                 !pathId ||
                 !userAddress ||
-                amountIn > availableInputCurrencyBalance,
+                (userAddress && amountIn > availableInputCurrencyBalance),
               text:
-                amountIn > availableInputCurrencyBalance
+                userAddress && amountIn > availableInputCurrencyBalance
                   ? `Insufficient ${inputCurrency?.symbol}`
                   : 'Swap',
               onClick: async () => {
