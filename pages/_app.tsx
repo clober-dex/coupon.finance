@@ -34,6 +34,7 @@ import { CouponUserBalanceModal } from '../components/modal/coupon-user-balance-
 import { AdvancedContractProvider } from '../contexts/advanced-contract-context'
 import { SubgraphProvider } from '../contexts/subgraph-context'
 import { ModeProvider, useModeContext } from '../contexts/mode-context'
+import { SwapProvider } from '../contexts/swap-context'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -138,18 +139,20 @@ function MyApp({ Component, pageProps }: AppProps) {
                     <DepositProvider>
                       <BorrowProvider>
                         <AdvancedContractProvider>
-                          <ModeProvider>
-                            <div
-                              className={`${inter.className} flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white`}
-                            >
-                              <HeaderWrapper />
-                              <div className="mb-auto pt-12 md:pt-16">
-                                <Component {...pageProps} />
-                                <CouponWidgetWrapper />
+                          <SwapProvider>
+                            <ModeProvider>
+                              <div
+                                className={`${inter.className} flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white`}
+                              >
+                                <HeaderWrapper />
+                                <div className="mb-auto pt-12 md:pt-16">
+                                  <Component {...pageProps} />
+                                  <CouponWidgetWrapper />
+                                </div>
+                                <Footer />
                               </div>
-                              <Footer />
-                            </div>
-                          </ModeProvider>
+                            </ModeProvider>
+                          </SwapProvider>
                         </AdvancedContractProvider>
                       </BorrowProvider>
                     </DepositProvider>

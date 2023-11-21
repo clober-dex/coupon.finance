@@ -5,24 +5,16 @@ import { isAddressEqual, zeroAddress } from 'viem'
 import { SwapButton } from '../components/button/swap-button'
 import { Currency } from '../model/currency'
 import { useChainContext } from '../contexts/chain-context'
-import {
-  fetchAmountOutByOdos,
-  fetchBalancesByOdos,
-  fetchCallDataByOdos,
-  fetchCurrenciesByOdos,
-  fetchPricesByOdos,
-} from '../apis/odos'
-import { Balances } from '../model/balances'
-import { Prices } from '../model/prices'
+import { fetchAmountOutByOdos, fetchCallDataByOdos } from '../apis/odos'
 import Modal from '../components/modal/modal'
 import { SwapForm } from '../components/form/swap-form'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { formatUnits, parseUnits } from '../utils/numbers'
 import { toWrapETH } from '../utils/currency'
-import { useAdvancedContractContext } from '../contexts/advanced-contract-context'
+import { useSwapContext } from '../contexts/swap-context'
 
 const SwapContainer = () => {
-  const { swap } = useAdvancedContractContext()
+  const { swap, prices, currencies, balances } = useSwapContext()
   const { data: feeData } = useFeeData()
   const { assets } = useCurrencyContext()
   const { address: userAddress } = useAccount()
@@ -42,50 +34,6 @@ const SwapContainer = () => {
   const [showInputCurrencySelect, setShowInputCurrencySelect] = useState(false)
   const [showOutputCurrencySelect, setShowOutputCurrencySelect] =
     useState(false)
-
-  const { data: currencies } = useQuery(
-    ['swap-currencies', selectedChain],
-    async () =>
-      fetchCurrenciesByOdos({
-        chainId: selectedChain.id,
-      }),
-    {
-      initialData: [],
-    },
-  )
-
-  const { data: prices } = useQuery(
-    ['swap-prices', selectedChain],
-    async () => {
-      return fetchPricesByOdos({
-        chainId: selectedChain.id,
-      })
-    },
-    {
-      initialData: {} as Prices,
-      refetchInterval: 10 * 1000,
-      refetchIntervalInBackground: true,
-    },
-  )
-
-  const { data: balances } = useQuery(
-    ['swap-balances', selectedChain, userAddress],
-    async () => {
-      return userAddress
-        ? fetchBalancesByOdos({
-            chainId: selectedChain.id,
-            userAddress,
-          })
-        : []
-    },
-    {
-      initialData: [],
-      refetchInterval: 10 * 1000,
-      refetchIntervalInBackground: true,
-    },
-  ) as {
-    data: Balances
-  }
 
   const {
     data: { amountOut, pathId, gasLimit, pathViz },
