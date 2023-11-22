@@ -8,7 +8,6 @@ import {
 } from '../model/market'
 import { Currency } from '../model/currency'
 import { Asset } from '../model/asset'
-import { getEpoch } from '../utils/epoch'
 import { SUBGRAPH_URL } from '../constants/subgraph-url'
 import { CHAIN_IDS } from '../constants/chain'
 import { currentTimestampInSeconds, formatDate } from '../utils/date'
@@ -38,44 +37,45 @@ export type MarketDto = {
 }
 export async function fetchMarkets(chainId: CHAIN_IDS): Promise<Market[]> {
   const { markets } = await getMarkets(
-    {
-      fromEpoch: getEpoch(currentTimestampInSeconds()).toString(),
-    },
+    {},
     {
       url: SUBGRAPH_URL[chainId],
     },
   )
-  return markets.map((market) =>
-    Market.fromDto({
-      address: getAddress(market.id),
-      orderToken: getAddress(market.orderToken),
-      couponId: market.couponId,
-      takerFee: market.takerFee,
-      quoteUnit: market.quoteUnit,
-      epoch: {
-        id: market.epoch.id,
-        startTimestamp: market.epoch.startTimestamp,
-        endTimestamp: market.epoch.endTimestamp,
-      },
-      quoteToken: {
-        address: getAddress(market.quoteToken.id),
-        name: market.quoteToken.name,
-        symbol: market.quoteToken.symbol,
-        decimals: market.quoteToken.decimals,
-      },
-      baseToken: {
-        address: getAddress(market.baseToken.id),
-        name: market.baseToken.name,
-        symbol: market.baseToken.symbol,
-        decimals: market.baseToken.decimals,
-      },
-      depths: market.depths.map((depth) => ({
-        price: depth.price,
-        rawAmount: depth.rawAmount,
-        isBid: depth.isBid,
-      })),
-    }),
-  )
+  const now = currentTimestampInSeconds()
+  return markets
+    .filter((market) => Number(market.epoch.endTimestamp) > now)
+    .map((market) =>
+      Market.fromDto({
+        address: getAddress(market.id),
+        orderToken: getAddress(market.orderToken),
+        couponId: market.couponId,
+        takerFee: market.takerFee,
+        quoteUnit: market.quoteUnit,
+        epoch: {
+          id: market.epoch.id,
+          startTimestamp: market.epoch.startTimestamp,
+          endTimestamp: market.epoch.endTimestamp,
+        },
+        quoteToken: {
+          address: getAddress(market.quoteToken.id),
+          name: market.quoteToken.name,
+          symbol: market.quoteToken.symbol,
+          decimals: market.quoteToken.decimals,
+        },
+        baseToken: {
+          address: getAddress(market.baseToken.id),
+          name: market.baseToken.name,
+          symbol: market.baseToken.symbol,
+          decimals: market.baseToken.decimals,
+        },
+        depths: market.depths.map((depth) => ({
+          price: depth.price,
+          rawAmount: depth.rawAmount,
+          isBid: depth.isBid,
+        })),
+      }),
+    )
 }
 
 // Returns an array with the of proceeds depending on how many epochs deposited.
