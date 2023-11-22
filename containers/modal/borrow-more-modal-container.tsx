@@ -1,10 +1,9 @@
 import React, { useMemo, useState } from 'react'
 import { useQuery } from 'wagmi'
-import { isAddressEqual } from 'viem'
 
 import { LoanPosition } from '../../model/loan-position'
 import { useCurrencyContext } from '../../contexts/currency-context'
-import { fetchMarkets } from '../../apis/market'
+import { fetchMarketsByQuoteTokenAddress } from '../../apis/market'
 import { calculateCouponsToBorrow } from '../../model/market'
 import { max, min } from '../../utils/bigint'
 import { useBorrowContext } from '../../contexts/borrow-context'
@@ -62,14 +61,12 @@ const BorrowMoreModalContainer = ({
       selectedChain,
     ],
     async () => {
-      const markets = (await fetchMarkets(selectedChain.id))
-        .filter((market) =>
-          isAddressEqual(
-            market.quoteToken.address,
-            position.substitute.address,
-          ),
+      const markets = (
+        await fetchMarketsByQuoteTokenAddress(
+          selectedChain.id,
+          position.substitute.address,
         )
-        .filter((market) => market.epoch <= position.toEpoch.id)
+      ).filter((market) => market.epoch <= position.toEpoch.id)
       return calculateCouponsToBorrow(
         position.substitute,
         markets,

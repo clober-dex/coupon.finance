@@ -1,11 +1,11 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { useFeeData, useQuery } from 'wagmi'
-import { isAddressEqual, zeroAddress } from 'viem'
+import { zeroAddress } from 'viem'
 import BigNumber from 'bignumber.js'
 
 import { LoanPosition } from '../../model/loan-position'
 import { useCurrencyContext } from '../../contexts/currency-context'
-import { fetchMarkets } from '../../apis/market'
+import { fetchMarketsByQuoteTokenAddress } from '../../apis/market'
 import { calculateCouponsToRepay } from '../../model/market'
 import { max, min } from '../../utils/bigint'
 import { useBorrowContext } from '../../contexts/borrow-context'
@@ -103,14 +103,12 @@ const RepayModalContainer = ({
           refund: 0n,
         }
       }
-      const markets = (await fetchMarkets(selectedChain.id))
-        .filter((market) =>
-          isAddressEqual(
-            market.quoteToken.address,
-            position.substitute.address,
-          ),
+      const markets = (
+        await fetchMarketsByQuoteTokenAddress(
+          selectedChain.id,
+          position.substitute.address,
         )
-        .filter((market) => market.epoch <= position.toEpoch.id)
+      ).filter((market) => market.epoch <= position.toEpoch.id)
       return calculateCouponsToRepay(
         position.substitute,
         markets,

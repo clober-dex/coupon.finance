@@ -1,10 +1,9 @@
 import React, { useMemo, useState } from 'react'
-import { isAddressEqual } from 'viem'
 import { useQuery } from 'wagmi'
 
 import { BondPosition } from '../../model/bond-position'
 import { useCurrencyContext } from '../../contexts/currency-context'
-import { fetchMarkets } from '../../apis/market'
+import { fetchMarketsByQuoteTokenAddress } from '../../apis/market'
 import { useDepositContext } from '../../contexts/deposit-context'
 import { calculateCouponsToWithdraw } from '../../model/market'
 import WithdrawModal from '../../components/modal/withdraw-modal'
@@ -44,14 +43,12 @@ const WithdrawModalContainer = ({
           available: 0n,
         }
       }
-      const markets = (await fetchMarkets(selectedChain.id))
-        .filter((market) =>
-          isAddressEqual(
-            market.quoteToken.address,
-            position.substitute.address,
-          ),
+      const markets = (
+        await fetchMarketsByQuoteTokenAddress(
+          selectedChain.id,
+          position.substitute.address,
         )
-        .filter((market) => market.epoch <= position.toEpoch.id)
+      ).filter((market) => market.epoch <= position.toEpoch.id)
       return calculateCouponsToWithdraw(
         position.substitute,
         markets,

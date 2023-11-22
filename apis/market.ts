@@ -76,6 +76,16 @@ export async function fetchMarkets(chainId: CHAIN_IDS): Promise<Market[]> {
         })),
       }),
     )
+    .sort((a, b) => Number(a.epoch) - Number(b.epoch))
+}
+
+export async function fetchMarketsByQuoteTokenAddress(
+  chainId: CHAIN_IDS,
+  quoteTokenAddress: `0x${string}`,
+): Promise<Market[]> {
+  return (await fetchMarkets(chainId)).filter((market) =>
+    isAddressEqual(market.quoteToken.address, quoteTokenAddress),
+  )
 }
 
 // Returns an array with the of proceeds depending on how many epochs deposited.
@@ -85,12 +95,9 @@ export async function fetchDepositInfosByEpochsDeposited(
   amount: bigint,
 ) {
   const substitute = asset.substitutes[0]
-  const markets = (await fetchMarkets(chainId))
-    .filter((market) =>
-      isAddressEqual(market.quoteToken.address, substitute.address),
-    )
-    .sort((a, b) => Number(a.epoch) - Number(b.epoch))
-    .slice(0, MAX_VISIBLE_MARKETS)
+  const markets = (
+    await fetchMarketsByQuoteTokenAddress(chainId, substitute.address)
+  ).slice(0, MAX_VISIBLE_MARKETS)
 
   const currentTimestamp = currentTimestampInSeconds()
   return markets
@@ -121,12 +128,9 @@ export async function fetchBorrowApyByEpochsBorrowed(
   maxAmountExcludingFee: bigint,
 ) {
   const substitute = asset.substitutes[0]
-  const markets = (await fetchMarkets(chainId))
-    .filter((market) =>
-      isAddressEqual(market.quoteToken.address, substitute.address),
-    )
-    .sort((a, b) => Number(a.epoch) - Number(b.epoch))
-    .slice(0, MAX_VISIBLE_MARKETS)
+  const markets = (
+    await fetchMarketsByQuoteTokenAddress(chainId, substitute.address)
+  ).slice(0, MAX_VISIBLE_MARKETS)
 
   const currentTimestamp = currentTimestampInSeconds()
   return markets
@@ -158,12 +162,9 @@ export async function fetchInterestOrRefundCouponAmountByEpochs(
   debtAmount: bigint,
   expiryEpoch: number,
 ) {
-  const markets = (await fetchMarkets(chainId))
-    .filter((market) =>
-      isAddressEqual(market.quoteToken.address, substitute.address),
-    )
-    .sort((a, b) => Number(a.epoch) - Number(b.epoch))
-    .slice(0, MAX_VISIBLE_MARKETS)
+  const markets = (
+    await fetchMarketsByQuoteTokenAddress(chainId, substitute.address)
+  ).slice(0, MAX_VISIBLE_MARKETS)
 
   return markets.map((market) => {
     const interest =
