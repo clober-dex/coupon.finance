@@ -1,4 +1,4 @@
-import { formatUnits, parseUnits, toCommaSeparated } from '../utils/numbers'
+import { formatUnits, toCommaSeparated } from '../utils/numbers'
 
 describe('formatUnits', () => {
   it('check stablecoin formatUnits', () => {

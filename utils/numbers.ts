@@ -52,8 +52,12 @@ export const toDollarString = (dollarValue: BigNumber): string => {
   return `$${toCommaSeparated(abbreviatedDollarValue.toFixed(2))}${suffix}`
 }
 
+export const sanitizeNumber = (value: string): string => {
+  return value.replace(/[^0-9.-]/g, '')
+}
+
 export const parseUnits = (value: string, decimals: number): bigint => {
-  return _parseUnits(value.replace(/,/g, ''), decimals)
+  return _parseUnits(sanitizeNumber(value), decimals)
 }
 
 export const formatUnits = (

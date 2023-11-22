@@ -2,6 +2,7 @@ import React, { useContext } from 'react'
 
 import ConfirmationModal from '../components/modal/confirmation-modal'
 import { Currency } from '../model/currency'
+import { sanitizeNumber } from '../utils/numbers'
 
 export type Confirmation = {
   title: string
@@ -32,7 +33,7 @@ export const TransactionProvider = ({
       ? {
           ...confirmation,
           fields: confirmation.fields.filter(
-            (field) => Number(field.value.replace(/,/g, '')) > 0,
+            (field) => Number(sanitizeNumber(field.value)) > 0,
           ),
         }
       : undefined
