@@ -4,7 +4,6 @@ import { createPortal } from 'react-dom'
 import { Confirmation } from '../../contexts/transaction-context'
 import { ZIndices } from '../../utils/z-indices'
 import { CurrencyIcon } from '../icon/currency-icon'
-import { parseUnits } from '../../utils/numbers'
 
 const ConfirmationModal = ({
   confirmation,
