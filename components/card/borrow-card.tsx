@@ -28,7 +28,7 @@ export const BorrowCard = ({
   )
   return (
     <Link href={`/borrow/${currency.symbol}`}>
-      <div className="transition ease-in-out delay-150 duration-300 sm:hover:-translate-y-1 sm:hover:scale-105 group flex flex-col w-full px-4 py-6 justify-center items-center gap-4 bg-white dark:bg-gray-800 rounded-xl">
+      <div className="h-[331px] transition ease-in-out delay-150 duration-300 sm:hover:-translate-y-1 sm:hover:scale-105 group flex flex-col w-full px-4 py-6 justify-center items-center gap-4 bg-white dark:bg-gray-800 rounded-xl">
         <div className="flex flex-col items-start gap-6 group-hover:gap-4 self-stretch">
           <div className="flex items-center gap-3 self-stretch">
             <CurrencyIcon
