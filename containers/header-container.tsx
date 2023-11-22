@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { useAccount } from 'wagmi'
 
@@ -12,8 +12,9 @@ import { UserPointButton } from '../components/button/user-point-button'
 import { ZIndices } from '../utils/z-indices'
 import { useModeContext } from '../contexts/mode-context'
 import { useCurrencyContext } from '../contexts/currency-context'
+import { SwapButton } from '../components/button/swap-button'
 
-import SwapContainer from './swap-container'
+import SwapModalContainer from './modal/swap-modal-container'
 
 const HeaderContainer = ({
   onMenuClick,
@@ -25,6 +26,7 @@ const HeaderContainer = ({
   const { address, status } = useAccount()
   const { point } = useCurrencyContext()
   const { selectedMode, onSelectedModeChange } = useModeContext()
+  const [showSwapModal, setShowSwapModal] = useState(false)
   return (
     <div
       className={`fixed w-full flex flex-col justify-between items-center px-4 md:px-8 bg-white dark:bg-gray-900 md:dark:bg-transparent md:bg-opacity-5 md:backdrop-blur ${ZIndices.modal} h-12 md:h-16`}
@@ -63,7 +65,12 @@ const HeaderContainer = ({
             <ThemeToggleButton setTheme={setTheme} />
           </div>
           {address ? <UserPointButton score={Number(point)} /> : <></>}
-          <SwapContainer />
+          <SwapButton setShowSwapModal={setShowSwapModal} />
+          {showSwapModal ? (
+            <SwapModalContainer onClose={() => setShowSwapModal(false)} />
+          ) : (
+            <></>
+          )}
           <WalletSelector address={address} status={status} />
           <button
             className="w-8 h-8 hover:bg-gray-100 md:hover:bg-gray-200 dark:hover:bg-gray-700 rounded sm:rounded-lg flex items-center justify-center lg:hidden "
