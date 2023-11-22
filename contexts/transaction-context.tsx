@@ -26,7 +26,18 @@ const Context = React.createContext<TransactionContext>({
 export const TransactionProvider = ({
   children,
 }: React.PropsWithChildren<{}>) => {
-  const [confirmation, setConfirmation] = React.useState<Confirmation>()
+  const [confirmation, _setConfirmation] = React.useState<Confirmation>()
+  const setConfirmation = (confirmation?: Confirmation) => {
+    const refinedConfirmation = confirmation
+      ? {
+          ...confirmation,
+          fields: confirmation.fields.filter(
+            (field) => Number(field.value.replace(/,/g, '')) > 0,
+          ),
+        }
+      : undefined
+    _setConfirmation(refinedConfirmation)
+  }
   return (
     <Context.Provider value={{ confirmation, setConfirmation }}>
       {children}

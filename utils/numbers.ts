@@ -102,9 +102,8 @@ export const toCommaSeparated = (number: string) => {
   const parts = number.split('.')
   const integer = parts[0]
   const decimal = parts[1]
-  const integerFormatter = new Intl.NumberFormat('en-US', {
-    maximumSignificantDigits: integer.replace('-', '').length,
-  })
-  const formattedInteger = integerFormatter.format(BigInt(integer))
+  const formattedInteger =
+    (integer.startsWith('-') ? '-' : '') +
+    integer.replace('-', '').replace(/\B(?=(\d{3})+(?!\d))/g, ',')
   return decimal ? `${formattedInteger}.${decimal}` : formattedInteger
 }
