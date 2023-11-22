@@ -4,7 +4,6 @@ import { createPortal } from 'react-dom'
 import { Confirmation } from '../../contexts/transaction-context'
 import { ZIndices } from '../../utils/z-indices'
 import { CurrencyIcon } from '../icon/currency-icon'
-import { parseUnits } from '../../utils/numbers'
 
 const ConfirmationModal = ({
   confirmation,
@@ -36,43 +35,38 @@ const ConfirmationModal = ({
           </div>
         </div>
         <div className="flex flex-col gap-2">
-          {confirmation.fields
-            .filter(
-              (field) =>
-                parseUnits(field.value, field.currency?.decimals ?? 18) > 0n,
-            )
-            .map((field, index) => (
-              <div key={index} className="flex flex-row gap-1">
-                {field.direction === 'in' ? (
-                  <div className="flex text-sm w-9 items-center justify-center bg-green-500 bg-opacity-10 font-bold text-green-500 px-6 rounded-lg">
-                    IN
-                  </div>
-                ) : (
-                  <></>
-                )}
-                {field.direction === 'out' ? (
-                  <div className="flex text-sm w-9 items-center justify-center bg-red-500 bg-opacity-10 font-bold text-red-500 px-6 rounded-lg">
-                    OUT
-                  </div>
-                ) : (
-                  <></>
-                )}
-                <div className="flex w-full items-center justify-between bg-white dark:bg-gray-700 px-3 py-2 text-sm sm:text-base rounded-lg">
-                  <div className="flex items-center gap-2">
-                    {field.currency ? (
-                      <CurrencyIcon
-                        currency={field.currency}
-                        className="w-5 h-5"
-                      />
-                    ) : (
-                      <></>
-                    )}
-                    <div>{field.label}</div>
-                  </div>
-                  <div>{field.value}</div>
+          {confirmation.fields.map((field, index) => (
+            <div key={index} className="flex flex-row gap-1">
+              {field.direction === 'in' ? (
+                <div className="flex text-sm w-9 items-center justify-center bg-green-500 bg-opacity-10 font-bold text-green-500 px-6 rounded-lg">
+                  IN
                 </div>
+              ) : (
+                <></>
+              )}
+              {field.direction === 'out' ? (
+                <div className="flex text-sm w-9 items-center justify-center bg-red-500 bg-opacity-10 font-bold text-red-500 px-6 rounded-lg">
+                  OUT
+                </div>
+              ) : (
+                <></>
+              )}
+              <div className="flex w-full items-center justify-between bg-white dark:bg-gray-700 px-3 py-2 text-sm sm:text-base rounded-lg">
+                <div className="flex items-center gap-2">
+                  {field.currency ? (
+                    <CurrencyIcon
+                      currency={field.currency}
+                      className="w-5 h-5"
+                    />
+                  ) : (
+                    <></>
+                  )}
+                  <div>{field.label}</div>
+                </div>
+                <div>{field.value}</div>
               </div>
-            ))}
+            </div>
+          ))}
         </div>
       </div>
     </div>,

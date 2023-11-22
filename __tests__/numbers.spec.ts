@@ -1,4 +1,4 @@
-import { formatUnits } from '../utils/numbers'
+import { formatUnits, toCommaSeparated } from '../utils/numbers'
 
 describe('formatUnits', () => {
   it('check stablecoin formatUnits', () => {
@@ -89,6 +89,30 @@ describe('formatUnits', () => {
     )
     expect(formatUnits(123456789123456789123456789n, 18, PRICE_0_001)).toEqual(
       '123,456,789',
+    )
+  })
+})
+
+describe('toCommaSeparated', () => {
+  it('should be able to convert integer and decimal parts normally', () => {
+    const VALUE_1 = '123456789123456789123456789'
+    const VALUE_2 = '123456789123456789123456789.123456789123456789'
+    const VALUE_3 =
+      '1123456789123456789123456112312312312231321789.123456789123456789123456789'
+    const VALUE_4 =
+      '-1123456789123456789123456112312312312231321789.123456789123456789123456789'
+
+    expect(toCommaSeparated(VALUE_1)).toEqual(
+      '123,456,789,123,456,789,123,456,789',
+    )
+    expect(toCommaSeparated(VALUE_2)).toEqual(
+      '123,456,789,123,456,789,123,456,789.123456789123456789',
+    )
+    expect(toCommaSeparated(VALUE_3)).toEqual(
+      '1,123,456,789,123,456,789,123,456,112,312,312,312,231,321,789.123456789123456789123456789',
+    )
+    expect(toCommaSeparated(VALUE_4)).toEqual(
+      '-1,123,456,789,123,456,789,123,456,112,312,312,312,231,321,789.123456789123456789123456789',
     )
   })
 })
