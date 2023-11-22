@@ -1,13 +1,17 @@
 import React from 'react'
 
-import DepositContainer from '../containers/deposit-container'
-import BorrowContainer from '../containers/borrow-container'
+import DepositStatus from '../components/status/deposit-status'
+import BorrowStatus from '../components/status/borrow-status'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { useModeContext } from '../contexts/mode-context'
+import { useDepositContext } from '../contexts/deposit-context'
+import { useBorrowContext } from '../contexts/borrow-context'
 
 const Home = () => {
-  const { assetStatuses, epochs } = useCurrencyContext()
+  const { assetStatuses, epochs, prices } = useCurrencyContext()
   const { selectedMode, onSelectedModeChange } = useModeContext()
+  const { positions: bondPositions, collect } = useDepositContext()
+  const { positions: loanPositions, removeCollateral } = useBorrowContext()
 
   return (
     <div className="flex flex-1">
@@ -30,9 +34,21 @@ const Home = () => {
 
       <main className="flex flex-1 flex-col justify-center items-center pt-12 md:pt-0">
         {selectedMode === 'deposit' ? (
-          <DepositContainer assetStatuses={assetStatuses} epochs={epochs} />
+          <DepositStatus
+            assetStatuses={assetStatuses}
+            epochs={epochs}
+            prices={prices}
+            positions={bondPositions}
+            collect={collect}
+          />
         ) : selectedMode === 'borrow' ? (
-          <BorrowContainer assetStatuses={assetStatuses} epochs={epochs} />
+          <BorrowStatus
+            assetStatuses={assetStatuses}
+            epochs={epochs}
+            prices={prices}
+            positions={loanPositions}
+            removeCollateral={removeCollateral}
+          />
         ) : (
           <></>
         )}
