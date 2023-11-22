@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { useAccount, useFeeData, useQuery } from 'wagmi'
+import { useFeeData, useQuery } from 'wagmi'
 import { isAddressEqual, zeroAddress } from 'viem'
 import BigNumber from 'bignumber.js'
 
@@ -17,6 +17,7 @@ import { CHAIN_IDS } from '../../constants/chain'
 import { ethValue } from '../../utils/currency'
 import { useChainContext } from '../../contexts/chain-context'
 import { parseUnits } from '../../utils/numbers'
+import { CONTRACT_ADDRESSES } from '../../constants/addresses'
 
 const RepayModalContainer = ({
   position,
@@ -26,7 +27,6 @@ const RepayModalContainer = ({
   onClose: () => void
 }) => {
   const { data: feeData } = useFeeData()
-  const { address: userAddress } = useAccount()
   const { selectedChain } = useChainContext()
   const { repay, repayWithCollateral } = useBorrowContext()
   const { prices, balances } = useCurrencyContext()
@@ -63,14 +63,15 @@ const RepayModalContainer = ({
           pathId: undefined,
         }
       }
-      if (feeData?.gasPrice && userAddress && selectedChain) {
+      if (feeData?.gasPrice && selectedChain && amount > 0n) {
         const { amountOut: repayAmount, pathId } = await fetchAmountOutByOdos({
           chainId: selectedChain.id,
           amountIn: amount.toString(),
           tokenIn: position.collateral.underlying.address,
           tokenOut: position.underlying.address,
           slippageLimitPercent: Number(slippage),
-          userAddress,
+          userAddress:
+            CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].OdosRepayAdapter,
           gasPrice: Number(feeData.gasPrice),
         })
         return {
@@ -86,7 +87,6 @@ const RepayModalContainer = ({
     {
       refetchInterval: 5 * 1000,
       refetchIntervalInBackground: true,
-      keepPreviousData: true,
       initialData: {
         repayAmount: 0n,
         pathId: undefined,
@@ -199,13 +199,12 @@ const RepayModalContainer = ({
           (isUseCollateral && amount > position.collateralAmount) ||
           isExpectedDebtSizeLessThanMinDebtSize,
         onClick: async () => {
-          if (!userAddress) {
-            return
-          }
           if (isUseCollateral && pathId) {
             const { data: swapData } = await fetchCallDataByOdos({
               pathId,
-              userAddress,
+              userAddress:
+                CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
+                  .OdosRepayAdapter,
             })
             await repayWithCollateral(
               position,
