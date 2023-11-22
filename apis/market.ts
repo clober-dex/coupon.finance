@@ -93,11 +93,12 @@ export async function fetchDepositInfosByEpochsDeposited(
   chainId: CHAIN_IDS,
   asset: Asset,
   amount: bigint,
+  maxVisibleMarkets: number = MAX_VISIBLE_MARKETS,
 ) {
   const substitute = asset.substitutes[0]
   const markets = (
     await fetchMarketsByQuoteTokenAddress(chainId, substitute.address)
-  ).slice(0, MAX_VISIBLE_MARKETS)
+  ).slice(0, maxVisibleMarkets)
 
   const currentTimestamp = currentTimestampInSeconds()
   return markets
@@ -126,11 +127,12 @@ export async function fetchBorrowApyByEpochsBorrowed(
   asset: Asset,
   amount: bigint,
   maxAmountExcludingFee: bigint,
+  maxVisibleMarkets: number = MAX_VISIBLE_MARKETS,
 ) {
   const substitute = asset.substitutes[0]
   const markets = (
     await fetchMarketsByQuoteTokenAddress(chainId, substitute.address)
-  ).slice(0, MAX_VISIBLE_MARKETS)
+  ).slice(0, maxVisibleMarkets)
 
   const currentTimestamp = currentTimestampInSeconds()
   return markets
@@ -161,10 +163,11 @@ export async function fetchInterestOrRefundCouponAmountByEpochs(
   substitute: Currency,
   debtAmount: bigint,
   expiryEpoch: number,
+  maxVisibleMarkets: number = MAX_VISIBLE_MARKETS,
 ) {
   const markets = (
     await fetchMarketsByQuoteTokenAddress(chainId, substitute.address)
-  ).slice(0, MAX_VISIBLE_MARKETS)
+  ).slice(0, maxVisibleMarkets)
 
   return markets.map((market) => {
     const interest =
