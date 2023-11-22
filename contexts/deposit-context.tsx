@@ -21,7 +21,7 @@ import { useTransactionContext } from './transaction-context'
 import { useChainContext } from './chain-context'
 import { useSubgraphContext } from './subgraph-context'
 
-type DepositContext = {
+export type DepositContext = {
   positions: BondPosition[]
   deposit: (
     asset: Asset,

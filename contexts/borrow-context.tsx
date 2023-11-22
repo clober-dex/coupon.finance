@@ -22,7 +22,7 @@ import { useTransactionContext } from './transaction-context'
 import { useChainContext } from './chain-context'
 import { useSubgraphContext } from './subgraph-context'
 
-type BorrowContext = {
+export type BorrowContext = {
   positions: LoanPosition[]
   borrow: (
     collateral: Collateral,
