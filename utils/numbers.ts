@@ -99,5 +99,12 @@ export const toPlacesString = (number: BigNumber.Value, places: number = 4) => {
 }
 
 export const toCommaSeparated = (number: string) => {
-  return number.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ',')
+  const parts = number.split('.')
+  const integer = parts[0]
+  const decimal = parts[1]
+  const integerFormatter = new Intl.NumberFormat('en-US', {
+    maximumSignificantDigits: integer.replace('-', '').length,
+  })
+  const formattedInteger = integerFormatter.format(BigInt(integer))
+  return decimal ? `${formattedInteger}.${decimal}` : formattedInteger
 }
