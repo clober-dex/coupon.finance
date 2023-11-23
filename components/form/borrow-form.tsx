@@ -25,7 +25,6 @@ export const BorrowForm = ({
   borrowCurrency,
   setBorrowCurrency,
   availableBorrowCurrencies,
-  availableCollaterals,
   maxBorrowAmount,
   interest,
   borrowApy,
@@ -33,6 +32,7 @@ export const BorrowForm = ({
   interestsByEpochsBorrowed,
   collateral,
   setCollateral,
+  availableCollaterals,
   collateralValue,
   setCollateralValue,
   borrowValue,
@@ -46,7 +46,6 @@ export const BorrowForm = ({
   borrowCurrency?: Currency
   setBorrowCurrency: (currency?: Currency) => void
   availableBorrowCurrencies: Currency[]
-  availableCollaterals: Collateral[]
   maxBorrowAmount: bigint
   interest: bigint
   borrowApy: number
@@ -54,6 +53,7 @@ export const BorrowForm = ({
   interestsByEpochsBorrowed?: { date: string; apy: number }[]
   collateral?: Collateral
   setCollateral: (collateral?: Collateral) => void
+  availableCollaterals: Collateral[]
   collateralValue: string
   setCollateralValue: (value: string) => void
   borrowValue: string
