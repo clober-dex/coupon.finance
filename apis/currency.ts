@@ -98,13 +98,18 @@ export async function fetchBalances(
       args: [userAddress],
     })),
   })
-  return results.reduce((acc, { result }, index) => {
-    const currencyAddress = currencyAddresses[index]
-    return {
-      ...acc,
-      [currencyAddress]: isEtherAddress(currencyAddress)
-        ? (result ?? 0n) + etherBalance
-        : result,
-    }
-  }, {})
+  return results.reduce(
+    (acc, { result }, index) => {
+      const currencyAddress = currencyAddresses[index]
+      return {
+        ...acc,
+        [currencyAddress]: isEtherAddress(currencyAddress)
+          ? (result ?? 0n) + etherBalance
+          : result,
+      }
+    },
+    {
+      [zeroAddress]: etherBalance,
+    },
+  )
 }

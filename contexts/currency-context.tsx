@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo } from 'react'
-import { useAccount, useBalance, useQuery } from 'wagmi'
+import { useAccount, useQuery } from 'wagmi'
 import { readContracts } from '@wagmi/core'
-import { getAddress } from 'viem'
+import { getAddress, zeroAddress } from 'viem'
 
 import { fetchBalances, fetchCurrencies, fetchPrices } from '../apis/currency'
 import { Currency } from '../model/currency'
@@ -68,10 +68,6 @@ const REFRESH_INTERVAL = 5 * 1000
 
 export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { address: userAddress } = useAccount()
-  const { data: balance } = useBalance({
-    address: userAddress,
-    staleTime: REFRESH_INTERVAL,
-  })
   const { selectedChain } = useChainContext()
   const { integrated, integratedPoint } = useSubgraphContext()
 
@@ -100,7 +96,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   )
 
   const { data: balances } = useQuery(
-    ['balances', userAddress, balance, currencies],
+    ['balances', userAddress, currencies],
     async () => {
       if (!userAddress) {
         return {}
@@ -164,13 +160,14 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
   const calculateETHValue = useCallback(
     (currency: Currency, willPayAmount: bigint) => {
-      if (!balance || !balances || !isEther(currency)) {
+      if (!balances || !isEther(currency)) {
         return 0n
       }
-      const wrappedETHBalance = balances[currency.address] - balance.value
+      const wrappedETHBalance =
+        balances[currency.address] - balances[zeroAddress]
       return max(willPayAmount - wrappedETHBalance, 0n)
     },
-    [balance, balances],
+    [balances],
   )
 
   const assets = useMemo(() => extractAssets(integrated), [integrated])
