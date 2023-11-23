@@ -158,18 +158,24 @@ const BorrowFormContainer = ({
       borrowCurrency={asset?.underlying}
       setBorrowCurrency={setBorrowCurrency}
       availableBorrowCurrencies={
-        isCollateralFixed
+        isCollateralFixed && collateral
           ? assets
               .filter((asset) =>
                 asset.collaterals
                   .map((c) => getAddress(c.underlying.address))
-                  .includes(getAddress(collateral!.underlying.address)),
+                  .includes(getAddress(collateral.underlying.address)),
               )
               .map((asset) => asset.underlying)
-          : [asset!.underlying]
+          : asset
+          ? [asset.underlying]
+          : []
       }
       availableCollaterals={
-        isCollateralFixed ? [collateral!] : asset!.collaterals
+        isCollateralFixed && collateral
+          ? [collateral]
+          : asset
+          ? asset.collaterals
+          : []
       }
       maxBorrowAmount={max(
         min(maxLoanableAmountExcludingCouponFee - maxInterest, available),
