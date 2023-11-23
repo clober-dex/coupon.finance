@@ -95,12 +95,7 @@ const BorrowMoreModalContainer = ({
       value={value}
       setValue={setValue}
       maxLoanableAmount={max(
-        min(
-          maxLoanableAmountExcludingCouponFee -
-            maxInterest -
-            (position.amount - position.interest),
-          available,
-        ),
+        min(maxLoanableAmountExcludingCouponFee - maxInterest, available),
         0n,
       )}
       currentLtv={
