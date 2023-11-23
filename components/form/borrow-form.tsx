@@ -22,6 +22,7 @@ import { CurrencyDropdown } from '../dropdown/currency-dropdown'
 import { CurrencyIcon } from '../icon/currency-icon'
 
 export const BorrowForm = ({
+  isCollateralFixed,
   borrowCurrency,
   setBorrowCurrency,
   availableBorrowCurrencies,
@@ -43,6 +44,7 @@ export const BorrowForm = ({
   prices,
   actionButtonProps,
 }: {
+  isCollateralFixed: boolean
   borrowCurrency?: Currency
   setBorrowCurrency: (currency?: Currency) => void
   availableBorrowCurrencies: Currency[]
@@ -75,7 +77,11 @@ export const BorrowForm = ({
     100
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col bg-white gap-4 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 sm:pb-8 w-full sm:w-[480px]">
+      <div
+        className={`flex ${
+          isCollateralFixed ? 'flex-col-reverse' : 'flex-col'
+        } bg-white gap-4 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 sm:pb-8 w-full sm:w-[480px]`}
+      >
         <div className="flex flex-col gap-4">
           <div className="font-bold text-sm sm:text-lg">
             How much collateral would you like to add?
