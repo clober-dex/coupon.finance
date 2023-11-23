@@ -64,9 +64,14 @@ export const isEther = (currency: Currency) => {
   return isEtherAddress(currency.address)
 }
 
+const REFRESH_INTERVAL = 5 * 1000
+
 export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { address: userAddress } = useAccount()
-  const { data: balance } = useBalance({ address: userAddress })
+  const { data: balance } = useBalance({
+    address: userAddress,
+    staleTime: REFRESH_INTERVAL,
+  })
   const { selectedChain } = useChainContext()
   const { integrated, integratedPoint } = useSubgraphContext()
 
@@ -89,7 +94,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
       )
     },
     {
-      refetchInterval: 5 * 1000,
+      refetchInterval: REFRESH_INTERVAL,
       refetchIntervalInBackground: true,
     },
   )
@@ -107,7 +112,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
       )
     },
     {
-      refetchInterval: 5 * 1000,
+      refetchInterval: REFRESH_INTERVAL,
       refetchIntervalInBackground: true,
     },
   ) as { data: Balances }
@@ -152,7 +157,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
       })
     },
     {
-      refetchInterval: 5 * 1000,
+      refetchInterval: REFRESH_INTERVAL,
       refetchIntervalInBackground: true,
     },
   ) as { data: CurrencyContext['coupons'] }
