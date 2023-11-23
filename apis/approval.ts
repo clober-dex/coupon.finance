@@ -1,7 +1,7 @@
 import { createPublicClient, http } from 'viem'
 
-import { IERC721__factory } from '../typechain'
 import { CHAIN_IDS, CHAINS } from '../constants/chain'
+import { ERC721_ABI } from '../abis/@openzeppelin/erc721-abi'
 
 export async function fetchApproval(
   chainId: CHAIN_IDS,
@@ -16,7 +16,7 @@ export async function fetchApproval(
     contracts: [
       {
         address: nftContractAddress,
-        abi: IERC721__factory.abi,
+        abi: ERC721_ABI,
         functionName: 'getApproved',
         args: [tokenId],
       },

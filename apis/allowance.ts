@@ -1,8 +1,8 @@
 import { createPublicClient, http } from 'viem'
 
 import { Currency } from '../model/currency'
-import { IERC20__factory } from '../typechain'
 import { CHAIN_IDS, CHAINS } from '../constants/chain'
+import { ERC20_PERMIT_ABI } from '../abis/@openzeppelin/erc20-permit-abi'
 
 export async function fetchAllowance(
   chainId: CHAIN_IDS,
@@ -18,7 +18,7 @@ export async function fetchAllowance(
     contracts: [
       {
         address: currency.address,
-        abi: IERC20__factory.abi,
+        abi: ERC20_PERMIT_ABI,
         functionName: 'allowance',
         args: [userAddress, spenderAddress],
       },

@@ -3,7 +3,6 @@ import { useAccount, useBalance, useQuery } from 'wagmi'
 import { readContracts } from '@wagmi/core'
 import { getAddress } from 'viem'
 
-import { IERC1155__factory, IERC20__factory } from '../typechain'
 import { fetchBalances, fetchCurrencies, fetchPrices } from '../apis/currency'
 import { Currency } from '../model/currency'
 import { extractAssets, extractAssetStatuses } from '../apis/asset'
@@ -19,6 +18,8 @@ import { extractPoints } from '../apis/point'
 import { getCurrentPoint } from '../utils/point'
 import { CONTRACT_ADDRESSES } from '../constants/addresses'
 import { CHAIN_IDS } from '../constants/chain'
+import { ERC20_PERMIT_ABI } from '../abis/@openzeppelin/erc20-permit-abi'
+import { ERC1155_ABI } from '../abis/@openzeppelin/erc1155-abi'
 
 import { useChainContext } from './chain-context'
 import { useSubgraphContext } from './subgraph-context'
@@ -126,7 +127,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
       const erc20Results = await readContracts({
         contracts: markets.map(({ baseToken }) => ({
           address: baseToken.address,
-          abi: IERC20__factory.abi,
+          abi: ERC20_PERMIT_ABI,
           functionName: 'balanceOf',
           args: [userAddress],
         })),
@@ -135,7 +136,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
         contracts: markets.map(({ couponId }) => ({
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].CouponManager,
-          abi: IERC1155__factory.abi,
+          abi: ERC1155_ABI,
           functionName: 'balanceOf',
           args: [userAddress, couponId],
         })),

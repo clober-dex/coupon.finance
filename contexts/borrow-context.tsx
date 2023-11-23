@@ -6,7 +6,6 @@ import { Asset } from '../model/asset'
 import { permit20 } from '../utils/permit20'
 import { CONTRACT_ADDRESSES } from '../constants/addresses'
 import { formatUnits } from '../utils/numbers'
-import { BorrowController__factory, RepayAdapter__factory } from '../typechain'
 import { extractLoanPositions } from '../apis/loan-position'
 import { Collateral } from '../model/collateral'
 import { LoanPosition } from '../model/loan-position'
@@ -16,6 +15,8 @@ import { writeContract } from '../utils/wallet'
 import { CHAIN_IDS } from '../constants/chain'
 import { getDeadlineTimestampInSeconds } from '../utils/date'
 import { toWrapETH } from '../utils/currency'
+import { BORROW_CONTROLLER_ABI } from '../abis/periphery/borrow-controller-abi'
+import { REPAY_ADAPTER_ABI } from '../abis/periphery/repay-adapter-abi'
 
 import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -182,7 +183,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         hash = await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          abi: BorrowController__factory.abi,
+          abi: BORROW_CONTROLLER_ABI,
           functionName: 'borrow',
           args: [
             collateral.substitute.address,
@@ -293,7 +294,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          abi: BorrowController__factory.abi,
+          abi: BORROW_CONTROLLER_ABI,
           functionName: 'repay',
           args: [
             position.id,
@@ -402,7 +403,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].OdosRepayAdapter,
-          abi: RepayAdapter__factory.abi,
+          abi: REPAY_ADAPTER_ABI,
           functionName: 'repayWithCollateral',
           args: [
             position.id,
@@ -471,7 +472,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          abi: BorrowController__factory.abi,
+          abi: BORROW_CONTROLLER_ABI,
           functionName: 'borrowMore',
           args: [
             position.id,
@@ -567,7 +568,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          abi: BorrowController__factory.abi,
+          abi: BORROW_CONTROLLER_ABI,
           functionName: 'extendLoanDuration',
           args: [
             positionId,
@@ -649,7 +650,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          abi: BorrowController__factory.abi,
+          abi: BORROW_CONTROLLER_ABI,
           functionName: 'shortenLoanDuration',
           args: [positionId, epochs, expectedProceeds, { deadline, v, r, s }],
           account: walletClient.account,
@@ -737,7 +738,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          abi: BorrowController__factory.abi,
+          abi: BORROW_CONTROLLER_ABI,
           functionName: 'addCollateral',
           args: [
             position.id,
@@ -813,7 +814,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          abi: BorrowController__factory.abi,
+          abi: BORROW_CONTROLLER_ABI,
           functionName: 'removeCollateral',
           args: [position.id, amount, { deadline, v, r, s }],
           account: walletClient.account,

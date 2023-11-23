@@ -2,8 +2,8 @@ import { GetWalletClientResult } from '@wagmi/core'
 
 import { Currency } from '../model/currency'
 import { fetchAllowance } from '../apis/allowance'
-import { IERC20__factory } from '../typechain'
 import { CHAIN_IDS } from '../constants/chain'
+import { ERC20_PERMIT_ABI } from '../abis/@openzeppelin/erc20-permit-abi'
 
 export const approve20 = async (
   chainId: CHAIN_IDS,
@@ -19,7 +19,7 @@ export const approve20 = async (
   }
   const hash = await walletClient.writeContract({
     address: currency.address,
-    abi: IERC20__factory.abi,
+    abi: ERC20_PERMIT_ABI,
     functionName: 'approve',
     args: [spender, value],
     account: walletClient.account,

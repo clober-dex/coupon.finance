@@ -3,7 +3,6 @@ import { usePublicClient, useQueryClient, useWalletClient } from 'wagmi'
 import { Hash, zeroAddress } from 'viem'
 
 import { CONTRACT_ADDRESSES } from '../constants/addresses'
-import { DepositController__factory } from '../typechain'
 import { Asset } from '../model/asset'
 import { permit20 } from '../utils/permit20'
 import { extractBondPositions } from '../apis/bond-position'
@@ -15,6 +14,7 @@ import { writeContract } from '../utils/wallet'
 import { CHAIN_IDS } from '../constants/chain'
 import { getDeadlineTimestampInSeconds } from '../utils/date'
 import { toWrapETH } from '../utils/currency'
+import { DEPOSIT_CONTROLLER_ABI } from '../abis/periphery/deposit-controller-abi'
 
 import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -135,7 +135,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         hash = await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
-          abi: DepositController__factory.abi,
+          abi: DEPOSIT_CONTROLLER_ABI,
           functionName: 'deposit',
           args: [
             asset.substitutes[0].address,
@@ -221,7 +221,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
-          abi: DepositController__factory.abi,
+          abi: DEPOSIT_CONTROLLER_ABI,
           functionName: 'withdraw',
           args: [
             tokenId,
@@ -272,7 +272,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
-          abi: DepositController__factory.abi,
+          abi: DEPOSIT_CONTROLLER_ABI,
           functionName: 'collect',
           args: [tokenId, { deadline, v, r, s }],
           account: walletClient.account,

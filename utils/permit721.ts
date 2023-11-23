@@ -2,8 +2,9 @@ import { GetWalletClientResult, readContracts } from '@wagmi/core'
 import { hexToSignature, isAddressEqual, zeroAddress } from 'viem'
 
 import { fetchApproval } from '../apis/approval'
-import { EIP712__factory, IERC721Permit__factory } from '../typechain'
 import { CHAIN_IDS } from '../constants/chain'
+import { EIP712_ABI } from '../abis/@openzeppelin/eip712-abi'
+import { ERC721_PERMIT_ABI } from '../abis/core/libraries/erc721-permit-abi'
 
 import { zeroBytes32 } from './bytes'
 
@@ -36,13 +37,13 @@ export const permit721 = async (
     contracts: [
       {
         address: nftContractAddress,
-        abi: IERC721Permit__factory.abi,
+        abi: ERC721_PERMIT_ABI,
         functionName: 'nonces',
         args: [tokenId],
       },
       {
         address: nftContractAddress,
-        abi: EIP712__factory.abi,
+        abi: EIP712_ABI,
         functionName: 'eip712Domain',
       },
     ],

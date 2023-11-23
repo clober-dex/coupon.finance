@@ -5,9 +5,10 @@ import { zeroAddress } from 'viem'
 import { Currency } from '../model/currency'
 import { formatUnits } from '../utils/numbers'
 import { writeContract } from '../utils/wallet'
-import { ISubstitute__factory, IWETH9__factory } from '../typechain'
 import { approve20 } from '../utils/approve20'
 import { toWrapETH } from '../utils/currency'
+import { WETH_ABI } from '../abis/external/weth-abi'
+import { SUBSTITUTE_ABI } from '../abis/periphery/substitute-abi'
 
 import { useTransactionContext } from './transaction-context'
 import { useCurrencyContext } from './currency-context'
@@ -96,7 +97,7 @@ export const AdvancedContractProvider = ({
         })
         await writeContract(publicClient, walletClient, {
           address: currency.address,
-          abi: IWETH9__factory.abi,
+          abi: WETH_ABI,
           functionName: 'deposit',
           args: [],
           account: walletClient.account,
@@ -158,7 +159,7 @@ export const AdvancedContractProvider = ({
         })
         await writeContract(publicClient, walletClient, {
           address: currency.address,
-          abi: IWETH9__factory.abi,
+          abi: WETH_ABI,
           functionName: 'withdraw',
           args: [amount],
           account: walletClient.account,
@@ -239,7 +240,7 @@ export const AdvancedContractProvider = ({
         })
         await writeContract(publicClient, walletClient, {
           address: substitute.address,
-          abi: ISubstitute__factory.abi,
+          abi: SUBSTITUTE_ABI,
           functionName: 'mint',
           args: [amount, walletClient.account.address],
           account: walletClient.account,
@@ -299,7 +300,7 @@ export const AdvancedContractProvider = ({
         })
         await writeContract(publicClient, walletClient, {
           address: substitute.address,
-          abi: ISubstitute__factory.abi,
+          abi: SUBSTITUTE_ABI,
           functionName: 'burn',
           args: [amount, walletClient.account.address],
           account: walletClient.account,

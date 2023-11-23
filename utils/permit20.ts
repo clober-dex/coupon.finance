@@ -3,8 +3,8 @@ import { hexToSignature } from 'viem'
 
 import { Currency } from '../model/currency'
 import { fetchAllowance } from '../apis/allowance'
-import { IERC20Metadata__factory, IERC20Permit__factory } from '../typechain'
 import { CHAIN_IDS } from '../constants/chain'
+import { ERC20_PERMIT_ABI } from '../abis/@openzeppelin/erc20-permit-abi'
 
 import { zeroBytes32 } from './bytes'
 import { approve20 } from './approve20'
@@ -39,7 +39,7 @@ export const permit20 = async (
       contracts: [
         {
           address: currency.address,
-          abi: IERC20Permit__factory.abi,
+          abi: ERC20_PERMIT_ABI,
           functionName: 'nonces',
           args: [owner],
         },
@@ -59,12 +59,12 @@ export const permit20 = async (
               stateMutability: 'view',
               type: 'function',
             },
-          ],
+          ] as const,
           functionName: 'version',
         },
         {
           address: currency.address,
-          abi: IERC20Metadata__factory.abi,
+          abi: ERC20_PERMIT_ABI,
           functionName: 'name',
         },
       ],
