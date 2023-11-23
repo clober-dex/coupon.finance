@@ -14,6 +14,7 @@ export default {
 type Story = StoryObj<typeof BorrowForm>
 export const Default: Story = {
   args: {
+    isCollateralFixed: false,
     borrowCurrency: {
       address: '0x0000000000000000000000000000000000000000',
       name: 'WETH',
@@ -91,6 +92,7 @@ export const Default: Story = {
 
 export const SelectCollateral: Story = {
   args: {
+    isCollateralFixed: false,
     borrowCurrency: {
       address: '0x0000000000000000000000000000000000000000',
       name: 'WETH',
@@ -186,6 +188,7 @@ export const SelectCollateral: Story = {
 
 export const Empty: Story = {
   args: {
+    isCollateralFixed: false,
     setBorrowCurrency: () => {},
     availableBorrowCurrencies: [
       {
@@ -256,6 +259,7 @@ export const Empty: Story = {
 
 export const Full: Story = {
   args: {
+    isCollateralFixed: false,
     borrowCurrency: {
       address: '0x0000000000000000000000000000000000000000',
       name: 'WETH',

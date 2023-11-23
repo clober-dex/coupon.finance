@@ -154,6 +154,7 @@ const BorrowFormContainer = ({
 
   return (
     <BorrowForm
+      isCollateralFixed={isCollateralFixed}
       borrowCurrency={asset?.underlying}
       setBorrowCurrency={setBorrowCurrency}
       availableBorrowCurrencies={
