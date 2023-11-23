@@ -14,10 +14,10 @@ export const generateDummyCollateral = (currency: Currency): Collateral => {
   return {
     underlying: currency,
     substitute: currency,
-    liquidationThreshold: BigInt(0),
-    liquidationTargetLtv: BigInt(0),
-    ltvPrecision: BigInt(0),
-    totalCollateralized: BigInt(0),
-    totalBorrowed: BigInt(0),
+    liquidationThreshold: 0n,
+    liquidationTargetLtv: 0n,
+    ltvPrecision: 1000000n,
+    totalCollateralized: 0n,
+    totalBorrowed: 0n,
   }
 }
