@@ -22,6 +22,7 @@ import { CurrencyDropdown } from '../dropdown/currency-dropdown'
 import { CurrencyIcon } from '../icon/currency-icon'
 
 export const BorrowForm = ({
+  isCollateralFixed,
   borrowCurrency,
   setBorrowCurrency,
   availableBorrowCurrencies,
@@ -43,6 +44,7 @@ export const BorrowForm = ({
   prices,
   actionButtonProps,
 }: {
+  isCollateralFixed: boolean
   borrowCurrency?: Currency
   setBorrowCurrency: (currency?: Currency) => void
   availableBorrowCurrencies: Currency[]
@@ -75,7 +77,11 @@ export const BorrowForm = ({
     100
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col bg-white gap-4 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 sm:pb-8 w-full sm:w-[480px]">
+      <div
+        className={`flex ${
+          isCollateralFixed ? 'flex-col-reverse' : 'flex-col'
+        } bg-white gap-4 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 sm:pb-8 w-full sm:w-[480px]`}
+      >
         <div className="flex flex-col gap-4">
           <div className="font-bold text-sm sm:text-lg">
             How much collateral would you like to add?
@@ -139,7 +145,8 @@ export const BorrowForm = ({
             </div>
           </div>
           <div className="flex justify-between flex-col relative bg-white dark:bg-gray-900 rounded-lg p-4 pb-8 sm:pb-0 sm:h-[90px]">
-            {interestsByEpochsBorrowed === undefined ? (
+            {interestsByEpochsBorrowed === undefined ||
+            interestsByEpochsBorrowed.length === 0 ? (
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <div
                   className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-green-500 border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]"

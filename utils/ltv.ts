@@ -44,6 +44,10 @@ export const getLTVTextColor = (
     (Number(collateral.liquidationTargetLtv) * 100) /
     Number(collateral.ltvPrecision)
 
+  if (collateral.liquidationThreshold === 0n) {
+    return ''
+  }
+
   if (ltv >= liquidationThreshold - 0.5) {
     return 'text-red-500'
   } else if (liquidationThreshold - 0.5 > ltv && ltv > liquidationTargetLtv) {
