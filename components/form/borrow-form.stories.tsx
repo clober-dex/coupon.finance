@@ -89,7 +89,7 @@ export const Default: Story = {
   },
 }
 
-export const SelectCollateral: Story = {
+export const SelectedBoth: Story = {
   args: {
     borrowCurrency: {
       address: '0x0000000000000000000000000000000000000000',
