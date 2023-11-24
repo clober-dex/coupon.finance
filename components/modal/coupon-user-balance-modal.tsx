@@ -37,12 +37,14 @@ export const CouponUserBalanceModal = ({
   sellCoupons: (marketSellParams: CouponBalance[]) => Promise<void>
 }) => {
   const [clicked, setClicked] = useState(false)
-  if (couponBalances.reduce((acc, { balance }) => acc + balance, 0n) === 0n) {
+  if (
+    couponBalances.reduce((acc, { assetValue }) => acc + assetValue, 0n) === 0n
+  ) {
     return <></>
   }
 
   const sellAvailableCoupons = couponBalances.filter(
-    ({ balance }) => balance > 0n,
+    ({ assetValue }) => assetValue > 0n,
   )
 
   return (
@@ -68,44 +70,53 @@ export const CouponUserBalanceModal = ({
                       Sell All
                     </button>
                   </div>
-                  {sellAvailableCoupons.map(({ balance, market }, index) => (
-                    <div
-                      key={index}
-                      className={`flex px-4 pt-1 ${
-                        index === sellAvailableCoupons.length - 1
-                          ? 'pb-2'
-                          : 'pb-1'
-                      } items-center self-stretch`}
-                    >
-                      <div className="flex items-center flex-grow shrink-0 gap-3 basis-0">
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 flex-grow shrink-0 basis-0 text-sm">
-                          <div className="text-black dark:text-white">
-                            +
-                            {toPlacesString(
-                              formatUnits(balance, market.baseToken.decimals),
-                            )}{' '}
-                            {market.baseToken.symbol}
+                  {sellAvailableCoupons.map(
+                    ({ balance, market, assetValue }, index) => (
+                      <div
+                        key={index}
+                        className={`flex px-4 pt-1 ${
+                          index === sellAvailableCoupons.length - 1
+                            ? 'pb-2'
+                            : 'pb-1'
+                        } items-center self-stretch`}
+                      >
+                        <div className="flex items-center flex-grow shrink-0 gap-3 basis-0">
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 flex-grow shrink-0 basis-0 text-sm">
+                            <div className="text-black dark:text-white">
+                              {toPlacesString(
+                                formatUnits(balance, market.baseToken.decimals),
+                              )}{' '}
+                              {market.baseToken.symbol}
+                            </div>
+                            <div className="text-gray-500 dark:text-gray-300">
+                              (
+                              {formatDate(
+                                new Date(Number(market.endTimestamp) * 1000),
+                              )}
+                              )
+                            </div>
+                            <div className="text-gray-500 dark:text-gray-300">
+                              {toPlacesString(
+                                formatUnits(
+                                  assetValue,
+                                  market.quoteToken.decimals,
+                                ),
+                              )}
+                            </div>
                           </div>
-                          <div className="text-gray-500 dark:text-gray-300">
-                            (
-                            {formatDate(
-                              new Date(Number(market.endTimestamp) * 1000),
-                            )}
-                            )
-                          </div>
+                          <button
+                            onClick={async () => {
+                              await sellCoupons([sellAvailableCoupons[index]])
+                              setClicked(false)
+                            }}
+                            className="flex flex-col my-1 w-16 h-7 sm:h-8 justify-center items-center rounded bg-green-500 bg-opacity-10 text-xs text-opacity-90 font-semibold text-green-500"
+                          >
+                            Sell
+                          </button>
                         </div>
-                        <button
-                          onClick={async () => {
-                            await sellCoupons([sellAvailableCoupons[index]])
-                            setClicked(false)
-                          }}
-                          className="flex flex-col my-1 w-16 h-7 sm:h-8 justify-center items-center rounded bg-green-500 bg-opacity-10 text-xs text-opacity-90 font-semibold text-green-500"
-                        >
-                          Sell
-                        </button>
                       </div>
-                    </div>
-                  ))}
+                    ),
+                  )}
                 </div>
               </div>
             </CouponWidget>

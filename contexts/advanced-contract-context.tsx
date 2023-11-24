@@ -60,7 +60,7 @@ export const AdvancedContractProvider = ({
   children,
 }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient()
-  const { prices, calculateETHValue } = useCurrencyContext()
+  const { assets, prices, calculateETHValue } = useCurrencyContext()
   const { selectedChain } = useChainContext()
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
@@ -381,14 +381,41 @@ export const AdvancedContractProvider = ({
         setConfirmation({
           title: `Selling Coupons`,
           body: 'Please confirm in your wallet.',
-          fields: couponBalances.map(({ balance, market }) => ({
-            direction: 'out',
-            currency: market.baseToken,
-            label: market.baseToken.symbol,
-            value: toPlacesString(
-              formatUnits(balance, market.baseToken.decimals),
-            ),
-          })),
+          fields: [
+            ...couponBalances.map(({ balance, market }) => ({
+              direction: 'out',
+              currency: market.baseToken,
+              label: market.baseToken.symbol,
+              value: toPlacesString(
+                formatUnits(balance, market.baseToken.decimals),
+              ),
+            })),
+            ...couponBalances.map(({ assetValue, market }) => {
+              const asset = assets.find(({ underlying }) =>
+                market.quoteToken.symbol.includes(underlying.symbol),
+              )
+              if (!asset) {
+                return
+              }
+              return {
+                direction: 'in',
+                currency: asset.underlying,
+                label: asset.underlying.symbol,
+                value: toPlacesString(
+                  formatUnits(
+                    assetValue,
+                    asset.underlying.decimals,
+                    prices[asset.underlying.address],
+                  ),
+                ),
+              }
+            }),
+          ] as {
+            direction: 'in' | 'out'
+            currency: Currency
+            label: string
+            value: string
+          }[],
         })
 
         await writeContract(publicClient, walletClient, {
@@ -427,6 +454,8 @@ export const AdvancedContractProvider = ({
       }
     },
     [
+      assets,
+      prices,
       publicClient,
       queryClient,
       selectedChain.id,

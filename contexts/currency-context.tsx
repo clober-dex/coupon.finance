@@ -18,18 +18,13 @@ import { getCurrentPoint } from '../utils/point'
 import { CONTRACT_ADDRESSES } from '../constants/addresses'
 import { CHAIN_IDS } from '../constants/chain'
 import { ERC1155_ABI } from '../abis/@openzeppelin/erc1155-abi'
-import { Market } from '../model/market'
+import { CouponBalance } from '../model/coupon-balance'
 
 import { useChainContext } from './chain-context'
 import { useSubgraphContext } from './subgraph-context'
 
 type CurrencyContext = {
-  coupons: {
-    date: string
-    balance: bigint
-    market: Market
-    coupon: Currency
-  }[]
+  coupons: CouponBalance[]
   balances: Balances
   prices: Prices
   assets: Asset[]
@@ -120,6 +115,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return markets.map((market) => ({
           market,
           balance: 0n,
+          assetValue: 0n,
         }))
       }
       const erc1155Results = await readContracts({
@@ -132,9 +128,12 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
         })),
       })
       return erc1155Results.map(({ result }, index) => {
+        const market = markets[index]
         return {
-          market: markets[index],
+          market,
           balance: result ?? 0n,
+          assetValue: market.spend(market.baseToken.address, result ?? 0n)
+            .amountOut,
         }
       })
     },

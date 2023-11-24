@@ -20,10 +20,12 @@ export const Default: Story = {
       {
         balance: 10000000000000000000000n,
         market: dummyMarket,
+        assetValue: 10000000000000000000000n,
       },
       {
         balance: 10000000000000000000000n,
         market: dummyMarket,
+        assetValue: 10000000000000000000000n,
       },
     ],
     sellCoupons: async () => {},
