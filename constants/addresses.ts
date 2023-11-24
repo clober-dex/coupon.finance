@@ -1,3 +1,5 @@
+import { zeroAddress } from 'viem'
+
 import { CHAIN_IDS } from './chain'
 
 export const CONTRACT_ADDRESSES: {
@@ -9,6 +11,7 @@ export const CONTRACT_ADDRESSES: {
     DepositController: `0x${string}`
     LoanPositionManager: `0x${string}`
     OdosRepayAdapter: `0x${string}`
+    CouponMarketRouter: `0x${string}`
   }
 } = {
   [CHAIN_IDS.ARBITRUM]: {
@@ -25,6 +28,8 @@ export const CONTRACT_ADDRESSES: {
       '0x03d65411684ae7B5440E11a6063881a774C733dF' as `0x${string}`,
     OdosRepayAdapter:
       '0xc8905F37a05B60981A9be741B7B1B6fe1AF60A3F' as `0x${string}`,
+    CouponMarketRouter:
+      '0xF7bb8649006E00E849e63f5cbF0887B0E0Dd9d97' as `0x${string}`,
   },
   [CHAIN_IDS.COUPON_FINANCE_CHAIN]: {
     BondPositionManager:
@@ -40,5 +45,6 @@ export const CONTRACT_ADDRESSES: {
       '0xA0D476c6A39beA239749C566a02343e5584Ec200' as `0x${string}`,
     OdosRepayAdapter:
       '0x929075bdc8cf2e43cA7FB4BF1a189130b6014Cc1' as `0x${string}`,
+    CouponMarketRouter: zeroAddress,
   },
 }
