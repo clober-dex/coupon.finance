@@ -32,7 +32,7 @@ const config: HardhatConfig = {
     hardhat: {
       chainId: localhost.id,
       gas: 20000000,
-      gasPrice: 250000000000,
+      gasPrice: 10000000000,
       gasMultiplier: 1,
       hardfork: 'london',
       // @ts-ignore
