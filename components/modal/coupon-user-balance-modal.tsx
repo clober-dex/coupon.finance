@@ -4,7 +4,6 @@ import { createPortal } from 'react-dom'
 import { Currency } from '../../model/currency'
 import { formatUnits, toPlacesString } from '../../utils/numbers'
 import { CouponSvg } from '../svg/coupon-svg'
-import { RightBracketAngleSvg } from '../svg/right-bracket-angle-svg'
 import { ZIndices } from '../../utils/z-indices'
 
 const CouponWidget = ({
@@ -42,6 +41,8 @@ export const CouponUserBalanceModal = ({
     return <></>
   }
 
+  const sellAvailableCoupons = coupons.filter(({ balance }) => balance > 0n)
+
   return (
     <>
       {clicked ? (
@@ -51,40 +52,47 @@ export const CouponUserBalanceModal = ({
             onClick={() => setClicked(false)}
           >
             <CouponWidget setClicked={setClicked}>
-              <div className="absolute -right-2 sm:right-0 bottom-3/4 mx-4 my-8 bg-white dark:bg-gray-500 rounded-lg cursor-pointer">
-                <div className="flex flex-col p-2 items-start w-max">
-                  {coupons
-                    .filter(({ balance }) => balance > 0n)
-                    .map((coupon, index) => (
-                      <div
-                        key={index}
-                        className="flex p-2 items-center self-stretch"
-                      >
-                        <div className="flex items-center flex-grow shrink-0 gap-3 sm:gap-2 basis-0">
-                          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 flex-grow shrink-0 basis-0 text-sm">
-                            <div className="text-black dark:text-white">
-                              +
-                              {toPlacesString(
-                                formatUnits(
-                                  coupon.balance,
-                                  coupon.coupon.decimals,
-                                ),
-                              )}{' '}
-                              {coupon.coupon.symbol}
-                            </div>
-                            <div className="text-gray-500 dark:text-gray-300">
-                              ({coupon.date})
-                            </div>
+              <div className="absolute -right-2 sm:right-0 bottom-3/4 mx-4 my-8 bg-white dark:bg-gray-800 rounded-lg cursor-pointer">
+                <div className="flex flex-col items-start w-max">
+                  <div className="flex px-4 pt-3 pb-1 items-center self-stretch text-sm font-semibold">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 flex-grow shrink-0 basis-0 text-sm">
+                      My Coupons
+                    </div>
+                    <button className="flex flex-col my-1 w-16 h-7 sm:h-8 justify-center items-center rounded bg-green-500 bg-opacity-10 text-xs text-opacity-90 font-semibold text-green-500">
+                      Sell All
+                    </button>
+                  </div>
+                  {sellAvailableCoupons.map((coupon, index) => (
+                    <div
+                      key={index}
+                      className={`flex px-4 pt-1 ${
+                        index === sellAvailableCoupons.length - 1
+                          ? 'pb-2'
+                          : 'pb-1'
+                      } items-center self-stretch`}
+                    >
+                      <div className="flex items-center flex-grow shrink-0 gap-3 basis-0">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 flex-grow shrink-0 basis-0 text-sm">
+                          <div className="text-black dark:text-white">
+                            +
+                            {toPlacesString(
+                              formatUnits(
+                                coupon.balance,
+                                coupon.coupon.decimals,
+                              ),
+                            )}{' '}
+                            {coupon.coupon.symbol}
                           </div>
-                          <button disabled={true} className="group">
-                            <div className="flex items-center gap-1 text-sm text-green-500 group-disabled:text-gray-500">
-                              Sell{' '}
-                              <RightBracketAngleSvg className="stroke-green-500 group-disabled:stroke-gray-500" />
-                            </div>
-                          </button>
+                          <div className="text-gray-500 dark:text-gray-300">
+                            ({coupon.date})
+                          </div>
                         </div>
+                        <button className="flex flex-col my-1 w-16 h-7 sm:h-8 justify-center items-center rounded bg-green-500 bg-opacity-10 text-xs text-opacity-90 font-semibold text-green-500">
+                          Sell
+                        </button>
                       </div>
-                    ))}
+                    </div>
+                  ))}
                 </div>
               </div>
             </CouponWidget>
