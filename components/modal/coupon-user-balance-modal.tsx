@@ -69,7 +69,7 @@ export const CouponUserBalanceModal = ({
                           0n,
                         ) === 0n
                       }
-                      className="flex flex-col my-1 w-16 h-7 sm:h-8 justify-center items-center rounded bg-opacity-10 text-xs text-opacity-90 font-semibold text-green-500 bg-green-500 hover:bg-green-300 hover:bg-opacity-10 dark:hover:bg-gray-600 disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:text-gray-300 dark:disabled:text-gray-500"
+                      className="flex flex-col my-1 w-16 h-7 sm:h-8 justify-center items-center rounded bg-opacity-10 text-xs text-opacity-90 font-semibold text-green-500 bg-green-500 hover:bg-green-300 hover:bg-opacity-10 dark:hover:bg-gray-600 disabled:bg-gray-100 dark:disabled:bg-gray-700 disabled:text-gray-300 dark:disabled:text-gray-500"
                     >
                       Sell All
                     </button>
@@ -114,7 +114,7 @@ export const CouponUserBalanceModal = ({
                               await sellCoupons([sellAvailableCoupons[index]])
                               setClicked(false)
                             }}
-                            className="flex flex-col my-1 w-16 h-7 sm:h-8 justify-center items-center rounded bg-opacity-10 text-xs text-opacity-90 font-semibold text-green-500 bg-green-500 hover:bg-green-300 hover:bg-opacity-10 dark:hover:bg-gray-600 disabled:bg-gray-100 dark:disabled:bg-gray-800 disabled:text-gray-300 dark:disabled:text-gray-500"
+                            className="flex flex-col my-1 w-16 h-7 sm:h-8 justify-center items-center rounded bg-opacity-10 text-xs text-opacity-90 font-semibold text-green-500 bg-green-500 hover:bg-green-300 hover:bg-opacity-10 dark:hover:bg-gray-600 disabled:bg-gray-100 dark:disabled:bg-gray-700 disabled:text-gray-300 dark:disabled:text-gray-500"
                           >
                             Sell
                           </button>
