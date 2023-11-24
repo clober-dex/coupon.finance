@@ -20,6 +20,7 @@ import { CONTRACT_ADDRESSES } from '../constants/addresses'
 import { CHAIN_IDS } from '../constants/chain'
 import { ERC20_PERMIT_ABI } from '../abis/@openzeppelin/erc20-permit-abi'
 import { ERC1155_ABI } from '../abis/@openzeppelin/erc1155-abi'
+import { Market } from '../model/market'
 
 import { useChainContext } from './chain-context'
 import { useSubgraphContext } from './subgraph-context'
@@ -28,7 +29,7 @@ type CurrencyContext = {
   coupons: {
     date: string
     balance: bigint
-    marketAddress: `0x${string}`
+    market: Market
     coupon: Currency
   }[]
   balances: Balances
@@ -118,10 +119,10 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
     async () => {
       const markets = await fetchMarkets(selectedChain.id)
       if (!userAddress) {
-        return markets.map(({ address, baseToken, endTimestamp }) => ({
-          date: formatDate(new Date(Number(endTimestamp) * 1000)),
-          marketAddress: getAddress(address),
-          coupon: baseToken,
+        return markets.map((market) => ({
+          date: formatDate(new Date(Number(market.endTimestamp) * 1000)),
+          market,
+          coupon: market.baseToken,
           balance: 0n,
         }))
       }
@@ -143,11 +144,12 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
         })),
       })
       return erc20Results.map(({ result }, index) => {
-        const { address, baseToken, endTimestamp } = markets[index]
         return {
-          date: formatDate(new Date(Number(endTimestamp) * 1000)),
-          marketAddress: getAddress(address),
-          coupon: baseToken,
+          date: formatDate(
+            new Date(Number(markets[index].endTimestamp) * 1000),
+          ),
+          market: markets[index],
+          coupon: markets[index].baseToken,
           balance: (result ?? 0n) + (erc1155Results[index].result ?? 0n),
         }
       })

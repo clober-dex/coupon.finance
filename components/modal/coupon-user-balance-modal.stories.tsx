@@ -1,6 +1,8 @@
 import { Meta, StoryObj } from '@storybook/react'
 
 import '../../styles/globals.css'
+import { dummyMarket } from '../../.storybook/dummy-data/market'
+
 import { CouponUserBalanceModal } from './coupon-user-balance-modal'
 
 export default {
@@ -18,7 +20,7 @@ export const Default: Story = {
       {
         date: '01 Sep 2024',
         balance: 10000000000000000000000n,
-        marketAddress: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+        market: dummyMarket,
         coupon: {
           address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
           name: 'Wrapped Ether',
@@ -29,7 +31,7 @@ export const Default: Story = {
       {
         date: '01 Sep 2024',
         balance: 10000000000000000000000n,
-        marketAddress: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+        market: dummyMarket,
         coupon: {
           address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
           name: 'Wrapped Ether',

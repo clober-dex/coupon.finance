@@ -5,6 +5,7 @@ import { Currency } from '../../model/currency'
 import { formatUnits, toPlacesString } from '../../utils/numbers'
 import { CouponSvg } from '../svg/coupon-svg'
 import { ZIndices } from '../../utils/z-indices'
+import { Market } from '../../model/market'
 
 const CouponWidget = ({
   setClicked,
@@ -32,7 +33,7 @@ export const CouponUserBalanceModal = ({
   coupons: {
     date: string
     balance: bigint
-    marketAddress: `0x${string}`
+    market: Market
     coupon: Currency
   }[]
 }) => {
