@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { createPortal } from 'react-dom'
 
-import { Currency } from '../../model/currency'
 import { formatUnits, toPlacesString } from '../../utils/numbers'
 import { CouponSvg } from '../svg/coupon-svg'
 import { ZIndices } from '../../utils/z-indices'
-import { Market } from '../../model/market'
+import { CouponBalance } from '../../model/coupon-balance'
+import { formatDate } from '../../utils/date'
 
 const CouponWidget = ({
   setClicked,
@@ -28,21 +28,20 @@ const CouponWidget = ({
 )
 
 export const CouponUserBalanceModal = ({
-  coupons,
+  couponBalances,
+  sellCoupons,
 }: {
-  coupons: {
-    date: string
-    balance: bigint
-    market: Market
-    coupon: Currency
-  }[]
+  couponBalances: CouponBalance[]
+  sellCoupons: (marketSellParams: CouponBalance[]) => Promise<void>
 }) => {
   const [clicked, setClicked] = useState(false)
-  if (coupons.reduce((acc, { balance }) => acc + balance, 0n) === 0n) {
+  if (couponBalances.reduce((acc, { balance }) => acc + balance, 0n) === 0n) {
     return <></>
   }
 
-  const sellAvailableCoupons = coupons.filter(({ balance }) => balance > 0n)
+  const sellAvailableCoupons = couponBalances.filter(
+    ({ balance }) => balance > 0n,
+  )
 
   return (
     <>
@@ -63,7 +62,7 @@ export const CouponUserBalanceModal = ({
                       Sell All
                     </button>
                   </div>
-                  {sellAvailableCoupons.map((coupon, index) => (
+                  {sellAvailableCoupons.map(({ balance, market }, index) => (
                     <div
                       key={index}
                       className={`flex px-4 pt-1 ${
@@ -77,15 +76,16 @@ export const CouponUserBalanceModal = ({
                           <div className="text-black dark:text-white">
                             +
                             {toPlacesString(
-                              formatUnits(
-                                coupon.balance,
-                                coupon.coupon.decimals,
-                              ),
+                              formatUnits(balance, market.baseToken.decimals),
                             )}{' '}
-                            {coupon.coupon.symbol}
+                            {market.baseToken.symbol}
                           </div>
                           <div className="text-gray-500 dark:text-gray-300">
-                            ({coupon.date})
+                            (
+                            {formatDate(
+                              new Date(Number(market.endTimestamp) * 1000),
+                            )}
+                            )
                           </div>
                         </div>
                         <button className="flex flex-col my-1 w-16 h-7 sm:h-8 justify-center items-center rounded bg-green-500 bg-opacity-10 text-xs text-opacity-90 font-semibold text-green-500">

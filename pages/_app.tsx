@@ -31,7 +31,10 @@ import { supportChains } from '../constants/chain'
 import { ChainProvider } from '../contexts/chain-context'
 import { Footer } from '../components/footer'
 import { CouponUserBalanceModal } from '../components/modal/coupon-user-balance-modal'
-import { AdvancedContractProvider } from '../contexts/advanced-contract-context'
+import {
+  AdvancedContractProvider,
+  useAdvancedContractContext,
+} from '../contexts/advanced-contract-context'
 import { SubgraphProvider } from '../contexts/subgraph-context'
 import { ModeProvider, useModeContext } from '../contexts/mode-context'
 import { SwapProvider } from '../contexts/swap-context'
@@ -118,8 +121,16 @@ const HeaderWrapper = () => {
 const CouponWidgetWrapper = () => {
   const { address } = useAccount()
   const { coupons } = useCurrencyContext()
+  const { sellCoupons } = useAdvancedContractContext()
 
-  return address ? <CouponUserBalanceModal coupons={coupons} /> : <></>
+  return address ? (
+    <CouponUserBalanceModal
+      couponBalances={coupons}
+      sellCoupons={sellCoupons}
+    />
+  ) : (
+    <></>
+  )
 }
 
 function MyApp({ Component, pageProps }: AppProps) {

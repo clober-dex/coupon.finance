@@ -13,12 +13,10 @@ import { Balances } from '../model/balances'
 import { Prices } from '../model/prices'
 import { max } from '../utils/bigint'
 import { fetchMarkets } from '../apis/market'
-import { formatDate } from '../utils/date'
 import { extractPoints } from '../apis/point'
 import { getCurrentPoint } from '../utils/point'
 import { CONTRACT_ADDRESSES } from '../constants/addresses'
 import { CHAIN_IDS } from '../constants/chain'
-import { ERC20_PERMIT_ABI } from '../abis/@openzeppelin/erc20-permit-abi'
 import { ERC1155_ABI } from '../abis/@openzeppelin/erc1155-abi'
 import { Market } from '../model/market'
 
@@ -120,20 +118,10 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
       const markets = await fetchMarkets(selectedChain.id)
       if (!userAddress) {
         return markets.map((market) => ({
-          date: formatDate(new Date(Number(market.endTimestamp) * 1000)),
           market,
-          coupon: market.baseToken,
           balance: 0n,
         }))
       }
-      const erc20Results = await readContracts({
-        contracts: markets.map(({ baseToken }) => ({
-          address: baseToken.address,
-          abi: ERC20_PERMIT_ABI,
-          functionName: 'balanceOf',
-          args: [userAddress],
-        })),
-      })
       const erc1155Results = await readContracts({
         contracts: markets.map(({ couponId }) => ({
           address:
@@ -143,14 +131,10 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
           args: [userAddress, couponId],
         })),
       })
-      return erc20Results.map(({ result }, index) => {
+      return erc1155Results.map(({ result }, index) => {
         return {
-          date: formatDate(
-            new Date(Number(markets[index].endTimestamp) * 1000),
-          ),
           market: markets[index],
-          coupon: markets[index].baseToken,
-          balance: (result ?? 0n) + (erc1155Results[index].result ?? 0n),
+          balance: result ?? 0n,
         }
       })
     },
