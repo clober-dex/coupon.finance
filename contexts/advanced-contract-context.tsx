@@ -369,6 +369,34 @@ export const AdvancedContractProvider = ({
       }
 
       try {
+        // erc20 approve
+        for (const { market, erc20Balance } of couponBalances) {
+          if (erc20Balance > 0n) {
+            setConfirmation({
+              title: `Approving ${market.baseToken.symbol}`,
+              body: 'Please confirm in your wallet.',
+              fields: [
+                {
+                  currency: market.baseToken,
+                  label: market.baseToken.symbol,
+                  value: toPlacesString(
+                    formatUnits(erc20Balance, market.baseToken.decimals),
+                  ),
+                },
+              ],
+            })
+            await approve20(
+              selectedChain.id,
+              walletClient,
+              market.baseToken,
+              walletClient.account.address,
+              CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
+                .CouponMarketRouter,
+              erc20Balance,
+            )
+          }
+        }
+
         const deadline = getDeadlineTimestampInSeconds()
         const { v, r, s } = await permit1155(
           selectedChain.id,
