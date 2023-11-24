@@ -19,6 +19,7 @@ import { CONTRACT_ADDRESSES } from '../constants/addresses'
 import { CHAIN_IDS } from '../constants/chain'
 import { ERC1155_ABI } from '../abis/@openzeppelin/erc1155-abi'
 import { CouponBalance } from '../model/coupon-balance'
+import { ERC20_PERMIT_ABI } from '../abis/@openzeppelin/erc20-permit-abi'
 
 import { useChainContext } from './chain-context'
 import { useSubgraphContext } from './subgraph-context'
@@ -116,8 +117,18 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
           market,
           balance: 0n,
           assetValue: 0n,
+          erc20Balance: 0n,
+          erc1155Balance: 0n,
         }))
       }
+      const erc20Results = await readContracts({
+        contracts: markets.map(({ baseToken }) => ({
+          address: baseToken.address,
+          abi: ERC20_PERMIT_ABI,
+          functionName: 'balanceOf',
+          args: [userAddress],
+        })),
+      })
       const erc1155Results = await readContracts({
         contracts: markets.map(({ couponId }) => ({
           address:
@@ -127,13 +138,16 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
           args: [userAddress, couponId],
         })),
       })
-      return erc1155Results.map(({ result }, index) => {
+      return erc20Results.map(({ result: erc20Balance }, index) => {
         const market = markets[index]
+        const balance =
+          (erc20Balance ?? 0n) + (erc1155Results[index].result ?? 0n)
         return {
           market,
-          balance: result ?? 0n,
-          assetValue: market.spend(market.baseToken.address, result ?? 0n)
-            .amountOut,
+          balance,
+          assetValue: market.spend(market.baseToken.address, balance).amountOut,
+          erc20Balance: erc20Balance ?? 0n,
+          erc1155Balance: erc1155Results[index].result ?? 0n,
         }
       })
     },
