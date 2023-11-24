@@ -1,5 +1,6 @@
 import { isAddressEqual } from 'viem'
 import React from 'react'
+import { Tooltip } from 'react-tooltip'
 
 import CurrencyAmountInput from '../input/currency-amount-input'
 import { formatUnits } from '../../utils/numbers'
@@ -20,6 +21,7 @@ import { getLTVTextColor } from '../../utils/ltv'
 import DownSvg from '../svg/down-svg'
 import { CurrencyDropdown } from '../dropdown/currency-dropdown'
 import { CurrencyIcon } from '../icon/currency-icon'
+import { QuestionMarkSvg } from '../svg/question-mark-svg'
 
 export const BorrowForm = ({
   isCollateralFixed,
@@ -275,6 +277,23 @@ export const BorrowForm = ({
                 %
               </div>
             </div>
+            {interestsByEpochsBorrowed ? (
+              <div className="flex w-full">
+                <div className="flex flex-row items-center justify-center gap-1 text-gray-400 text-base">
+                  Expired Date (UTC)
+                  <QuestionMarkSvg
+                    data-tooltip-id="expiry-date-tooltip"
+                    data-tooltip-content="The position will be liquidated if not repaid by this date."
+                  />
+                  <Tooltip id="expiry-date-tooltip" />
+                </div>
+                <div className="ml-auto">
+                  {interestsByEpochsBorrowed[epochs - 1].date}
+                </div>
+              </div>
+            ) : (
+              <></>
+            )}
           </div>
         </div>
         <ActionButton {...actionButtonProps} />
