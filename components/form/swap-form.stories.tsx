@@ -3,7 +3,6 @@ import { Meta, StoryObj } from '@storybook/react'
 import '../../styles/globals.css'
 
 import { dummyCurrencies } from '../../.storybook/dummy-data/currencies'
-import { dummyPathVizData } from '../../.storybook/dummy-data/path-viz'
 
 import { SwapForm } from './swap-form'
 
@@ -39,7 +38,6 @@ export const Default: Story = {
     },
     setOutputCurrency: () => {},
     outputCurrencyAmount: '0.1',
-    pathVizData: dummyPathVizData,
   },
 }
 
@@ -71,7 +69,6 @@ export const SwapWithSlippage: Story = {
     setSlippage: () => {},
     outputCurrencyAmount: '0.1',
     gasEstimateValue: 100,
-    pathVizData: dummyPathVizData,
   },
 }
 

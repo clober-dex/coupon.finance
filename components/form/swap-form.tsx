@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react'
 import BigNumber from 'bignumber.js'
 import { isAddressEqual } from 'viem'
-import Link from 'next/link'
 
 import CurrencyAmountInput from '../input/currency-amount-input'
 import { Currency } from '../../model/currency'
@@ -15,8 +14,6 @@ import SlippageSelect from '../selector/slippage-select'
 import { formatUnits, parseUnits, toPlacesString } from '../../utils/numbers'
 import CurrencySelect from '../selector/currency-select'
 import { Balances } from '../../model/balances'
-import { PathViz } from '../../model/pathviz'
-import OdosPathViz from '../odos-path-viz'
 
 export const SwapForm = ({
   inputCurrencies,
@@ -40,7 +37,7 @@ export const SwapForm = ({
   slippage,
   setSlippage,
   gasEstimateValue,
-  pathVizData,
+  children,
   actionButtonProps,
 }: {
   inputCurrencies: Currency[]
@@ -64,9 +61,8 @@ export const SwapForm = ({
   slippage?: string
   setSlippage?: React.Dispatch<React.SetStateAction<string>>
   gasEstimateValue?: number
-  pathVizData?: PathViz
   actionButtonProps: ActionButtonProps
-}) => {
+} & React.PropsWithChildren) => {
   const exchangeRate =
     !new BigNumber(inputCurrencyAmount).isNaN() &&
     !new BigNumber(outputCurrencyAmount).isNaN()
@@ -252,25 +248,15 @@ export const SwapForm = ({
         ) : (
           <></>
         )}
-        {isLoadingResults ? (
-          <div className="flex flex-col animate-pulse h-44 bg-gray-300 dark:bg-gray-500 overflow-hidden rounded-2xl w-full" />
-        ) : (
-          <div className="flex flex-col rounded-2xl bg-white dark:bg-gray-800 p-6">
-            <OdosPathViz pathVizData={pathVizData} />
+        {children ? (
+          <div aria-disabled={isLoadingResults} className="group">
+            {children}
           </div>
+        ) : (
+          <></>
         )}
         <div>
           <ActionButton {...actionButtonProps} />
-          <div className="text-xs text-gray-400 mt-3">
-            Powered by{' '}
-            <Link
-              href="https://app.odos.xyz/"
-              target="_blank"
-              className="text-blue-500"
-            >
-              Odos
-            </Link>
-          </div>
         </div>
       </div>
     </>
