@@ -14,7 +14,7 @@ import { useModeContext } from '../contexts/mode-context'
 import { useCurrencyContext } from '../contexts/currency-context'
 import { SwapButton } from '../components/button/swap-button'
 
-import SwapModalContainer from './modal/swap-modal-container'
+import OdosSwapModalContainer from './modal/odos-swap-modal-container'
 
 const HeaderContainer = ({
   onMenuClick,
@@ -67,7 +67,7 @@ const HeaderContainer = ({
           {address ? <UserPointButton score={Number(point)} /> : <></>}
           <SwapButton setShowSwapModal={setShowSwapModal} />
           {showSwapModal ? (
-            <SwapModalContainer onClose={() => setShowSwapModal(false)} />
+            <OdosSwapModalContainer onClose={() => setShowSwapModal(false)} />
           ) : (
             <></>
           )}

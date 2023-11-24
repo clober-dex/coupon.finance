@@ -1,6 +1,7 @@
 import { useAccount, useFeeData, useQuery } from 'wagmi'
 import React, { useMemo, useState } from 'react'
 import { isAddressEqual, zeroAddress } from 'viem'
+import Link from 'next/link'
 
 import { Currency } from '../../model/currency'
 import { useSwapContext } from '../../contexts/swap-context'
@@ -11,8 +12,9 @@ import { fetchAmountOutByOdos, fetchCallDataByOdos } from '../../apis/odos'
 import { SwapForm } from '../../components/form/swap-form'
 import { toWrapETH } from '../../utils/currency'
 import Modal from '../../components/modal/modal'
+import OdosPathViz from '../../components/odos-path-viz'
 
-const SwapModalContainer = ({
+const OdosSwapModalContainer = ({
   onClose,
   defaultOutputCurrency,
 }: {
@@ -164,7 +166,6 @@ const SwapModalContainer = ({
             ),
           )
         }
-        pathVizData={pathViz}
         actionButtonProps={{
           disabled:
             !inputCurrency ||
@@ -194,9 +195,24 @@ const SwapModalContainer = ({
             )
           },
         }}
-      />
+      >
+        <div className="hidden group-aria-disabled:flex flex-col animate-pulse h-44 bg-gray-300 dark:bg-gray-500 overflow-hidden rounded-2xl w-full" />
+        <div className="group-aria-disabled:hidden flex flex-col rounded-2xl bg-white dark:bg-gray-800 p-6">
+          <OdosPathViz pathVizData={pathViz} />
+        </div>
+        <div className="text-xs text-gray-400 mt-2">
+          Powered by{' '}
+          <Link
+            href="https://app.odos.xyz/"
+            target="_blank"
+            className="text-blue-500"
+          >
+            Odos
+          </Link>
+        </div>
+      </SwapForm>
     </Modal>
   )
 }
 
-export default SwapModalContainer
+export default OdosSwapModalContainer
