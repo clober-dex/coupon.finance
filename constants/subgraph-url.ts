@@ -13,7 +13,7 @@ export const POINT_SUBGRAPH_URL: {
   [chain in CHAIN_IDS]: string
 } = {
   [CHAIN_IDS.ARBITRUM]:
-    'https://api.studio.thegraph.com/query/49804/coupon-point-subgraph/v1.0.2',
+    'https://api.studio.thegraph.com/query/49804/coupon-point-subgraph/v1.0.3',
   [CHAIN_IDS.COUPON_FINANCE_CHAIN]:
     'https://dev-subgraph.coupon.finance/subgraphs/name/coupon-point-subgraph',
 }
