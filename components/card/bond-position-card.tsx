@@ -11,13 +11,12 @@ export const BondPositionCard = ({
   price,
   onWithdraw,
   onCollect,
-  children,
 }: {
   position: BondPosition
   price?: BigDecimal
   onWithdraw: () => void
   onCollect: () => void
-} & React.HTMLAttributes<HTMLDivElement>) => {
+}) => {
   const now = currentTimestampInSeconds()
   return (
     <div className="relative flex w-full pb-4 flex-col items-center gap-3 shrink-0 bg-white dark:bg-gray-800 rounded-xl">
@@ -109,7 +108,6 @@ export const BondPositionCard = ({
               %
             </div>
           </div>
-          {children}
         </div>
         {position.toEpoch.endTimestamp < now ? (
           <button

@@ -9,6 +9,16 @@ import { ERC20_PERMIT_ABI } from '../abis/@openzeppelin/erc20-permit-abi'
 import { zeroBytes32 } from './bytes'
 import { approve20 } from './approve20'
 
+export const dummyPermit20Params = {
+  permitAmount: 0n,
+  signature: {
+    r: zeroBytes32,
+    s: zeroBytes32,
+    v: 0,
+    deadline: 0n,
+  },
+}
+
 export const permit20 = async (
   chainId: CHAIN_IDS,
   walletClient: GetWalletClientResult,
@@ -25,12 +35,7 @@ export const permit20 = async (
 }> => {
   const allowance = await fetchAllowance(chainId, currency, owner, spender)
   if (!walletClient || allowance >= value) {
-    return {
-      r: zeroBytes32 as `0x${string}`,
-      s: zeroBytes32 as `0x${string}`,
-      v: 0,
-      deadline: 0n,
-    }
+    return dummyPermit20Params.signature
   }
 
   const [{ result: nonce }, { result: version }, { result: name }] =
@@ -79,12 +84,7 @@ export const permit20 = async (
       spender,
       value,
     )
-    return {
-      r: zeroBytes32 as `0x${string}`,
-      s: zeroBytes32 as `0x${string}`,
-      v: 0,
-      deadline: 0n,
-    }
+    return dummyPermit20Params.signature
   }
 
   const signature = await walletClient.signTypedData({
