@@ -19,6 +19,8 @@ import { ETH_SUBSTITUTE_MINTER_ABI } from '../abis/periphery/eth-substitute-mint
 import { dummyPermit20Params, permit20 } from '../utils/permit20'
 import { Asset } from '../model/asset'
 import { SIMPLE_BOND_CONTROLLER_ABI } from '../abis/periphery/simple-bond-controller-abi'
+import { COUPON_WRAPPER_ABI } from '../abis/periphery/coupon-wrapper-abi'
+import { MAX_APPROVAL_AMOUNT } from '../utils/bigint'
 
 import { useTransactionContext } from './transaction-context'
 import { isEther, useCurrencyContext } from './currency-context'
@@ -43,7 +45,10 @@ type AdvancedContractContext = {
     coupon: Currency,
     amount: bigint,
   ) => Promise<void>
-  unWrapCouponToERC1155: () => Promise<void>
+  unWrapCouponERC20ToERC1155: (
+    amount: bigint,
+    couponBalances: CouponBalance[],
+  ) => Promise<void>
   sellCoupons: (couponBalances: CouponBalance[]) => Promise<void>
 }
 
@@ -54,7 +59,7 @@ const Context = React.createContext<AdvancedContractContext>({
   burnSubstitute: () => Promise.resolve(),
   mintCoupon: () => Promise.resolve(),
   burnCoupon: () => Promise.resolve(),
-  unWrapCouponToERC1155: () => Promise.resolve(),
+  unWrapCouponERC20ToERC1155: () => Promise.resolve(),
   sellCoupons: () => Promise.resolve(),
 })
 
@@ -459,24 +464,78 @@ export const AdvancedContractProvider = ({
     }
   }, [queryClient, setConfirmation, walletClient])
 
-  const unWrapCouponToERC1155 = useCallback(async () => {
-    if (!walletClient) {
-      // TODO: alert wallet connect
-      return
-    }
+  const unWrapCouponERC20ToERC1155 = useCallback(
+    async (amount: bigint, couponBalances: CouponBalance[]) => {
+      if (!walletClient) {
+        // TODO: alert wallet connect
+        return
+      }
 
-    try {
-      console.log('burning coupon')
-    } catch (e) {
-      console.error(e)
-    } finally {
-      await Promise.all([
-        queryClient.invalidateQueries(['balances']),
-        queryClient.invalidateQueries(['coupons']),
-      ])
-      setConfirmation(undefined)
-    }
-  }, [queryClient, setConfirmation, walletClient])
+      try {
+        // erc20 approve
+        for (const { market, erc20Balance } of couponBalances) {
+          if (erc20Balance > 0n) {
+            setConfirmation({
+              title: `Approving ${market.baseToken.symbol}`,
+              body: 'Please confirm in your wallet.',
+              fields: [
+                {
+                  currency: market.baseToken,
+                  label: market.baseToken.symbol,
+                  value: toPlacesString(
+                    formatUnits(erc20Balance, market.baseToken.decimals),
+                  ),
+                },
+              ],
+            })
+            await approve20(
+              selectedChain.id,
+              walletClient,
+              market.baseToken,
+              walletClient.account.address,
+              CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].CouponWrapper,
+              erc20Balance,
+            )
+          }
+        }
+
+        await writeContract(publicClient, walletClient, {
+          address:
+            CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].CouponWrapper,
+          abi: COUPON_WRAPPER_ABI,
+          functionName: 'unwrap',
+          args: [
+            couponBalances.map(({ market, erc1155Balance }) => {
+              return {
+                key: {
+                  asset: market.quoteToken.address,
+                  epoch: market.epoch,
+                },
+                amount: amount - erc1155Balance,
+              }
+            }),
+            walletClient.account.address,
+          ],
+          account: walletClient.account,
+        })
+      } catch (e) {
+        console.error(e)
+      } finally {
+        await Promise.all([
+          queryClient.invalidateQueries(['balances']),
+          queryClient.invalidateQueries(['coupons']),
+        ])
+        setConfirmation(undefined)
+      }
+    },
+    [
+      publicClient,
+      queryClient,
+      selectedChain.id,
+      setConfirmation,
+      walletClient,
+    ],
+  )
 
   const sellCoupons = useCallback(
     async (couponBalances: CouponBalance[]) => {
@@ -618,7 +677,7 @@ export const AdvancedContractProvider = ({
         burnSubstitute,
         mintCoupon,
         burnCoupon,
-        unWrapCouponToERC1155,
+        unWrapCouponERC20ToERC1155,
         sellCoupons,
       }}
     >

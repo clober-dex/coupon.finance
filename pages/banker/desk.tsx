@@ -180,8 +180,13 @@ const CouponUtilsForm = ({
 const Desk = () => {
   const { selectedChain } = useChainContext()
   const { positions, collect } = useDepositContext()
-  const { mintSubstitute, burnSubstitute, mintCoupon } =
-    useAdvancedContractContext()
+  const {
+    mintSubstitute,
+    burnSubstitute,
+    mintCoupon,
+    burnCoupon,
+    unWrapCouponERC20ToERC1155,
+  } = useAdvancedContractContext()
   const {
     assets,
     prices,
@@ -466,14 +471,7 @@ const Desk = () => {
                       return (
                         <BankerPositionCard
                           key={index}
-                          position={{
-                            ...position,
-                            isPending:
-                              now > position.toEpoch.endTimestamp ||
-                              coupons.some(({ balance }) => {
-                                return balance < position.amount
-                              }),
-                          }}
+                          position={position}
                           price={prices[position.underlying.address]}
                         >
                           {coupons.map((coupon, index) => {
@@ -531,8 +529,11 @@ const Desk = () => {
                             }) ? (
                             <button
                               className="w-full bg-green-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-green-500 font-bold px-3 py-2 rounded text-sm"
-                              onClick={() => {
-                                console.log('Unwrap', position.tokenId)
+                              onClick={async () => {
+                                await unWrapCouponERC20ToERC1155(
+                                  position.amount,
+                                  coupons,
+                                )
                               }}
                               disabled={false}
                             >
@@ -542,7 +543,11 @@ const Desk = () => {
                             <button
                               className="w-full bg-green-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-green-500 font-bold px-3 py-2 rounded text-sm"
                               onClick={() => {
-                                console.log('withdraw', position.tokenId)
+                                console.log(
+                                  'withdraw',
+                                  position.tokenId,
+                                  burnCoupon,
+                                )
                               }}
                               disabled={false}
                             >
