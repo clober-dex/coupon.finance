@@ -130,22 +130,37 @@ const CouponUtilsForm = ({
               <div className="sm:px-6 sm:mb-2 mr-4 sm:mr-0">
                 <div>
                   <Slider
-                    length={dates.length}
+                    segments={dates.length}
                     minPosition={minPosition}
                     value={epochs}
                     onValueChange={setEpochs}
+                    renderControl={() => (
+                      <div className="flex w-[110px] flex-col items-center gap-2 shrink-0">
+                        <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-white text-xs font-bold">
+                          {getDaysBetweenDates(
+                            new Date(dates[epochs]),
+                            new Date(currentTimestamp * 1000),
+                          )}{' '}
+                          Days
+                        </div>
+                        <DotSvg />
+                        <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-green-500 bg-opacity-10 text-xs text-green-500 font-bold">
+                          {dates[epochs]}
+                        </div>
+                      </div>
+                    )}
                   >
                     <div className="flex w-[96px] flex-col items-center gap-3 shrink-0">
                       <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-white text-xs font-bold">
                         {getDaysBetweenDates(
-                          new Date(dates[epochs - 1]),
+                          new Date(dates[epochs]),
                           new Date(currentTimestamp * 1000),
                         )}{' '}
                         Days
                       </div>
                       <DotSvg />
                       <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-green-500 bg-opacity-10 text-xs text-green-500 font-bold">
-                        {dates[epochs - 1]}
+                        {dates[epochs]}
                       </div>
                     </div>
                   </Slider>
@@ -184,7 +199,7 @@ const Desk = () => {
   )
   const [showInputCurrencySelect, setShowInputCurrencySelect] = useState(false)
 
-  const [epochs, setEpochs] = useState(1)
+  const [epochs, setEpochs] = useState(0)
 
   const currencies = useMemo(() => {
     return [
@@ -412,7 +427,7 @@ const Desk = () => {
                           await mintCoupon(
                             asset,
                             inputAmount,
-                            allEpochs[0].id + epochs - 1, // todo: remove -1
+                            allEpochs[0].id + epochs,
                           )
                         }
                       },
