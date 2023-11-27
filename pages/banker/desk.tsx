@@ -33,8 +33,8 @@ import DownSvg from '../../components/svg/down-svg'
 import { MAX_VISIBLE_MARKETS } from '../../utils/market'
 import { fetchMarkets } from '../../apis/market'
 import { useChainContext } from '../../contexts/chain-context'
-import { BondPositionCard } from '../../components/card/bond-position-card'
 import { useDepositContext } from '../../contexts/deposit-context'
+import { BankerPositionCard } from '../../components/card/banker-position-card'
 
 const CouponUtilsForm = ({
   currencies,
@@ -165,8 +165,15 @@ const CouponUtilsForm = ({
 const Desk = () => {
   const { selectedChain } = useChainContext()
   const { positions, collect } = useDepositContext()
-  const { mintSubstitute, burnSubstitute } = useAdvancedContractContext()
-  const { assets, prices, balances, coupons } = useCurrencyContext()
+  const { mintSubstitute, burnSubstitute, mintCoupon } =
+    useAdvancedContractContext()
+  const {
+    assets,
+    prices,
+    balances,
+    epochs: allEpochs,
+    coupons: allCoupons,
+  } = useCurrencyContext()
   const [mode, _setMode] = useState<'substitute' | 'coupon'>('substitute')
   const [inputCurrency, setInputCurrency] = useState<Currency | undefined>(
     undefined,
@@ -234,26 +241,9 @@ const Desk = () => {
       ) {
         return 'Mint Substitute'
       }
-    } else if (mode === 'coupon') {
-      const couponAddresses = coupons.map(
-        ({ market }) => market.baseToken.address,
-      )
-      if (
-        couponAddresses.includes(inputCurrency.address) &&
-        underlyingAddresses.includes(outputCurrency.address) &&
-        inputCurrency.symbol.includes(outputCurrency.symbol)
-      ) {
-        return 'Burn Coupon'
-      } else if (
-        underlyingAddresses.includes(inputCurrency.address) &&
-        couponAddresses.includes(outputCurrency.address) &&
-        outputCurrency.symbol.includes(inputCurrency.symbol)
-      ) {
-        return 'Mint Coupon'
-      }
     }
     return 'Cannot Convert'
-  }, [assets, coupons, inputCurrency, mode, outputCurrency])
+  }, [assets, inputCurrency, mode, outputCurrency])
 
   useEffect(() => {
     setInputCurrency(undefined)
@@ -280,7 +270,7 @@ const Desk = () => {
     }
   }, [currencies, inputCurrency, inputCurrency?.address, mode])
 
-  const { data: markets } = useQuery(
+  const { data: allMarkets } = useQuery(
     ['desk-markets', selectedChain],
     async () => {
       return fetchMarkets(selectedChain.id)
@@ -386,8 +376,8 @@ const Desk = () => {
                       inputCurrency ? balances[inputCurrency.address] ?? 0n : 0n
                     }
                     dates={
-                      markets
-                        ? markets
+                      allMarkets
+                        ? allMarkets
                             .filter(
                               (market) =>
                                 substitute &&
@@ -395,10 +385,6 @@ const Desk = () => {
                                   substitute.address,
                                   market.quoteToken.address,
                                 ),
-                            )
-                            .sort(
-                              (a, b) =>
-                                Number(a.endTimestamp) - Number(b.endTimestamp),
                             )
                             .slice(0, MAX_VISIBLE_MARKETS)
                             .map(({ endTimestamp }) =>
@@ -411,9 +397,26 @@ const Desk = () => {
                     epochs={epochs}
                     setEpochs={setEpochs}
                     actionButtonProps={{
-                      disabled: false,
-                      onClick: async () => {},
-                      text: 'Coming Soon',
+                      disabled: !inputCurrency || inputAmount === 0n,
+                      onClick: async () => {
+                        if (!inputCurrency) {
+                          return
+                        }
+                        const asset = assets.find((asset) =>
+                          isAddressEqual(
+                            asset.underlying.address,
+                            inputCurrency.address,
+                          ),
+                        )
+                        if (asset) {
+                          await mintCoupon(
+                            asset,
+                            inputAmount,
+                            allEpochs[0].id + epochs - 1, // todo: remove -1
+                          )
+                        }
+                      },
+                      text: 'Mint Coupon',
                     }}
                   />
                 )}
@@ -430,62 +433,36 @@ const Desk = () => {
                 </div>
                 <div className="flex flex-1 flex-col w-full h-full sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 mb-8 justify-center">
                   {positions
+                    .filter(({ interest }) => interest === 0n)
                     .sort(
                       (a, b) =>
                         Number(a.toEpoch.endTimestamp) -
                         Number(b.toEpoch.endTimestamp),
                     )
                     .map((position, index) => {
-                      const couponAddresses = (markets ?? [])
-                        .filter((market) =>
+                      const coupons = allCoupons.filter(
+                        ({ market }) =>
                           isAddressEqual(
                             market.quoteToken.address,
                             position.substitute.address,
-                          ),
-                        )
-                        .filter(
-                          (market) =>
-                            position.toEpoch.endTimestamp >=
-                            market.endTimestamp,
-                        )
-                        .map(({ baseToken }) => baseToken.address)
+                          ) &&
+                          position.toEpoch.endTimestamp >= market.endTimestamp,
+                      )
                       return (
-                        <BondPositionCard
+                        <BankerPositionCard
                           key={index}
                           position={{
                             ...position,
                             isPending:
-                              now < position.toEpoch.endTimestamp &&
-                              couponAddresses.reduce((acc, couponAddress) => {
-                                return (
-                                  acc &&
-                                  balances[couponAddress] >= position.amount
-                                )
-                              }, true),
+                              now > position.toEpoch.endTimestamp ||
+                              coupons.some(({ balance }) => {
+                                return balance < position.amount
+                              }),
                           }}
                           price={prices[position.underlying.address]}
-                          onWithdraw={() => {
-                            console.log('withdraw', position.tokenId)
-                          }}
-                          onCollect={async () => {
-                            await collect(
-                              position.underlying,
-                              position.tokenId,
-                              position.amount,
-                            )
-                          }}
                         >
-                          {couponAddresses.map((couponAddress, index) => {
-                            const coupon = coupons.find(({ market }) =>
-                              isAddressEqual(
-                                market.baseToken.address,
-                                couponAddress,
-                              ),
-                            )
-                            if (!coupon) {
-                              return <></>
-                            }
-                            const { market, balance } = coupon
+                          {coupons.map((coupon, index) => {
+                            const { market, erc1155Balance } = coupon
                             return (
                               <div
                                 key={index}
@@ -496,14 +473,14 @@ const Desk = () => {
                                 </div>
                                 <div
                                   className={`text-sm sm:text-base font-bold ${
-                                    balance >= position.amount
+                                    erc1155Balance >= position.amount
                                       ? 'text-green-500'
                                       : 'text-red-500'
                                   }`}
                                 >
                                   {toPlacesString(
                                     formatUnits(
-                                      balance,
+                                      erc1155Balance,
                                       market.baseToken.decimals,
                                     ),
                                   )}
@@ -511,7 +488,53 @@ const Desk = () => {
                               </div>
                             )
                           })}
-                        </BondPositionCard>
+                          {position.toEpoch.endTimestamp < now ? (
+                            <button
+                              className="w-full bg-blue-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-blue-500 font-bold px-3 py-2 rounded text-sm"
+                              onClick={async () => {
+                                await collect(
+                                  position.underlying,
+                                  position.tokenId,
+                                  position.amount,
+                                )
+                              }}
+                              disabled={false}
+                            >
+                              Collect Deposit
+                            </button>
+                          ) : coupons.some(({ balance }) => {
+                              return balance < position.amount
+                            }) ? (
+                            <button
+                              className="w-full bg-green-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-green-500 font-bold px-3 py-2 rounded text-sm"
+                              disabled={true}
+                            >
+                              Insufficient Coupon
+                            </button>
+                          ) : coupons.some(({ erc1155Balance }) => {
+                              return erc1155Balance < position.amount
+                            }) ? (
+                            <button
+                              className="w-full bg-green-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-green-500 font-bold px-3 py-2 rounded text-sm"
+                              onClick={() => {
+                                console.log('Unwrap', position.tokenId)
+                              }}
+                              disabled={false}
+                            >
+                              Unwrap
+                            </button>
+                          ) : (
+                            <button
+                              className="w-full bg-green-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-green-500 font-bold px-3 py-2 rounded text-sm"
+                              onClick={() => {
+                                console.log('withdraw', position.tokenId)
+                              }}
+                              disabled={false}
+                            >
+                              Withdraw
+                            </button>
+                          )}
+                        </BankerPositionCard>
                       )
                     })}
                 </div>
