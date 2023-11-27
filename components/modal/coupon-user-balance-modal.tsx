@@ -20,7 +20,7 @@ const CouponWidget = ({
   >
     <div className="h-full relative bg-transparent p-2 sm:p-6">
       <CouponSvg
-        className="cursor-pointer"
+        className="cursor-pointer sm:w-[80px] sm:h-[80px] w-[64px] h-[64px]"
         onClick={(e) => {
           setClicked((clicked) => !clicked)
           e.stopPropagation()
