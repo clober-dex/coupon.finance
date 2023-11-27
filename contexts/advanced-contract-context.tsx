@@ -22,6 +22,7 @@ import { SIMPLE_BOND_CONTROLLER_ABI } from '../abis/periphery/simple-bond-contro
 import { COUPON_WRAPPER_ABI } from '../abis/periphery/coupon-wrapper-abi'
 import { max } from '../utils/bigint'
 import { WRAPPED_1155_FACTORY_ABI } from '../abis/external/wrapped-1155-factory-abi'
+import { permit721 } from '../utils/permit721'
 
 import { useTransactionContext } from './transaction-context'
 import { isEther, useCurrencyContext } from './currency-context'
@@ -41,11 +42,7 @@ type AdvancedContractContext = {
     amount: bigint,
   ) => Promise<void>
   mintCoupon: (asset: Asset, amount: bigint, epochs: number) => Promise<void>
-  burnCoupon: (
-    underlying: Currency,
-    coupon: Currency,
-    amount: bigint,
-  ) => Promise<void>
+  burnCoupon: (tokenId: bigint, epochs: number) => Promise<void>
   unWrapCouponERC20ToERC1155: (
     amount: bigint,
     couponBalances: CouponBalance[],
@@ -446,24 +443,62 @@ export const AdvancedContractProvider = ({
     ],
   )
 
-  const burnCoupon = useCallback(async () => {
-    if (!walletClient) {
-      // TODO: alert wallet connect
-      return
-    }
+  const burnCoupon = useCallback(
+    async (tokenId: bigint, epochs: number) => {
+      if (!walletClient) {
+        // TODO: alert wallet connect
+        return
+      }
 
-    try {
-      console.log('burning coupon')
-    } catch (e) {
-      console.error(e)
-    } finally {
-      await Promise.all([
-        queryClient.invalidateQueries(['balances']),
-        queryClient.invalidateQueries(['coupons']),
-      ])
-      setConfirmation(undefined)
-    }
-  }, [queryClient, setConfirmation, walletClient])
+      try {
+        const deadline = getDeadlineTimestampInSeconds()
+        const spender =
+          CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].SimpleBondController
+        const positionPermitParams = await permit721(
+          selectedChain.id,
+          walletClient,
+          CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BondPositionManager,
+          tokenId,
+          walletClient.account.address,
+          spender,
+          deadline,
+        )
+        const couponPermitParams = await permit1155(
+          selectedChain.id,
+          walletClient,
+          CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].CouponManager,
+          walletClient.account.address,
+          spender,
+          deadline,
+        )
+        await writeContract(publicClient, walletClient, {
+          address:
+            CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
+              .SimpleBondController,
+          abi: SIMPLE_BOND_CONTROLLER_ABI,
+          functionName: 'adjust',
+          args: [
+            dummyPermit20Params,
+            positionPermitParams,
+            couponPermitParams,
+            tokenId,
+            0n,
+            epochs,
+          ],
+          account: walletClient.account,
+        })
+      } catch (e) {
+        console.error(e)
+      } finally {
+        await Promise.all([
+          queryClient.invalidateQueries(['balances']),
+          queryClient.invalidateQueries(['coupons']),
+        ])
+        setConfirmation(undefined)
+      }
+    },
+    [queryClient, selectedChain.id, setConfirmation, walletClient],
+  )
 
   const unWrapCouponERC20ToERC1155 = useCallback(
     async (amount: bigint, couponBalances: CouponBalance[]) => {
