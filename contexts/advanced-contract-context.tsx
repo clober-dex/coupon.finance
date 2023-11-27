@@ -3,12 +3,18 @@ import { usePublicClient, useQueryClient, useWalletClient } from 'wagmi'
 import { zeroAddress } from 'viem'
 
 import { Currency } from '../model/currency'
-import { formatUnits } from '../utils/numbers'
+import { formatUnits, toPlacesString } from '../utils/numbers'
 import { writeContract } from '../utils/wallet'
 import { approve20 } from '../utils/approve20'
 import { toWrapETH } from '../utils/currency'
 import { WETH_ABI } from '../abis/external/weth-abi'
 import { SUBSTITUTE_ABI } from '../abis/periphery/substitute-abi'
+import { CouponBalance } from '../model/coupon-balance'
+import { permit1155 } from '../utils/permit1155'
+import { getDeadlineTimestampInSeconds } from '../utils/date'
+import { CONTRACT_ADDRESSES } from '../constants/addresses'
+import { CHAIN_IDS } from '../constants/chain'
+import { COUPON_MARKET_ROUTER_ABI } from '../abis/periphery/coupon-market-router-abi'
 
 import { useTransactionContext } from './transaction-context'
 import { useCurrencyContext } from './currency-context'
@@ -37,6 +43,7 @@ type AdvancedContractContext = {
     coupon: Currency,
     amount: bigint,
   ) => Promise<void>
+  sellCoupons: (couponBalances: CouponBalance[]) => Promise<void>
 }
 
 const Context = React.createContext<AdvancedContractContext>({
@@ -46,13 +53,14 @@ const Context = React.createContext<AdvancedContractContext>({
   burnSubstitute: () => Promise.resolve(),
   mintCoupon: () => Promise.resolve(),
   burnCoupon: () => Promise.resolve(),
+  sellCoupons: () => Promise.resolve(),
 })
 
 export const AdvancedContractProvider = ({
   children,
 }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient()
-  const { prices, calculateETHValue } = useCurrencyContext()
+  const { assets, prices, calculateETHValue } = useCurrencyContext()
   const { selectedChain } = useChainContext()
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
@@ -353,6 +361,137 @@ export const AdvancedContractProvider = ({
     }
   }, [queryClient, setConfirmation, walletClient])
 
+  const sellCoupons = useCallback(
+    async (couponBalances: CouponBalance[]) => {
+      if (!walletClient) {
+        // TODO: alert wallet connect
+        return
+      }
+
+      try {
+        // erc20 approve
+        for (const { market, erc20Balance } of couponBalances) {
+          if (erc20Balance > 0n) {
+            setConfirmation({
+              title: `Approving ${market.baseToken.symbol}`,
+              body: 'Please confirm in your wallet.',
+              fields: [
+                {
+                  currency: market.baseToken,
+                  label: market.baseToken.symbol,
+                  value: toPlacesString(
+                    formatUnits(erc20Balance, market.baseToken.decimals),
+                  ),
+                },
+              ],
+            })
+            await approve20(
+              selectedChain.id,
+              walletClient,
+              market.baseToken,
+              walletClient.account.address,
+              CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
+                .CouponMarketRouter,
+              erc20Balance,
+            )
+          }
+        }
+
+        const deadline = getDeadlineTimestampInSeconds()
+        const { v, r, s } = await permit1155(
+          selectedChain.id,
+          walletClient,
+          CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].CouponManager,
+          walletClient.account.address,
+          CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].CouponMarketRouter,
+          deadline,
+        )
+        setConfirmation({
+          title: `Selling Coupons`,
+          body: 'Please confirm in your wallet.',
+          fields: [
+            ...couponBalances.map(({ balance, market }) => ({
+              direction: 'out',
+              currency: market.baseToken,
+              label: market.baseToken.symbol,
+              value: toPlacesString(
+                formatUnits(balance, market.baseToken.decimals),
+              ),
+            })),
+            ...couponBalances.map(({ assetValue, market }) => {
+              const asset = assets.find(({ underlying }) =>
+                market.quoteToken.symbol.includes(underlying.symbol),
+              )
+              if (!asset) {
+                return
+              }
+              return {
+                direction: 'in',
+                currency: asset.underlying,
+                label: asset.underlying.symbol,
+                value: toPlacesString(
+                  formatUnits(
+                    assetValue,
+                    asset.underlying.decimals,
+                    prices[asset.underlying.address],
+                  ),
+                ),
+              }
+            }),
+          ] as {
+            direction: 'in' | 'out'
+            currency: Currency
+            label: string
+            value: string
+          }[],
+        })
+
+        await writeContract(publicClient, walletClient, {
+          address:
+            CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
+              .CouponMarketRouter,
+          abi: COUPON_MARKET_ROUTER_ABI,
+          functionName: 'batchMarketSellCoupons',
+          args: [
+            couponBalances.map(({ market, balance }) => {
+              return {
+                market: market.address,
+                deadline,
+                limitPriceIndex: 0n,
+                recipient: walletClient.account.address,
+                minRawAmount: 0n,
+                couponKey: {
+                  asset: market.quoteToken.address,
+                  epoch: market.epoch,
+                },
+                amount: balance,
+              }
+            }),
+            { deadline, v, r, s },
+          ],
+          account: walletClient.account,
+        })
+      } catch (e) {
+        console.error(e)
+      } finally {
+        await Promise.all([
+          queryClient.invalidateQueries(['balances']),
+          queryClient.invalidateQueries(['coupons']),
+        ])
+        setConfirmation(undefined)
+      }
+    },
+    [
+      assets,
+      prices,
+      publicClient,
+      queryClient,
+      selectedChain.id,
+      setConfirmation,
+      walletClient,
+    ],
+  )
+
   return (
     <Context.Provider
       value={{
@@ -362,6 +501,7 @@ export const AdvancedContractProvider = ({
         burnSubstitute,
         mintCoupon,
         burnCoupon,
+        sellCoupons,
       }}
     >
       {children}

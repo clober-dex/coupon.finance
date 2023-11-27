@@ -13,24 +13,19 @@ import { Balances } from '../model/balances'
 import { Prices } from '../model/prices'
 import { max } from '../utils/bigint'
 import { fetchMarkets } from '../apis/market'
-import { formatDate } from '../utils/date'
 import { extractPoints } from '../apis/point'
 import { getCurrentPoint } from '../utils/point'
 import { CONTRACT_ADDRESSES } from '../constants/addresses'
 import { CHAIN_IDS } from '../constants/chain'
-import { ERC20_PERMIT_ABI } from '../abis/@openzeppelin/erc20-permit-abi'
 import { ERC1155_ABI } from '../abis/@openzeppelin/erc1155-abi'
+import { CouponBalance } from '../model/coupon-balance'
+import { ERC20_PERMIT_ABI } from '../abis/@openzeppelin/erc20-permit-abi'
 
 import { useChainContext } from './chain-context'
 import { useSubgraphContext } from './subgraph-context'
 
 type CurrencyContext = {
-  coupons: {
-    date: string
-    balance: bigint
-    marketAddress: `0x${string}`
-    coupon: Currency
-  }[]
+  coupons: CouponBalance[]
   balances: Balances
   prices: Prices
   assets: Asset[]
@@ -118,11 +113,12 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
     async () => {
       const markets = await fetchMarkets(selectedChain.id)
       if (!userAddress) {
-        return markets.map(({ address, baseToken, endTimestamp }) => ({
-          date: formatDate(new Date(Number(endTimestamp) * 1000)),
-          marketAddress: getAddress(address),
-          coupon: baseToken,
+        return markets.map((market) => ({
+          market,
           balance: 0n,
+          assetValue: 0n,
+          erc20Balance: 0n,
+          erc1155Balance: 0n,
         }))
       }
       const erc20Results = await readContracts({
@@ -142,13 +138,16 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
           args: [userAddress, couponId],
         })),
       })
-      return erc20Results.map(({ result }, index) => {
-        const { address, baseToken, endTimestamp } = markets[index]
+      return erc20Results.map(({ result: erc20Balance }, index) => {
+        const market = markets[index]
+        const balance =
+          (erc20Balance ?? 0n) + (erc1155Results[index].result ?? 0n)
         return {
-          date: formatDate(new Date(Number(endTimestamp) * 1000)),
-          marketAddress: getAddress(address),
-          coupon: baseToken,
-          balance: (result ?? 0n) + (erc1155Results[index].result ?? 0n),
+          market,
+          balance,
+          assetValue: market.spend(market.baseToken.address, balance).amountOut,
+          erc20Balance: erc20Balance ?? 0n,
+          erc1155Balance: erc1155Results[index].result ?? 0n,
         }
       })
     },

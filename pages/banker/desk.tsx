@@ -235,7 +235,9 @@ const Desk = () => {
         return 'Mint Substitute'
       }
     } else if (mode === 'coupon') {
-      const couponAddresses = coupons.map(({ coupon }) => coupon.address)
+      const couponAddresses = coupons.map(
+        ({ market }) => market.baseToken.address,
+      )
       if (
         couponAddresses.includes(inputCurrency.address) &&
         underlyingAddresses.includes(outputCurrency.address) &&
@@ -474,34 +476,35 @@ const Desk = () => {
                           }}
                         >
                           {couponAddresses.map((couponAddress, index) => {
-                            const coupon = coupons.find((coupon) =>
+                            const coupon = coupons.find(({ market }) =>
                               isAddressEqual(
-                                coupon.coupon.address,
+                                market.baseToken.address,
                                 couponAddress,
                               ),
                             )
                             if (!coupon) {
                               return <></>
                             }
+                            const { market, balance } = coupon
                             return (
                               <div
                                 key={index}
                                 className="flex items-center gap-1 self-stretch"
                               >
                                 <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
-                                  {coupon.coupon.symbol}
+                                  {market.baseToken.symbol}
                                 </div>
                                 <div
                                   className={`text-sm sm:text-base font-bold ${
-                                    coupon.balance >= position.amount
+                                    balance >= position.amount
                                       ? 'text-green-500'
                                       : 'text-red-500'
                                   }`}
                                 >
                                   {toPlacesString(
                                     formatUnits(
-                                      coupon.balance,
-                                      coupon.coupon.decimals,
+                                      balance,
+                                      market.baseToken.decimals,
                                     ),
                                   )}
                                 </div>
