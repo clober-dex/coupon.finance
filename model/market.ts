@@ -20,8 +20,8 @@ type Depth = {
 }
 
 export class Market {
-  readonly FEE_PRECISION = 10n ** 6n
-  readonly PRICE_PRECISION = 10n ** 18n
+  readonly FEE_PRECISION = 1000000n
+  readonly PRICE_PRECISION = 1000000000000000000n
 
   address: string
   orderToken: string

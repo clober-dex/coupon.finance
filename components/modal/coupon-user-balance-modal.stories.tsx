@@ -16,6 +16,7 @@ export default {
 type Story = StoryObj<typeof CouponUserBalanceModal>
 export const Default: Story = {
   args: {
+    assets: [],
     couponBalances: [
       {
         balance: 10000000000000000000000n,

@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react'
+import { Tooltip } from 'react-tooltip'
 
 import { LoanPosition } from '../../model/loan-position'
 import {
@@ -14,6 +15,7 @@ import {
   getExpirationDateTextColor,
 } from '../../utils/date'
 import { CurrencyIcon } from '../icon/currency-icon'
+import { QuestionMarkSvg } from '../svg/question-mark-svg'
 
 export const LoanPositionCard = ({
   position,
@@ -77,7 +79,20 @@ export const LoanPositionCard = ({
             {!isExpired ? (
               <>
                 <div className="flex text-xs text-gray-500 dark:text-gray-400 justify-end font-normal">
-                  Expires
+                  <div className="flex flex-row gap-1 items-center justify-center">
+                    Expires
+                    <QuestionMarkSvg
+                      data-tooltip-id="expiry-date-tooltip"
+                      data-tooltip-content="The position will be liquidated if not repaid by this date."
+                      className="w-3 h-3"
+                    />
+                    <Tooltip
+                      id="expiry-date-tooltip"
+                      style={{
+                        width: '200px',
+                      }}
+                    />
+                  </div>
                 </div>
                 <div
                   className={`flex gap-1 ${getExpirationDateTextColor(
