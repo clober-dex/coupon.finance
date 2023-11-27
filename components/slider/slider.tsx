@@ -1,143 +1,147 @@
-import React, { useCallback, useEffect, useRef } from 'react'
-
-const Line = ({ position }: { position: number }) => {
-  const fillColor = '#45D87F'
-  const emptyColor = '#D1D5DB'
-  return (
-    <div
-      style={{
-        height: '0.25rem',
-        flex: 1,
-        background: `linear-gradient(
-      to right,
-      ${fillColor} ${position}%, ${fillColor} ${position}%, ${fillColor} ${position}%, ${emptyColor} ${position}%, ${emptyColor} 100%)`,
-      }}
-    />
-  )
-}
+import React, { useState, useRef } from 'react'
+import { motion } from 'framer-motion'
 
 const Slider = ({
-  length,
-  minPosition = 0,
   value,
   onValueChange,
-  disabled,
-  children,
+  segments,
+  segmentsVisible = false,
+  renderControl,
+  minPosition = 0,
 }: {
-  length: number
-  minPosition?: number
   value: number
   onValueChange: (value: number) => void
-  disabled?: boolean
+  segments?: number
+  segmentsVisible?: boolean
+  renderControl?: () => JSX.Element
+  minPosition?: number
 } & React.HTMLAttributes<HTMLDivElement> &
   React.PropsWithChildren) => {
-  minPosition = Math.min(100, minPosition)
-  const sliderRef = useRef<HTMLDivElement | null>(null)
-  const thumbRef = useRef<HTMLDivElement | null>(null)
-  const diff = useRef<number>(0)
-  const unit = (100 - minPosition) / (length - 1)
+  value = Math.max(value, 0)
+  if (segments) {
+    segments -= 1
+  }
 
-  const [position, _setPosition] = React.useState<number>(0)
-  const setPosition = useCallback(
-    (position: number) => {
-      _setPosition(position)
-      onValueChange(Math.min(Math.floor(position / unit) + 1, length))
-    },
-    [length, onValueChange, unit],
-  )
+  const ref = useRef<HTMLDivElement>(null)
+  const startValue = useRef(value)
 
-  const handleMove = useCallback(
-    (clientX: number) => {
-      if (disabled || !sliderRef?.current || !thumbRef?.current) {
-        return
-      }
-      let newX =
-        clientX - diff.current - sliderRef.current.getBoundingClientRect().left
-      const end = sliderRef.current.offsetWidth - thumbRef.current.offsetWidth
-      const start = 0
-      if (newX < start) {
-        newX = 0
-      }
-      if (newX > end) {
-        newX = end
-      }
-      const newPosition = Math.ceil((newX / end) * (100 - minPosition))
-      setPosition(Math.round(newPosition / unit) * unit + minPosition)
-    },
-    [disabled, minPosition, setPosition, unit],
-  )
+  const [hovered, setHovered] = useState(false)
+  const [dragged, setDragged] = useState(false)
 
-  useEffect(() => {
-    if (thumbRef.current) {
-      thumbRef.current.style.left = `${position}%`
-    }
-  }, [position, thumbRef])
-
-  useEffect(() => {
-    const newPosition = unit * (value - 1)
-    setPosition(Math.round(newPosition / unit) * unit + minPosition)
-  }, [minPosition, setPosition, unit, value])
-
-  useEffect(() => {
-    if (disabled) {
-      setPosition(0)
-    }
-  }, [disabled, onValueChange, setPosition])
-
-  const handleMouseMove = useCallback(
-    (event: MouseEvent) => {
-      handleMove(event.clientX)
-    },
-    [handleMove],
-  )
-  const handleMouseUp = useCallback(() => {
-    document.removeEventListener('mouseup', handleMouseUp)
-    document.removeEventListener('mousemove', handleMouseMove)
-  }, [handleMouseMove])
-
-  const handleMouseDown = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
-      if (thumbRef.current) {
-        diff.current =
-          event.clientX - thumbRef.current.getBoundingClientRect().left
-        document.addEventListener('mousemove', handleMouseMove)
-        document.addEventListener('mouseup', handleMouseUp)
-      }
-    },
-    [thumbRef, handleMouseMove, handleMouseUp],
-  )
-
-  const handleSliderClick = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
-      handleMove(event.clientX)
-    },
-    [handleMove],
-  )
+  let renderedValue = value
+  if (segments) {
+    const seg = 100 / segments
+    renderedValue = Math.round(value * seg)
+  }
+  if (minPosition > 0) {
+    renderedValue = minPosition + ((100 - minPosition) / 100) * renderedValue
+  }
 
   return (
-    <div
-      className="flex relative items-center justify-center min-h-[2.75rem]"
-      ref={sliderRef}
-      onClick={handleSliderClick}
-    >
-      <Line position={position * 4} />
-      <Line position={(position - 25) * 4} />
-      <Line position={(position - 50) * 4} />
-      <Line position={(position - 75) * 4} />
-      <div
-        className={`flex flex-col items-center absolute left-[${position}%]`}
-        ref={thumbRef}
-        onMouseDown={handleMouseDown}
+    <motion.div ref={ref} className="relative flex items-center h-[2.75rem]">
+      <motion.div
+        drag="x"
+        dragConstraints={ref}
+        dragMomentum={false}
+        dragElastic={0}
+        dragPropagation={true}
+        onDrag={(e, info) => {
+          if (!ref.current) {
+            return
+          }
+          const containerWidth = ref.current.getBoundingClientRect().width
+          let value =
+            startValue.current + (info.offset.x / containerWidth) * 100
+          value = Math.min(value, 100)
+          value = Math.max(value, 0)
+
+          if (segments) {
+            const seg = 100 / segments
+            const segementIndex = Math.round(value / seg)
+            value = segementIndex * seg
+            onValueChange(segementIndex)
+          } else {
+            value = Math.round(value)
+            onValueChange(value)
+          }
+        }}
+        onDragStart={() => {
+          if (segments) {
+            const seg = 100 / segments
+            startValue.current = Math.round(value * seg)
+          } else {
+            startValue.current = Math.round(value)
+          }
+          setDragged(true)
+        }}
+        onDragEnd={() => setDragged(false)}
+        onHoverStart={() => setHovered(true)}
+        onHoverEnd={() => setHovered(false)}
+        className="relative flex items-center flex-1 h-full"
       >
-        <div
-          className={`top-1/2 absolute rounded-2xl select-none cursor-grab -translate-x-[${
-            50 - position
-          }%] -translate-y-1/2`}
+        <motion.div
+          className="relative flex-1 overflow-hidden"
+          initial={{
+            height: 4,
+            borderRadius: 2,
+          }}
+          animate={{
+            height: dragged || hovered ? 14 : 4,
+            borderRadius: dragged || hovered ? 14 : 4,
+          }}
         >
-          {children}
-        </div>
-      </div>
-    </div>
+          <div
+            className="relative flex flex-1 h-full gap-[1px]"
+            style={{
+              background:
+                segments && segmentsVisible ? 'transparent' : '#D1D5DB',
+            }}
+          >
+            {minPosition > 0 && <div style={{ width: `${minPosition}%` }} />}
+            {Array.from({
+              length: segments && segmentsVisible ? segments : 0,
+            }).map((_, i) => (
+              <div
+                key={`${i}`}
+                className="relative z-0 flex-1 h-full"
+                style={{
+                  background: '#D1D5DB',
+                }}
+              ></div>
+            ))}
+          </div>
+
+          <motion.div
+            className="absolute inset-0"
+            animate={{
+              width: `${renderedValue}%`,
+            }}
+            transition={{ type: 'tween' }}
+            style={{
+              background: '#22C55E',
+            }}
+          />
+        </motion.div>
+
+        <motion.div
+          className="absolute inset-0"
+          animate={{
+            width: `${renderedValue}%`,
+          }}
+          transition={{ type: 'tween' }}
+        >
+          <div
+            className="absolute right-0"
+            style={{
+              top: '50%',
+              transform: 'translate(50%, -50%)',
+            }}
+          >
+            {renderControl ? renderControl() : <></>}
+          </div>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   )
 }
 

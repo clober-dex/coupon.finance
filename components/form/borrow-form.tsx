@@ -164,24 +164,25 @@ export const BorrowForm = ({
                 <div>
                   <Slider
                     minPosition={minPosition}
-                    length={interestsByEpochsBorrowed?.length ?? 0}
+                    segments={interestsByEpochsBorrowed?.length ?? 0}
                     value={epochs}
                     onValueChange={setEpochs}
-                  >
-                    <div className="flex w-[110px] flex-col items-center gap-2 shrink-0">
-                      <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-white text-xs font-bold">
-                        {getDaysBetweenDates(
-                          new Date(interestsByEpochsBorrowed[epochs - 1].date),
-                          new Date(currentTimestamp * 1000),
-                        )}{' '}
-                        Days
+                    renderControl={() => (
+                      <div className="flex w-[110px] flex-col items-center gap-2 shrink-0">
+                        <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-white text-xs font-bold">
+                          {getDaysBetweenDates(
+                            new Date(interestsByEpochsBorrowed[epochs].date),
+                            new Date(currentTimestamp * 1000),
+                          )}{' '}
+                          Days
+                        </div>
+                        <DotSvg />
+                        <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-green-500 bg-opacity-10 text-xs text-green-500 font-bold">
+                          {interestsByEpochsBorrowed[epochs].date}
+                        </div>
                       </div>
-                      <DotSvg />
-                      <div className="flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-green-500 bg-opacity-10 text-xs text-green-500 font-bold">
-                        {interestsByEpochsBorrowed[epochs - 1].date}
-                      </div>
-                    </div>
-                  </Slider>
+                    )}
+                  />
                 </div>
               </div>
             ) : (
@@ -199,7 +200,7 @@ export const BorrowForm = ({
             onValueChange={setBorrowValue}
             price={borrowCurrency ? prices[borrowCurrency.address] : undefined}
             availableAmount={maxBorrowAmount}
-            disabled={!collateral || epochs === 0 || !borrowCurrency}
+            disabled={!collateral || !borrowCurrency}
           >
             {!borrowCurrency || availableBorrowCurrencies.length > 1 ? (
               <CurrencyDropdown
@@ -288,7 +289,7 @@ export const BorrowForm = ({
                   <Tooltip id="expiry-date-tooltip" />
                 </div>
                 <div className="ml-auto">
-                  {interestsByEpochsBorrowed[epochs - 1].date}
+                  {interestsByEpochsBorrowed[epochs].date}
                 </div>
               </div>
             ) : (
