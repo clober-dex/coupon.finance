@@ -15,6 +15,7 @@ export const CONTRACT_ADDRESSES: {
     LoanPositionManager: `0x${string}`
     OdosRepayAdapter: `0x${string}`
     SimpleBondController: `0x${string}`
+    Wrapped1155Factory: `0x${string}`
   }
 } = {
   [CHAIN_IDS.ARBITRUM]: {
@@ -39,6 +40,8 @@ export const CONTRACT_ADDRESSES: {
       '0xc8905F37a05B60981A9be741B7B1B6fe1AF60A3F' as `0x${string}`,
     SimpleBondController:
       '0x2EA069EB48De599BBd490a07A2Ea9BD9730F7475' as `0x${string}`,
+    Wrapped1155Factory:
+      '0xfcBE16BfD991E4949244E59d9b524e6964b8BB75' as `0x${string}`,
   },
   [CHAIN_IDS.COUPON_FINANCE_CHAIN]: {
     BondPositionManager: zeroAddress,
@@ -52,5 +55,6 @@ export const CONTRACT_ADDRESSES: {
     LoanPositionManager: zeroAddress,
     OdosRepayAdapter: zeroAddress,
     SimpleBondController: zeroAddress,
+    Wrapped1155Factory: zeroAddress,
   },
 }

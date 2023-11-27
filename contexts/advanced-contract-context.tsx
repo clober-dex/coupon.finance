@@ -20,7 +20,8 @@ import { dummyPermit20Params, permit20 } from '../utils/permit20'
 import { Asset } from '../model/asset'
 import { SIMPLE_BOND_CONTROLLER_ABI } from '../abis/periphery/simple-bond-controller-abi'
 import { COUPON_WRAPPER_ABI } from '../abis/periphery/coupon-wrapper-abi'
-import { MAX_APPROVAL_AMOUNT } from '../utils/bigint'
+import { max } from '../utils/bigint'
+import { WRAPPED_1155_FACTORY_ABI } from '../abis/external/wrapped-1155-factory-abi'
 
 import { useTransactionContext } from './transaction-context'
 import { isEther, useCurrencyContext } from './currency-context'
@@ -472,52 +473,56 @@ export const AdvancedContractProvider = ({
       }
 
       try {
-        // erc20 approve
-        for (const { market, erc20Balance } of couponBalances) {
-          if (erc20Balance > 0n) {
-            setConfirmation({
-              title: `Approving ${market.baseToken.symbol}`,
-              body: 'Please confirm in your wallet.',
-              fields: [
-                {
-                  currency: market.baseToken,
-                  label: market.baseToken.symbol,
-                  value: toPlacesString(
-                    formatUnits(erc20Balance, market.baseToken.decimals),
-                  ),
-                },
-              ],
-            })
-            await approve20(
-              selectedChain.id,
-              walletClient,
-              market.baseToken,
-              walletClient.account.address,
-              CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].CouponWrapper,
-              erc20Balance,
-            )
-          }
-        }
-
-        await writeContract(publicClient, walletClient, {
+        setConfirmation({
+          title: `Unwrapping Coupons`,
+          body: 'Please confirm in your wallet.',
+          fields: couponBalances.map(({ market, erc1155Balance }) => {
+            return {
+              direction: 'in',
+              currency: market.baseToken,
+              label: market.baseToken.symbol,
+              value: toPlacesString(
+                formatUnits(
+                  max(amount - erc1155Balance, 0n),
+                  market.baseToken.decimals,
+                ),
+              ),
+            }
+          }),
+        })
+        const metadata = await publicClient.readContract({
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].CouponWrapper,
           abi: COUPON_WRAPPER_ABI,
-          functionName: 'unwrap',
+          functionName: 'buildBatchMetadata',
           args: [
-            couponBalances.map(({ market, erc1155Balance }) => {
+            couponBalances.map(({ market }) => {
               return {
-                key: {
-                  asset: market.quoteToken.address,
-                  epoch: market.epoch,
-                },
-                amount: amount - erc1155Balance,
+                asset: market.quoteToken.address,
+                epoch: market.epoch,
               }
             }),
-            walletClient.account.address,
           ],
-          account: walletClient.account,
         })
+        if (metadata !== '0x') {
+          await writeContract(publicClient, walletClient, {
+            address:
+              CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
+                .Wrapped1155Factory,
+            abi: WRAPPED_1155_FACTORY_ABI,
+            functionName: 'batchUnwrap',
+            args: [
+              CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].CouponManager,
+              couponBalances.map(({ market }) => market.couponId),
+              couponBalances.map(({ erc1155Balance }) =>
+                max(amount - erc1155Balance, 0n),
+              ),
+              walletClient.account.address,
+              metadata,
+            ],
+            account: walletClient.account,
+          })
+        }
       } catch (e) {
         console.error(e)
       } finally {
