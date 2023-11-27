@@ -31,7 +31,7 @@ const BorrowFormContainer = ({
   const { balances, prices, assets } = useCurrencyContext()
   const { borrow } = useBorrowContext()
 
-  const [epochs, setEpochs] = useState(1)
+  const [epochs, setEpochs] = useState(0)
   const [collateralValue, setCollateralValue] = useState('')
   const [borrowValue, setBorrowValue] = useState('')
   const [borrowCurrency, setBorrowCurrency] = useState<Currency | undefined>(
@@ -79,7 +79,6 @@ const BorrowFormContainer = ({
 
   const maxLoanableAmountExcludingCouponFee = useMemo(
     () =>
-      epochs &&
       collateral &&
       asset &&
       prices[asset.underlying.address] &&
@@ -92,7 +91,7 @@ const BorrowFormContainer = ({
             collateralAmount,
           )
         : 0n,
-    [asset, collateral, collateralAmount, epochs, prices],
+    [asset, collateral, collateralAmount, prices],
   )
 
   const { data: interestsByEpochsBorrowed } = useQuery(
@@ -120,15 +119,13 @@ const BorrowFormContainer = ({
 
   const [apy, available, interest, maxInterest, endTimestamp] = useMemo(
     () =>
-      epochs &&
-      interestsByEpochsBorrowed &&
-      interestsByEpochsBorrowed.length > 0
+      interestsByEpochsBorrowed && interestsByEpochsBorrowed.length > 0
         ? [
-            interestsByEpochsBorrowed[epochs - 1].apy ?? 0,
-            interestsByEpochsBorrowed[epochs - 1].available ?? 0n,
-            interestsByEpochsBorrowed[epochs - 1].interest ?? 0n,
-            interestsByEpochsBorrowed[epochs - 1].maxInterest ?? 0n,
-            interestsByEpochsBorrowed[epochs - 1].endTimestamp ?? 0,
+            interestsByEpochsBorrowed[epochs].apy ?? 0,
+            interestsByEpochsBorrowed[epochs].available ?? 0n,
+            interestsByEpochsBorrowed[epochs].interest ?? 0n,
+            interestsByEpochsBorrowed[epochs].maxInterest ?? 0n,
+            interestsByEpochsBorrowed[epochs].endTimestamp ?? 0,
           ]
         : [0, 0n, 0n, 0n, 0],
     [epochs, interestsByEpochsBorrowed],
@@ -218,7 +215,6 @@ const BorrowFormContainer = ({
       prices={prices}
       actionButtonProps={{
         disabled:
-          epochs === 0 ||
           collateralAmount === 0n ||
           borrowAmount === 0n ||
           collateralAmount > collateralUserBalance ||
@@ -235,7 +231,7 @@ const BorrowFormContainer = ({
             collateralAmount,
             asset,
             borrowAmount,
-            epochs,
+            epochs + 1,
             min(interest, maxInterest),
             asset
               ? buildPendingPosition(
@@ -255,9 +251,7 @@ const BorrowFormContainer = ({
           }
         },
         text:
-          epochs === 0
-            ? 'Select expiration date'
-            : collateralAmount === 0n
+          collateralAmount === 0n
             ? 'Enter collateral amount'
             : borrowAmount === 0n
             ? 'Enter loan amount'

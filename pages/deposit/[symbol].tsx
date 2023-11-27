@@ -53,14 +53,13 @@ const Deposit = () => {
   )
 
   const [apy, proceed, remainingCoupons, endTimestamp] = useMemo(() => {
-    return epochs &&
-      depositInfosByEpochsDeposited &&
+    return depositInfosByEpochsDeposited &&
       depositInfosByEpochsDeposited.length > 0
       ? [
-          depositInfosByEpochsDeposited[epochs - 1].apy ?? 0,
-          depositInfosByEpochsDeposited[epochs - 1].proceeds ?? 0n,
-          depositInfosByEpochsDeposited[epochs - 1].remainingCoupons ?? [],
-          depositInfosByEpochsDeposited[epochs - 1].endTimestamp,
+          depositInfosByEpochsDeposited[epochs].apy ?? 0,
+          depositInfosByEpochsDeposited[epochs].proceeds ?? 0n,
+          depositInfosByEpochsDeposited[epochs].remainingCoupons ?? [],
+          depositInfosByEpochsDeposited[epochs].endTimestamp,
         ]
       : [0, 0n, [], 0]
   }, [epochs, depositInfosByEpochsDeposited])
@@ -101,14 +100,13 @@ const Deposit = () => {
                 epochs={epochs}
                 setEpochs={setEpochs}
                 actionButtonProps={{
-                  disabled:
-                    amount === 0n || epochs === 0 || amount > maxDepositAmount,
+                  disabled: amount === 0n || amount > maxDepositAmount,
                   onClick: async () => {
                     const { timestamp } = await publicClient.getBlock()
                     const hash = await deposit(
                       asset,
                       amount,
-                      epochs,
+                      epochs + 1,
                       proceed,
                       asset
                         ? buildPendingPosition(

@@ -37,31 +37,29 @@ const EditExpiryModalContainer = ({
       if (!data) {
         return [0, 0n, false, 0n, false]
       }
-      const expiryEpochIndex = data.findIndex((item) => item.expiryEpoch) + 1
+      const expiryEpochIndex = data.findIndex((item) => item.expiryEpoch)
       return [
         expiryEpochIndex,
         data
-          .slice(expiryEpochIndex, epochs)
+          .slice(expiryEpochIndex + 1, epochs + 1)
           .reduce((acc, { interest }) => acc + interest, 0n),
         data
-          .slice(expiryEpochIndex, epochs)
+          .slice(expiryEpochIndex + 1, epochs + 1)
           .reduce((acc, { payable }) => acc && payable, true),
         data
-          .slice(epochs - 1, expiryEpochIndex - 1)
+          .slice(epochs + 1, expiryEpochIndex + 1)
           .reduce((acc, { refund }) => acc + refund, 0n),
         data
-          .slice(epochs - 1, expiryEpochIndex - 1)
+          .slice(epochs + 1, expiryEpochIndex + 1)
           .reduce((acc, { refundable }) => acc && refundable, true),
       ]
     }, [data, epochs])
 
   useEffect(() => {
-    if (expiryEpochIndex > 0) {
-      setEpochs(expiryEpochIndex)
-    }
+    setEpochs(expiryEpochIndex)
   }, [expiryEpochIndex, position, setEpochs])
 
-  return epochs > 0 ? (
+  return (
     <EditExpiryModal
       onClose={onClose}
       epochs={epochs}
@@ -73,7 +71,6 @@ const EditExpiryModalContainer = ({
       refund={refund}
       actionButtonProps={{
         disabled:
-          epochs === 0 ||
           expiryEpochIndex === epochs ||
           (refund === 0n && interest === 0n) ||
           interest > balances[position.underlying.address] ||
@@ -99,9 +96,7 @@ const EditExpiryModalContainer = ({
           onClose()
         },
         text:
-          epochs === 0
-            ? 'Select expiry date'
-            : expiryEpochIndex === epochs
+          expiryEpochIndex === epochs
             ? 'Select new expiry date'
             : epochs > expiryEpochIndex && !payable
             ? 'Not enough coupons for pay'
@@ -112,8 +107,6 @@ const EditExpiryModalContainer = ({
             : 'Edit expiry date',
       }}
     />
-  ) : (
-    <></>
   )
 }
 

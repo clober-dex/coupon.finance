@@ -200,7 +200,7 @@ export const BorrowForm = ({
             onValueChange={setBorrowValue}
             price={borrowCurrency ? prices[borrowCurrency.address] : undefined}
             availableAmount={maxBorrowAmount}
-            disabled={!collateral || epochs === 0 || !borrowCurrency}
+            disabled={!collateral || !borrowCurrency}
           >
             {!borrowCurrency || availableBorrowCurrencies.length > 1 ? (
               <CurrencyDropdown
@@ -289,7 +289,7 @@ export const BorrowForm = ({
                   <Tooltip id="expiry-date-tooltip" />
                 </div>
                 <div className="ml-auto">
-                  {interestsByEpochsBorrowed[epochs - 1].date}
+                  {interestsByEpochsBorrowed[epochs].date}
                 </div>
               </div>
             ) : (
