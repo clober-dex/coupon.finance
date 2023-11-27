@@ -14,8 +14,8 @@ import { alchemyProvider } from 'wagmi/providers/alchemy'
 import { identify } from '@web3analytic/funnel-sdk'
 import Head from 'next/head'
 import dynamic from 'next/dynamic'
-import { useRouter } from 'next/router'
 import { Inter } from 'next/font/google'
+import { useRouter } from 'next/router'
 
 import HeaderContainer from '../containers/header-container'
 import { ThemeProvider, useThemeContext } from '../contexts/theme-context'
@@ -31,6 +31,13 @@ import { supportChains } from '../constants/chain'
 import { ChainProvider } from '../contexts/chain-context'
 import { Footer } from '../components/footer'
 import { CouponUserBalanceModal } from '../components/modal/coupon-user-balance-modal'
+import {
+  AdvancedContractProvider,
+  useAdvancedContractContext,
+} from '../contexts/advanced-contract-context'
+import { SubgraphProvider } from '../contexts/subgraph-context'
+import { ModeProvider, useModeContext } from '../contexts/mode-context'
+import { SwapProvider } from '../contexts/swap-context'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -95,6 +102,7 @@ const HeaderWrapper = () => {
   const [open, setOpen] = useState(false)
   const { setTheme } = useThemeContext()
   const router = useRouter()
+  const { selectedMode, onSelectedModeChange } = useModeContext()
   return (
     <>
       <Panel
@@ -102,6 +110,8 @@ const HeaderWrapper = () => {
         setOpen={setOpen}
         setTheme={setTheme}
         router={router}
+        selectedMode={selectedMode}
+        onSelectedModeChange={onSelectedModeChange}
       />
       <HeaderContainer onMenuClick={() => setOpen(true)} setTheme={setTheme} />
     </>
@@ -110,9 +120,18 @@ const HeaderWrapper = () => {
 
 const CouponWidgetWrapper = () => {
   const { address } = useAccount()
-  const { coupons } = useCurrencyContext()
+  const { coupons, assets } = useCurrencyContext()
+  const { sellCoupons } = useAdvancedContractContext()
 
-  return address ? <CouponUserBalanceModal coupons={coupons} /> : <></>
+  return address ? (
+    <CouponUserBalanceModal
+      assets={assets}
+      couponBalances={coupons}
+      sellCoupons={sellCoupons}
+    />
+  ) : (
+    <></>
+  )
 }
 
 function MyApp({ Component, pageProps }: AppProps) {
@@ -121,56 +140,36 @@ function MyApp({ Component, pageProps }: AppProps) {
       <Head>
         <title>Coupon Finance</title>
         <link href="/favicon.svg" rel="icon" />
-        <meta
-          content="Lending, Fixed. Flexible fixed-rate lending protocol enabled by fully on-chain order books."
-          name="description"
-        />
-        {/* <!-- Facebook Meta Tags --> */}
-        <meta property="og:url" content="https://www.coupon.finance/" />
-        <meta property="og:type" content="website" />
-        <meta property="og:title" content="Coupon Finance" />
-        <meta
-          property="og:description"
-          content="Lending, Fixed. Flexible fixed-rate lending enabled by fully on-chain order books."
-        />
-        <meta
-          property="og:image"
-          content="https://www.coupon.finance/card.png"
-        />
-        {/* <!-- Twitter Meta Tags --> */}
-        <meta property="twitter:card" content="summary_large_image" />
-        <meta property="twitter:site" content="@CouponFinance" />
-        <meta property="twitter:title" content="Coupon Finance" />
-        <meta
-          property="twitter:description"
-          content="Lending, Fixed. Flexible fixed-rate lending enabled by fully on-chain order books."
-        />
-        <meta
-          property="twitter:image"
-          content="https://www.coupon.finance/card.png"
-        />
       </Head>
       <ThemeProvider>
         <WalletProvider>
           <ChainProvider>
             <Web3AnalyticWrapper>
               <TransactionProvider>
-                <CurrencyProvider>
-                  <DepositProvider>
-                    <BorrowProvider>
-                      <div
-                        className={`${inter.className} flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white`}
-                      >
-                        <HeaderWrapper />
-                        <div className="mb-auto pt-12 md:pt-16">
-                          <Component {...pageProps} />
-                          <CouponWidgetWrapper />
-                        </div>
-                        <Footer />
-                      </div>
-                    </BorrowProvider>
-                  </DepositProvider>
-                </CurrencyProvider>
+                <SubgraphProvider>
+                  <CurrencyProvider>
+                    <DepositProvider>
+                      <BorrowProvider>
+                        <AdvancedContractProvider>
+                          <SwapProvider>
+                            <ModeProvider>
+                              <div
+                                className={`${inter.className} flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white`}
+                              >
+                                <HeaderWrapper />
+                                <div className="mb-auto pt-12 md:pt-16">
+                                  <Component {...pageProps} />
+                                  <CouponWidgetWrapper />
+                                </div>
+                                <Footer />
+                              </div>
+                            </ModeProvider>
+                          </SwapProvider>
+                        </AdvancedContractProvider>
+                      </BorrowProvider>
+                    </DepositProvider>
+                  </CurrencyProvider>
+                </SubgraphProvider>
               </TransactionProvider>
             </Web3AnalyticWrapper>
           </ChainProvider>

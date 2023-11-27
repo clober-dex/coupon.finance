@@ -46,5 +46,6 @@ query getLoanPositions($userAddress: String!) {
       endTimestamp
     }
     createdAt
+    updatedAt
   }
 }

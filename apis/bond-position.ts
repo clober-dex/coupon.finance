@@ -3,6 +3,7 @@ import {
   BondPosition as GraphqlBondPosition,
   Epoch,
   getBuiltGraphSDK,
+  getIntegratedPositionsQuery,
   Token,
 } from '../.graphclient'
 import { SUBGRAPH_URL } from '../constants/subgraph-url'
@@ -27,6 +28,16 @@ export async function fetchBondPositions(
   return bondPositions.map((bondPosition) => toBondPosition(bondPosition))
 }
 
+export function extractBondPositions(
+  integratedPositions: getIntegratedPositionsQuery | undefined,
+): BondPosition[] {
+  if (!integratedPositions) {
+    return []
+  }
+  const { bondPositions } = integratedPositions
+  return bondPositions.map((bondPosition) => toBondPosition(bondPosition))
+}
+
 export async function fetchBondPosition(
   chainId: CHAIN_IDS,
   positionId: bigint,
@@ -45,7 +56,7 @@ export async function fetchBondPosition(
 function toBondPosition(
   bondPosition: Pick<
     GraphqlBondPosition,
-    'id' | 'user' | 'amount' | 'principal' | 'createdAt'
+    'id' | 'user' | 'amount' | 'principal' | 'createdAt' | 'updatedAt'
   > & {
     substitute: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
     underlying: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
@@ -70,5 +81,7 @@ function toBondPosition(
       endTimestamp: Number(bondPosition.toEpoch.endTimestamp),
     },
     createdAt: Number(bondPosition.createdAt),
+    updatedAt: Number(bondPosition.updatedAt),
+    isPending: false,
   }
 }

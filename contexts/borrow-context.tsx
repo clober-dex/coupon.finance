@@ -1,19 +1,12 @@
-import React, { useCallback } from 'react'
-import { Hash } from 'viem'
-import {
-  useAccount,
-  usePublicClient,
-  useQuery,
-  useQueryClient,
-  useWalletClient,
-} from 'wagmi'
+import React, { useCallback, useMemo } from 'react'
+import { Hash, zeroAddress } from 'viem'
+import { usePublicClient, useQueryClient, useWalletClient } from 'wagmi'
 
 import { Asset } from '../model/asset'
 import { permit20 } from '../utils/permit20'
 import { CONTRACT_ADDRESSES } from '../constants/addresses'
 import { formatUnits } from '../utils/numbers'
-import { BorrowController__factory, RepayAdapter__factory } from '../typechain'
-import { fetchLoanPositions } from '../apis/loan-position'
+import { extractLoanPositions } from '../apis/loan-position'
 import { Collateral } from '../model/collateral'
 import { LoanPosition } from '../model/loan-position'
 import { Currency } from '../model/currency'
@@ -21,12 +14,16 @@ import { permit721 } from '../utils/permit721'
 import { writeContract } from '../utils/wallet'
 import { CHAIN_IDS } from '../constants/chain'
 import { getDeadlineTimestampInSeconds } from '../utils/date'
+import { toWrapETH } from '../utils/currency'
+import { BORROW_CONTROLLER_ABI } from '../abis/periphery/borrow-controller-abi'
+import { REPAY_ADAPTER_ABI } from '../abis/periphery/repay-adapter-abi'
 
 import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
 import { useChainContext } from './chain-context'
+import { useSubgraphContext } from './subgraph-context'
 
-type BorrowContext = {
+export type BorrowContext = {
   positions: LoanPosition[]
   borrow: (
     collateral: Collateral,
@@ -35,6 +32,7 @@ type BorrowContext = {
     loanAmount: bigint,
     epochs: number,
     expectedInterest: bigint,
+    pendingPosition?: LoanPosition,
   ) => Promise<Hash | undefined>
   extendLoanDuration: (
     underlying: Currency,
@@ -85,24 +83,32 @@ const Context = React.createContext<BorrowContext>({
 export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient()
 
-  const { address: userAddress } = useAccount()
+  const { integratedPositions } = useSubgraphContext()
   const { selectedChain } = useChainContext()
 
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
   const { calculateETHValue, prices } = useCurrencyContext()
+  const [pendingPositions, setPendingPositions] = React.useState<
+    LoanPosition[]
+  >([])
 
-  const { data: positions } = useQuery(
-    ['loan-positions', userAddress, selectedChain],
-    () =>
-      userAddress ? fetchLoanPositions(selectedChain.id, userAddress) : [],
-    {
-      refetchIntervalInBackground: true,
-      refetchInterval: 5 * 1000,
-      initialData: [],
-    },
-  )
+  const positions = useMemo(() => {
+    if (!integratedPositions) {
+      return []
+    }
+    const confirmationPositions = extractLoanPositions(integratedPositions)
+    const latestConfirmationTimestamp =
+      confirmationPositions.sort((a, b) => b.updatedAt - a.updatedAt).at(0)
+        ?.updatedAt ?? 0
+    return [
+      ...confirmationPositions,
+      ...pendingPositions.filter(
+        (position) => position.updatedAt > latestConfirmationTimestamp,
+      ),
+    ]
+  }, [integratedPositions, pendingPositions])
 
   const borrow = useCallback(
     async (
@@ -112,6 +118,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       loanAmount: bigint,
       epochs: number,
       expectedInterest: bigint,
+      pendingPosition?: LoanPosition,
     ): Promise<Hash | undefined> => {
       if (!walletClient) {
         // TODO: alert wallet connect
@@ -120,14 +127,18 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
       let hash: Hash | undefined
       try {
+        const ethValue = calculateETHValue(
+          collateral.underlying,
+          collateralAmount,
+        )
+        const permitAmount = collateralAmount - ethValue
         const { deadline, r, s, v } = await permit20(
           selectedChain.id,
           walletClient,
           collateral.underlying,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          collateralAmount -
-            calculateETHValue(collateral.underlying, collateralAmount),
+          permitAmount,
           getDeadlineTimestampInSeconds(),
         )
         setConfirmation({
@@ -136,11 +147,24 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           fields: [
             {
               direction: 'in',
-              currency: collateral.underlying,
-              label: collateral.underlying.symbol,
+              currency: toWrapETH(collateral.underlying),
+              label: toWrapETH(collateral.underlying).symbol,
               value: formatUnits(
-                collateralAmount,
+                permitAmount,
                 collateral.underlying.decimals,
+                prices[collateral.underlying.address],
+              ),
+            },
+            {
+              direction: 'in',
+              currency: {
+                address: zeroAddress,
+                ...selectedChain.nativeCurrency,
+              },
+              label: selectedChain.nativeCurrency.symbol,
+              value: formatUnits(
+                ethValue,
+                selectedChain.nativeCurrency.decimals,
                 prices[collateral.underlying.address],
               ),
             },
@@ -159,7 +183,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         hash = await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          abi: BorrowController__factory.abi,
+          abi: BORROW_CONTROLLER_ABI,
           functionName: 'borrow',
           args: [
             collateral.substitute.address,
@@ -169,17 +193,23 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             expectedInterest,
             epochs,
             {
-              permitAmount:
-                collateralAmount -
-                calculateETHValue(collateral.underlying, collateralAmount),
+              permitAmount,
               signature: { deadline, v, r, s },
             },
           ],
-          value: calculateETHValue(collateral.underlying, collateralAmount),
+          value: ethValue,
           account: walletClient.account,
         })
+        setPendingPositions(
+          (prevState) =>
+            [
+              ...(pendingPosition ? [pendingPosition] : []),
+              ...prevState,
+            ] as LoanPosition[],
+        )
         await queryClient.invalidateQueries(['loan-positions'])
       } catch (e) {
+        setPendingPositions([])
         console.error(e)
       } finally {
         await queryClient.invalidateQueries(['balances'])
@@ -189,8 +219,9 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
     },
     [
       walletClient,
-      selectedChain.id,
       calculateETHValue,
+      selectedChain.id,
+      selectedChain.nativeCurrency,
       setConfirmation,
       prices,
       publicClient,
@@ -219,13 +250,15 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
           getDeadlineTimestampInSeconds(),
         )
+        const ethValue = calculateETHValue(position.underlying, amount)
+        const permitAmount = amount - ethValue
         const debtPermitResult = await permit20(
           selectedChain.id,
           walletClient,
           position.underlying,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          amount - calculateETHValue(position.underlying, amount),
+          permitAmount,
           getDeadlineTimestampInSeconds(),
         )
 
@@ -235,11 +268,24 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           fields: [
             {
               direction: 'in',
-              currency: position.underlying,
-              label: position.underlying.symbol,
+              currency: toWrapETH(position.underlying),
+              label: toWrapETH(position.underlying).symbol,
               value: formatUnits(
-                amount,
+                permitAmount,
                 position.underlying.decimals,
+                prices[position.underlying.address],
+              ),
+            },
+            {
+              direction: 'in',
+              currency: {
+                address: zeroAddress,
+                ...selectedChain.nativeCurrency,
+              },
+              label: selectedChain.nativeCurrency.symbol,
+              value: formatUnits(
+                ethValue,
+                selectedChain.nativeCurrency.decimals,
                 prices[position.underlying.address],
               ),
             },
@@ -248,7 +294,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          abi: BorrowController__factory.abi,
+          abi: BORROW_CONTROLLER_ABI,
           functionName: 'repay',
           args: [
             position.id,
@@ -256,8 +302,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             expectedProceeds,
             { ...positionPermitResult },
             {
-              permitAmount:
-                amount - calculateETHValue(position.underlying, amount),
+              permitAmount,
               signature: {
                 deadline: debtPermitResult.deadline,
                 v: debtPermitResult.v,
@@ -266,7 +311,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               },
             },
           ],
-          value: calculateETHValue(position.underlying, amount),
+          value: ethValue,
           account: walletClient.account,
         })
         await queryClient.invalidateQueries(['loan-positions'])
@@ -280,6 +325,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
     [
       walletClient,
       selectedChain.id,
+      selectedChain.nativeCurrency,
       calculateETHValue,
       setConfirmation,
       prices,
@@ -357,7 +403,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].OdosRepayAdapter,
-          abi: RepayAdapter__factory.abi,
+          abi: REPAY_ADAPTER_ABI,
           functionName: 'repayWithCollateral',
           args: [
             position.id,
@@ -426,7 +472,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          abi: BorrowController__factory.abi,
+          abi: BORROW_CONTROLLER_ABI,
           functionName: 'borrowMore',
           args: [
             position.id,
@@ -477,13 +523,15 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           getDeadlineTimestampInSeconds(),
         )
 
+        const ethValue = calculateETHValue(underlying, expectedInterest)
+        const permitAmount = expectedInterest - ethValue
         const debtPermitResult = await permit20(
           selectedChain.id,
           walletClient,
           underlying,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          expectedInterest - calculateETHValue(underlying, expectedInterest),
+          permitAmount,
           getDeadlineTimestampInSeconds(),
         )
 
@@ -493,11 +541,24 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           fields: [
             {
               direction: 'in',
-              currency: underlying,
-              label: underlying.symbol,
+              currency: toWrapETH(underlying),
+              label: toWrapETH(underlying).symbol,
               value: formatUnits(
-                expectedInterest,
+                permitAmount,
                 underlying.decimals,
+                prices[underlying.address],
+              ),
+            },
+            {
+              direction: 'in',
+              currency: {
+                address: zeroAddress,
+                ...selectedChain.nativeCurrency,
+              },
+              label: selectedChain.nativeCurrency.symbol,
+              value: formatUnits(
+                ethValue,
+                selectedChain.nativeCurrency.decimals,
                 prices[underlying.address],
               ),
             },
@@ -507,7 +568,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          abi: BorrowController__factory.abi,
+          abi: BORROW_CONTROLLER_ABI,
           functionName: 'extendLoanDuration',
           args: [
             positionId,
@@ -515,9 +576,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             expectedInterest,
             { ...positionPermitResult },
             {
-              permitAmount:
-                expectedInterest -
-                calculateETHValue(underlying, expectedInterest),
+              permitAmount,
               signature: {
                 deadline: debtPermitResult.deadline,
                 r: debtPermitResult.r,
@@ -526,7 +585,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               },
             },
           ],
-          value: calculateETHValue(underlying, expectedInterest),
+          value: ethValue,
           account: walletClient.account,
         })
         await queryClient.invalidateQueries(['loan-positions'])
@@ -540,6 +599,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
     [
       walletClient,
       selectedChain.id,
+      selectedChain.nativeCurrency,
       calculateETHValue,
       setConfirmation,
       prices,
@@ -590,7 +650,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          abi: BorrowController__factory.abi,
+          abi: BORROW_CONTROLLER_ABI,
           functionName: 'shortenLoanDuration',
           args: [positionId, epochs, expectedProceeds, { deadline, v, r, s }],
           account: walletClient.account,
@@ -630,13 +690,19 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
           getDeadlineTimestampInSeconds(),
         )
+
+        const ethValue = calculateETHValue(
+          position.collateral.underlying,
+          amount,
+        )
+        const permitAmount = amount - ethValue
         const debtPermitResult = await permit20(
           selectedChain.id,
           walletClient,
           position.collateral.underlying,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          amount - calculateETHValue(position.collateral.underlying, amount),
+          permitAmount,
           getDeadlineTimestampInSeconds(),
         )
 
@@ -646,11 +712,24 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           fields: [
             {
               direction: 'in',
-              currency: position.collateral.underlying,
-              label: position.collateral.underlying.symbol,
+              currency: toWrapETH(position.collateral.underlying),
+              label: toWrapETH(position.collateral.underlying).symbol,
               value: formatUnits(
-                amount,
+                permitAmount,
                 position.collateral.underlying.decimals,
+                prices[position.collateral.underlying.address],
+              ),
+            },
+            {
+              direction: 'in',
+              currency: {
+                address: zeroAddress,
+                ...selectedChain.nativeCurrency,
+              },
+              label: selectedChain.nativeCurrency.symbol,
+              value: formatUnits(
+                ethValue,
+                selectedChain.nativeCurrency.decimals,
                 prices[position.collateral.underlying.address],
               ),
             },
@@ -659,16 +738,14 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          abi: BorrowController__factory.abi,
+          abi: BORROW_CONTROLLER_ABI,
           functionName: 'addCollateral',
           args: [
             position.id,
             amount,
             { ...positionPermitResult },
             {
-              permitAmount:
-                amount -
-                calculateETHValue(position.collateral.underlying, amount),
+              permitAmount,
               signature: {
                 deadline: debtPermitResult.deadline,
                 r: debtPermitResult.r,
@@ -677,7 +754,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               },
             },
           ],
-          value: calculateETHValue(position.collateral.underlying, amount),
+          value: ethValue,
           account: walletClient.account,
         })
         await queryClient.invalidateQueries(['loan-positions'])
@@ -691,6 +768,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
     [
       walletClient,
       selectedChain.id,
+      selectedChain.nativeCurrency,
       calculateETHValue,
       setConfirmation,
       prices,
@@ -736,7 +814,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-          abi: BorrowController__factory.abi,
+          abi: BORROW_CONTROLLER_ABI,
           functionName: 'removeCollateral',
           args: [position.id, amount, { deadline, v, r, s }],
           account: walletClient.account,

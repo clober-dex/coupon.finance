@@ -1,34 +1,31 @@
-import React, { useCallback } from 'react'
-import { useAccount, useBalance, useQuery } from 'wagmi'
+import React, { useCallback, useMemo } from 'react'
+import { useAccount, useQuery } from 'wagmi'
 import { readContracts } from '@wagmi/core'
-import { getAddress } from 'viem'
+import { getAddress, zeroAddress } from 'viem'
 
-import { IERC1155__factory, IERC20__factory } from '../typechain'
 import { fetchBalances, fetchCurrencies, fetchPrices } from '../apis/currency'
 import { Currency } from '../model/currency'
-import { fetchAssets, fetchAssetStatuses } from '../apis/asset'
-import { fetchEpochs } from '../apis/epoch'
+import { extractAssets, extractAssetStatuses } from '../apis/asset'
+import { extractEpochs } from '../apis/epoch'
 import { Asset, AssetStatus } from '../model/asset'
 import { Epoch } from '../model/epoch'
 import { Balances } from '../model/balances'
 import { Prices } from '../model/prices'
 import { max } from '../utils/bigint'
 import { fetchMarkets } from '../apis/market'
-import { formatDate } from '../utils/date'
-import { fetchPoints } from '../apis/point'
+import { extractPoints } from '../apis/point'
 import { getCurrentPoint } from '../utils/point'
 import { CONTRACT_ADDRESSES } from '../constants/addresses'
 import { CHAIN_IDS } from '../constants/chain'
+import { ERC1155_ABI } from '../abis/@openzeppelin/erc1155-abi'
+import { CouponBalance } from '../model/coupon-balance'
+import { ERC20_PERMIT_ABI } from '../abis/@openzeppelin/erc20-permit-abi'
 
 import { useChainContext } from './chain-context'
+import { useSubgraphContext } from './subgraph-context'
 
 type CurrencyContext = {
-  coupons: {
-    date: string
-    balance: bigint
-    marketAddress: `0x${string}`
-    coupon: Currency
-  }[]
+  coupons: CouponBalance[]
   balances: Balances
   prices: Prices
   assets: Asset[]
@@ -62,40 +59,12 @@ export const isEther = (currency: Currency) => {
   return isEtherAddress(currency.address)
 }
 
+const REFRESH_INTERVAL = 5 * 1000
+
 export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { address: userAddress } = useAccount()
-  const { data: balance } = useBalance({ address: userAddress })
   const { selectedChain } = useChainContext()
-
-  const { data: assets } = useQuery(
-    ['assets', selectedChain],
-    async () => {
-      return fetchAssets(selectedChain.id)
-    },
-    {
-      initialData: [],
-    },
-  )
-
-  const { data: assetStatuses } = useQuery(
-    ['assetStatuses', selectedChain],
-    async () => {
-      return fetchAssetStatuses(selectedChain.id)
-    },
-    {
-      initialData: [],
-    },
-  )
-
-  const { data: epochs } = useQuery(
-    ['epochs', selectedChain],
-    async () => {
-      return fetchEpochs(selectedChain.id)
-    },
-    {
-      initialData: [],
-    },
-  )
+  const { integrated, integratedPoint } = useSubgraphContext()
 
   const { data: currencies } = useQuery(
     ['currencies', selectedChain],
@@ -116,13 +85,13 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
       )
     },
     {
-      refetchInterval: 5 * 1000,
+      refetchInterval: REFRESH_INTERVAL,
       refetchIntervalInBackground: true,
     },
   )
 
   const { data: balances } = useQuery(
-    ['balances', userAddress, balance, currencies],
+    ['balances', userAddress, currencies],
     async () => {
       if (!userAddress) {
         return {}
@@ -134,7 +103,7 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
       )
     },
     {
-      refetchInterval: 5 * 1000,
+      refetchInterval: REFRESH_INTERVAL,
       refetchIntervalInBackground: true,
     },
   ) as { data: Balances }
@@ -142,14 +111,20 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { data: coupons } = useQuery(
     ['coupons', userAddress],
     async () => {
-      if (!userAddress) {
-        return []
-      }
       const markets = await fetchMarkets(selectedChain.id)
+      if (!userAddress) {
+        return markets.map((market) => ({
+          market,
+          balance: 0n,
+          assetValue: 0n,
+          erc20Balance: 0n,
+          erc1155Balance: 0n,
+        }))
+      }
       const erc20Results = await readContracts({
         contracts: markets.map(({ baseToken }) => ({
           address: baseToken.address,
-          abi: IERC20__factory.abi,
+          abi: ERC20_PERMIT_ABI,
           functionName: 'balanceOf',
           args: [userAddress],
         })),
@@ -158,55 +133,55 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
         contracts: markets.map(({ couponId }) => ({
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].CouponManager,
-          abi: IERC1155__factory.abi,
+          abi: ERC1155_ABI,
           functionName: 'balanceOf',
           args: [userAddress, couponId],
         })),
       })
-      return erc20Results.map(({ result }, index) => {
-        const { address, baseToken, endTimestamp } = markets[index]
+      return erc20Results.map(({ result: erc20Balance }, index) => {
+        const market = markets[index]
+        const balance =
+          (erc20Balance ?? 0n) + (erc1155Results[index].result ?? 0n)
         return {
-          date: formatDate(new Date(Number(endTimestamp) * 1000)),
-          marketAddress: getAddress(address),
-          coupon: baseToken,
-          balance: (result ?? 0n) + (erc1155Results[index].result ?? 0n),
+          market,
+          balance,
+          assetValue: market.spend(market.baseToken.address, balance).amountOut,
+          erc20Balance: erc20Balance ?? 0n,
+          erc1155Balance: erc1155Results[index].result ?? 0n,
         }
       })
     },
     {
-      refetchInterval: 5 * 1000,
+      refetchInterval: REFRESH_INTERVAL,
       refetchIntervalInBackground: true,
     },
   ) as { data: CurrencyContext['coupons'] }
 
-  const { data: point } = useQuery(
-    ['point', selectedChain, userAddress],
-    async () => {
-      if (!userAddress) {
-        return 0n
-      }
-      const points = await fetchPoints(selectedChain.id, userAddress)
-      if (points.length === 0) {
-        return 0n
-      }
-      return getCurrentPoint(points)
-    },
-    {
-      refetchInterval: 5 * 1000,
-      refetchIntervalInBackground: true,
-    },
-  )
-
   const calculateETHValue = useCallback(
     (currency: Currency, willPayAmount: bigint) => {
-      if (!balance || !balances || !isEther(currency)) {
+      if (!balances || !isEther(currency)) {
         return 0n
       }
-      const wrappedETHBalance = balances[currency.address] - balance.value
+      const wrappedETHBalance =
+        balances[currency.address] - balances[zeroAddress]
       return max(willPayAmount - wrappedETHBalance, 0n)
     },
-    [balance, balances],
+    [balances],
   )
+
+  const assets = useMemo(() => extractAssets(integrated), [integrated])
+  const assetStatuses = useMemo(
+    () => extractAssetStatuses(integrated),
+    [integrated],
+  )
+  const epochs = useMemo(() => extractEpochs(integrated), [integrated])
+  const point = useMemo(() => {
+    const points = extractPoints(integratedPoint)
+    if (points.length === 0) {
+      return 0n
+    }
+    return getCurrentPoint(points)
+  }, [integratedPoint])
 
   return (
     <Context.Provider
@@ -214,10 +189,10 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
         coupons: coupons ?? [],
         prices: prices ?? {},
         balances: balances ?? {},
-        assets: assets ?? [],
-        assetStatuses: assetStatuses ?? [],
-        epochs: epochs ?? [],
-        point: point ?? 0n,
+        assets: assets,
+        assetStatuses: assetStatuses,
+        epochs: epochs,
+        point: point,
         calculateETHValue: calculateETHValue,
       }}
     >

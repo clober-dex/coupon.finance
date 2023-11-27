@@ -1,0 +1,19 @@
+.react-flow__handle-left {
+    @apply invisible
+}
+
+.react-flow__handle-right {
+    @apply invisible
+}
+
+.react-flow__controls {
+    display: none;
+}
+
+.react-flow__attribution {
+    display: none;
+}
+
+.react-flow__edge {
+    pointer-events: none !important;
+}

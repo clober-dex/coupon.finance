@@ -1,4 +1,4 @@
-import { formatUnits as _formatUnits } from 'viem'
+import { formatUnits as _formatUnits, parseUnits as _parseUnits } from 'viem'
 import BigNumber from 'bignumber.js'
 
 export type BigDecimal = {
@@ -52,6 +52,14 @@ export const toDollarString = (dollarValue: BigNumber): string => {
   return `$${toCommaSeparated(abbreviatedDollarValue.toFixed(2))}${suffix}`
 }
 
+export const sanitizeNumber = (value: string): string => {
+  return value.replace(/[^0-9.-]/g, '')
+}
+
+export const parseUnits = (value: string, decimals: number): bigint => {
+  return _parseUnits(sanitizeNumber(value), decimals)
+}
+
 export const formatUnits = (
   value: bigint,
   decimals: number,
@@ -95,5 +103,11 @@ export const toPlacesString = (number: BigNumber.Value, places: number = 4) => {
 }
 
 export const toCommaSeparated = (number: string) => {
-  return number.replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ',')
+  const parts = number.split('.')
+  const integer = parts[0]
+  const decimal = parts[1]
+  const formattedInteger =
+    (integer.startsWith('-') ? '-' : '') +
+    integer.replace('-', '').replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  return decimal ? `${formattedInteger}.${decimal}` : formattedInteger
 }

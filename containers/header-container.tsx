@@ -1,7 +1,6 @@
-import React, { useMemo } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { useAccount } from 'wagmi'
-import { useRouter } from 'next/router'
 
 import LogoSvg from '../components/svg/logo-svg'
 import LogotypeSvg from '../components/svg/logotype-svg'
@@ -11,7 +10,11 @@ import { WalletSelector } from '../components/selector/wallet-selector'
 import { CommunityDropdownModal } from '../components/modal/community-dropdown-modal'
 import { UserPointButton } from '../components/button/user-point-button'
 import { ZIndices } from '../utils/z-indices'
+import { useModeContext } from '../contexts/mode-context'
 import { useCurrencyContext } from '../contexts/currency-context'
+import { SwapButton } from '../components/button/swap-button'
+
+import OdosSwapModalContainer from './modal/odos-swap-modal-container'
 
 const HeaderContainer = ({
   onMenuClick,
@@ -22,19 +25,8 @@ const HeaderContainer = ({
 }) => {
   const { address, status } = useAccount()
   const { point } = useCurrencyContext()
-  const router = useRouter()
-  const selected = useMemo(() => {
-    if (router.route.includes('banker')) {
-      return 'banker'
-    }
-    if (router.query.mode === 'deposit' || router.route.includes('deposit')) {
-      return 'deposit'
-    }
-    if (router.query.mode === 'borrow' || router.route.includes('borrow')) {
-      return 'borrow'
-    }
-    return 'deposit'
-  }, [router.query.mode, router.route])
+  const { selectedMode, onSelectedModeChange } = useModeContext()
+  const [showSwapModal, setShowSwapModal] = useState(false)
   return (
     <div
       className={`fixed w-full flex flex-col justify-between items-center px-4 md:px-8 bg-white dark:bg-gray-900 md:dark:bg-transparent md:bg-opacity-5 md:backdrop-blur ${ZIndices.modal} h-12 md:h-16`}
@@ -47,21 +39,15 @@ const HeaderContainer = ({
           </Link>
           <div className="h-full hidden md:flex items-center gap-6 lg:gap-8 font-bold text-gray-400 hover:text-gray-500">
             <button
-              onClick={() => {
-                router.replace('/', undefined, { shallow: true })
-              }}
-              disabled={selected === 'deposit'}
+              onClick={() => onSelectedModeChange('deposit')}
+              disabled={selectedMode === 'deposit'}
               className="h-full hover:text-gray-950 dark:hover:text-gray-100 disabled:text-gray-950 disabled:dark:text-white text-gray-400"
             >
               Earn
             </button>
             <button
-              onClick={() => {
-                router.replace('/?mode=borrow', undefined, {
-                  shallow: true,
-                })
-              }}
-              disabled={selected === 'borrow'}
+              onClick={() => onSelectedModeChange('borrow')}
+              disabled={selectedMode === 'borrow'}
               className="h-full hover:text-gray-950 dark:hover:text-gray-100 disabled:text-gray-950 disabled:dark:text-white text-gray-400"
             >
               Strategies
@@ -74,11 +60,17 @@ const HeaderContainer = ({
             </button>
           </div>
         </div>
-        <div className="flex gap-2 lg:gap-4 items-center">
+        <div className="flex gap-2 items-center">
           <div className="hidden lg:flex">
             <ThemeToggleButton setTheme={setTheme} />
           </div>
           {address ? <UserPointButton score={Number(point)} /> : <></>}
+          <SwapButton setShowSwapModal={setShowSwapModal} />
+          {showSwapModal ? (
+            <OdosSwapModalContainer onClose={() => setShowSwapModal(false)} />
+          ) : (
+            <></>
+          )}
           <WalletSelector address={address} status={status} />
           <button
             className="w-8 h-8 hover:bg-gray-100 md:hover:bg-gray-200 dark:hover:bg-gray-700 rounded sm:rounded-lg flex items-center justify-center lg:hidden "

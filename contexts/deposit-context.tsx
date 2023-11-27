@@ -1,18 +1,11 @@
-import React, { useCallback } from 'react'
-import {
-  useAccount,
-  usePublicClient,
-  useQuery,
-  useQueryClient,
-  useWalletClient,
-} from 'wagmi'
-import { Hash } from 'viem'
+import React, { useCallback, useMemo } from 'react'
+import { usePublicClient, useQueryClient, useWalletClient } from 'wagmi'
+import { Hash, zeroAddress } from 'viem'
 
 import { CONTRACT_ADDRESSES } from '../constants/addresses'
-import { DepositController__factory } from '../typechain'
 import { Asset } from '../model/asset'
 import { permit20 } from '../utils/permit20'
-import { fetchBondPositions } from '../apis/bond-position'
+import { extractBondPositions } from '../apis/bond-position'
 import { BondPosition } from '../model/bond-position'
 import { formatUnits } from '../utils/numbers'
 import { permit721 } from '../utils/permit721'
@@ -20,18 +13,22 @@ import { Currency } from '../model/currency'
 import { writeContract } from '../utils/wallet'
 import { CHAIN_IDS } from '../constants/chain'
 import { getDeadlineTimestampInSeconds } from '../utils/date'
+import { toWrapETH } from '../utils/currency'
+import { DEPOSIT_CONTROLLER_ABI } from '../abis/periphery/deposit-controller-abi'
 
 import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
 import { useChainContext } from './chain-context'
+import { useSubgraphContext } from './subgraph-context'
 
-type DepositContext = {
+export type DepositContext = {
   positions: BondPosition[]
   deposit: (
     asset: Asset,
     amount: bigint,
     epochs: number,
     expectedProceeds: bigint,
+    pendingPosition?: BondPosition,
   ) => Promise<Hash | undefined>
   withdraw: (
     asset: Currency,
@@ -52,24 +49,33 @@ const Context = React.createContext<DepositContext>({
 export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const queryClient = useQueryClient()
 
-  const { address: userAddress } = useAccount()
   const { selectedChain } = useChainContext()
+
+  const { integratedPositions } = useSubgraphContext()
 
   const { data: walletClient } = useWalletClient()
   const publicClient = usePublicClient()
   const { setConfirmation } = useTransactionContext()
   const { calculateETHValue, prices } = useCurrencyContext()
+  const [pendingPositions, setPendingPositions] = React.useState<
+    BondPosition[]
+  >([])
 
-  const { data: positions } = useQuery(
-    ['bond-positions', userAddress, selectedChain],
-    () =>
-      userAddress ? fetchBondPositions(selectedChain.id, userAddress) : [],
-    {
-      refetchIntervalInBackground: true,
-      refetchInterval: 5 * 1000,
-      initialData: [],
-    },
-  )
+  const positions = useMemo(() => {
+    if (!integratedPositions) {
+      return []
+    }
+    const confirmationPositions = extractBondPositions(integratedPositions)
+    const latestConfirmationTimestamp =
+      confirmationPositions.sort((a, b) => b.updatedAt - a.updatedAt).at(0)
+        ?.updatedAt ?? 0
+    return [
+      ...confirmationPositions,
+      ...pendingPositions.filter(
+        (position) => position.updatedAt > latestConfirmationTimestamp,
+      ),
+    ]
+  }, [integratedPositions, pendingPositions])
 
   const deposit = useCallback(
     async (
@@ -77,6 +83,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
       amount: bigint,
       epochs: number,
       expectedProceeds: bigint,
+      pendingPosition?: BondPosition,
     ): Promise<Hash | undefined> => {
       if (!walletClient) {
         // TODO: alert wallet connect
@@ -85,13 +92,15 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
       let hash: Hash | undefined
       try {
+        const ethValue = calculateETHValue(asset.underlying, amount)
+        const permitAmount = amount - ethValue
         const { deadline, r, s, v } = await permit20(
           selectedChain.id,
           walletClient,
           asset.underlying,
           walletClient.account.address,
           CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
-          amount - calculateETHValue(asset.underlying, amount),
+          permitAmount,
           getDeadlineTimestampInSeconds(),
         )
         setConfirmation({
@@ -100,11 +109,24 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
           fields: [
             {
               direction: 'in',
-              currency: asset.underlying,
-              label: asset.underlying.symbol,
+              currency: toWrapETH(asset.underlying),
+              label: toWrapETH(asset.underlying).symbol,
               value: formatUnits(
-                amount,
+                permitAmount,
                 asset.underlying.decimals,
+                prices[asset.underlying.address],
+              ),
+            },
+            {
+              direction: 'in',
+              currency: {
+                address: zeroAddress,
+                ...selectedChain.nativeCurrency,
+              },
+              label: selectedChain.nativeCurrency.symbol,
+              value: formatUnits(
+                ethValue,
+                selectedChain.nativeCurrency.decimals,
                 prices[asset.underlying.address],
               ),
             },
@@ -113,7 +135,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         hash = await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
-          abi: DepositController__factory.abi,
+          abi: DEPOSIT_CONTROLLER_ABI,
           functionName: 'deposit',
           args: [
             asset.substitutes[0].address,
@@ -121,8 +143,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
             epochs,
             expectedProceeds,
             {
-              permitAmount:
-                amount - calculateETHValue(asset.underlying, amount),
+              permitAmount,
               signature: {
                 deadline,
                 v,
@@ -131,11 +152,19 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
               },
             },
           ],
-          value: calculateETHValue(asset.underlying, amount),
+          value: ethValue,
           account: walletClient.account,
         })
+        setPendingPositions(
+          (prevState) =>
+            [
+              ...(pendingPosition ? [pendingPosition] : []),
+              ...prevState,
+            ] as BondPosition[],
+        )
         await queryClient.invalidateQueries(['bond-positions'])
       } catch (e) {
+        setPendingPositions([])
         console.error(e)
       } finally {
         await queryClient.invalidateQueries(['balances'])
@@ -145,8 +174,9 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
     },
     [
       walletClient,
-      selectedChain.id,
       calculateETHValue,
+      selectedChain.id,
+      selectedChain.nativeCurrency,
       setConfirmation,
       prices,
       publicClient,
@@ -191,7 +221,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
-          abi: DepositController__factory.abi,
+          abi: DEPOSIT_CONTROLLER_ABI,
           functionName: 'withdraw',
           args: [
             tokenId,
@@ -242,7 +272,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
-          abi: DepositController__factory.abi,
+          abi: DEPOSIT_CONTROLLER_ABI,
           functionName: 'collect',
           args: [tokenId, { deadline, v, r, s }],
           account: walletClient.account,

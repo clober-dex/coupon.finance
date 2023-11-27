@@ -1,11 +1,11 @@
 import React, { useCallback, useMemo, useState } from 'react'
-import { useAccount, useFeeData, useQuery } from 'wagmi'
-import { isAddressEqual, parseUnits, zeroAddress } from 'viem'
+import { useFeeData, useQuery } from 'wagmi'
+import { zeroAddress } from 'viem'
 import BigNumber from 'bignumber.js'
 
 import { LoanPosition } from '../../model/loan-position'
 import { useCurrencyContext } from '../../contexts/currency-context'
-import { fetchMarkets } from '../../apis/market'
+import { fetchMarketsByQuoteTokenAddress } from '../../apis/market'
 import { calculateCouponsToRepay } from '../../model/market'
 import { max, min } from '../../utils/bigint'
 import { useBorrowContext } from '../../contexts/borrow-context'
@@ -16,6 +16,8 @@ import { MIN_DEBT_SIZE_IN_ETH } from '../../constants/debt'
 import { CHAIN_IDS } from '../../constants/chain'
 import { ethValue } from '../../utils/currency'
 import { useChainContext } from '../../contexts/chain-context'
+import { parseUnits } from '../../utils/numbers'
+import { CONTRACT_ADDRESSES } from '../../constants/addresses'
 
 const RepayModalContainer = ({
   position,
@@ -25,7 +27,6 @@ const RepayModalContainer = ({
   onClose: () => void
 }) => {
   const { data: feeData } = useFeeData()
-  const { address: userAddress } = useAccount()
   const { selectedChain } = useChainContext()
   const { repay, repayWithCollateral } = useBorrowContext()
   const { prices, balances } = useCurrencyContext()
@@ -62,14 +63,15 @@ const RepayModalContainer = ({
           pathId: undefined,
         }
       }
-      if (feeData?.gasPrice && userAddress && selectedChain) {
+      if (feeData?.gasPrice && selectedChain && amount > 0n) {
         const { amountOut: repayAmount, pathId } = await fetchAmountOutByOdos({
           chainId: selectedChain.id,
           amountIn: amount.toString(),
           tokenIn: position.collateral.underlying.address,
           tokenOut: position.underlying.address,
           slippageLimitPercent: Number(slippage),
-          userAddress,
+          userAddress:
+            CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].OdosRepayAdapter,
           gasPrice: Number(feeData.gasPrice),
         })
         return {
@@ -84,7 +86,7 @@ const RepayModalContainer = ({
     },
     {
       refetchInterval: 5 * 1000,
-      keepPreviousData: true,
+      refetchIntervalInBackground: true,
       initialData: {
         repayAmount: 0n,
         pathId: undefined,
@@ -101,14 +103,12 @@ const RepayModalContainer = ({
           refund: 0n,
         }
       }
-      const markets = (await fetchMarkets(selectedChain.id))
-        .filter((market) =>
-          isAddressEqual(
-            market.quoteToken.address,
-            position.substitute.address,
-          ),
+      const markets = (
+        await fetchMarketsByQuoteTokenAddress(
+          selectedChain.id,
+          position.substitute.address,
         )
-        .filter((market) => market.epoch <= position.toEpoch.id)
+      ).filter((market) => market.epoch <= position.toEpoch.id)
       return calculateCouponsToRepay(
         position.substitute,
         markets,
@@ -197,13 +197,12 @@ const RepayModalContainer = ({
           (isUseCollateral && amount > position.collateralAmount) ||
           isExpectedDebtSizeLessThanMinDebtSize,
         onClick: async () => {
-          if (!userAddress) {
-            return
-          }
           if (isUseCollateral && pathId) {
-            const swapData = await fetchCallDataByOdos({
+            const { data: swapData } = await fetchCallDataByOdos({
               pathId,
-              userAddress,
+              userAddress:
+                CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
+                  .OdosRepayAdapter,
             })
             await repayWithCollateral(
               position,

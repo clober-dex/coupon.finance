@@ -1,8 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { parseUnits } from 'viem'
-import { useQuery } from 'wagmi'
+import { usePublicClient, useQuery } from 'wagmi'
 import Link from 'next/link'
 
 import { useDepositContext } from '../../contexts/deposit-context'
@@ -13,9 +12,12 @@ import BackSvg from '../../components/svg/back-svg'
 import { useChainContext } from '../../contexts/chain-context'
 import { RiskSidebar } from '../../components/bar/risk-sidebar'
 import { CurrencyIcon } from '../../components/icon/currency-icon'
+import { buildPendingPosition } from '../../model/bond-position'
+import { parseUnits } from '../../utils/numbers'
 
 const Deposit = () => {
   const { selectedChain } = useChainContext()
+  const publicClient = usePublicClient()
   const { balances, prices, assets } = useCurrencyContext()
   const { deposit } = useDepositContext()
 
@@ -50,7 +52,7 @@ const Deposit = () => {
     },
   )
 
-  const [apy, proceed, remainingCoupons] = useMemo(() => {
+  const [apy, proceed, remainingCoupons, endTimestamp] = useMemo(() => {
     return epochs &&
       depositInfosByEpochsDeposited &&
       depositInfosByEpochsDeposited.length > 0
@@ -58,8 +60,9 @@ const Deposit = () => {
           depositInfosByEpochsDeposited[epochs - 1].apy ?? 0,
           depositInfosByEpochsDeposited[epochs - 1].proceeds ?? 0n,
           depositInfosByEpochsDeposited[epochs - 1].remainingCoupons ?? [],
+          depositInfosByEpochsDeposited[epochs - 1].endTimestamp,
         ]
-      : [0, 0n, []]
+      : [0, 0n, [], 0]
   }, [epochs, depositInfosByEpochsDeposited])
 
   return (
@@ -101,7 +104,23 @@ const Deposit = () => {
                   disabled:
                     amount === 0n || epochs === 0 || amount > maxDepositAmount,
                   onClick: async () => {
-                    const hash = await deposit(asset, amount, epochs, proceed)
+                    const { timestamp } = await publicClient.getBlock()
+                    const hash = await deposit(
+                      asset,
+                      amount,
+                      epochs,
+                      proceed,
+                      asset
+                        ? buildPendingPosition(
+                            asset.substitutes[0],
+                            asset.underlying,
+                            proceed,
+                            amount,
+                            endTimestamp,
+                            Number(timestamp),
+                          )
+                        : undefined,
+                    )
                     if (hash) {
                       await router.replace('/?mode=deposit')
                     }

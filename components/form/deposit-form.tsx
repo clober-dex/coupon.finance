@@ -88,7 +88,8 @@ export const DepositForm = ({
               </div>
             </div>
             <div className="flex justify-between flex-col relative bg-white dark:bg-gray-900 rounded-lg p-4 pb-8 sm:pb-0 sm:h-[90px]">
-              {proceedsByEpochsDeposited === undefined ? (
+              {proceedsByEpochsDeposited === undefined ||
+              proceedsByEpochsDeposited.length === 0 ? (
                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                   <div
                     className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-green-500 border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]"

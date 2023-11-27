@@ -1,6 +1,15 @@
 import { getAddress } from 'viem'
 
-import { Collateral, getBuiltGraphSDK, Token } from '../.graphclient'
+import {
+  Collateral,
+  Depth,
+  Epoch,
+  getBuiltGraphSDK,
+  getIntegratedQuery,
+  Token,
+  AssetStatus as GraphqlAssetStatus,
+  Market as GraphqlMarket,
+} from '../.graphclient'
 import { Asset, AssetStatus } from '../model/asset'
 import { Market } from '../model/market'
 import { isEther } from '../contexts/currency-context'
@@ -55,6 +64,20 @@ export async function fetchAssets(chainId: CHAIN_IDS): Promise<Asset[]> {
   return result
 }
 
+export function extractAssets(integrated: getIntegratedQuery | null): Asset[] {
+  if (cache) {
+    return cache
+  }
+  if (!integrated) {
+    return []
+  }
+  const { assets } = integrated
+
+  const result = assets.map((asset) => toAsset(asset))
+  cache = result
+  return result
+}
+
 export async function fetchAssetStatuses(
   chainId: CHAIN_IDS,
 ): Promise<AssetStatus[]> {
@@ -65,52 +88,96 @@ export async function fetchAssetStatuses(
     },
   )
 
-  return assetStatuses.map((assetStatus) => {
-    const epoch = {
-      id: +assetStatus.epoch.id,
-      startTimestamp: +assetStatus.market.epoch.startTimestamp,
-      endTimestamp: +assetStatus.market.epoch.endTimestamp,
+  return assetStatuses.map((assetStatus) => toAssetStatus(assetStatus))
+}
+
+export function extractAssetStatuses(
+  integrated: getIntegratedQuery | null,
+): AssetStatus[] {
+  if (!integrated) {
+    return []
+  }
+  const { assetStatuses } = integrated
+  return assetStatuses.map((assetStatus) => toAssetStatus(assetStatus))
+}
+
+function toAssetStatus(
+  assetStatus: Pick<
+    GraphqlAssetStatus,
+    'id' | 'totalDeposited' | 'totalBorrowed'
+  > & {
+    asset: {
+      underlying: Pick<Token, 'id' | 'symbol' | 'name' | 'decimals'>
+      substitutes: Array<Pick<Token, 'id' | 'symbol' | 'name' | 'decimals'>>
+      collaterals: Array<
+        Pick<
+          Collateral,
+          | 'liquidationThreshold'
+          | 'liquidationTargetLtv'
+          | 'totalCollateralized'
+          | 'totalBorrowed'
+        > & {
+          underlying: Pick<Token, 'id' | 'symbol' | 'name' | 'decimals'>
+          substitute: Pick<Token, 'id' | 'symbol' | 'name' | 'decimals'>
+        }
+      >
     }
-    const market = Market.fromDto({
-      address: getAddress(assetStatus.market.id),
-      orderToken: getAddress(assetStatus.market.orderToken),
-      couponId: assetStatus.market.couponId,
-      takerFee: assetStatus.market.takerFee,
-      quoteUnit: assetStatus.market.quoteUnit,
-      epoch: {
-        id: assetStatus.market.epoch.id,
-        startTimestamp: assetStatus.market.epoch.startTimestamp,
-        endTimestamp: assetStatus.market.epoch.endTimestamp,
-      },
-      quoteToken: {
-        address: getAddress(assetStatus.market.quoteToken.id),
-        name: assetStatus.market.quoteToken.name,
-        symbol: assetStatus.market.quoteToken.symbol,
-        decimals: assetStatus.market.quoteToken.decimals,
-      },
-      baseToken: {
-        address: getAddress(assetStatus.market.baseToken.id),
-        name: assetStatus.market.baseToken.name,
-        symbol: assetStatus.market.baseToken.symbol,
-        decimals: assetStatus.market.baseToken.decimals,
-      },
-      depths: assetStatus.market.depths.map((depth) => ({
-        price: depth.price,
-        rawAmount: depth.rawAmount,
-        isBid: depth.isBid,
-      })),
-    })
-    return {
-      asset: toAsset(assetStatus.asset),
-      epoch,
-      totalDepositAvailable: market.totalBidsInBaseAfterFees(),
-      totalDeposited: BigInt(assetStatus.totalDeposited),
-      totalBorrowAvailable: market.totalAsksInBaseAfterFees(),
-      totalBorrowed: BigInt(assetStatus.totalBorrowed),
-      bestCouponBidPrice: Number(market.bids[0]?.price ?? 0n) / 1e18,
-      bestCouponAskPrice: Number(market.asks[0]?.price ?? 0n) / 1e18,
+    epoch: Pick<Epoch, 'id' | 'startTimestamp' | 'endTimestamp'>
+    market: Pick<
+      GraphqlMarket,
+      'id' | 'couponId' | 'orderToken' | 'takerFee' | 'quoteUnit'
+    > & {
+      epoch: Pick<Epoch, 'id' | 'startTimestamp' | 'endTimestamp'>
+      quoteToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
+      baseToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
+      depths: Array<Pick<Depth, 'price' | 'rawAmount' | 'isBid'>>
     }
+  },
+): AssetStatus {
+  const epoch = {
+    id: +assetStatus.epoch.id,
+    startTimestamp: +assetStatus.market.epoch.startTimestamp,
+    endTimestamp: +assetStatus.market.epoch.endTimestamp,
+  }
+  const market = Market.fromDto({
+    address: getAddress(assetStatus.market.id),
+    orderToken: getAddress(assetStatus.market.orderToken),
+    couponId: assetStatus.market.couponId,
+    takerFee: assetStatus.market.takerFee,
+    quoteUnit: assetStatus.market.quoteUnit,
+    epoch: {
+      id: assetStatus.market.epoch.id,
+      startTimestamp: assetStatus.market.epoch.startTimestamp,
+      endTimestamp: assetStatus.market.epoch.endTimestamp,
+    },
+    quoteToken: {
+      address: getAddress(assetStatus.market.quoteToken.id),
+      name: assetStatus.market.quoteToken.name,
+      symbol: assetStatus.market.quoteToken.symbol,
+      decimals: assetStatus.market.quoteToken.decimals,
+    },
+    baseToken: {
+      address: getAddress(assetStatus.market.baseToken.id),
+      name: assetStatus.market.baseToken.name,
+      symbol: assetStatus.market.baseToken.symbol,
+      decimals: assetStatus.market.baseToken.decimals,
+    },
+    depths: assetStatus.market.depths.map((depth) => ({
+      price: depth.price,
+      rawAmount: depth.rawAmount,
+      isBid: depth.isBid,
+    })),
   })
+  return {
+    asset: toAsset(assetStatus.asset),
+    epoch,
+    totalDepositAvailable: market.totalBidsInBaseAfterFees(),
+    totalDeposited: BigInt(assetStatus.totalDeposited),
+    totalBorrowAvailable: market.totalAsksInBaseAfterFees(),
+    totalBorrowed: BigInt(assetStatus.totalBorrowed),
+    bestCouponBidPrice: Number(market.bids[0]?.price ?? 0n) / 1e18,
+    bestCouponAskPrice: Number(market.asks[0]?.price ?? 0n) / 1e18,
+  }
 }
 
 function toAsset(asset: {

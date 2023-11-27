@@ -2,11 +2,12 @@ import { createPublicClient, http, zeroAddress } from 'viem'
 
 import { Currency } from '../model/currency'
 import { CONTRACT_ADDRESSES } from '../constants/addresses'
-import { CouponOracle__factory, IERC20__factory } from '../typechain'
 import { CHAIN_IDS, CHAINS } from '../constants/chain'
 import { Prices } from '../model/prices'
 import { isEtherAddress } from '../contexts/currency-context'
 import { Balances } from '../model/balances'
+import { COUPON_ORACLE_ABI } from '../abis/core/coupon-oracle-abi'
+import { ERC20_PERMIT_ABI } from '../abis/@openzeppelin/erc20-permit-abi'
 
 import { fetchAssets } from './asset'
 
@@ -46,13 +47,13 @@ export async function fetchPrices(
       contracts: [
         {
           address: CONTRACT_ADDRESSES[chainId].CouponOracle,
-          abi: CouponOracle__factory.abi,
+          abi: COUPON_ORACLE_ABI,
           functionName: 'getAssetsPrices',
           args: [currencyAddresses],
         },
         {
           address: CONTRACT_ADDRESSES[chainId].CouponOracle,
-          abi: CouponOracle__factory.abi,
+          abi: COUPON_ORACLE_ABI,
           functionName: 'decimals',
         },
       ],
@@ -92,18 +93,23 @@ export async function fetchBalances(
   const results = await publicClient.multicall({
     contracts: currencyAddresses.map((currencyAddress) => ({
       address: currencyAddress,
-      abi: IERC20__factory.abi,
+      abi: ERC20_PERMIT_ABI,
       functionName: 'balanceOf',
       args: [userAddress],
     })),
   })
-  return results.reduce((acc, { result }, index) => {
-    const currencyAddress = currencyAddresses[index]
-    return {
-      ...acc,
-      [currencyAddress]: isEtherAddress(currencyAddress)
-        ? (result ?? 0n) + etherBalance
-        : result,
-    }
-  }, {})
+  return results.reduce(
+    (acc, { result }, index) => {
+      const currencyAddress = currencyAddresses[index]
+      return {
+        ...acc,
+        [currencyAddress]: isEtherAddress(currencyAddress)
+          ? (result ?? 0n) + etherBalance
+          : result,
+      }
+    },
+    {
+      [zeroAddress]: etherBalance,
+    },
+  )
 }

@@ -1,16 +1,16 @@
 import React, { useMemo, useState } from 'react'
 import { useQuery } from 'wagmi'
-import { isAddressEqual, parseUnits } from 'viem'
 
 import { LoanPosition } from '../../model/loan-position'
 import { useCurrencyContext } from '../../contexts/currency-context'
-import { fetchMarkets } from '../../apis/market'
+import { fetchMarketsByQuoteTokenAddress } from '../../apis/market'
 import { calculateCouponsToBorrow } from '../../model/market'
 import { max, min } from '../../utils/bigint'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import BorrowMoreModal from '../../components/modal/borrow-more-modal'
 import { calculateLtv, calculateMaxLoanableAmount } from '../../utils/ltv'
 import { useChainContext } from '../../contexts/chain-context'
+import { parseUnits } from '../../utils/numbers'
 
 const BorrowMoreModalContainer = ({
   position,
@@ -61,14 +61,12 @@ const BorrowMoreModalContainer = ({
       selectedChain,
     ],
     async () => {
-      const markets = (await fetchMarkets(selectedChain.id))
-        .filter((market) =>
-          isAddressEqual(
-            market.quoteToken.address,
-            position.substitute.address,
-          ),
+      const markets = (
+        await fetchMarketsByQuoteTokenAddress(
+          selectedChain.id,
+          position.substitute.address,
         )
-        .filter((market) => market.epoch <= position.toEpoch.id)
+      ).filter((market) => market.epoch <= position.toEpoch.id)
       return calculateCouponsToBorrow(
         position.substitute,
         markets,
@@ -97,12 +95,7 @@ const BorrowMoreModalContainer = ({
       value={value}
       setValue={setValue}
       maxLoanableAmount={max(
-        min(
-          maxLoanableAmountExcludingCouponFee -
-            maxInterest -
-            (position.amount - position.interest),
-          available,
-        ),
+        min(maxLoanableAmountExcludingCouponFee - maxInterest, available),
         0n,
       )}
       currentLtv={

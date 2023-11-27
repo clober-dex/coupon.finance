@@ -1,5 +1,5 @@
-query getMarkets ($fromEpoch: String!) {
-  markets (where: {epoch_gte: $fromEpoch}) {
+query getMarkets {
+  markets {
     id
     couponId
     orderToken

@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react'
+import { Tooltip } from 'react-tooltip'
 
 import { LoanPosition } from '../../model/loan-position'
 import {
@@ -14,6 +15,7 @@ import {
   getExpirationDateTextColor,
 } from '../../utils/date'
 import { CurrencyIcon } from '../icon/currency-icon'
+import { QuestionMarkSvg } from '../svg/question-mark-svg'
 
 export const LoanPositionCard = ({
   position,
@@ -24,6 +26,7 @@ export const LoanPositionCard = ({
   onBorrowMore,
   onEditCollateral,
   onEditExpiry,
+  children,
 }: {
   position: LoanPosition
   price?: BigDecimal
@@ -76,7 +79,20 @@ export const LoanPositionCard = ({
             {!isExpired ? (
               <>
                 <div className="flex text-xs text-gray-500 dark:text-gray-400 justify-end font-normal">
-                  Expires
+                  <div className="flex flex-row gap-1 items-center justify-center">
+                    Expires
+                    <QuestionMarkSvg
+                      data-tooltip-id="expiry-date-tooltip"
+                      data-tooltip-content="The position will be liquidated if not repaid by this date."
+                      className="w-3 h-3"
+                    />
+                    <Tooltip
+                      id="expiry-date-tooltip"
+                      style={{
+                        width: '200px',
+                      }}
+                    />
+                  </div>
                 </div>
                 <div
                   className={`flex gap-1 ${getExpirationDateTextColor(
@@ -87,9 +103,13 @@ export const LoanPositionCard = ({
                   {formatDate(
                     new Date(Number(position.toEpoch.endTimestamp) * 1000),
                   )}
-                  <button>
-                    <EditSvg onClick={onEditExpiry} />
-                  </button>
+                  {!position.isPending ? (
+                    <button>
+                      <EditSvg onClick={onEditExpiry} />
+                    </button>
+                  ) : (
+                    <></>
+                  )}
                 </div>
               </>
             ) : (
@@ -155,7 +175,7 @@ export const LoanPositionCard = ({
                 )}{' '}
                 {position.collateral.underlying.symbol}
               </div>
-              {!isExpired ? (
+              {!isExpired && !position.isPending ? (
                 <button>
                   <EditSvg onClick={onEditCollateral} />
                 </button>
@@ -177,12 +197,14 @@ export const LoanPositionCard = ({
               %
             </div>
           </div>
+          {children}
         </div>
         <div className="flex items-start gap-3 self-stretch">
           {!isExpired ? (
             <button
-              className="flex-1 bg-green-500 bg-opacity-10 hover:bg-opacity-20 text-green-500 font-bold px-3 py-2 rounded text-sm"
+              className="flex-1 bg-green-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-green-500 font-bold px-3 py-2 rounded text-sm"
               onClick={onBorrowMore}
+              disabled={position.isPending}
             >
               Borrow More
             </button>
@@ -190,8 +212,9 @@ export const LoanPositionCard = ({
             <></>
           )}
           <button
-            className="flex-1 bg-green-500 bg-opacity-10 hover:bg-opacity-20 text-green-500 font-bold px-3 py-2 rounded text-sm"
+            className="flex-1 bg-green-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-green-500 font-bold px-3 py-2 rounded text-sm"
             onClick={!isExpired ? onRepay : onCollect}
+            disabled={position.isPending}
           >
             {!isExpired ? 'Repay' : 'Collect Collateral'}
           </button>

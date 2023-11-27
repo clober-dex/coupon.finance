@@ -1,5 +1,6 @@
 import { isAddressEqual } from 'viem'
 import React from 'react'
+import { Tooltip } from 'react-tooltip'
 
 import CurrencyAmountInput from '../input/currency-amount-input'
 import { formatUnits } from '../../utils/numbers'
@@ -20,10 +21,13 @@ import { getLTVTextColor } from '../../utils/ltv'
 import DownSvg from '../svg/down-svg'
 import { CurrencyDropdown } from '../dropdown/currency-dropdown'
 import { CurrencyIcon } from '../icon/currency-icon'
+import { QuestionMarkSvg } from '../svg/question-mark-svg'
 
 export const BorrowForm = ({
+  isCollateralFixed,
   borrowCurrency,
-  availableCollaterals,
+  setBorrowCurrency,
+  availableBorrowCurrencies,
   maxBorrowAmount,
   interest,
   borrowApy,
@@ -31,6 +35,7 @@ export const BorrowForm = ({
   interestsByEpochsBorrowed,
   collateral,
   setCollateral,
+  availableCollaterals,
   collateralValue,
   setCollateralValue,
   borrowValue,
@@ -41,8 +46,10 @@ export const BorrowForm = ({
   prices,
   actionButtonProps,
 }: {
-  borrowCurrency: Currency
-  availableCollaterals: Collateral[]
+  isCollateralFixed: boolean
+  borrowCurrency?: Currency
+  setBorrowCurrency: (currency?: Currency) => void
+  availableBorrowCurrencies: Currency[]
   maxBorrowAmount: bigint
   interest: bigint
   borrowApy: number
@@ -50,6 +57,7 @@ export const BorrowForm = ({
   interestsByEpochsBorrowed?: { date: string; apy: number }[]
   collateral?: Collateral
   setCollateral: (collateral?: Collateral) => void
+  availableCollaterals: Collateral[]
   collateralValue: string
   setCollateralValue: (value: string) => void
   borrowValue: string
@@ -71,7 +79,11 @@ export const BorrowForm = ({
     100
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col bg-white gap-4 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 sm:pb-8 w-full sm:w-[480px]">
+      <div
+        className={`flex ${
+          isCollateralFixed ? 'flex-col-reverse' : 'flex-col'
+        } bg-white gap-4 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 sm:pb-8 w-full sm:w-[480px]`}
+      >
         <div className="flex flex-col gap-4">
           <div className="font-bold text-sm sm:text-lg">
             How much collateral would you like to add?
@@ -88,39 +100,41 @@ export const BorrowForm = ({
             }
             disabled={!collateral}
           >
-            <CurrencyDropdown
-              selectedCurrency={collateral?.underlying}
-              currencies={
-                availableCollaterals.map(
-                  (collateral) => collateral.underlying,
-                ) ?? []
-              }
-              onCurrencySelect={(currency) => {
-                const collateral = availableCollaterals.find((collateral) =>
-                  isAddressEqual(
-                    collateral.underlying.address,
-                    currency.address,
-                  ),
-                )
-                setCollateral(collateral)
-              }}
-            >
-              {collateral ? (
-                <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
-                  <CurrencyIcon
-                    currency={collateral.underlying}
-                    className="w-5 h-5"
-                  />
-                  <div className="text-sm sm:text-base">
-                    {collateral.underlying.symbol}
+            {!collateral || availableCollaterals.length > 1 ? (
+              <CurrencyDropdown
+                selectedCurrency={collateral?.underlying}
+                currencies={
+                  availableCollaterals.map(
+                    (collateral) => collateral.underlying,
+                  ) ?? []
+                }
+                onCurrencySelect={(currency) => {
+                  const collateral = availableCollaterals.find((collateral) =>
+                    isAddressEqual(
+                      collateral.underlying.address,
+                      currency.address,
+                    ),
+                  )
+                  setCollateral(collateral)
+                }}
+              >
+                {collateral ? (
+                  <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
+                    <CurrencyIcon
+                      currency={collateral.underlying}
+                      className="w-5 h-5"
+                    />
+                    <div className="text-sm sm:text-base">
+                      {collateral.underlying.symbol}
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div className="w-fit flex items-center rounded-full bg-green-500 text-white pl-3 pr-2 py-1 gap-2 text-sm sm:text-base">
-                  Select token <DownSvg />
-                </div>
-              )}
-            </CurrencyDropdown>
+                ) : (
+                  <div className="w-fit flex items-center rounded-full bg-green-500 text-white pl-3 pr-2 py-1 gap-2 text-sm sm:text-base">
+                    Select token <DownSvg />
+                  </div>
+                )}
+              </CurrencyDropdown>
+            ) : undefined}
           </CurrencyAmountInput>
         </div>
         <div className="flex flex-col gap-6">
@@ -133,7 +147,8 @@ export const BorrowForm = ({
             </div>
           </div>
           <div className="flex justify-between flex-col relative bg-white dark:bg-gray-900 rounded-lg p-4 pb-8 sm:pb-0 sm:h-[90px]">
-            {interestsByEpochsBorrowed === undefined ? (
+            {interestsByEpochsBorrowed === undefined ||
+            interestsByEpochsBorrowed.length === 0 ? (
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <div
                   className="h-4 w-4 animate-spin rounded-full border-2 border-solid border-green-500 border-r-transparent motion-reduce:animate-[spin_1.5s_linear_infinite]"
@@ -183,10 +198,40 @@ export const BorrowForm = ({
             currency={borrowCurrency}
             value={borrowValue}
             onValueChange={setBorrowValue}
-            price={prices[borrowCurrency.address]}
+            price={borrowCurrency ? prices[borrowCurrency.address] : undefined}
             availableAmount={maxBorrowAmount}
-            disabled={!collateral || epochs === 0}
-          />
+            disabled={!collateral || epochs === 0 || !borrowCurrency}
+          >
+            {!borrowCurrency || availableBorrowCurrencies.length > 1 ? (
+              <CurrencyDropdown
+                selectedCurrency={borrowCurrency}
+                currencies={availableBorrowCurrencies}
+                onCurrencySelect={(currency) => {
+                  setBorrowCurrency(
+                    availableBorrowCurrencies.find((c) =>
+                      isAddressEqual(c.address, currency.address),
+                    ),
+                  )
+                }}
+              >
+                {borrowCurrency ? (
+                  <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
+                    <CurrencyIcon
+                      currency={borrowCurrency}
+                      className="w-5 h-5"
+                    />
+                    <div className="text-sm sm:text-base">
+                      {borrowCurrency.symbol}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-fit flex items-center rounded-full bg-green-500 text-white pl-3 pr-2 py-1 gap-2 text-sm sm:text-base">
+                    Select token <DownSvg />
+                  </div>
+                )}
+              </CurrencyDropdown>
+            ) : undefined}
+          </CurrencyAmountInput>
         </div>
       </div>
       <div className="flex flex-col bg-white gap-6 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 w-full sm:w-[480px]">
@@ -196,12 +241,13 @@ export const BorrowForm = ({
             <div className="flex w-full">
               <div className="text-gray-400 text-base">Interest</div>
               <div className="flex ml-auto">
-                {formatUnits(
-                  interest,
-                  borrowCurrency.decimals,
-                  prices[borrowCurrency.address],
-                )}{' '}
-                {borrowCurrency.symbol}
+                {borrowCurrency
+                  ? `${formatUnits(
+                      interest,
+                      borrowCurrency.decimals,
+                      prices[borrowCurrency.address],
+                    )} ${borrowCurrency.symbol}`
+                  : '0'}
               </div>
             </div>
             <div className="flex w-full">
@@ -232,6 +278,23 @@ export const BorrowForm = ({
                 %
               </div>
             </div>
+            {interestsByEpochsBorrowed ? (
+              <div className="flex w-full">
+                <div className="flex flex-row items-center justify-center gap-1 text-gray-400 text-base">
+                  Expired Date (UTC)
+                  <QuestionMarkSvg
+                    data-tooltip-id="expiry-date-tooltip"
+                    data-tooltip-content="The position will be liquidated if not repaid by this date."
+                  />
+                  <Tooltip id="expiry-date-tooltip" />
+                </div>
+                <div className="ml-auto">
+                  {interestsByEpochsBorrowed[epochs - 1].date}
+                </div>
+              </div>
+            ) : (
+              <></>
+            )}
           </div>
         </div>
         <ActionButton {...actionButtonProps} />

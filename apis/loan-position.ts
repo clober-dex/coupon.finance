@@ -5,6 +5,7 @@ import {
   getBuiltGraphSDK,
   Token,
   LoanPosition as GraphqlLoanPosition,
+  getIntegratedPositionsQuery,
 } from '../.graphclient'
 import { LIQUIDATION_TARGET_LTV_PRECISION } from '../utils/ltv'
 import { SUBGRAPH_URL } from '../constants/subgraph-url'
@@ -29,6 +30,16 @@ export async function fetchLoanPositions(
   return loanPositions.map((loanPosition) => toLoanPosition(loanPosition))
 }
 
+export function extractLoanPositions(
+  integratedPositions: getIntegratedPositionsQuery | undefined,
+): LoanPosition[] {
+  if (!integratedPositions) {
+    return []
+  }
+  const { loanPositions } = integratedPositions
+  return loanPositions.map((loanPosition) => toLoanPosition(loanPosition))
+}
+
 export async function fetchLoanPosition(
   chainId: CHAIN_IDS,
   positionId: bigint,
@@ -47,7 +58,13 @@ export async function fetchLoanPosition(
 function toLoanPosition(
   loanPosition: Pick<
     GraphqlLoanPosition,
-    'id' | 'user' | 'amount' | 'principal' | 'collateralAmount' | 'createdAt'
+    | 'id'
+    | 'user'
+    | 'amount'
+    | 'principal'
+    | 'collateralAmount'
+    | 'createdAt'
+    | 'updatedAt'
   > & {
     substitute: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
     underlying: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
@@ -96,5 +113,7 @@ function toLoanPosition(
       endTimestamp: Number(loanPosition.toEpoch.endTimestamp),
     },
     createdAt: Number(loanPosition.createdAt),
+    updatedAt: Number(loanPosition.updatedAt),
+    isPending: false,
   }
 }

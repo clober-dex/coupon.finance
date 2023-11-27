@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react'
-import { parseUnits } from 'viem'
 
 import { LoanPosition } from '../../model/loan-position'
 import { useCurrencyContext } from '../../contexts/currency-context'
@@ -7,6 +6,7 @@ import { max } from '../../utils/bigint'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import EditCollateralModal from '../../components/modal/edit-collateral-modal'
 import { calculateLtv, calculateMinCollateralAmount } from '../../utils/ltv'
+import { parseUnits } from '../../utils/numbers'
 
 const EditCollateralModalContainer = ({
   position,

@@ -1,8 +1,12 @@
 import React, { useCallback, useMemo } from 'react'
-import { parseUnits } from 'viem'
 
 import { Currency } from '../../model/currency'
-import { BigDecimal, formatDollarValue, formatUnits } from '../../utils/numbers'
+import {
+  BigDecimal,
+  formatDollarValue,
+  formatUnits,
+  parseUnits,
+} from '../../utils/numbers'
 import { CurrencyIcon } from '../icon/currency-icon'
 
 import NumberInput from './number-input'

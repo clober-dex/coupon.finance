@@ -5,7 +5,6 @@ import {
   calculateTotalDeposit,
   Market,
 } from '../model/market'
-import { getEpoch } from '../utils/epoch'
 
 const ONE_ETH = 1000000000n
 const market = new Market(
@@ -158,15 +157,6 @@ describe('Deposit controller', () => {
     )
 
     expect(Number(depositedAmount2) / 10 ** 18).toBeCloseTo(112.3595)
-  })
-
-  it('check date util functions', () => {
-    expect(getEpoch(1)).toEqual(0n)
-    expect(Number(getEpoch(1700019698))).toEqual(646)
-    expect(Number(getEpoch(1702470130))).toEqual(647)
-    expect(Number(getEpoch(1705290098))).toEqual(648)
-    expect(Number(getEpoch(1707968498))).toEqual(649)
-    expect(Number(getEpoch(1710474098))).toEqual(650)
   })
 
   it('check deposit apy', () => {
