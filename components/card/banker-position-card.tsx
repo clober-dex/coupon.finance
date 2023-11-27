@@ -8,14 +8,10 @@ import { CurrencyIcon } from '../icon/currency-icon'
 export const BankerPositionCard = ({
   position,
   price,
-  onWithdraw,
-  onCollect,
   children,
 }: {
   position: BondPosition
   price?: BigDecimal
-  onWithdraw: () => void
-  onCollect: () => void
 } & React.HTMLAttributes<HTMLDivElement>) => {
   const now = currentTimestampInSeconds()
   return (
@@ -78,23 +74,6 @@ export const BankerPositionCard = ({
             </div>
             {children}
           </div>
-          {position.toEpoch.endTimestamp < now ? (
-            <button
-              className="w-full bg-blue-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-blue-500 font-bold px-3 py-2 rounded text-sm"
-              onClick={onCollect}
-              disabled={position.isPending}
-            >
-              Collect Deposit
-            </button>
-          ) : (
-            <button
-              className="w-full bg-green-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-green-500 font-bold px-3 py-2 rounded text-sm"
-              onClick={onWithdraw}
-              disabled={position.isPending}
-            >
-              Withdraw
-            </button>
-          )}
         </div>
       </div>
     </div>

@@ -43,6 +43,7 @@ type AdvancedContractContext = {
     coupon: Currency,
     amount: bigint,
   ) => Promise<void>
+  unWrapCouponToERC1155: () => Promise<void>
   sellCoupons: (couponBalances: CouponBalance[]) => Promise<void>
 }
 
@@ -53,6 +54,7 @@ const Context = React.createContext<AdvancedContractContext>({
   burnSubstitute: () => Promise.resolve(),
   mintCoupon: () => Promise.resolve(),
   burnCoupon: () => Promise.resolve(),
+  unWrapCouponToERC1155: () => Promise.resolve(),
   sellCoupons: () => Promise.resolve(),
 })
 
@@ -457,6 +459,25 @@ export const AdvancedContractProvider = ({
     }
   }, [queryClient, setConfirmation, walletClient])
 
+  const unWrapCouponToERC1155 = useCallback(async () => {
+    if (!walletClient) {
+      // TODO: alert wallet connect
+      return
+    }
+
+    try {
+      console.log('burning coupon')
+    } catch (e) {
+      console.error(e)
+    } finally {
+      await Promise.all([
+        queryClient.invalidateQueries(['balances']),
+        queryClient.invalidateQueries(['coupons']),
+      ])
+      setConfirmation(undefined)
+    }
+  }, [queryClient, setConfirmation, walletClient])
+
   const sellCoupons = useCallback(
     async (couponBalances: CouponBalance[]) => {
       if (!walletClient) {
@@ -597,6 +618,7 @@ export const AdvancedContractProvider = ({
         burnSubstitute,
         mintCoupon,
         burnCoupon,
+        unWrapCouponToERC1155,
         sellCoupons,
       }}
     >

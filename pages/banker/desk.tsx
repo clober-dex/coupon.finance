@@ -460,16 +460,6 @@ const Desk = () => {
                               }),
                           }}
                           price={prices[position.underlying.address]}
-                          onWithdraw={() => {
-                            console.log('withdraw', position.tokenId)
-                          }}
-                          onCollect={async () => {
-                            await collect(
-                              position.underlying,
-                              position.tokenId,
-                              position.amount,
-                            )
-                          }}
                         >
                           {coupons.map((coupon, index) => {
                             const { market, erc1155Balance } = coupon
@@ -498,6 +488,52 @@ const Desk = () => {
                               </div>
                             )
                           })}
+                          {position.toEpoch.endTimestamp < now ? (
+                            <button
+                              className="w-full bg-blue-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-blue-500 font-bold px-3 py-2 rounded text-sm"
+                              onClick={async () => {
+                                await collect(
+                                  position.underlying,
+                                  position.tokenId,
+                                  position.amount,
+                                )
+                              }}
+                              disabled={false}
+                            >
+                              Collect Deposit
+                            </button>
+                          ) : coupons.some(({ balance }) => {
+                              return balance < position.amount
+                            }) ? (
+                            <button
+                              className="w-full bg-green-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-green-500 font-bold px-3 py-2 rounded text-sm"
+                              disabled={true}
+                            >
+                              Insufficient Coupon
+                            </button>
+                          ) : coupons.some(({ erc1155Balance }) => {
+                              return erc1155Balance < position.amount
+                            }) ? (
+                            <button
+                              className="w-full bg-green-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-green-500 font-bold px-3 py-2 rounded text-sm"
+                              onClick={() => {
+                                console.log('Unwrap', position.tokenId)
+                              }}
+                              disabled={false}
+                            >
+                              Unwrap
+                            </button>
+                          ) : (
+                            <button
+                              className="w-full bg-green-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-green-500 font-bold px-3 py-2 rounded text-sm"
+                              onClick={() => {
+                                console.log('withdraw', position.tokenId)
+                              }}
+                              disabled={false}
+                            >
+                              Withdraw
+                            </button>
+                          )}
                         </BankerPositionCard>
                       )
                     })}
