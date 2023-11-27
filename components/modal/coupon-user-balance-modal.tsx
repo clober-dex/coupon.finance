@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
 import { createPortal } from 'react-dom'
+import { isAddressEqual } from 'viem'
 
 import { formatUnits, toPlacesString } from '../../utils/numbers'
 import { CouponSvg } from '../svg/coupon-svg'
 import { ZIndices } from '../../utils/z-indices'
 import { CouponBalance } from '../../model/coupon-balance'
 import { formatDate } from '../../utils/date'
+import { Asset } from '../../model/asset'
 
 const CouponWidget = ({
   setClicked,
@@ -30,9 +32,11 @@ const CouponWidget = ({
 )
 
 export const CouponUserBalanceModal = ({
+  assets,
   couponBalances,
   sellCoupons,
 }: {
+  assets: Asset[]
   couponBalances: CouponBalance[]
   sellCoupons: (marketSellParams: CouponBalance[]) => Promise<void>
 }) => {
@@ -116,7 +120,14 @@ export const CouponUserBalanceModal = ({
                                         market.quoteToken.decimals,
                                       ),
                                     )}{' '}
-                                    {market.quoteToken.symbol}
+                                    {
+                                      assets.find(({ substitutes }) =>
+                                        isAddressEqual(
+                                          substitutes[0].address,
+                                          market.quoteToken.address,
+                                        ),
+                                      )?.underlying.symbol
+                                    }
                                   </span>
                                 </div>
                               </div>

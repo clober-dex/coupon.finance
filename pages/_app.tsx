@@ -120,11 +120,12 @@ const HeaderWrapper = () => {
 
 const CouponWidgetWrapper = () => {
   const { address } = useAccount()
-  const { coupons } = useCurrencyContext()
+  const { coupons, assets } = useCurrencyContext()
   const { sellCoupons } = useAdvancedContractContext()
 
   return address ? (
     <CouponUserBalanceModal
+      assets={assets}
       couponBalances={coupons}
       sellCoupons={sellCoupons}
     />
