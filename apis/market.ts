@@ -175,7 +175,7 @@ export async function fetchInterestOrRefundCouponAmountByEpochs(
         ? market.take(market.quoteToken.address, debtAmount).amountIn
         : 0n
     const refund =
-      market.epoch < expiryEpoch
+      market.epoch <= expiryEpoch
         ? market.spend(market.baseToken.address, debtAmount).amountOut
         : 0n
     return {
