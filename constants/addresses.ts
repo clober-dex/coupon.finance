@@ -7,11 +7,12 @@ export const CONTRACT_ADDRESSES: {
     BondPositionManager: `0x${string}`
     BorrowController: `0x${string}`
     CouponManager: `0x${string}`
+    CouponMarketRouter: `0x${string}`
     CouponOracle: `0x${string}`
     DepositController: `0x${string}`
+    EthSubstituteMinter: `0x${string}`
     LoanPositionManager: `0x${string}`
     OdosRepayAdapter: `0x${string}`
-    CouponMarketRouter: `0x${string}`
   }
 } = {
   [CHAIN_IDS.ARBITRUM]: {
@@ -21,30 +22,27 @@ export const CONTRACT_ADDRESSES: {
       '0x13055e05c713b15911cC2509B3C573478b0cd3E2' as `0x${string}`,
     CouponManager:
       '0x8bbcA766D175aDbffB073832262990df1c5ef748' as `0x${string}`,
+    CouponMarketRouter:
+      '0xeA424D3C88aF908769B3292bd88c60E5652b308E' as `0x${string}`,
     CouponOracle: '0xF8e9ab02b057978c29Ca57c7E086D46983764A13' as `0x${string}`,
     DepositController:
       '0x377d954cd4b29931b09d3943F070B28b968F034f' as `0x${string}`,
+    EthSubstituteMinter:
+      '0xeA424D3C88aF908769B3292bd88c60E5652b308E' as `0x${string}`,
     LoanPositionManager:
       '0x03d65411684ae7B5440E11a6063881a774C733dF' as `0x${string}`,
     OdosRepayAdapter:
       '0xc8905F37a05B60981A9be741B7B1B6fe1AF60A3F' as `0x${string}`,
-    CouponMarketRouter:
-      '0xF7bb8649006E00E849e63f5cbF0887B0E0Dd9d97' as `0x${string}`,
   },
   [CHAIN_IDS.COUPON_FINANCE_CHAIN]: {
-    BondPositionManager:
-      '0x3A2e22044b0d86ddb59B1baF4Cd1c047c4Bf99D9' as `0x${string}`,
-    BorrowController:
-      '0x92bb5C37868C5B34B163FeFAb4e20b1179853eB9' as `0x${string}`,
-    CouponManager:
-      '0x84935D96838Ec5a12D7226D8f69AC5B7ab74522e' as `0x${string}`,
-    CouponOracle: '0x8B0f27aDf87E037B53eF1AADB96bE629Be37CeA8' as `0x${string}`,
-    DepositController:
-      '0x8831c769874fF23ED5DF0daacfD84Cc147335506' as `0x${string}`,
-    LoanPositionManager:
-      '0xA0D476c6A39beA239749C566a02343e5584Ec200' as `0x${string}`,
-    OdosRepayAdapter:
-      '0x929075bdc8cf2e43cA7FB4BF1a189130b6014Cc1' as `0x${string}`,
+    BondPositionManager: zeroAddress,
+    BorrowController: zeroAddress,
+    CouponManager: zeroAddress,
     CouponMarketRouter: zeroAddress,
+    CouponOracle: zeroAddress,
+    DepositController: zeroAddress,
+    EthSubstituteMinter: zeroAddress,
+    LoanPositionManager: zeroAddress,
+    OdosRepayAdapter: zeroAddress,
   },
 }

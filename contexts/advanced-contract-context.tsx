@@ -15,9 +15,11 @@ import { getDeadlineTimestampInSeconds } from '../utils/date'
 import { CONTRACT_ADDRESSES } from '../constants/addresses'
 import { CHAIN_IDS } from '../constants/chain'
 import { COUPON_MARKET_ROUTER_ABI } from '../abis/periphery/coupon-market-router-abi'
+import { ETH_SUBSTITUTE_MINTER_ABI } from '../abis/periphery/eth-substitute-minter-abi'
+import { dummyPermit20Params } from '../utils/permit20'
 
 import { useTransactionContext } from './transaction-context'
-import { useCurrencyContext } from './currency-context'
+import { isEther, useCurrencyContext } from './currency-context'
 import { useChainContext } from './chain-context'
 
 type AdvancedContractContext = {
@@ -204,7 +206,10 @@ export const AdvancedContractProvider = ({
           walletClient,
           underlying,
           walletClient.account.address,
-          substitute.address,
+          isEther(underlying)
+            ? CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
+                .EthSubstituteMinter
+            : substitute.address,
           permitAmount,
         )
         setConfirmation({
@@ -246,13 +251,31 @@ export const AdvancedContractProvider = ({
             },
           ],
         })
-        await writeContract(publicClient, walletClient, {
-          address: substitute.address,
-          abi: SUBSTITUTE_ABI,
-          functionName: 'mint',
-          args: [amount, walletClient.account.address],
-          account: walletClient.account,
-        })
+        if (isEther(underlying)) {
+          await writeContract(publicClient, walletClient, {
+            address:
+              CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
+                .EthSubstituteMinter,
+            abi: ETH_SUBSTITUTE_MINTER_ABI,
+            functionName: 'mint',
+            args: [
+              dummyPermit20Params,
+              substitute.address,
+              amount,
+              walletClient.account.address,
+            ],
+            account: walletClient.account,
+            value: ethValue,
+          })
+        } else {
+          await writeContract(publicClient, walletClient, {
+            address: substitute.address,
+            abi: SUBSTITUTE_ABI,
+            functionName: 'mint',
+            args: [amount, walletClient.account.address],
+            account: walletClient.account,
+          })
+        }
       } catch (e) {
         console.error(e)
       } finally {
