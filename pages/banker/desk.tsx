@@ -33,8 +33,8 @@ import DownSvg from '../../components/svg/down-svg'
 import { MAX_VISIBLE_MARKETS } from '../../utils/market'
 import { fetchMarkets } from '../../apis/market'
 import { useChainContext } from '../../contexts/chain-context'
-import { BondPositionCard } from '../../components/card/bond-position-card'
 import { useDepositContext } from '../../contexts/deposit-context'
+import { BankerPositionCard } from '../../components/card/banker-position-card'
 
 const CouponUtilsForm = ({
   currencies,
@@ -165,8 +165,15 @@ const CouponUtilsForm = ({
 const Desk = () => {
   const { selectedChain } = useChainContext()
   const { positions, collect } = useDepositContext()
-  const { mintSubstitute, burnSubstitute } = useAdvancedContractContext()
-  const { assets, prices, balances, coupons: allCoupons } = useCurrencyContext()
+  const { mintSubstitute, burnSubstitute, mintCoupon } =
+    useAdvancedContractContext()
+  const {
+    assets,
+    prices,
+    balances,
+    epochs: allEpochs,
+    coupons: allCoupons,
+  } = useCurrencyContext()
   const [mode, _setMode] = useState<'substitute' | 'coupon'>('substitute')
   const [inputCurrency, setInputCurrency] = useState<Currency | undefined>(
     undefined,
@@ -390,9 +397,26 @@ const Desk = () => {
                     epochs={epochs}
                     setEpochs={setEpochs}
                     actionButtonProps={{
-                      disabled: false,
-                      onClick: async () => {},
-                      text: 'Coming Soon',
+                      disabled: !inputCurrency || inputAmount === 0n,
+                      onClick: async () => {
+                        if (!inputCurrency) {
+                          return
+                        }
+                        const asset = assets.find((asset) =>
+                          isAddressEqual(
+                            asset.underlying.address,
+                            inputCurrency.address,
+                          ),
+                        )
+                        if (asset) {
+                          await mintCoupon(
+                            asset,
+                            inputAmount,
+                            allEpochs[0].id + epochs - 1, // todo: remove -1
+                          )
+                        }
+                      },
+                      text: 'Mint Coupon',
                     }}
                   />
                 )}
@@ -409,6 +433,7 @@ const Desk = () => {
                 </div>
                 <div className="flex flex-1 flex-col w-full h-full sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 mb-8 justify-center">
                   {positions
+                    .filter(({ interest }) => interest === 0n)
                     .sort(
                       (a, b) =>
                         Number(a.toEpoch.endTimestamp) -
@@ -424,7 +449,7 @@ const Desk = () => {
                           position.toEpoch.endTimestamp >= market.endTimestamp,
                       )
                       return (
-                        <BondPositionCard
+                        <BankerPositionCard
                           key={index}
                           position={{
                             ...position,
@@ -473,7 +498,7 @@ const Desk = () => {
                               </div>
                             )
                           })}
-                        </BondPositionCard>
+                        </BankerPositionCard>
                       )
                     })}
                 </div>

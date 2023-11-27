@@ -16,7 +16,9 @@ import { CONTRACT_ADDRESSES } from '../constants/addresses'
 import { CHAIN_IDS } from '../constants/chain'
 import { COUPON_MARKET_ROUTER_ABI } from '../abis/periphery/coupon-market-router-abi'
 import { ETH_SUBSTITUTE_MINTER_ABI } from '../abis/periphery/eth-substitute-minter-abi'
-import { dummyPermit20Params } from '../utils/permit20'
+import { dummyPermit20Params, permit20 } from '../utils/permit20'
+import { Asset } from '../model/asset'
+import { SIMPLE_BOND_CONTROLLER_ABI } from '../abis/periphery/simple-bond-controller-abi'
 
 import { useTransactionContext } from './transaction-context'
 import { isEther, useCurrencyContext } from './currency-context'
@@ -35,11 +37,7 @@ type AdvancedContractContext = {
     underlying: Currency,
     amount: bigint,
   ) => Promise<void>
-  mintCoupon: (
-    underlying: Currency,
-    coupon: Currency,
-    amount: bigint,
-  ) => Promise<void>
+  mintCoupon: (asset: Asset, amount: bigint, epochs: number) => Promise<void>
   burnCoupon: (
     underlying: Currency,
     coupon: Currency,
@@ -346,24 +344,99 @@ export const AdvancedContractProvider = ({
     [prices, publicClient, queryClient, setConfirmation, walletClient],
   )
 
-  const mintCoupon = useCallback(async () => {
-    if (!walletClient) {
-      // TODO: alert wallet connect
-      return
-    }
+  const mintCoupon = useCallback(
+    async (asset: Asset, amount: bigint, epochs: number) => {
+      if (!walletClient) {
+        // TODO: alert wallet connect
+        return
+      }
 
-    try {
-      console.log('minting coupon')
-    } catch (e) {
-      console.error(e)
-    } finally {
-      await Promise.all([
-        queryClient.invalidateQueries(['balances']),
-        queryClient.invalidateQueries(['coupons']),
-      ])
-      setConfirmation(undefined)
-    }
-  }, [queryClient, setConfirmation, walletClient])
+      try {
+        const ethValue = calculateETHValue(asset.underlying, amount)
+        const permitAmount = amount - ethValue
+        const { deadline, r, s, v } = await permit20(
+          selectedChain.id,
+          walletClient,
+          asset.underlying,
+          walletClient.account.address,
+          CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
+            .SimpleBondController,
+          permitAmount,
+          getDeadlineTimestampInSeconds(),
+        )
+        setConfirmation({
+          title: 'Minting Coupons',
+          body: 'Please confirm in your wallet.',
+          fields: [
+            {
+              direction: 'in',
+              currency: toWrapETH(asset.underlying),
+              label: toWrapETH(asset.underlying).symbol,
+              value: formatUnits(
+                permitAmount,
+                asset.underlying.decimals,
+                prices[asset.underlying.address],
+              ),
+            },
+            {
+              direction: 'in',
+              currency: {
+                address: zeroAddress,
+                ...selectedChain.nativeCurrency,
+              },
+              label: selectedChain.nativeCurrency.symbol,
+              value: formatUnits(
+                ethValue,
+                selectedChain.nativeCurrency.decimals,
+                prices[asset.underlying.address],
+              ),
+            },
+          ],
+        })
+        await writeContract(publicClient, walletClient, {
+          address:
+            CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
+              .SimpleBondController,
+          abi: SIMPLE_BOND_CONTROLLER_ABI,
+          functionName: 'mintAndWrapCoupons',
+          args: [
+            {
+              permitAmount,
+              signature: {
+                deadline,
+                v,
+                r,
+                s,
+              },
+            },
+            asset.substitutes[0].address,
+            amount,
+            epochs,
+          ],
+          value: ethValue,
+          account: walletClient.account,
+        })
+      } catch (e) {
+        console.error(e)
+      } finally {
+        await Promise.all([
+          queryClient.invalidateQueries(['balances']),
+          queryClient.invalidateQueries(['coupons']),
+        ])
+        setConfirmation(undefined)
+      }
+    },
+    [
+      calculateETHValue,
+      prices,
+      publicClient,
+      queryClient,
+      selectedChain.id,
+      selectedChain.nativeCurrency,
+      setConfirmation,
+      walletClient,
+    ],
+  )
 
   const burnCoupon = useCallback(async () => {
     if (!walletClient) {
