@@ -231,7 +231,7 @@ const BorrowFormContainer = ({
             collateralAmount,
             asset,
             borrowAmount,
-            epochs + 1,
+            epochs + 1, // todo: absolute epoch index
             min(interest, maxInterest),
             asset
               ? buildPendingPosition(

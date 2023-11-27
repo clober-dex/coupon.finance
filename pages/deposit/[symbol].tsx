@@ -106,7 +106,7 @@ const Deposit = () => {
                     const hash = await deposit(
                       asset,
                       amount,
-                      epochs + 1,
+                      epochs + 1, // todo: absolute epoch index
                       proceed,
                       asset
                         ? buildPendingPosition(
