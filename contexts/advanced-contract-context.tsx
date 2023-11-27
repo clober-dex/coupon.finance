@@ -585,34 +585,6 @@ export const AdvancedContractProvider = ({
       }
 
       try {
-        // erc20 approve
-        for (const { market, erc20Balance } of couponBalances) {
-          if (erc20Balance > 0n) {
-            setConfirmation({
-              title: `Approving ${market.baseToken.symbol}`,
-              body: 'Please confirm in your wallet.',
-              fields: [
-                {
-                  currency: market.baseToken,
-                  label: market.baseToken.symbol,
-                  value: toPlacesString(
-                    formatUnits(erc20Balance, market.baseToken.decimals),
-                  ),
-                },
-              ],
-            })
-            await approve20(
-              selectedChain.id,
-              walletClient,
-              market.baseToken,
-              walletClient.account.address,
-              CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
-                .CouponMarketRouter,
-              erc20Balance,
-            )
-          }
-        }
-
         const deadline = getDeadlineTimestampInSeconds()
         const { v, r, s } = await permit1155(
           selectedChain.id,
@@ -626,12 +598,12 @@ export const AdvancedContractProvider = ({
           title: `Selling Coupons`,
           body: 'Please confirm in your wallet.',
           fields: [
-            ...couponBalances.map(({ balance, market }) => ({
+            ...couponBalances.map(({ erc1155Balance, market }) => ({
               direction: 'out',
               currency: market.baseToken,
               label: market.baseToken.symbol,
               value: toPlacesString(
-                formatUnits(balance, market.baseToken.decimals),
+                formatUnits(erc1155Balance, market.baseToken.decimals),
               ),
             })),
             ...couponBalances.map(({ assetValue, market }) => {
@@ -669,7 +641,7 @@ export const AdvancedContractProvider = ({
           abi: COUPON_MARKET_ROUTER_ABI,
           functionName: 'batchMarketSellCoupons',
           args: [
-            couponBalances.map(({ market, balance }) => {
+            couponBalances.map(({ market, erc1155Balance }) => {
               return {
                 market: market.address,
                 deadline,
@@ -680,7 +652,7 @@ export const AdvancedContractProvider = ({
                   asset: market.quoteToken.address,
                   epoch: market.epoch,
                 },
-                amount: balance,
+                amount: erc1155Balance,
               }
             }),
             { deadline, v, r, s },
