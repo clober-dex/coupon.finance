@@ -25,7 +25,7 @@ export const CONTRACT_ADDRESSES: {
     CouponManager:
       '0x8bbcA766D175aDbffB073832262990df1c5ef748' as `0x${string}`,
     CouponMarketRouter:
-      '0xeA424D3C88aF908769B3292bd88c60E5652b308E' as `0x${string}`,
+      '0xF7bb8649006E00E849e63f5cbF0887B0E0Dd9d97' as `0x${string}`,
     CouponOracle: '0xF8e9ab02b057978c29Ca57c7E086D46983764A13' as `0x${string}`,
     CouponWrapper:
       '0xc5577988Cc8A49ecF6A48c8e84717E481E3bF57b' as `0x${string}`,
