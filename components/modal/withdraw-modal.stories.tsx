@@ -6,7 +6,7 @@ import { dummyBondPosition } from '../../.storybook/dummy-data/bond-position'
 import WithdrawModal from './withdraw-modal'
 
 export default {
-  title: 'WithdrawModal',
+  title: 'Modal/WithdrawModal',
   component: WithdrawModal,
   parameters: {
     layout: 'centered',

@@ -14,7 +14,7 @@ import {
   toPlacesString,
 } from '../../utils/numbers'
 import CurrencyAmountInput from '../../components/input/currency-amount-input'
-import Slider from '../../components/slider/slider'
+import Slider from '../../components/slider'
 import {
   currentTimestampInSeconds,
   formatDate,

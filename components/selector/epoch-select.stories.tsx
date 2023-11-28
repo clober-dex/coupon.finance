@@ -4,7 +4,7 @@ import '../../styles/globals.css'
 import EpochSelect from './epoch-select'
 
 export default {
-  title: 'EpochSelect',
+  title: 'Select/EpochSelect',
   component: EpochSelect,
   parameters: {
     layout: 'centered',

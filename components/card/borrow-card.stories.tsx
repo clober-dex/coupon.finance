@@ -5,7 +5,7 @@ import '../../styles/globals.css'
 import { BorrowCard } from './borrow-card'
 
 export default {
-  title: 'BorrowCard',
+  title: 'Card/BorrowCard',
   component: BorrowCard,
   parameters: {
     layout: 'centered',

@@ -6,7 +6,7 @@ import '../../styles/globals.css'
 import { DepositCard } from './deposit-card'
 
 export default {
-  title: 'DepositCard',
+  title: 'Card/DepositCard',
   component: DepositCard,
   parameters: {
     layout: 'centered',

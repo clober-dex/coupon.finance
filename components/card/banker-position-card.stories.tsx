@@ -7,7 +7,7 @@ import { dummyBondPosition } from '../../.storybook/dummy-data/bond-position'
 import { BankerPositionCard } from './banker-position-card'
 
 export default {
-  title: 'BankerPositionCard',
+  title: 'Card/BankerPositionCard',
   component: BankerPositionCard,
   parameters: {
     layout: 'centered',

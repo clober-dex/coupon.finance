@@ -4,7 +4,7 @@ import '../../styles/globals.css'
 import { WrongNetworkButton } from './wrong-network-button'
 
 export default {
-  title: 'WrongNetworkButton',
+  title: 'Button/WrongNetworkButton',
   component: WrongNetworkButton,
   parameters: {
     layout: 'centered',

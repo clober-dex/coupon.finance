@@ -4,7 +4,7 @@ import '../../styles/globals.css'
 import { BorrowForm } from './borrow-form'
 
 export default {
-  title: 'BorrowForm',
+  title: 'Form/BorrowForm',
   component: BorrowForm,
   parameters: {
     layout: 'centered',

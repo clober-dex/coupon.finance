@@ -4,7 +4,7 @@ import '../../styles/globals.css'
 import { UserButton } from './user-button'
 
 export default {
-  title: 'UserButton',
+  title: 'Button/UserButton',
   component: UserButton,
   parameters: {
     layout: 'centered',

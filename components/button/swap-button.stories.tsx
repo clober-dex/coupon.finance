@@ -4,7 +4,7 @@ import '../../styles/globals.css'
 import { SwapButton } from './swap-button'
 
 export default {
-  title: 'SwapButton',
+  title: 'Button/SwapButton',
   component: SwapButton,
   parameters: {
     layout: 'centered',

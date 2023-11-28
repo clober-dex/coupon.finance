@@ -5,7 +5,7 @@ import '../../styles/globals.css'
 import { CurrencyIcon } from './currency-icon'
 
 export default {
-  title: 'CurrencyIcon',
+  title: 'Icon/CurrencyIcon',
   component: CurrencyIcon,
   parameters: {
     layout: 'centered',

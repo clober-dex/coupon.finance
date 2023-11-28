@@ -4,7 +4,7 @@ import '../../styles/globals.css'
 import { DepositForm } from './deposit-form'
 
 export default {
-  title: 'DepositForm',
+  title: 'Form/DepositForm',
   component: DepositForm,
   parameters: {
     layout: 'centered',

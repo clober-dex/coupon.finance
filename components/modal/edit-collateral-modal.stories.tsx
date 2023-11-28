@@ -7,7 +7,7 @@ import { dummyLoanPosition } from '../../.storybook/dummy-data/loan-position'
 import EditCollateralModal from './edit-collateral-modal'
 
 export default {
-  title: 'EditCollateralModal',
+  title: 'Modal/EditCollateralModal',
   component: EditCollateralModal,
   parameters: {
     layout: 'centered',

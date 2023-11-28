@@ -8,7 +8,7 @@ import { dummyPathVizData } from '../.storybook/dummy-data/path-viz'
 import OdosPathViz from './odos-path-viz'
 
 export default {
-  title: 'OdosPathViz',
+  title: 'Common/OdosPathViz',
   component: OdosPathViz,
   parameters: {
     layout: 'centered',

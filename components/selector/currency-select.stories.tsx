@@ -4,7 +4,7 @@ import '../../styles/globals.css'
 import CurrencySelect from './currency-select'
 
 export default {
-  title: 'CurrencySelect',
+  title: 'Select/CurrencySelect',
   component: CurrencySelect,
   parameters: {
     layout: 'centered',

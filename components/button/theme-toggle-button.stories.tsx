@@ -4,7 +4,7 @@ import '../../styles/globals.css'
 import ThemeToggleButton from './theme-toggle-button'
 
 export default {
-  title: 'ThemeToggleButton',
+  title: 'Button/ThemeToggleButton',
   component: ThemeToggleButton,
   parameters: {
     layout: 'centered',

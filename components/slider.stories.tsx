@@ -1,13 +1,12 @@
 import React, { useState } from 'react'
 import { Meta, StoryObj } from '@storybook/react'
 
-import '../../styles/globals.css'
-import { DotSvg } from '../svg/dot-svg'
-
+import '../styles/globals.css'
+import { DotSvg } from './svg/dot-svg'
 import Slider from './slider'
 
 export default {
-  title: 'Slider',
+  title: 'Common/Slider',
   component: Slider,
   parameters: {
     layout: 'centered',
