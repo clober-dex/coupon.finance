@@ -261,9 +261,9 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       position: LoanPosition
       newCollateralAmount?: bigint
       newDebtAmount?: bigint
-      expectedInterest: bigint
-      expectedProceeds: bigint
-      addedDebtAmount: bigint
+      expectedInterest?: bigint
+      expectedProceeds?: bigint
+      addedDebtAmount?: bigint
       newToEpoch?: number
       swapParams?: {
         inToken: `0x${string}`
@@ -306,7 +306,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       )
 
       const { ethValue: addedDebtEthValue, permitAmount: debtPermitAmount } =
-        calculatePermitAmount(position.underlying, addedDebtAmount)
+        calculatePermitAmount(position.underlying, addedDebtAmount ?? 0n)
       const debtPermitResult = await permit20(
         selectedChain.id,
         walletClient,
@@ -326,8 +326,8 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           position.id,
           newCollateralAmount ?? position.collateralAmount,
           newDebtAmount ?? position.amount,
-          expectedInterest,
-          expectedProceeds,
+          expectedInterest ?? 0n,
+          expectedProceeds ?? 0n,
           newToEpoch ?? position.toEpoch.id,
           swapParams ?? {
             inToken: zeroAddress as `0x${string}`,
@@ -358,7 +358,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         account: walletClient.account,
       })
     },
-    [calculateETHValue, publicClient, selectedChain.id, walletClient],
+    [calculatePermitAmount, publicClient, selectedChain.id, walletClient],
   )
 
   const repay = useCallback(
