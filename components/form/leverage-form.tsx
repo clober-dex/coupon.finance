@@ -285,7 +285,9 @@ export const LeverageForm = ({
             <div className="flex w-full">
               <div className="text-gray-400 text-base">Collateral position</div>
               <div className="ml-auto">
-                {parseFloat(collateralValue) * multiple}{' '}
+                {Number.isNaN(parseFloat(collateralValue))
+                  ? 0
+                  : parseFloat(collateralValue) * multiple}{' '}
                 {collateral.underlying.symbol}
               </div>
             </div>
