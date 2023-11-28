@@ -31,6 +31,7 @@ const EditCollateralModalContainer = ({
             position.collateral,
             prices[position.collateral.underlying.address],
             position.amount,
+            position.collateral.liquidationTargetLtv,
           )
         : 0n,
     ],
