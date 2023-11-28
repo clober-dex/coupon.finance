@@ -17,6 +17,9 @@ import { getDeadlineTimestampInSeconds } from '../utils/date'
 import { toWrapETH } from '../utils/currency'
 import { BORROW_CONTROLLER_ABI } from '../abis/periphery/borrow-controller-abi'
 import { REPAY_ADAPTER_ABI } from '../abis/periphery/repay-adapter-abi'
+import { NEW_BORROW_CONTROLLER_ABI } from '../abis/periphery/new-borrow-controller-abi'
+import { zeroBytes32 } from '../utils/bytes'
+import { max } from '../utils/bigint'
 
 import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -109,6 +112,21 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       ),
     ]
   }, [integratedPositions, pendingPositions])
+
+  const calculatePermitAmount = useCallback(
+    (
+      underlying: Currency,
+      amount: bigint,
+    ): {
+      permitAmount: bigint
+      ethValue: bigint
+    } => {
+      const ethValue = calculateETHValue(underlying, amount)
+      const permitAmount = amount - ethValue
+      return { permitAmount, ethValue }
+    },
+    [calculateETHValue],
+  )
 
   const borrow = useCallback(
     async (
@@ -227,6 +245,120 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       publicClient,
       queryClient,
     ],
+  )
+
+  const adjustPosition = useCallback(
+    async ({
+      position,
+      newCollateralAmount,
+      newDebtAmount,
+      expectedInterest,
+      expectedProceeds,
+      addedDebtAmount,
+      newToEpoch,
+      swapParams,
+    }: {
+      position: LoanPosition
+      newCollateralAmount?: bigint
+      newDebtAmount?: bigint
+      expectedInterest: bigint
+      expectedProceeds: bigint
+      addedDebtAmount: bigint
+      newToEpoch?: number
+      swapParams?: {
+        inToken: `0x${string}`
+        amount: bigint
+        data: `0x${string}`
+      }
+    }) => {
+      if (!walletClient) {
+        return
+      }
+      const positionPermitResult = await permit721(
+        selectedChain.id,
+        walletClient,
+        CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].LoanPositionManager,
+        position.id,
+        walletClient.account.address,
+        CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].NewBorrowController,
+        getDeadlineTimestampInSeconds(),
+      )
+
+      const addedCollateralAmount = max(
+        (newCollateralAmount ?? 0n) - position.collateralAmount,
+        0n,
+      )
+      const {
+        ethValue: addedCollateralEthValue,
+        permitAmount: collateralPermitAmount,
+      } = calculatePermitAmount(
+        position.collateral.underlying,
+        addedCollateralAmount,
+      )
+      const collateralPermitResult = await permit20(
+        selectedChain.id,
+        walletClient,
+        position.collateral.underlying,
+        walletClient.account.address,
+        CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].NewBorrowController,
+        collateralPermitAmount,
+        getDeadlineTimestampInSeconds(),
+      )
+
+      const { ethValue: addedDebtEthValue, permitAmount: debtPermitAmount } =
+        calculatePermitAmount(position.underlying, addedDebtAmount)
+      const debtPermitResult = await permit20(
+        selectedChain.id,
+        walletClient,
+        position.underlying,
+        walletClient.account.address,
+        CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].NewBorrowController,
+        debtPermitAmount,
+        getDeadlineTimestampInSeconds(),
+      )
+
+      await writeContract(publicClient, walletClient, {
+        address:
+          CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].NewBorrowController,
+        abi: NEW_BORROW_CONTROLLER_ABI,
+        functionName: 'adjustPosition',
+        args: [
+          position.id,
+          newCollateralAmount ?? position.collateralAmount,
+          newDebtAmount ?? position.amount,
+          expectedInterest,
+          expectedProceeds,
+          newToEpoch ?? position.toEpoch.id,
+          swapParams ?? {
+            inToken: zeroAddress as `0x${string}`,
+            amount: 0n,
+            data: zeroBytes32 as `0x${string}`,
+          },
+          { ...positionPermitResult },
+          {
+            permitAmount: collateralPermitAmount,
+            signature: {
+              deadline: collateralPermitResult.deadline,
+              v: collateralPermitResult.v,
+              r: collateralPermitResult.r,
+              s: collateralPermitResult.s,
+            },
+          },
+          {
+            permitAmount: debtPermitAmount,
+            signature: {
+              deadline: debtPermitResult.deadline,
+              v: debtPermitResult.v,
+              r: debtPermitResult.r,
+              s: debtPermitResult.s,
+            },
+          },
+        ],
+        value: addedCollateralEthValue + addedDebtEthValue,
+        account: walletClient.account,
+      })
+    },
+    [calculateETHValue, publicClient, selectedChain.id, walletClient],
   )
 
   const repay = useCallback(

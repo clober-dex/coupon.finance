@@ -6,6 +6,7 @@ export const CONTRACT_ADDRESSES: {
   [chain in CHAIN_IDS]: {
     BondPositionManager: `0x${string}`
     BorrowController: `0x${string}`
+    NewBorrowController: `0x${string}`
     CouponManager: `0x${string}`
     CouponMarketRouter: `0x${string}`
     CouponOracle: `0x${string}`
@@ -22,6 +23,8 @@ export const CONTRACT_ADDRESSES: {
       '0x0Cf91Bc7a67B063142C029a69fF9C8ccd93476E2' as `0x${string}`,
     BorrowController:
       '0x13055e05c713b15911cC2509B3C573478b0cd3E2' as `0x${string}`,
+    NewBorrowController:
+      '0xF3E6FDDCcdaEC2C4B78B86d7a58e352Bf246abc9' as `0x${string}`,
     CouponManager:
       '0x8bbcA766D175aDbffB073832262990df1c5ef748' as `0x${string}`,
     CouponMarketRouter:
@@ -43,6 +46,7 @@ export const CONTRACT_ADDRESSES: {
   [CHAIN_IDS.COUPON_FINANCE_CHAIN]: {
     BondPositionManager: zeroAddress,
     BorrowController: zeroAddress,
+    NewBorrowController: zeroAddress,
     CouponManager: zeroAddress,
     CouponMarketRouter: zeroAddress,
     CouponOracle: zeroAddress,
