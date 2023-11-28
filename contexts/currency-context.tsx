@@ -140,14 +140,15 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
       })
       return erc20Results.map(({ result: erc20Balance }, index) => {
         const market = markets[index]
-        const balance =
-          (erc20Balance ?? 0n) + (erc1155Results[index].result ?? 0n)
+        const erc1155Balance = erc1155Results[index].result ?? 0n
+        const balance = (erc20Balance ?? 0n) + erc1155Balance
         return {
           market,
           balance,
-          assetValue: market.spend(market.baseToken.address, balance).amountOut,
+          assetValue: market.spend(market.baseToken.address, erc1155Balance)
+            .amountOut,
           erc20Balance: erc20Balance ?? 0n,
-          erc1155Balance: erc1155Results[index].result ?? 0n,
+          erc1155Balance,
         }
       })
     },

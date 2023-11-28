@@ -41,12 +41,17 @@ export const CouponUserBalanceModal = ({
   sellCoupons: (marketSellParams: CouponBalance[]) => Promise<void>
 }) => {
   const [clicked, setClicked] = useState(false)
-  if (couponBalances.reduce((acc, { balance }) => acc + balance, 0n) === 0n) {
+  if (
+    couponBalances.reduce(
+      (acc, { erc1155Balance }) => acc + erc1155Balance,
+      0n,
+    ) === 0n
+  ) {
     return <></>
   }
 
-  const sellAvailableCoupons = couponBalances.filter(
-    ({ balance }) => balance > 0n,
+  const erc1155BalanceIsNotZeroCouponBalances = couponBalances.filter(
+    ({ erc1155Balance }) => erc1155Balance > 0n,
   )
 
   return (
@@ -65,10 +70,10 @@ export const CouponUserBalanceModal = ({
                     </div>
                     <button
                       onClick={async () => {
-                        await sellCoupons(sellAvailableCoupons)
+                        await sellCoupons(erc1155BalanceIsNotZeroCouponBalances)
                       }}
                       disabled={
-                        sellAvailableCoupons.reduce(
+                        erc1155BalanceIsNotZeroCouponBalances.reduce(
                           (acc, { assetValue }) => acc + assetValue,
                           0n,
                         ) === 0n
@@ -78,12 +83,13 @@ export const CouponUserBalanceModal = ({
                       Sell All
                     </button>
                   </div>
-                  {sellAvailableCoupons.map(
+                  {erc1155BalanceIsNotZeroCouponBalances.map(
                     ({ balance, market, assetValue }, index) => (
                       <div
                         key={index}
                         className={`flex px-4 pt-1 ${
-                          index === sellAvailableCoupons.length - 1
+                          index ===
+                          erc1155BalanceIsNotZeroCouponBalances.length - 1
                             ? 'pb-2'
                             : 'pb-1'
                         } items-center self-stretch`}
@@ -136,7 +142,9 @@ export const CouponUserBalanceModal = ({
                           <button
                             disabled={assetValue === 0n}
                             onClick={async () => {
-                              await sellCoupons([sellAvailableCoupons[index]])
+                              await sellCoupons([
+                                erc1155BalanceIsNotZeroCouponBalances[index],
+                              ])
                               setClicked(false)
                             }}
                             className="flex flex-col my-1 w-16 h-7 sm:h-8 justify-center items-center rounded bg-opacity-10 text-xs text-opacity-90 font-semibold text-green-500 bg-green-500 hover:bg-green-300 hover:bg-opacity-10 dark:hover:bg-gray-600 disabled:bg-gray-100 dark:disabled:bg-gray-700 disabled:text-gray-300 dark:disabled:text-gray-500"
