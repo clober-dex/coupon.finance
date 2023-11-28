@@ -31,6 +31,7 @@ const BorrowFormContainer = ({
   const { balances, prices, assets } = useCurrencyContext()
   const { borrow } = useBorrowContext()
 
+  const [showHelperModal, setShowHelperModal] = useState(false)
   const [epochs, setEpochs] = useState(0)
   const [collateralValue, setCollateralValue] = useState('')
   const [borrowValue, setBorrowValue] = useState('')
@@ -211,6 +212,15 @@ const BorrowFormContainer = ({
       setBorrowValue={setBorrowValue}
       epochs={epochs}
       setEpochs={setEpochs}
+      showHelperModal={showHelperModal}
+      setShowHelperModal={setShowHelperModal}
+      helperModalButtonProps={{
+        onClick: () => {
+          setShowHelperModal(true)
+        },
+        text: `Get more ${collateral?.underlying.symbol}`,
+        bounce: collateralAmount > collateralUserBalance,
+      }}
       balances={balances}
       prices={prices}
       actionButtonProps={{

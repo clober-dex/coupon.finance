@@ -15,6 +15,11 @@ import {
 } from '../../utils/date'
 import Slider from '../slider'
 import { DotSvg } from '../svg/dot-svg'
+import {
+  HelperModalButton,
+  HelperModalButtonProps,
+} from '../button/helper-modal-button'
+import OdosSwapModalContainer from '../../containers/modal/odos-swap-modal-container'
 
 export const DepositForm = ({
   depositCurrency,
@@ -27,6 +32,9 @@ export const DepositForm = ({
   setValue,
   epochs,
   setEpochs,
+  showHelperModal,
+  setShowHelperModal,
+  helperModalButtonProps,
   actionButtonProps,
   depositAssetPrice,
 }: {
@@ -40,6 +48,9 @@ export const DepositForm = ({
   setValue: (value: string) => void
   epochs: number
   setEpochs: (value: number) => void
+  showHelperModal: boolean
+  setShowHelperModal: (value: boolean) => void
+  helperModalButtonProps: HelperModalButtonProps
   actionButtonProps: ActionButtonProps
   depositAssetPrice?: BigDecimal
 }) => {
@@ -77,6 +88,17 @@ export const DepositForm = ({
               availableAmount={maxDepositAmount}
               price={depositAssetPrice}
             />
+            <div className="flex ml-auto">
+              <HelperModalButton {...helperModalButtonProps} />
+              {showHelperModal ? (
+                <OdosSwapModalContainer
+                  onClose={() => setShowHelperModal(false)}
+                  defaultOutputCurrency={depositCurrency}
+                />
+              ) : (
+                <></>
+              )}
+            </div>
           </div>
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-2">

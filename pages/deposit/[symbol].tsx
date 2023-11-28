@@ -21,6 +21,7 @@ const Deposit = () => {
   const { balances, prices, assets } = useCurrencyContext()
   const { deposit } = useDepositContext()
 
+  const [showHelperModal, setShowHelperModal] = useState(false)
   const [epochs, setEpochs] = useState(0)
 
   const [value, setValue] = useState('')
@@ -99,6 +100,15 @@ const Deposit = () => {
                 setValue={setValue}
                 epochs={epochs}
                 setEpochs={setEpochs}
+                showHelperModal={showHelperModal}
+                setShowHelperModal={setShowHelperModal}
+                helperModalButtonProps={{
+                  onClick: () => {
+                    setShowHelperModal(true)
+                  },
+                  text: `Get more ${asset.underlying.symbol}`,
+                  bounce: amount > maxDepositAmount,
+                }}
                 actionButtonProps={{
                   disabled: amount === 0n || amount > maxDepositAmount,
                   onClick: async () => {
