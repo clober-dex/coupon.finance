@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
 import { getAddress, isAddressEqual, zeroAddress } from 'viem'
 import { usePublicClient, useQuery } from 'wagmi'
@@ -19,21 +19,26 @@ import { buildPendingPosition } from '../../model/loan-position'
 import { parseUnits } from '../../utils/numbers'
 import { Currency } from '../../model/currency'
 import { HelperModalButton } from '../../components/button/helper-modal-button'
-import OdosSwapModalContainer from '../modal/odos-swap-modal-container'
 
 const BorrowFormContainer = ({
+  showHelperModal,
+  setShowHelperModal,
+  setHelperModalOutputCurrency,
   defaultBorrowCurrency,
   defaultCollateralCurrency,
+  children,
 }: {
+  showHelperModal: boolean
+  setShowHelperModal: (value: boolean) => void
+  setHelperModalOutputCurrency: (value: Currency | undefined) => void
   defaultBorrowCurrency?: Currency
   defaultCollateralCurrency?: Currency
-}) => {
+} & React.PropsWithChildren) => {
   const { selectedChain } = useChainContext()
   const publicClient = usePublicClient()
   const { balances, prices, assets } = useCurrencyContext()
   const { borrow } = useBorrowContext()
 
-  const [showHelperModal, setShowHelperModal] = useState(false)
   const [epochs, setEpochs] = useState(0)
   const [collateralValue, setCollateralValue] = useState('')
   const [borrowValue, setBorrowValue] = useState('')
@@ -65,6 +70,12 @@ const BorrowFormContainer = ({
         )
       : _collateral
   }, [_collateral, asset])
+
+  useEffect(() => {
+    if (collateral) {
+      setHelperModalOutputCurrency(collateral.underlying)
+    }
+  }, [collateral, setHelperModalOutputCurrency])
 
   const isCollateralFixed = defaultCollateralCurrency !== undefined
 
@@ -279,14 +290,7 @@ const BorrowFormContainer = ({
         text={`Get more ${collateral?.underlying.symbol}`}
         bounce={collateralAmount > collateralUserBalance}
       />
-      {showHelperModal ? (
-        <OdosSwapModalContainer
-          onClose={() => setShowHelperModal(false)}
-          defaultOutputCurrency={collateral?.underlying}
-        />
-      ) : (
-        <></>
-      )}
+      {showHelperModal ? children : null}
     </BorrowForm>
   )
 }

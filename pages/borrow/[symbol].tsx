@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
@@ -7,6 +7,32 @@ import BackSvg from '../../components/svg/back-svg'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { CurrencyIcon } from '../../components/icon/currency-icon'
 import BorrowFormContainer from '../../containers/form/borrow-form-container'
+import OdosSwapModalContainer from '../../containers/modal/odos-swap-modal-container'
+import { Currency } from '../../model/currency'
+
+const BorrowForm = ({
+  defaultBorrowCurrency,
+}: {
+  defaultBorrowCurrency?: Currency
+}) => {
+  const [helperModalOutputCurrency, setHelperModalOutputCurrency] = useState<
+    Currency | undefined
+  >(undefined)
+  const [showHelperModal, setShowHelperModal] = useState(false)
+  return (
+    <BorrowFormContainer
+      showHelperModal={showHelperModal}
+      setShowHelperModal={setShowHelperModal}
+      setHelperModalOutputCurrency={setHelperModalOutputCurrency}
+      defaultBorrowCurrency={defaultBorrowCurrency}
+    >
+      <OdosSwapModalContainer
+        onClose={() => setShowHelperModal(false)}
+        defaultOutputCurrency={helperModalOutputCurrency}
+      />
+    </BorrowFormContainer>
+  )
+}
 
 const Borrow = () => {
   const { assets } = useCurrencyContext()
@@ -43,7 +69,7 @@ const Borrow = () => {
               </div>
             </Link>
             <div className="flex flex-col lg:flex-row sm:items-center lg:items-start justify-center gap-4 mb-4 px-2 md:px-0">
-              <BorrowFormContainer defaultBorrowCurrency={asset.underlying} />
+              <BorrowForm defaultBorrowCurrency={asset.underlying} />
             </div>
           </div>
         </main>
