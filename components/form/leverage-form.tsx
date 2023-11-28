@@ -27,7 +27,6 @@ export const LeverageForm = ({
   borrowCurrency,
   setBorrowCurrency,
   availableBorrowCurrencies,
-  maxBorrowAmount,
   interest,
   borrowApy,
   borrowLTV,
@@ -36,7 +35,6 @@ export const LeverageForm = ({
   collateralValue,
   setCollateralValue,
   borrowValue,
-  setBorrowValue,
   epochs,
   setEpochs,
   multiple,
@@ -50,7 +48,6 @@ export const LeverageForm = ({
   borrowCurrency?: Currency
   setBorrowCurrency: (currency?: Currency) => void
   availableBorrowCurrencies: Currency[]
-  maxBorrowAmount: bigint
   interest: bigint
   borrowApy: number
   borrowLTV: number
@@ -59,7 +56,6 @@ export const LeverageForm = ({
   collateralValue: string
   setCollateralValue: (value: string) => void
   borrowValue: string
-  setBorrowValue: (value: string) => void
   epochs: number
   setEpochs: (value: number) => void
   multiple: number
@@ -201,9 +197,9 @@ export const LeverageForm = ({
           <CurrencyAmountInput
             currency={borrowCurrency}
             value={borrowValue}
-            onValueChange={setBorrowValue}
+            onValueChange={() => {}}
             price={borrowCurrency ? prices[borrowCurrency.address] : undefined}
-            availableAmount={maxBorrowAmount}
+            availableAmount={0n}
             disabled={true}
           >
             {!borrowCurrency || availableBorrowCurrencies.length > 1 ? (

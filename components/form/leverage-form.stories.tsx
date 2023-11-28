@@ -15,7 +15,6 @@ const MockedLeverageForm = ({ ...args }) => {
       borrowCurrency={borrowCurrency}
       setBorrowCurrency={setBorrowCurrency}
       availableBorrowCurrencies={args.availableBorrowCurrencies}
-      maxBorrowAmount={args.maxBorrowAmount}
       interest={args.interest}
       borrowApy={args.borrowApy}
       borrowLTV={args.borrowLTV}
@@ -24,7 +23,6 @@ const MockedLeverageForm = ({ ...args }) => {
       collateralValue={args.collateralValue}
       setCollateralValue={args.setCollateralValue}
       borrowValue={args.borrowValue}
-      setBorrowValue={args.setBorrowValue}
       epochs={args.epochs}
       setEpochs={args.setEpochs}
       multiple={args.multiple}
@@ -57,7 +55,6 @@ export const Default: Story = {
         decimals: 18,
       },
     ],
-    maxBorrowAmount: 0n,
     interest: 1000000000000000000n,
     borrowApy: 10,
     borrowLTV: 60,
@@ -89,7 +86,6 @@ export const Default: Story = {
     collateralValue: '5',
     setCollateralValue: () => {},
     borrowValue: '1.1',
-    setBorrowValue: () => {},
     epochs: 2,
     setEpochs: () => {},
     multiple: 3,
@@ -132,7 +128,6 @@ export const SelectDebtAsset: Story = {
         decimals: 18,
       },
     ],
-    maxBorrowAmount: 0n,
     interest: 1000000000000000000n,
     borrowApy: 10,
     borrowLTV: 60,
@@ -164,7 +159,6 @@ export const SelectDebtAsset: Story = {
     collateralValue: '5',
     setCollateralValue: () => {},
     borrowValue: '1.1',
-    setBorrowValue: () => {},
     epochs: 2,
     setEpochs: () => {},
     multiple: 3,
