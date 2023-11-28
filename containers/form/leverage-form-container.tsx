@@ -91,7 +91,7 @@ const LeverageFormContainer = ({
 
   // ready to calculate
   const {
-    data: { borrowAmount, collateralAmount, interestsByEpochsBorrowed },
+    data: { debtAmount, collateralAmount, interestsByEpochsBorrowed },
   } = useQuery(
     [
       'leverage-simulate',
@@ -109,7 +109,7 @@ const LeverageFormContainer = ({
         inputCollateralAmount === 0n
       ) {
         return {
-          borrowAmount: 0n,
+          debtAmount: 0n,
           collateralAmount: 0n,
           interestsByEpochsBorrowed: [],
         }
@@ -128,7 +128,7 @@ const LeverageFormContainer = ({
               inputCollateralAmount + borrowedCollateralAmount,
             )
           : 0n
-      const { amountOut: borrowAmount } = await fetchAmountOutByOdos({
+      const { amountOut: debtAmount } = await fetchAmountOutByOdos({
         chainId: selectedChain.id,
         amountIn: borrowedCollateralAmount.toString(),
         tokenIn: collateral.underlying.address,
@@ -143,7 +143,7 @@ const LeverageFormContainer = ({
         maxLoanableAmountExcludingCouponFee,
       )
       return {
-        borrowAmount,
+        debtAmount,
         collateralAmount: inputCollateralAmount + borrowedCollateralAmount,
         interestsByEpochsBorrowed,
       }
@@ -152,7 +152,7 @@ const LeverageFormContainer = ({
       refetchInterval: 10 * 1000,
       refetchIntervalInBackground: true,
       initialData: {
-        borrowAmount: 0n,
+        debtAmount: 0n,
         collateralAmount: 0n,
         interestsByEpochsBorrowed: [],
       },
@@ -176,7 +176,7 @@ const LeverageFormContainer = ({
     selectedChain,
     prices[zeroAddress],
     asset?.underlying,
-    borrowAmount,
+    debtAmount,
     prices[asset?.underlying?.address ?? zeroAddress],
   )
   const isDeptSizeLessThanMinDebtSize =
@@ -209,7 +209,7 @@ const LeverageFormContainer = ({
           ? calculateLtv(
               asset.underlying,
               prices[asset.underlying.address],
-              borrowAmount,
+              debtAmount,
               collateral,
               prices[collateral?.underlying.address],
               collateralAmount,
@@ -228,7 +228,7 @@ const LeverageFormContainer = ({
       collateralValue={collateralValue}
       setCollateralValue={setCollateralValue}
       borrowValue={formatUnits(
-        borrowAmount,
+        debtAmount,
         asset?.underlying.decimals ?? 18,
         asset ? prices[asset.underlying.address] : undefined,
       )}
@@ -243,7 +243,7 @@ const LeverageFormContainer = ({
         disabled:
           inputCollateralAmount === 0n ||
           inputCollateralAmount > collateralUserBalance ||
-          borrowAmount > available ||
+          debtAmount > available ||
           isDeptSizeLessThanMinDebtSize,
         onClick: async () => {
           if (!collateral || !asset) {
@@ -255,7 +255,7 @@ const LeverageFormContainer = ({
             ? 'Enter collateral amount'
             : inputCollateralAmount > collateralUserBalance
             ? `Insufficient ${collateral?.underlying.symbol} balance`
-            : borrowAmount > available
+            : debtAmount > available
             ? 'Not enough coupons for sale'
             : isDeptSizeLessThanMinDebtSize
             ? `Remaining debt must be ≥ ${minDebtSizeInEth.toFixed(
