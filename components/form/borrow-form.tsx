@@ -280,7 +280,8 @@ export const BorrowForm = ({
                 %
               </div>
             </div>
-            {interestsByEpochsBorrowed ? (
+            {interestsByEpochsBorrowed &&
+            interestsByEpochsBorrowed.length > 0 ? (
               <div className="flex w-full">
                 <div className="flex flex-row items-center justify-center gap-1 text-gray-400 text-base">
                   Expired Date (UTC)
