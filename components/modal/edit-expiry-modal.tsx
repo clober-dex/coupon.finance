@@ -8,7 +8,7 @@ import {
   getNextMonthStartTimestamp,
   SECONDS_IN_MONTH,
 } from '../../utils/date'
-import Slider from '../slider/slider'
+import Slider from '../slider'
 import { DotSvg } from '../svg/dot-svg'
 import { BigDecimal, formatUnits } from '../../utils/numbers'
 import { Currency } from '../../model/currency'

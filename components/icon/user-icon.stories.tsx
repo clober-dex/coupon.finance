@@ -5,7 +5,7 @@ import '../../styles/globals.css'
 import UserIcon from './user-icon'
 
 export default {
-  title: 'UserIcon',
+  title: 'Icon/UserIcon',
   component: UserIcon,
   parameters: {
     layout: 'centered',

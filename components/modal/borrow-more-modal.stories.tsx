@@ -6,7 +6,7 @@ import { dummyLoanPosition } from '../../.storybook/dummy-data/loan-position'
 import BorrowMoreModal from './borrow-more-modal'
 
 export default {
-  title: 'BorrowMoreModal',
+  title: 'Modal/BorrowMoreModal',
   component: BorrowMoreModal,
   parameters: {
     layout: 'centered',

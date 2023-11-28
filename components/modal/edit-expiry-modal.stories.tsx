@@ -5,7 +5,7 @@ import '../../styles/globals.css'
 import EditExpiryModal from './edit-expiry-modal'
 
 export default {
-  title: 'EditExpiryModal',
+  title: 'Modal/EditExpiryModal',
   component: EditExpiryModal,
   parameters: {
     layout: 'centered',

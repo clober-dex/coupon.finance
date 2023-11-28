@@ -3,7 +3,7 @@ import { Meta, StoryObj } from '@storybook/react'
 import { BalloonModal } from './balloon-modal'
 
 export default {
-  title: 'BalloonModal',
+  title: 'Modal/BalloonModal',
   component: BalloonModal,
   parameters: {
     layout: 'centered',

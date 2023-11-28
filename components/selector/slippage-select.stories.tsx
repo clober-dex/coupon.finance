@@ -4,7 +4,7 @@ import '../../styles/globals.css'
 import SlippageSelect from './slippage-select'
 
 export default {
-  title: 'SlippageSelect',
+  title: 'Select/SlippageSelect',
   component: SlippageSelect,
   parameters: {
     layout: 'centered',

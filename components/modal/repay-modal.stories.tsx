@@ -7,7 +7,7 @@ import { dummyLoanPosition } from '../../.storybook/dummy-data/loan-position'
 import RepayModal from './repay-modal'
 
 export default {
-  title: 'RepayModal',
+  title: 'Modal/RepayModal',
   component: RepayModal,
   parameters: {
     layout: 'centered',

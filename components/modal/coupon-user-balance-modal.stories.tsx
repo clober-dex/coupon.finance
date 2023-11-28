@@ -6,7 +6,7 @@ import { dummyMarket } from '../../.storybook/dummy-data/market'
 import { CouponUserBalanceModal } from './coupon-user-balance-modal'
 
 export default {
-  title: 'CouponUserBalanceModal',
+  title: 'Modal/CouponUserBalanceModal',
   component: CouponUserBalanceModal,
   parameters: {
     layout: 'centered',

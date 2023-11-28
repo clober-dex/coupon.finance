@@ -4,7 +4,7 @@ import '../../styles/globals.css'
 import { ConnectButton } from './connect-button'
 
 export default {
-  title: 'ConnectButton',
+  title: 'Button/ConnectButton',
   component: ConnectButton,
   parameters: {
     layout: 'centered',

@@ -8,7 +8,7 @@ import DownSvg from '../svg/down-svg'
 import CurrencyAmountInput from './currency-amount-input'
 
 export default {
-  title: 'CurrencyAmountInput',
+  title: 'Input/CurrencyAmountInput',
   component: CurrencyAmountInput,
   parameters: {
     layout: 'centered',

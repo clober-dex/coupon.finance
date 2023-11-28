@@ -4,7 +4,7 @@ import '../../styles/globals.css'
 import SlippageSelectModal from './slippage-select-modal'
 
 export default {
-  title: 'SlippageSelectModal',
+  title: 'Modal/SlippageSelectModal',
   component: SlippageSelectModal,
   parameters: {
     layout: 'fullscreen',

@@ -5,7 +5,7 @@ import '../styles/globals.css'
 import Panel from './panel'
 
 export default {
-  title: 'Panel',
+  title: 'Common/Panel',
   component: Panel,
   parameters: {
     layout: 'centered',

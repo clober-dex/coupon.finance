@@ -6,7 +6,7 @@ import LogoSvg from '../components/svg/logo-svg'
 import LogotypeSvg from '../components/svg/logotype-svg'
 import ThemeToggleButton from '../components/button/theme-toggle-button'
 import MenuSvg from '../components/svg/menu-svg'
-import { WalletSelector } from '../components/selector/wallet-selector'
+import { WalletSelect } from '../components/selector/wallet-select'
 import { CommunityDropdownModal } from '../components/modal/community-dropdown-modal'
 import { UserPointButton } from '../components/button/user-point-button'
 import { ZIndices } from '../utils/z-indices'
@@ -71,7 +71,7 @@ const HeaderContainer = ({
           ) : (
             <></>
           )}
-          <WalletSelector address={address} status={status} />
+          <WalletSelect address={address} status={status} />
           <button
             className="w-8 h-8 hover:bg-gray-100 md:hover:bg-gray-200 dark:hover:bg-gray-700 rounded sm:rounded-lg flex items-center justify-center lg:hidden "
             onClick={onMenuClick}

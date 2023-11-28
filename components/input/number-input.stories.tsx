@@ -4,7 +4,7 @@ import '../../styles/globals.css'
 import NumberInput from './number-input'
 
 export default {
-  title: 'NumberInput',
+  title: 'Input/NumberInput',
   component: NumberInput,
   parameters: {
     layout: 'centered',

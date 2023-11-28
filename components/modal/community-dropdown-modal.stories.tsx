@@ -4,7 +4,7 @@ import '../../styles/globals.css'
 import { CommunityDropdownModal } from './community-dropdown-modal'
 
 export default {
-  title: 'CommunityDropdownModal',
+  title: 'Modal/CommunityDropdownModal',
   component: CommunityDropdownModal,
   parameters: {
     layout: 'centered',

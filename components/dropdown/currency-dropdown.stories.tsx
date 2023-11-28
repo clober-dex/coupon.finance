@@ -4,7 +4,7 @@ import '../../styles/globals.css'
 import { CurrencyDropdown } from './currency-dropdown'
 
 export default {
-  title: 'CurrencyDropdown',
+  title: 'Dropdown/CurrencyDropdown',
   component: CurrencyDropdown,
   parameters: {
     layout: 'centered',

@@ -4,7 +4,7 @@ import '../../styles/globals.css'
 import { UserPointButton } from './user-point-button'
 
 export default {
-  title: 'UserPointButton',
+  title: 'Button/UserPointButton',
   component: UserPointButton,
   parameters: {
     layout: 'centered',

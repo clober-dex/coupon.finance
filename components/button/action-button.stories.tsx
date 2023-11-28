@@ -6,7 +6,7 @@ import '../../styles/globals.css'
 import { ActionButton } from './action-button'
 
 export default {
-  title: 'ActionButton',
+  title: 'Button/ActionButton',
   component: ActionButton,
   parameters: {
     layout: 'centered',

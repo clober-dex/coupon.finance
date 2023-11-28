@@ -7,7 +7,7 @@ import { dummyCurrencies } from '../../.storybook/dummy-data/currencies'
 import { SwapForm } from './swap-form'
 
 export default {
-  title: 'SwapForm',
+  title: 'Form/SwapForm',
   component: SwapForm,
   parameters: {
     layout: 'centered',

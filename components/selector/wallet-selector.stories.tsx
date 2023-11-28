@@ -1,17 +1,17 @@
 import { Meta, StoryObj } from '@storybook/react'
 
 import '../../styles/globals.css'
-import { WalletSelector } from './wallet-selector'
+import { WalletSelect } from './wallet-select'
 
 export default {
-  title: 'WalletSelector',
-  component: WalletSelector,
+  title: 'Select/WalletSelect',
+  component: WalletSelect,
   parameters: {
     layout: 'centered',
   },
-} as Meta<typeof WalletSelector>
+} as Meta<typeof WalletSelect>
 
-type Story = StoryObj<typeof WalletSelector>
+type Story = StoryObj<typeof WalletSelect>
 export const Connected: Story = {
   args: {
     address: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',

@@ -9,7 +9,7 @@ import { ConnectButton } from '../button/connect-button'
 import { UserButton } from '../button/user-button'
 import { WrongNetworkButton } from '../button/wrong-network-button'
 
-export function WalletSelector({
+export function WalletSelect({
   address,
   status,
 }: {

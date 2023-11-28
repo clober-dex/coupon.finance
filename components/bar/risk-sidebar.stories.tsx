@@ -5,7 +5,7 @@ import '../../styles/globals.css'
 import { RiskSidebar } from './risk-sidebar'
 
 export default {
-  title: 'RiskSidebar',
+  title: 'Sidebar/RiskSidebar',
   component: RiskSidebar,
   parameters: {
     layout: 'centered',
