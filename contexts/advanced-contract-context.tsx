@@ -19,6 +19,10 @@ import { ETH_SUBSTITUTE_MINTER_ABI } from '../abis/periphery/eth-substitute-mint
 import { dummyPermit20Params, permit20 } from '../utils/permit20'
 import { Asset } from '../model/asset'
 import { SIMPLE_BOND_CONTROLLER_ABI } from '../abis/periphery/simple-bond-controller-abi'
+import { COUPON_WRAPPER_ABI } from '../abis/periphery/coupon-wrapper-abi'
+import { max } from '../utils/bigint'
+import { WRAPPED_1155_FACTORY_ABI } from '../abis/external/wrapped-1155-factory-abi'
+import { permit721 } from '../utils/permit721'
 
 import { useTransactionContext } from './transaction-context'
 import { isEther, useCurrencyContext } from './currency-context'
@@ -38,12 +42,11 @@ type AdvancedContractContext = {
     amount: bigint,
   ) => Promise<void>
   mintCoupon: (asset: Asset, amount: bigint, epochs: number) => Promise<void>
-  burnCoupon: (
-    underlying: Currency,
-    coupon: Currency,
+  burnCoupon: (tokenId: bigint, epochs: number) => Promise<void>
+  unWrapCouponERC20ToERC1155: (
     amount: bigint,
+    couponBalances: CouponBalance[],
   ) => Promise<void>
-  unWrapCouponToERC1155: () => Promise<void>
   sellCoupons: (couponBalances: CouponBalance[]) => Promise<void>
 }
 
@@ -54,7 +57,7 @@ const Context = React.createContext<AdvancedContractContext>({
   burnSubstitute: () => Promise.resolve(),
   mintCoupon: () => Promise.resolve(),
   burnCoupon: () => Promise.resolve(),
-  unWrapCouponToERC1155: () => Promise.resolve(),
+  unWrapCouponERC20ToERC1155: () => Promise.resolve(),
   sellCoupons: () => Promise.resolve(),
 })
 
@@ -440,43 +443,139 @@ export const AdvancedContractProvider = ({
     ],
   )
 
-  const burnCoupon = useCallback(async () => {
-    if (!walletClient) {
-      // TODO: alert wallet connect
-      return
-    }
+  const burnCoupon = useCallback(
+    async (tokenId: bigint, epochs: number) => {
+      if (!walletClient) {
+        // TODO: alert wallet connect
+        return
+      }
 
-    try {
-      console.log('burning coupon')
-    } catch (e) {
-      console.error(e)
-    } finally {
-      await Promise.all([
-        queryClient.invalidateQueries(['balances']),
-        queryClient.invalidateQueries(['coupons']),
-      ])
-      setConfirmation(undefined)
-    }
-  }, [queryClient, setConfirmation, walletClient])
+      try {
+        const deadline = getDeadlineTimestampInSeconds()
+        const spender =
+          CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].SimpleBondController
+        const positionPermitParams = await permit721(
+          selectedChain.id,
+          walletClient,
+          CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BondPositionManager,
+          tokenId,
+          walletClient.account.address,
+          spender,
+          deadline,
+        )
+        const couponPermitParams = await permit1155(
+          selectedChain.id,
+          walletClient,
+          CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].CouponManager,
+          walletClient.account.address,
+          spender,
+          deadline,
+        )
+        await writeContract(publicClient, walletClient, {
+          address:
+            CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
+              .SimpleBondController,
+          abi: SIMPLE_BOND_CONTROLLER_ABI,
+          functionName: 'adjust',
+          args: [
+            dummyPermit20Params,
+            positionPermitParams,
+            couponPermitParams,
+            tokenId,
+            0n,
+            epochs,
+          ],
+          account: walletClient.account,
+        })
+      } catch (e) {
+        console.error(e)
+      } finally {
+        await Promise.all([
+          queryClient.invalidateQueries(['balances']),
+          queryClient.invalidateQueries(['coupons']),
+        ])
+        setConfirmation(undefined)
+      }
+    },
+    [queryClient, selectedChain.id, setConfirmation, walletClient],
+  )
 
-  const unWrapCouponToERC1155 = useCallback(async () => {
-    if (!walletClient) {
-      // TODO: alert wallet connect
-      return
-    }
+  const unWrapCouponERC20ToERC1155 = useCallback(
+    async (amount: bigint, couponBalances: CouponBalance[]) => {
+      if (!walletClient) {
+        // TODO: alert wallet connect
+        return
+      }
 
-    try {
-      console.log('burning coupon')
-    } catch (e) {
-      console.error(e)
-    } finally {
-      await Promise.all([
-        queryClient.invalidateQueries(['balances']),
-        queryClient.invalidateQueries(['coupons']),
-      ])
-      setConfirmation(undefined)
-    }
-  }, [queryClient, setConfirmation, walletClient])
+      try {
+        setConfirmation({
+          title: `Unwrapping Coupons`,
+          body: 'Please confirm in your wallet.',
+          fields: couponBalances.map(({ market, erc1155Balance }) => {
+            return {
+              direction: 'in',
+              currency: market.baseToken,
+              label: market.baseToken.symbol,
+              value: toPlacesString(
+                formatUnits(
+                  max(amount - erc1155Balance, 0n),
+                  market.baseToken.decimals,
+                ),
+              ),
+            }
+          }),
+        })
+        const metadata = await publicClient.readContract({
+          address:
+            CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].CouponWrapper,
+          abi: COUPON_WRAPPER_ABI,
+          functionName: 'buildBatchMetadata',
+          args: [
+            couponBalances.map(({ market }) => {
+              return {
+                asset: market.quoteToken.address,
+                epoch: market.epoch,
+              }
+            }),
+          ],
+        })
+        if (metadata !== '0x') {
+          await writeContract(publicClient, walletClient, {
+            address:
+              CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
+                .Wrapped1155Factory,
+            abi: WRAPPED_1155_FACTORY_ABI,
+            functionName: 'batchUnwrap',
+            args: [
+              CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].CouponManager,
+              couponBalances.map(({ market }) => market.couponId),
+              couponBalances.map(({ erc1155Balance }) =>
+                max(amount - erc1155Balance, 0n),
+              ),
+              walletClient.account.address,
+              metadata,
+            ],
+            account: walletClient.account,
+          })
+        }
+      } catch (e) {
+        console.error(e)
+      } finally {
+        await Promise.all([
+          queryClient.invalidateQueries(['balances']),
+          queryClient.invalidateQueries(['coupons']),
+        ])
+        setConfirmation(undefined)
+      }
+    },
+    [
+      publicClient,
+      queryClient,
+      selectedChain.id,
+      setConfirmation,
+      walletClient,
+    ],
+  )
 
   const sellCoupons = useCallback(
     async (couponBalances: CouponBalance[]) => {
@@ -618,7 +717,7 @@ export const AdvancedContractProvider = ({
         burnSubstitute,
         mintCoupon,
         burnCoupon,
-        unWrapCouponToERC1155,
+        unWrapCouponERC20ToERC1155,
         sellCoupons,
       }}
     >
