@@ -63,7 +63,7 @@ export const CouponUserBalanceModal = ({
           >
             <CouponWidget setClicked={setClicked}>
               <div className="absolute -right-2 sm:right-0 bottom-3/4 mx-4 my-8 bg-white dark:bg-gray-800 rounded-lg">
-                <div className="flex flex-col items-start w-max">
+                <div className="flex flex-col items-start w-max overflow-y-scroll max-h-[400px]">
                   <div className="flex px-4 pt-3 pb-2 items-center self-stretch text-sm font-semibold">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 flex-grow shrink-0 basis-0 text-sm dark:text-white text-gray-950">
                       My Coupons
