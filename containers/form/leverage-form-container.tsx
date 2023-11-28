@@ -81,17 +81,13 @@ const LeverageFormContainer = ({
   )
 
   // ready to calculate
-  console.log(
-    collateral?.underlying.symbol,
-    inputCollateralAmount,
-    multiple,
-    // allEpochs[0].id + epochs,
-    asset?.underlying.symbol,
-  )
-
-  // ready to calculate
   const {
-    data: { debtAmount, collateralAmount, interestsByEpochsBorrowed },
+    data: {
+      debtAmount,
+      maxLoanableAmountExcludingCouponFee,
+      collateralAmount,
+      interestsByEpochsBorrowed,
+    },
   } = useQuery(
     [
       'leverage-simulate',
@@ -110,6 +106,7 @@ const LeverageFormContainer = ({
       ) {
         return {
           debtAmount: 0n,
+          maxLoanableAmountExcludingCouponFee: 0n,
           collateralAmount: 0n,
           interestsByEpochsBorrowed: [],
         }
@@ -126,7 +123,9 @@ const LeverageFormContainer = ({
               collateral,
               prices[collateral.underlying.address],
               inputCollateralAmount + borrowedCollateralAmount,
-              collateral.liquidationTargetLtv,
+              (collateral.liquidationTargetLtv +
+                collateral.liquidationThreshold) /
+                2n,
             )
           : 0n
       const { amountOut: debtAmount } = await fetchAmountOutByOdos({
@@ -145,6 +144,7 @@ const LeverageFormContainer = ({
       )
       return {
         debtAmount,
+        maxLoanableAmountExcludingCouponFee,
         collateralAmount: inputCollateralAmount + borrowedCollateralAmount,
         interestsByEpochsBorrowed,
       }
@@ -154,6 +154,7 @@ const LeverageFormContainer = ({
       refetchIntervalInBackground: true,
       initialData: {
         debtAmount: 0n,
+        maxLoanableAmountExcludingCouponFee: 0n,
         collateralAmount: 0n,
         interestsByEpochsBorrowed: [],
       },
@@ -245,6 +246,7 @@ const LeverageFormContainer = ({
           inputCollateralAmount === 0n ||
           inputCollateralAmount > collateralUserBalance ||
           debtAmount > available ||
+          debtAmount > maxLoanableAmountExcludingCouponFee + maxInterest ||
           isDeptSizeLessThanMinDebtSize,
         onClick: async () => {
           if (!collateral || !asset) {
@@ -258,6 +260,8 @@ const LeverageFormContainer = ({
             ? `Insufficient ${collateral?.underlying.symbol} balance`
             : debtAmount > available
             ? 'Not enough coupons for sale'
+            : debtAmount > maxLoanableAmountExcludingCouponFee + maxInterest
+            ? 'Not enough collateral'
             : isDeptSizeLessThanMinDebtSize
             ? `Remaining debt must be ≥ ${minDebtSizeInEth.toFixed(
                 3,
