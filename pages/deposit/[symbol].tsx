@@ -14,6 +14,8 @@ import { RiskSidebar } from '../../components/bar/risk-sidebar'
 import { CurrencyIcon } from '../../components/icon/currency-icon'
 import { buildPendingPosition } from '../../model/bond-position'
 import { parseUnits } from '../../utils/numbers'
+import { HelperModalButton } from '../../components/button/helper-modal-button'
+import OdosSwapModalContainer from '../../containers/modal/odos-swap-modal-container'
 
 const Deposit = () => {
   const { selectedChain } = useChainContext()
@@ -21,6 +23,7 @@ const Deposit = () => {
   const { balances, prices, assets } = useCurrencyContext()
   const { deposit } = useDepositContext()
 
+  const [showHelperModal, setShowHelperModal] = useState(false)
   const [epochs, setEpochs] = useState(0)
 
   const [value, setValue] = useState('')
@@ -129,7 +132,23 @@ const Deposit = () => {
                       : 'Deposit',
                 }}
                 depositAssetPrice={prices[asset.underlying.address]}
-              />
+              >
+                <HelperModalButton
+                  onClick={() => {
+                    setShowHelperModal(true)
+                  }}
+                  text={`Get more ${asset.underlying.symbol}`}
+                  bounce={amount > maxDepositAmount}
+                />
+                {showHelperModal ? (
+                  <OdosSwapModalContainer
+                    onClose={() => setShowHelperModal(false)}
+                    defaultOutputCurrency={asset.underlying}
+                  />
+                ) : (
+                  <></>
+                )}
+              </DepositForm>
               <RiskSidebar
                 chainExplorer={
                   selectedChain.blockExplorers?.default.url ??

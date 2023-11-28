@@ -29,6 +29,7 @@ export const DepositForm = ({
   setEpochs,
   actionButtonProps,
   depositAssetPrice,
+  children,
 }: {
   depositCurrency: Currency
   maxDepositAmount: bigint
@@ -42,7 +43,7 @@ export const DepositForm = ({
   setEpochs: (value: number) => void
   actionButtonProps: ActionButtonProps
   depositAssetPrice?: BigDecimal
-}) => {
+} & React.PropsWithChildren) => {
   const countUpFormatter = useCallback(
     (value: number) =>
       `${formatUnits(
@@ -77,6 +78,7 @@ export const DepositForm = ({
               availableAmount={maxDepositAmount}
               price={depositAssetPrice}
             />
+            <div className="flex ml-auto">{children}</div>
           </div>
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-2">

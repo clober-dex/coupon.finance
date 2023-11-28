@@ -2,6 +2,7 @@ import { useAccount, useFeeData, useQuery } from 'wagmi'
 import React, { useMemo, useState } from 'react'
 import { isAddressEqual, zeroAddress } from 'viem'
 import Link from 'next/link'
+import { useConnectModal } from '@rainbow-me/rainbowkit'
 
 import { Currency } from '../../model/currency'
 import { useSwapContext } from '../../contexts/swap-context'
@@ -26,6 +27,7 @@ const OdosSwapModalContainer = ({
   const { assets } = useCurrencyContext()
   const { address: userAddress } = useAccount()
   const { selectedChain } = useChainContext()
+  const { openConnectModal } = useConnectModal()
 
   const [inputCurrency, setInputCurrency] = useState<Currency | undefined>(
     undefined,
@@ -168,17 +170,22 @@ const OdosSwapModalContainer = ({
         }
         actionButtonProps={{
           disabled:
-            !inputCurrency ||
-            !outputCurrency ||
-            amountOut === 0n ||
-            !pathId ||
-            !userAddress ||
-            (userAddress && amountIn > availableInputCurrencyBalance),
-          text:
-            userAddress && amountIn > availableInputCurrencyBalance
+            userAddress !== undefined &&
+            (!inputCurrency ||
+              !outputCurrency ||
+              amountOut === 0n ||
+              !pathId ||
+              (userAddress && amountIn > availableInputCurrencyBalance)),
+          text: userAddress
+            ? amountIn > availableInputCurrencyBalance
               ? `Insufficient ${inputCurrency?.symbol}`
-              : 'Swap',
+              : 'Swap'
+            : 'Connect Wallet',
           onClick: async () => {
+            if (!userAddress && openConnectModal) {
+              openConnectModal()
+              return
+            }
             if (!userAddress || !pathId || !inputCurrency || !outputCurrency) {
               return
             }
