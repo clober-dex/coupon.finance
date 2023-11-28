@@ -22,11 +22,6 @@ import DownSvg from '../svg/down-svg'
 import { CurrencyDropdown } from '../dropdown/currency-dropdown'
 import { CurrencyIcon } from '../icon/currency-icon'
 import { QuestionMarkSvg } from '../svg/question-mark-svg'
-import {
-  HelperModalButton,
-  HelperModalButtonProps,
-} from '../button/helper-modal-button'
-import OdosSwapModalContainer from '../../containers/modal/odos-swap-modal-container'
 
 export const BorrowForm = ({
   isCollateralFixed,
@@ -47,12 +42,10 @@ export const BorrowForm = ({
   setBorrowValue,
   epochs,
   setEpochs,
-  showHelperModal,
-  setShowHelperModal,
-  helperModalButtonProps,
   balances,
   prices,
   actionButtonProps,
+  children,
 }: {
   isCollateralFixed: boolean
   borrowCurrency?: Currency
@@ -72,13 +65,10 @@ export const BorrowForm = ({
   setBorrowValue: (value: string) => void
   epochs: number
   setEpochs: (value: number) => void
-  showHelperModal: boolean
-  setShowHelperModal: (value: boolean) => void
-  helperModalButtonProps: HelperModalButtonProps
   balances: Balances
   prices: Prices
   actionButtonProps: ActionButtonProps
-}) => {
+} & React.PropsWithChildren) => {
   const currentTimestamp = currentTimestampInSeconds()
   const leftMonthInSecond =
     getNextMonthStartTimestamp(currentTimestamp) - currentTimestamp
@@ -147,21 +137,7 @@ export const BorrowForm = ({
               </CurrencyDropdown>
             ) : undefined}
           </CurrencyAmountInput>
-          {collateral ? (
-            <div className="flex ml-auto">
-              <HelperModalButton {...helperModalButtonProps} />
-              {showHelperModal ? (
-                <OdosSwapModalContainer
-                  onClose={() => setShowHelperModal(false)}
-                  defaultOutputCurrency={collateral.underlying}
-                />
-              ) : (
-                <></>
-              )}
-            </div>
-          ) : (
-            <></>
-          )}
+          {collateral ? <div className="flex ml-auto">{children}</div> : <></>}
         </div>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">

@@ -18,6 +18,8 @@ import { ethValue } from '../../utils/currency'
 import { buildPendingPosition } from '../../model/loan-position'
 import { parseUnits } from '../../utils/numbers'
 import { Currency } from '../../model/currency'
+import { HelperModalButton } from '../../components/button/helper-modal-button'
+import OdosSwapModalContainer from '../modal/odos-swap-modal-container'
 
 const BorrowFormContainer = ({
   defaultBorrowCurrency,
@@ -212,15 +214,6 @@ const BorrowFormContainer = ({
       setBorrowValue={setBorrowValue}
       epochs={epochs}
       setEpochs={setEpochs}
-      showHelperModal={showHelperModal}
-      setShowHelperModal={setShowHelperModal}
-      helperModalButtonProps={{
-        onClick: () => {
-          setShowHelperModal(true)
-        },
-        text: `Get more ${collateral?.underlying.symbol}`,
-        bounce: collateralAmount > collateralUserBalance,
-      }}
       balances={balances}
       prices={prices}
       actionButtonProps={{
@@ -278,7 +271,23 @@ const BorrowFormContainer = ({
               )} ETH`
             : 'Borrow',
       }}
-    />
+    >
+      <HelperModalButton
+        onClick={() => {
+          setShowHelperModal(true)
+        }}
+        text={`Get more ${collateral?.underlying.symbol}`}
+        bounce={collateralAmount > collateralUserBalance}
+      />
+      {showHelperModal ? (
+        <OdosSwapModalContainer
+          onClose={() => setShowHelperModal(false)}
+          defaultOutputCurrency={collateral?.underlying}
+        />
+      ) : (
+        <></>
+      )}
+    </BorrowForm>
   )
 }
 
