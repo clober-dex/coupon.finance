@@ -30,7 +30,6 @@ import {
 import { CurrencyDropdown } from '../../components/dropdown/currency-dropdown'
 import { CurrencyIcon } from '../../components/icon/currency-icon'
 import DownSvg from '../../components/svg/down-svg'
-import { MAX_VISIBLE_MARKETS } from '../../utils/market'
 import { fetchMarkets } from '../../apis/market'
 import { useChainContext } from '../../contexts/chain-context'
 import { useDepositContext } from '../../contexts/deposit-context'
@@ -406,7 +405,7 @@ const Desk = () => {
                                   market.quoteToken.address,
                                 ),
                             )
-                            .slice(0, MAX_VISIBLE_MARKETS)
+                            .slice(0, 13)
                             .map(({ endTimestamp }) =>
                               formatDate(new Date(endTimestamp * 1000)),
                             )
