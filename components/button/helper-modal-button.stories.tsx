@@ -20,7 +20,6 @@ export default {
 type Story = StoryObj<typeof HelperModalButton>
 export const Default: Story = {
   args: {
-    disabled: false,
     onClick: () => {},
     text: 'Button',
   },
@@ -28,7 +27,6 @@ export const Default: Story = {
 
 export const Disabled: Story = {
   args: {
-    disabled: true,
     onClick: () => {},
     text: 'Button',
   },
