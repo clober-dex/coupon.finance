@@ -172,11 +172,11 @@ const LeverageFormContainer = ({
 
   const minDebtSizeInEth = MIN_DEBT_SIZE_IN_ETH[selectedChain.id as CHAIN_IDS]
   const debtSizeInEth = ethValue(
-    selectedChain,
     prices[zeroAddress],
     asset?.underlying,
     debtAmount,
     prices[asset?.underlying?.address ?? zeroAddress],
+    selectedChain.nativeCurrency.decimals,
   )
   const isDeptSizeLessThanMinDebtSize =
     debtSizeInEth.lt(minDebtSizeInEth) && debtSizeInEth.gt(0)
