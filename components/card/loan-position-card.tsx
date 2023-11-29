@@ -26,6 +26,7 @@ export const LoanPositionCard = ({
   onBorrowMore,
   onEditCollateral,
   onEditExpiry,
+  isDeptSizeLessThanMinDebtSize,
   children,
 }: {
   position: LoanPosition
@@ -36,6 +37,7 @@ export const LoanPositionCard = ({
   onBorrowMore: () => void
   onEditCollateral: () => void
   onEditExpiry: () => void
+  isDeptSizeLessThanMinDebtSize: boolean
 } & React.HTMLAttributes<HTMLDivElement>) => {
   const now = currentTimestampInSeconds()
   const currentLtv = useMemo(
@@ -103,7 +105,7 @@ export const LoanPositionCard = ({
                   {formatDate(
                     new Date(Number(position.toEpoch.endTimestamp) * 1000),
                   )}
-                  {!position.isPending ? (
+                  {!position.isPending && !isDeptSizeLessThanMinDebtSize ? (
                     <button>
                       <EditSvg onClick={onEditExpiry} />
                     </button>
@@ -175,7 +177,9 @@ export const LoanPositionCard = ({
                 )}{' '}
                 {position.collateral.underlying.symbol}
               </div>
-              {!isExpired && !position.isPending ? (
+              {!isExpired &&
+              !position.isPending &&
+              !isDeptSizeLessThanMinDebtSize ? (
                 <button>
                   <EditSvg onClick={onEditCollateral} />
                 </button>

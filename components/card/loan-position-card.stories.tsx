@@ -31,6 +31,7 @@ export const Default: Story = {
       value: 176800000000n,
       decimals: 8,
     },
+    isDeptSizeLessThanMinDebtSize: false,
   },
 }
 
@@ -45,6 +46,7 @@ export const isPendingPosition: Story = {
       value: 176800000000n,
       decimals: 8,
     },
+    isDeptSizeLessThanMinDebtSize: false,
   },
 }
 
