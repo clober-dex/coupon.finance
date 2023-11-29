@@ -8,6 +8,6 @@ export const applyPercent = (
 ): bigint => {
   return (
     (amount * BigInt(Math.floor(percent * 10 ** decimal))) /
-    BigInt(10 ** decimal)
+    BigInt(100 * 10 ** decimal)
   )
 }
