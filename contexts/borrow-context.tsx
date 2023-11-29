@@ -17,7 +17,7 @@ import { getDeadlineTimestampInSeconds } from '../utils/date'
 import { toWrapETH } from '../utils/currency'
 import { BORROW_CONTROLLER_ABI } from '../abis/periphery/borrow-controller-abi'
 import { zeroBytes32 } from '../utils/bytes'
-import { max } from '../utils/bigint'
+import { applyPercent, max } from '../utils/bigint'
 
 import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -61,7 +61,7 @@ export type BorrowContext = {
     mightBoughtDebtAmount: bigint,
     expectedProceeds: bigint,
     swapData: `0x${string}`,
-    refundAmountAfterSwap: bigint,
+    slippage: number,
   ) => Promise<void>
   addCollateral: (position: LoanPosition, amount: bigint) => Promise<void>
   removeCollateral: (position: LoanPosition, amount: bigint) => Promise<void>
@@ -410,7 +410,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         })
         await adjustPosition({
           position,
-          newDebtAmount: position.amount - (amount + expectedProceeds),
+          newDebtAmount: max(position.amount - (amount + expectedProceeds), 0n),
           expectedProceeds,
           paidDebtAmount: amount,
         })
@@ -440,7 +440,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       mightBoughtDebtAmount: bigint,
       expectedProceeds: bigint,
       swapData: `0x${string}`,
-      refundAmountAfterSwap: bigint,
       slippage: number = 1,
     ): Promise<void> => {
       if (!walletClient) {
@@ -469,6 +468,11 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             ),
           },
         ]
+
+        const refundAmountAfterSwap = max(
+          mightBoughtDebtAmount + expectedProceeds - position.amount,
+          0n,
+        )
         setConfirmation({
           title: `Repay with collateral ${position.underlying.symbol}`,
           body: 'Please confirm in your wallet.',
@@ -491,14 +495,17 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         })
         await adjustPosition({
           position,
-          newCollateralAmount: position.collateralAmount - amount,
-          newDebtAmount:
+          newCollateralAmount: max(position.collateralAmount - amount, 0n),
+          newDebtAmount: max(
             position.amount -
-            ((mightBoughtDebtAmount + expectedProceeds) *
-              (100n - BigInt(slippage))) /
-              100n,
+              applyPercent(
+                mightBoughtDebtAmount + expectedProceeds,
+                100 - slippage,
+              ),
+            0n,
+          ),
           swapParams: {
-            inToken: position.collateral.underlying.address,
+            inToken: position.collateral.substitute.address,
             amount: amount,
             data: swapData,
           },
@@ -764,7 +771,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         })
         await adjustPosition({
           position,
-          newCollateralAmount: position.collateralAmount - amount,
+          newCollateralAmount: max(position.collateralAmount - amount, 0n),
         })
         await queryClient.invalidateQueries(['loan-positions'])
       } catch (e) {

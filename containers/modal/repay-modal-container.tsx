@@ -210,7 +210,7 @@ const RepayModalContainer = ({
               repayAmount,
               refund,
               swapData,
-              repayAmount - position.amount,
+              Number(slippage),
             )
           } else if (!isUseCollateral) {
             await repay(position, amount, repayAll ? maxRefund : refund)
