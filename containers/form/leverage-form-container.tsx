@@ -34,10 +34,7 @@ const LeverageFormContainer = ({
   const { balances, prices, assets } = useCurrencyContext()
 
   const [epochs, setEpochs] = useState(0)
-  const [multiple, _setMultiple] = useState(2)
-  const setMultiple = (value: number) => {
-    _setMultiple(value + 2)
-  }
+  const [multiple, setMultiple] = useState(2)
   const [collateralValue, setCollateralValue] = useState('')
   const [borrowCurrency, setBorrowCurrency] = useState<Currency | undefined>(
     undefined,

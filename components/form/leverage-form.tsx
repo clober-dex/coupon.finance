@@ -123,7 +123,9 @@ export const LeverageForm = ({
                   minPosition={0}
                   segments={maxAvailableMultiple - 1}
                   value={multiple - 2}
-                  onValueChange={setMultiple}
+                  onValueChange={
+                    (value) => setMultiple(value + 2) // value is 0-based
+                  }
                   renderControl={() => (
                     <div className="absolute -top-3 -left-7 flex flex-col items-center gap-2 shrink-0">
                       <DotSvg />
