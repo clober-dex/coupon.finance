@@ -80,7 +80,7 @@ const LeverageFormContainer = ({
   // ready to calculate
   const {
     data: {
-      debtAmount,
+      debtAmountWithoutCouponFee,
       maxLoanableAmountExcludingCouponFee,
       collateralAmount,
       interestsByEpochsBorrowed,
@@ -102,15 +102,17 @@ const LeverageFormContainer = ({
         inputCollateralAmount === 0n
       ) {
         return {
-          debtAmount: 0n,
+          debtAmountWithoutCouponFee: 0n,
           maxLoanableAmountExcludingCouponFee: 0n,
           collateralAmount: 0n,
           interestsByEpochsBorrowed: [],
         }
       }
 
-      const borrowedCollateralAmount =
-        inputCollateralAmount * BigInt(multiple - 1)
+      const borrowedCollateralAmount = applyPercent(
+        inputCollateralAmount,
+        (multiple - 1) * 100,
+      )
       const maxLoanableAmountExcludingCouponFee =
         prices[asset.underlying.address] &&
         prices[collateral.underlying.address]
@@ -122,22 +124,23 @@ const LeverageFormContainer = ({
               inputCollateralAmount + borrowedCollateralAmount,
             )
           : 0n
-      const { amountOut: debtAmount } = await fetchAmountOutByOdos({
-        chainId: selectedChain.id,
-        amountIn: borrowedCollateralAmount.toString(),
-        tokenIn: collateral.underlying.address,
-        tokenOut: asset.underlying.address,
-        slippageLimitPercent: 0.5,
-        gasPrice: Number(feeData.gasPrice),
-      })
+      const { amountOut: debtAmountWithoutCouponFee } =
+        await fetchAmountOutByOdos({
+          chainId: selectedChain.id,
+          amountIn: borrowedCollateralAmount.toString(),
+          tokenIn: collateral.underlying.address,
+          tokenOut: asset.underlying.address,
+          slippageLimitPercent: 0.5,
+          gasPrice: Number(feeData.gasPrice),
+        })
       const interestsByEpochsBorrowed = await fetchBorrowApyByEpochsBorrowed(
         selectedChain.id,
         asset,
-        0n,
+        debtAmountWithoutCouponFee,
         maxLoanableAmountExcludingCouponFee,
       )
       return {
-        debtAmount,
+        debtAmountWithoutCouponFee,
         maxLoanableAmountExcludingCouponFee,
         collateralAmount: inputCollateralAmount + borrowedCollateralAmount,
         interestsByEpochsBorrowed,
@@ -147,7 +150,7 @@ const LeverageFormContainer = ({
       refetchInterval: 10 * 1000,
       refetchIntervalInBackground: true,
       initialData: {
-        debtAmount: 0n,
+        debtAmountWithoutCouponFee: 0n,
         maxLoanableAmountExcludingCouponFee: 0n,
         collateralAmount: 0n,
         interestsByEpochsBorrowed: [],
@@ -155,15 +158,17 @@ const LeverageFormContainer = ({
     },
   )
 
-  const [apy, available, maxInterest] = useMemo(
+  const [apy, available, interest, maxInterest, endTimestamp] = useMemo(
     () =>
       interestsByEpochsBorrowed && interestsByEpochsBorrowed.length > 0
         ? [
             interestsByEpochsBorrowed[epochs].apy ?? 0,
             interestsByEpochsBorrowed[epochs].available ?? 0n,
+            interestsByEpochsBorrowed[epochs].interest ?? 0n,
             interestsByEpochsBorrowed[epochs].maxInterest ?? 0n,
+            interestsByEpochsBorrowed[epochs].endTimestamp ?? 0,
           ]
-        : [0, 0n, 0n],
+        : [0, 0n, 0n, 0n, 0],
     [epochs, interestsByEpochsBorrowed],
   )
 
@@ -171,7 +176,7 @@ const LeverageFormContainer = ({
   const debtSizeInEth = ethValue(
     prices[zeroAddress],
     asset?.underlying,
-    debtAmount,
+    debtAmountWithoutCouponFee + interest,
     prices[asset?.underlying?.address ?? zeroAddress],
     selectedChain.nativeCurrency.decimals,
   )
@@ -205,7 +210,7 @@ const LeverageFormContainer = ({
           ? calculateLtv(
               asset.underlying,
               prices[asset.underlying.address],
-              debtAmount,
+              debtAmountWithoutCouponFee + interest,
               collateral,
               prices[collateral?.underlying.address],
               collateralAmount,
@@ -224,7 +229,7 @@ const LeverageFormContainer = ({
       collateralValue={collateralValue}
       setCollateralValue={setCollateralValue}
       borrowValue={formatUnits(
-        debtAmount,
+        debtAmountWithoutCouponFee + interest,
         asset?.underlying.decimals ?? 18,
         asset ? prices[asset.underlying.address] : undefined,
       )}
@@ -239,8 +244,9 @@ const LeverageFormContainer = ({
         disabled:
           inputCollateralAmount === 0n ||
           inputCollateralAmount > collateralUserBalance ||
-          debtAmount > available ||
-          debtAmount > maxLoanableAmountExcludingCouponFee + maxInterest ||
+          debtAmountWithoutCouponFee > available - maxInterest ||
+          debtAmountWithoutCouponFee >
+            maxLoanableAmountExcludingCouponFee - maxInterest ||
           isDeptSizeLessThanMinDebtSize,
         onClick: async () => {
           if (!collateral || !asset) {
@@ -252,9 +258,10 @@ const LeverageFormContainer = ({
             ? 'Enter collateral amount'
             : inputCollateralAmount > collateralUserBalance
             ? `Insufficient ${collateral?.underlying.symbol} balance`
-            : debtAmount > available
+            : debtAmountWithoutCouponFee > available - maxInterest
             ? 'Not enough coupons for sale'
-            : debtAmount > maxLoanableAmountExcludingCouponFee + maxInterest
+            : debtAmountWithoutCouponFee >
+              maxLoanableAmountExcludingCouponFee - maxInterest
             ? 'Not enough collateral'
             : isDeptSizeLessThanMinDebtSize
             ? `Remaining debt must be ≥ ${minDebtSizeInEth.toFixed(
