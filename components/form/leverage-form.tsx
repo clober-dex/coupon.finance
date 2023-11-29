@@ -121,10 +121,10 @@ export const LeverageForm = ({
               <div>
                 <Slider
                   minPosition={0}
-                  segments={maxAvailableMultiple - 1}
-                  value={multiple - 2}
+                  segments={(maxAvailableMultiple - 1) * 100}
+                  value={(multiple - 1) * 100}
                   onValueChange={
-                    (value) => setMultiple(value + 2) // value is 0-based
+                    (value) => setMultiple(value / 100 + 1) // value is 0-based
                   }
                   renderControl={() => (
                     <div className="absolute -top-3 -left-7 flex flex-col items-center gap-2 shrink-0">
