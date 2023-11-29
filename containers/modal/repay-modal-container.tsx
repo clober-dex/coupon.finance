@@ -71,7 +71,7 @@ const RepayModalContainer = ({
           tokenOut: position.underlying.address,
           slippageLimitPercent: Number(slippage),
           userAddress:
-            CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].OdosRepayAdapter,
+            CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
           gasPrice: Number(feeData.gasPrice),
         })
         return {
@@ -202,7 +202,7 @@ const RepayModalContainer = ({
               pathId,
               userAddress:
                 CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
-                  .OdosRepayAdapter,
+                  .BorrowController,
             })
             await repayWithCollateral(
               position,

@@ -28,7 +28,7 @@ const BorrowFormContainer = ({
 }) => {
   const { selectedChain } = useChainContext()
   const publicClient = usePublicClient()
-  const { balances, prices, assets } = useCurrencyContext()
+  const { balances, prices, assets, epochs: allEpochs } = useCurrencyContext()
   const { borrow } = useBorrowContext()
 
   const [epochs, setEpochs] = useState(0)
@@ -231,7 +231,7 @@ const BorrowFormContainer = ({
             collateralAmount,
             asset,
             borrowAmount,
-            epochs + 1, // todo: absolute epoch index
+            allEpochs[epochs].id,
             min(interest, maxInterest),
             asset
               ? buildPendingPosition(
