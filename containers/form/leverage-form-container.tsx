@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { getAddress, isAddressEqual, zeroAddress } from 'viem'
 import { useFeeData, useQuery } from 'wagmi'
 import BigNumber from 'bignumber.js'
@@ -16,6 +16,7 @@ import { Currency } from '../../model/currency'
 import { HelperModalButton } from '../../components/button/helper-modal-button'
 import { LeverageForm } from '../../components/form/leverage-form'
 import { fetchAmountOutByOdos } from '../../apis/odos'
+import { applyPercent } from '../../utils/bigint'
 
 const LeverageFormContainer = ({
   showHelperModal,
@@ -39,6 +40,10 @@ const LeverageFormContainer = ({
   const [borrowCurrency, setBorrowCurrency] = useState<Currency | undefined>(
     undefined,
   )
+  const multipleBuffer = useRef({
+    previos: multiple,
+    updateAt: Date.now(),
+  })
 
   const asset = useMemo(() => {
     return borrowCurrency
@@ -77,6 +82,19 @@ const LeverageFormContainer = ({
     [collateralValue, collateral, balances],
   )
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (
+        Date.now() - multipleBuffer.current.updateAt > 100 &&
+        multipleBuffer.current.previos !== multiple
+      ) {
+        multipleBuffer.current.previos = multiple
+        multipleBuffer.current.updateAt = Date.now()
+      }
+    }, 1000)
+    return () => clearInterval(interval)
+  }, [multiple])
+
   // ready to calculate
   const {
     data: {
@@ -90,7 +108,7 @@ const LeverageFormContainer = ({
       'leverage-simulate',
       collateral?.underlying.symbol,
       inputCollateralAmount,
-      multiple,
+      multipleBuffer.current.updateAt,
       asset?.underlying.symbol,
       selectedChain,
     ], // TODO: useDebounce
@@ -99,9 +117,11 @@ const LeverageFormContainer = ({
         !feeData?.gasPrice ||
         !collateral ||
         !asset ||
+        multiple === 1 ||
         inputCollateralAmount === 0n
       ) {
         return {
+          pathId: undefined,
           debtAmountWithoutCouponFee: 0n,
           maxLoanableAmountExcludingCouponFee: 0n,
           collateralAmount: 0n,
@@ -158,7 +178,7 @@ const LeverageFormContainer = ({
     },
   )
 
-  const [apy, available, interest, maxInterest, endTimestamp] = useMemo(
+  const [apy, available, interest, maxInterest] = useMemo(
     () =>
       interestsByEpochsBorrowed && interestsByEpochsBorrowed.length > 0
         ? [
@@ -166,9 +186,8 @@ const LeverageFormContainer = ({
             interestsByEpochsBorrowed[epochs].available ?? 0n,
             interestsByEpochsBorrowed[epochs].interest ?? 0n,
             interestsByEpochsBorrowed[epochs].maxInterest ?? 0n,
-            interestsByEpochsBorrowed[epochs].endTimestamp ?? 0,
           ]
-        : [0, 0n, 0n, 0n, 0],
+        : [0, 0n, 0n, 0n],
     [epochs, interestsByEpochsBorrowed],
   )
 
