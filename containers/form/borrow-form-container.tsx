@@ -103,7 +103,6 @@ const BorrowFormContainer = ({
             collateral,
             prices[collateral.underlying.address],
             collateralAmount,
-            collateral.liquidationTargetLtv,
           )
         : 0n,
     [asset, collateral, collateralAmount, prices],

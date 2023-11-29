@@ -123,9 +123,6 @@ const LeverageFormContainer = ({
               collateral,
               prices[collateral.underlying.address],
               inputCollateralAmount + borrowedCollateralAmount,
-              (collateral.liquidationTargetLtv +
-                collateral.liquidationThreshold) /
-                2n,
             )
           : 0n
       const { amountOut: debtAmount } = await fetchAmountOutByOdos({

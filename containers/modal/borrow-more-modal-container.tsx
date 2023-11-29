@@ -40,7 +40,6 @@ const BorrowMoreModalContainer = ({
               position.collateral,
               prices[position.collateral.underlying.address],
               position.collateralAmount,
-              position.collateral.liquidationTargetLtv,
             ) - position.amount,
             0n,
           )
