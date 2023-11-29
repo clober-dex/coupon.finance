@@ -275,6 +275,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       if (!walletClient) {
         return
       }
+      const deadline = getDeadlineTimestampInSeconds()
       const positionPermitResult = await permit721(
         selectedChain.id,
         walletClient,
@@ -282,7 +283,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         position.id,
         walletClient.account.address,
         CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-        getDeadlineTimestampInSeconds(),
+        deadline,
       )
 
       const addedCollateralAmount = max(
@@ -303,7 +304,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         walletClient.account.address,
         CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
         collateralPermitAmount,
-        getDeadlineTimestampInSeconds(),
+        deadline,
       )
 
       const { ethValue: addedDebtEthValue, permitAmount: debtPermitAmount } =
@@ -315,7 +316,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         walletClient.account.address,
         CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
         debtPermitAmount,
-        getDeadlineTimestampInSeconds(),
+        deadline,
       )
 
       await writeContract(publicClient, walletClient, {
