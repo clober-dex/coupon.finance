@@ -1,5 +1,4 @@
 import BigNumber from 'bignumber.js'
-import { Chain } from 'wagmi'
 
 import { Currency } from '../model/currency'
 import { isEther } from '../contexts/currency-context'
@@ -7,11 +6,11 @@ import { isEther } from '../contexts/currency-context'
 import { BigDecimal, dollarValue } from './numbers'
 
 export const ethValue = (
-  chain: Chain,
   ethPrice: BigDecimal,
   inputCurrency: Currency | undefined,
   inputAmount: bigint,
   inputPrice: BigDecimal,
+  nativeCurrencyDecimals: number = 18,
 ): BigNumber => {
   if (!inputCurrency || !inputAmount) {
     return new BigNumber(0)
@@ -23,8 +22,8 @@ export const ethValue = (
   }
   return dollarValue(inputAmount, inputCurrency.decimals, inputPrice).div(
     dollarValue(
-      10n ** BigInt(chain.nativeCurrency.decimals),
-      chain.nativeCurrency.decimals,
+      10n ** BigInt(nativeCurrencyDecimals),
+      nativeCurrencyDecimals,
       ethPrice,
     ),
   )

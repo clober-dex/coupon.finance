@@ -132,11 +132,11 @@ const RepayModalContainer = ({
 
   const minDebtSizeInEth = MIN_DEBT_SIZE_IN_ETH[selectedChain.id as CHAIN_IDS]
   const expectedDebtSizeInEth = ethValue(
-    selectedChain,
     prices[zeroAddress],
     position.underlying,
     max(position.amount - repayAmount - refund, 0n),
     prices[position.underlying.address],
+    selectedChain.nativeCurrency.decimals,
   )
   const isExpectedDebtSizeLessThanMinDebtSize =
     expectedDebtSizeInEth.lt(minDebtSizeInEth) && expectedDebtSizeInEth.gt(0)
