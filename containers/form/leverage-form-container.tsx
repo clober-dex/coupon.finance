@@ -98,6 +98,7 @@ const LeverageFormContainer = ({
   // ready to calculate
   const {
     data: {
+      pathId,
       debtAmountWithoutCouponFee,
       maxLoanableAmountExcludingCouponFee,
       collateralAmount,
@@ -159,7 +160,16 @@ const LeverageFormContainer = ({
         debtAmountWithoutCouponFee,
         maxLoanableAmountExcludingCouponFee,
       )
+      const { pathId } = await fetchAmountOutByOdos({
+        chainId: selectedChain.id,
+        amountIn: debtAmountWithoutCouponFee.toString(),
+        tokenIn: asset.underlying.address,
+        tokenOut: collateral.underlying.address,
+        slippageLimitPercent: 0.5,
+        gasPrice: Number(feeData.gasPrice),
+      })
       return {
+        pathId,
         debtAmountWithoutCouponFee,
         maxLoanableAmountExcludingCouponFee,
         collateralAmount: inputCollateralAmount + borrowedCollateralAmount,
@@ -170,6 +180,7 @@ const LeverageFormContainer = ({
       refetchInterval: 10 * 1000,
       refetchIntervalInBackground: true,
       initialData: {
+        pathId: undefined,
         debtAmountWithoutCouponFee: 0n,
         maxLoanableAmountExcludingCouponFee: 0n,
         collateralAmount: 0n,
@@ -268,7 +279,7 @@ const LeverageFormContainer = ({
             maxLoanableAmountExcludingCouponFee - maxInterest ||
           isDeptSizeLessThanMinDebtSize,
         onClick: async () => {
-          if (!collateral || !asset) {
+          if (!collateral || !asset || !pathId) {
             return
           }
         },
