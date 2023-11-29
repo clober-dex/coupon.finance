@@ -379,38 +379,65 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           amount,
         )
 
+        const newDebtAmount = max(
+          position.amount - (amount + expectedProceeds),
+          0n,
+        )
+
+        const fields: {
+          direction?: 'in' | 'out'
+          currency?: Currency
+          label: string
+          value: string
+        }[] = [
+          {
+            direction: 'in',
+            currency: toWrapETH(position.underlying),
+            label: toWrapETH(position.underlying).symbol,
+            value: formatUnits(
+              permitAmount,
+              position.underlying.decimals,
+              prices[position.underlying.address],
+            ),
+          },
+          {
+            direction: 'in',
+            currency: {
+              address: zeroAddress,
+              ...selectedChain.nativeCurrency,
+            },
+            label: selectedChain.nativeCurrency.symbol,
+            value: formatUnits(
+              ethValue,
+              selectedChain.nativeCurrency.decimals,
+              prices[position.underlying.address],
+            ),
+          },
+        ]
+
+        if (newDebtAmount === 0n) {
+          fields.push({
+            direction: 'out',
+            currency: position.collateral.underlying,
+            label: position.collateral.underlying.symbol,
+            value: formatUnits(
+              position.collateralAmount,
+              position.collateral.underlying.decimals,
+              prices[position.collateral.underlying.address],
+            ),
+          })
+        }
+
         setConfirmation({
           title: `Repaying ${position.underlying.symbol}`,
           body: 'Please confirm in your wallet.',
-          fields: [
-            {
-              direction: 'in',
-              currency: toWrapETH(position.underlying),
-              label: toWrapETH(position.underlying).symbol,
-              value: formatUnits(
-                permitAmount,
-                position.underlying.decimals,
-                prices[position.underlying.address],
-              ),
-            },
-            {
-              direction: 'in',
-              currency: {
-                address: zeroAddress,
-                ...selectedChain.nativeCurrency,
-              },
-              label: selectedChain.nativeCurrency.symbol,
-              value: formatUnits(
-                ethValue,
-                selectedChain.nativeCurrency.decimals,
-                prices[position.underlying.address],
-              ),
-            },
-          ],
+          fields,
         })
         await adjustPosition({
           position,
-          newDebtAmount: max(position.amount - (amount + expectedProceeds), 0n),
+          newDebtAmount,
+          newCollateralAmount:
+            newDebtAmount === 0n ? 0n : position.collateralAmount,
           expectedProceeds,
           paidDebtAmount: amount,
         })
@@ -448,7 +475,12 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
 
       try {
-        const fields = [
+        const fields: {
+          direction?: 'in' | 'out'
+          currency?: Currency
+          label: string
+          value: string
+        }[] = [
           {
             currency: position.collateral.underlying,
             label: `Use ${position.collateral.underlying.symbol}`,
@@ -473,37 +505,48 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           mightBoughtDebtAmount + expectedProceeds - position.amount,
           0n,
         )
+        const newDebtAmount = max(
+          position.amount -
+            applyPercent(
+              mightBoughtDebtAmount + expectedProceeds,
+              100 - slippage,
+            ),
+          0n,
+        )
+        const newCollateralAmount = max(position.collateralAmount - amount, 0n)
+        if (refundAmountAfterSwap > 0) {
+          fields.push({
+            direction: 'out',
+            currency: position.underlying,
+            label: position.underlying.symbol,
+            value: formatUnits(
+              refundAmountAfterSwap,
+              position.underlying.decimals,
+              prices[position.underlying.address],
+            ),
+          })
+        }
+        if (newDebtAmount === 0n && newCollateralAmount > 0n) {
+          fields.push({
+            direction: 'out',
+            currency: position.collateral.underlying,
+            label: position.collateral.underlying.symbol,
+            value: formatUnits(
+              newCollateralAmount,
+              position.collateral.underlying.decimals,
+              prices[position.collateral.underlying.address],
+            ),
+          })
+        }
         setConfirmation({
           title: `Repay with collateral ${position.underlying.symbol}`,
           body: 'Please confirm in your wallet.',
-          fields:
-            refundAmountAfterSwap > 0
-              ? [
-                  ...fields,
-                  {
-                    direction: 'out',
-                    currency: position.underlying,
-                    label: position.underlying.symbol,
-                    value: formatUnits(
-                      refundAmountAfterSwap,
-                      position.underlying.decimals,
-                      prices[position.underlying.address],
-                    ),
-                  },
-                ]
-              : fields,
+          fields,
         })
         await adjustPosition({
           position,
-          newCollateralAmount: max(position.collateralAmount - amount, 0n),
-          newDebtAmount: max(
-            position.amount -
-              applyPercent(
-                mightBoughtDebtAmount + expectedProceeds,
-                100 - slippage,
-              ),
-            0n,
-          ),
+          newCollateralAmount: newDebtAmount === 0n ? 0n : newCollateralAmount,
+          newDebtAmount,
           swapParams: {
             inToken: position.collateral.substitute.address,
             amount: amount,
