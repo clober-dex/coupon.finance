@@ -441,6 +441,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       expectedProceeds: bigint,
       swapData: `0x${string}`,
       refundAmountAfterSwap: bigint,
+      slippage: number = 1,
     ): Promise<void> => {
       if (!walletClient) {
         // TODO: alert wallet connect
@@ -492,7 +493,10 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           position,
           newCollateralAmount: position.collateralAmount - amount,
           newDebtAmount:
-            position.amount - (mightBoughtDebtAmount + expectedProceeds), // TODO: apply slippage to prevent from transaction failure
+            position.amount -
+            ((mightBoughtDebtAmount + expectedProceeds) *
+              (100n - BigInt(slippage))) /
+              100n,
           swapParams: {
             inToken: position.collateral.underlying.address,
             amount: amount,
