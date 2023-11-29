@@ -79,15 +79,13 @@ const EditExpiryModalContainer = ({
         onClick: async () => {
           if (epochs > expiryEpochIndex) {
             await extendLoanDuration(
-              position.underlying,
-              position.id,
+              position,
               epochs - expiryEpochIndex,
               interest,
             )
           } else if (epochs < expiryEpochIndex) {
             await shortenLoanDuration(
-              position.underlying,
-              position.id,
+              position,
               expiryEpochIndex - epochs,
               refund,
             )

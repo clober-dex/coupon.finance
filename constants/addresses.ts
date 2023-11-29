@@ -13,7 +13,6 @@ export const CONTRACT_ADDRESSES: {
     DepositController: `0x${string}`
     EthSubstituteMinter: `0x${string}`
     LoanPositionManager: `0x${string}`
-    OdosRepayAdapter: `0x${string}`
     SimpleBondController: `0x${string}`
     Wrapped1155Factory: `0x${string}`
   }
@@ -22,7 +21,7 @@ export const CONTRACT_ADDRESSES: {
     BondPositionManager:
       '0x0Cf91Bc7a67B063142C029a69fF9C8ccd93476E2' as `0x${string}`,
     BorrowController:
-      '0x13055e05c713b15911cC2509B3C573478b0cd3E2' as `0x${string}`,
+      '0xF3E6FDDCcdaEC2C4B78B86d7a58e352Bf246abc9' as `0x${string}`,
     CouponManager:
       '0x8bbcA766D175aDbffB073832262990df1c5ef748' as `0x${string}`,
     CouponMarketRouter:
@@ -36,8 +35,6 @@ export const CONTRACT_ADDRESSES: {
       '0xeA424D3C88aF908769B3292bd88c60E5652b308E' as `0x${string}`,
     LoanPositionManager:
       '0x03d65411684ae7B5440E11a6063881a774C733dF' as `0x${string}`,
-    OdosRepayAdapter:
-      '0xc8905F37a05B60981A9be741B7B1B6fe1AF60A3F' as `0x${string}`,
     SimpleBondController:
       '0x2EA069EB48De599BBd490a07A2Ea9BD9730F7475' as `0x${string}`,
     Wrapped1155Factory:
@@ -53,7 +50,6 @@ export const CONTRACT_ADDRESSES: {
     DepositController: zeroAddress,
     EthSubstituteMinter: zeroAddress,
     LoanPositionManager: zeroAddress,
-    OdosRepayAdapter: zeroAddress,
     SimpleBondController: zeroAddress,
     Wrapped1155Factory: zeroAddress,
   },

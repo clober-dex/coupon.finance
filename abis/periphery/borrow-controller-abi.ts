@@ -26,9 +26,36 @@ export const BORROW_CONTROLLER_ABI = [
         name: 'loanPositionManager',
         type: 'address',
       },
+      {
+        internalType: 'address',
+        name: 'router',
+        type: 'address',
+      },
     ],
     stateMutability: 'nonpayable',
     type: 'constructor',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'target',
+        type: 'address',
+      },
+    ],
+    name: 'AddressEmptyCode',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+      },
+    ],
+    name: 'AddressInsufficientBalance',
+    type: 'error',
   },
   {
     inputs: [
@@ -48,7 +75,7 @@ export const BORROW_CONTROLLER_ABI = [
   },
   {
     inputs: [],
-    name: 'EpochOverflow',
+    name: 'FailedInnerCall',
     type: 'error',
   },
   {
@@ -67,8 +94,41 @@ export const BORROW_CONTROLLER_ABI = [
     type: 'error',
   },
   {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+    ],
+    name: 'OwnableInvalidOwner',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+      },
+    ],
+    name: 'OwnableUnauthorizedAccount',
+    type: 'error',
+  },
+  {
     inputs: [],
     name: 'Reentrancy',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+    ],
+    name: 'SafeERC20FailedOperation',
     type: 'error',
   },
   {
@@ -150,8 +210,50 @@ export const BORROW_CONTROLLER_ABI = [
       },
       {
         internalType: 'uint256',
-        name: 'amount',
+        name: 'collateralAmount',
         type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'borrowAmount',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'maxPayInterest',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'minEarnInterest',
+        type: 'uint256',
+      },
+      {
+        internalType: 'Epoch',
+        name: 'expiredWith',
+        type: 'uint16',
+      },
+      {
+        components: [
+          {
+            internalType: 'address',
+            name: 'inToken',
+            type: 'address',
+          },
+          {
+            internalType: 'uint256',
+            name: 'amount',
+            type: 'uint256',
+          },
+          {
+            internalType: 'bytes',
+            name: 'data',
+            type: 'bytes',
+          },
+        ],
+        internalType: 'struct IBorrowController.SwapParams',
+        name: 'swapParams',
+        type: 'tuple',
       },
       {
         components: [
@@ -176,7 +278,7 @@ export const BORROW_CONTROLLER_ABI = [
             type: 'bytes32',
           },
         ],
-        internalType: 'struct IController.PermitSignature',
+        internalType: 'struct PermitSignature',
         name: 'positionPermitParams',
         type: 'tuple',
       },
@@ -210,17 +312,56 @@ export const BORROW_CONTROLLER_ABI = [
                 type: 'bytes32',
               },
             ],
-            internalType: 'struct IController.PermitSignature',
+            internalType: 'struct PermitSignature',
             name: 'signature',
             type: 'tuple',
           },
         ],
-        internalType: 'struct IController.ERC20PermitParams',
+        internalType: 'struct ERC20PermitParams',
         name: 'collateralPermitParams',
         type: 'tuple',
       },
+      {
+        components: [
+          {
+            internalType: 'uint256',
+            name: 'permitAmount',
+            type: 'uint256',
+          },
+          {
+            components: [
+              {
+                internalType: 'uint256',
+                name: 'deadline',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint8',
+                name: 'v',
+                type: 'uint8',
+              },
+              {
+                internalType: 'bytes32',
+                name: 'r',
+                type: 'bytes32',
+              },
+              {
+                internalType: 'bytes32',
+                name: 's',
+                type: 'bytes32',
+              },
+            ],
+            internalType: 'struct PermitSignature',
+            name: 'signature',
+            type: 'tuple',
+          },
+        ],
+        internalType: 'struct ERC20PermitParams',
+        name: 'debtPermitParams',
+        type: 'tuple',
+      },
     ],
-    name: 'addCollateral',
+    name: 'adjustPosition',
     outputs: [],
     stateMutability: 'payable',
     type: 'function',
@@ -253,9 +394,31 @@ export const BORROW_CONTROLLER_ABI = [
         type: 'uint256',
       },
       {
-        internalType: 'uint16',
-        name: 'loanEpochs',
+        internalType: 'Epoch',
+        name: 'expiredWith',
         type: 'uint16',
+      },
+      {
+        components: [
+          {
+            internalType: 'address',
+            name: 'inToken',
+            type: 'address',
+          },
+          {
+            internalType: 'uint256',
+            name: 'amount',
+            type: 'uint256',
+          },
+          {
+            internalType: 'bytes',
+            name: 'data',
+            type: 'bytes',
+          },
+        ],
+        internalType: 'struct IBorrowController.SwapParams',
+        name: 'swapParams',
+        type: 'tuple',
       },
       {
         components: [
@@ -287,12 +450,12 @@ export const BORROW_CONTROLLER_ABI = [
                 type: 'bytes32',
               },
             ],
-            internalType: 'struct IController.PermitSignature',
+            internalType: 'struct PermitSignature',
             name: 'signature',
             type: 'tuple',
           },
         ],
-        internalType: 'struct IController.ERC20PermitParams',
+        internalType: 'struct ERC20PermitParams',
         name: 'collateralPermitParams',
         type: 'tuple',
       },
@@ -300,56 +463,6 @@ export const BORROW_CONTROLLER_ABI = [
     name: 'borrow',
     outputs: [],
     stateMutability: 'payable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'positionId',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'maxPayInterest',
-        type: 'uint256',
-      },
-      {
-        components: [
-          {
-            internalType: 'uint256',
-            name: 'deadline',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint8',
-            name: 'v',
-            type: 'uint8',
-          },
-          {
-            internalType: 'bytes32',
-            name: 'r',
-            type: 'bytes32',
-          },
-          {
-            internalType: 'bytes32',
-            name: 's',
-            type: 'bytes32',
-          },
-        ],
-        internalType: 'struct IController.PermitSignature',
-        name: 'positionPermitParams',
-        type: 'tuple',
-      },
-    ],
-    name: 'borrowMore',
-    outputs: [],
-    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
@@ -381,95 +494,6 @@ export const BORROW_CONTROLLER_ABI = [
       },
     ],
     name: 'cloberMarketSwapCallback',
-    outputs: [],
-    stateMutability: 'payable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'positionId',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint16',
-        name: 'epochs',
-        type: 'uint16',
-      },
-      {
-        internalType: 'uint256',
-        name: 'maxPayInterest',
-        type: 'uint256',
-      },
-      {
-        components: [
-          {
-            internalType: 'uint256',
-            name: 'deadline',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint8',
-            name: 'v',
-            type: 'uint8',
-          },
-          {
-            internalType: 'bytes32',
-            name: 'r',
-            type: 'bytes32',
-          },
-          {
-            internalType: 'bytes32',
-            name: 's',
-            type: 'bytes32',
-          },
-        ],
-        internalType: 'struct IController.PermitSignature',
-        name: 'positionPermitParams',
-        type: 'tuple',
-      },
-      {
-        components: [
-          {
-            internalType: 'uint256',
-            name: 'permitAmount',
-            type: 'uint256',
-          },
-          {
-            components: [
-              {
-                internalType: 'uint256',
-                name: 'deadline',
-                type: 'uint256',
-              },
-              {
-                internalType: 'uint8',
-                name: 'v',
-                type: 'uint8',
-              },
-              {
-                internalType: 'bytes32',
-                name: 'r',
-                type: 'bytes32',
-              },
-              {
-                internalType: 'bytes32',
-                name: 's',
-                type: 'bytes32',
-              },
-            ],
-            internalType: 'struct IController.PermitSignature',
-            name: 'signature',
-            type: 'tuple',
-          },
-        ],
-        internalType: 'struct IController.ERC20PermitParams',
-        name: 'debtPermitParams',
-        type: 'tuple',
-      },
-    ],
-    name: 'extendLoanDuration',
     outputs: [],
     stateMutability: 'payable',
     type: 'function',
@@ -629,144 +653,10 @@ export const BORROW_CONTROLLER_ABI = [
     type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'positionId',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        components: [
-          {
-            internalType: 'uint256',
-            name: 'deadline',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint8',
-            name: 'v',
-            type: 'uint8',
-          },
-          {
-            internalType: 'bytes32',
-            name: 'r',
-            type: 'bytes32',
-          },
-          {
-            internalType: 'bytes32',
-            name: 's',
-            type: 'bytes32',
-          },
-        ],
-        internalType: 'struct IController.PermitSignature',
-        name: 'positionPermitParams',
-        type: 'tuple',
-      },
-    ],
-    name: 'removeCollateral',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
     inputs: [],
     name: 'renounceOwnership',
     outputs: [],
     stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'positionId',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'amount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'minEarnInterest',
-        type: 'uint256',
-      },
-      {
-        components: [
-          {
-            internalType: 'uint256',
-            name: 'deadline',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint8',
-            name: 'v',
-            type: 'uint8',
-          },
-          {
-            internalType: 'bytes32',
-            name: 'r',
-            type: 'bytes32',
-          },
-          {
-            internalType: 'bytes32',
-            name: 's',
-            type: 'bytes32',
-          },
-        ],
-        internalType: 'struct IController.PermitSignature',
-        name: 'positionPermitParams',
-        type: 'tuple',
-      },
-      {
-        components: [
-          {
-            internalType: 'uint256',
-            name: 'permitAmount',
-            type: 'uint256',
-          },
-          {
-            components: [
-              {
-                internalType: 'uint256',
-                name: 'deadline',
-                type: 'uint256',
-              },
-              {
-                internalType: 'uint8',
-                name: 'v',
-                type: 'uint8',
-              },
-              {
-                internalType: 'bytes32',
-                name: 'r',
-                type: 'bytes32',
-              },
-              {
-                internalType: 'bytes32',
-                name: 's',
-                type: 'bytes32',
-              },
-            ],
-            internalType: 'struct IController.PermitSignature',
-            name: 'signature',
-            type: 'tuple',
-          },
-        ],
-        internalType: 'struct IController.ERC20PermitParams',
-        name: 'debtPermitParams',
-        type: 'tuple',
-      },
-    ],
-    name: 'repay',
-    outputs: [],
-    stateMutability: 'payable',
     type: 'function',
   },
   {
@@ -795,56 +685,6 @@ export const BORROW_CONTROLLER_ABI = [
       },
     ],
     name: 'setCouponMarket',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'positionId',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint16',
-        name: 'epochs',
-        type: 'uint16',
-      },
-      {
-        internalType: 'uint256',
-        name: 'minEarnInterest',
-        type: 'uint256',
-      },
-      {
-        components: [
-          {
-            internalType: 'uint256',
-            name: 'deadline',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint8',
-            name: 'v',
-            type: 'uint8',
-          },
-          {
-            internalType: 'bytes32',
-            name: 'r',
-            type: 'bytes32',
-          },
-          {
-            internalType: 'bytes32',
-            name: 's',
-            type: 'bytes32',
-          },
-        ],
-        internalType: 'struct IController.PermitSignature',
-        name: 'positionPermitParams',
-        type: 'tuple',
-      },
-    ],
-    name: 'shortenLoanDuration',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',

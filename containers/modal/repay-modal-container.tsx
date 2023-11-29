@@ -71,7 +71,7 @@ const RepayModalContainer = ({
           tokenOut: position.underlying.address,
           slippageLimitPercent: Number(slippage),
           userAddress:
-            CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].OdosRepayAdapter,
+            CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
           gasPrice: Number(feeData.gasPrice),
         })
         return {
@@ -132,11 +132,11 @@ const RepayModalContainer = ({
 
   const minDebtSizeInEth = MIN_DEBT_SIZE_IN_ETH[selectedChain.id as CHAIN_IDS]
   const expectedDebtSizeInEth = ethValue(
-    selectedChain,
     prices[zeroAddress],
     position.underlying,
     max(position.amount - repayAmount - refund, 0n),
     prices[position.underlying.address],
+    selectedChain.nativeCurrency.decimals,
   )
   const isExpectedDebtSizeLessThanMinDebtSize =
     expectedDebtSizeInEth.lt(minDebtSizeInEth) && expectedDebtSizeInEth.gt(0)
@@ -202,7 +202,7 @@ const RepayModalContainer = ({
               pathId,
               userAddress:
                 CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
-                  .OdosRepayAdapter,
+                  .BorrowController,
             })
             await repayWithCollateral(
               position,
@@ -210,7 +210,7 @@ const RepayModalContainer = ({
               repayAmount,
               refund,
               swapData,
-              repayAmount - position.amount,
+              Number(slippage),
             )
           } else if (!isUseCollateral) {
             await repay(position, amount, repayAll ? maxRefund : refund)
