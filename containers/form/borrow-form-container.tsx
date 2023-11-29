@@ -36,7 +36,7 @@ const BorrowFormContainer = ({
 } & React.PropsWithChildren) => {
   const { selectedChain } = useChainContext()
   const publicClient = usePublicClient()
-  const { balances, prices, assets } = useCurrencyContext()
+  const { balances, prices, assets, epochs: allEpochs } = useCurrencyContext()
   const { borrow } = useBorrowContext()
 
   const [epochs, setEpochs] = useState(0)
@@ -147,11 +147,11 @@ const BorrowFormContainer = ({
 
   const minDebtSizeInEth = MIN_DEBT_SIZE_IN_ETH[selectedChain.id as CHAIN_IDS]
   const debtSizeInEth = ethValue(
-    selectedChain,
     prices[zeroAddress],
     asset?.underlying,
     borrowAmount + interest,
     prices[asset?.underlying?.address ?? zeroAddress],
+    selectedChain.nativeCurrency.decimals,
   )
   const isDeptSizeLessThanMinDebtSize =
     debtSizeInEth.lt(minDebtSizeInEth) && debtSizeInEth.gt(0)
@@ -245,7 +245,7 @@ const BorrowFormContainer = ({
             collateralAmount,
             asset,
             borrowAmount,
-            epochs + 1, // todo: absolute epoch index
+            allEpochs[epochs].id,
             min(interest, maxInterest),
             asset
               ? buildPendingPosition(

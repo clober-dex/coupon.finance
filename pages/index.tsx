@@ -6,8 +6,12 @@ import { useCurrencyContext } from '../contexts/currency-context'
 import { useModeContext } from '../contexts/mode-context'
 import { useDepositContext } from '../contexts/deposit-context'
 import { useBorrowContext } from '../contexts/borrow-context'
+import { MIN_DEBT_SIZE_IN_ETH } from '../constants/debt'
+import { CHAIN_IDS } from '../constants/chain'
+import { useChainContext } from '../contexts/chain-context'
 
 const Home = () => {
+  const { selectedChain } = useChainContext()
   const { assetStatuses, epochs, prices } = useCurrencyContext()
   const { selectedMode, onSelectedModeChange } = useModeContext()
   const { positions: bondPositions, collect } = useDepositContext()
@@ -48,6 +52,9 @@ const Home = () => {
             prices={prices}
             positions={loanPositions}
             removeCollateral={removeCollateral}
+            minDebtSizeInEth={
+              MIN_DEBT_SIZE_IN_ETH[selectedChain.id as CHAIN_IDS]
+            }
           />
         ) : (
           <></>

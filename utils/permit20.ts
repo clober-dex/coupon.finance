@@ -33,8 +33,12 @@ export const permit20 = async (
   v: number
   deadline: bigint
 }> => {
+  if (!walletClient || value === 0n) {
+    return dummyPermit20Params.signature
+  }
+
   const allowance = await fetchAllowance(chainId, currency, owner, spender)
-  if (!walletClient || allowance >= value) {
+  if (allowance >= value) {
     return dummyPermit20Params.signature
   }
 

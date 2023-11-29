@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import BigNumber from 'bignumber.js'
-import { isAddressEqual } from 'viem'
+import { isAddressEqual, zeroAddress } from 'viem'
 
 import { BorrowContext } from '../../contexts/borrow-context'
 import { AssetStatus } from '../../model/asset'
@@ -17,6 +17,7 @@ import RepayModalContainer from '../../containers/modal/repay-modal-container'
 import BorrowMoreModalContainer from '../../containers/modal/borrow-more-modal-container'
 import EditExpiryModalContainer from '../../containers/modal/edit-expiry-modal-container'
 import { Prices } from '../../model/prices'
+import { ethValue } from '../../utils/currency'
 
 const BorrowStatus = ({
   assetStatuses,
@@ -24,12 +25,14 @@ const BorrowStatus = ({
   prices,
   positions,
   removeCollateral,
+  minDebtSizeInEth,
 }: {
   assetStatuses: AssetStatus[]
   epochs: Epoch[]
   prices: Prices
   positions: LoanPosition[]
   removeCollateral: BorrowContext['removeCollateral']
+  minDebtSizeInEth: BigNumber
 }) => {
   const [repayPosition, setRepayPosition] = useState<LoanPosition | null>(null)
   const [borrowMorePosition, setBorrowMorePosition] =
@@ -93,23 +96,37 @@ const BorrowStatus = ({
                   Number(a.toEpoch.endTimestamp) -
                   Number(b.toEpoch.endTimestamp),
               )
-              .map((position, index) => (
-                <LoanPositionCard
-                  key={index}
-                  position={position}
-                  price={prices[position.underlying.address]}
-                  collateralPrice={
-                    prices[position.collateral.underlying.address]
-                  }
-                  onRepay={() => setRepayPosition(position)}
-                  onCollect={async () => {
-                    await removeCollateral(position, position.collateralAmount)
-                  }}
-                  onBorrowMore={() => setBorrowMorePosition(position)}
-                  onEditCollateral={() => setEditCollateralPosition(position)}
-                  onEditExpiry={() => setEditExpiryPosition(position)}
-                />
-              ))}
+              .map((position, index) => {
+                const debtSizeInEth = ethValue(
+                  prices[zeroAddress],
+                  position.underlying,
+                  position.amount,
+                  prices[position.underlying.address],
+                )
+                return (
+                  <LoanPositionCard
+                    key={index}
+                    position={position}
+                    price={prices[position.underlying.address]}
+                    collateralPrice={
+                      prices[position.collateral.underlying.address]
+                    }
+                    onRepay={() => setRepayPosition(position)}
+                    onCollect={async () => {
+                      await removeCollateral(
+                        position,
+                        position.collateralAmount,
+                      )
+                    }}
+                    onBorrowMore={() => setBorrowMorePosition(position)}
+                    onEditCollateral={() => setEditCollateralPosition(position)}
+                    onEditExpiry={() => setEditExpiryPosition(position)}
+                    isDeptSizeLessThanMinDebtSize={
+                      debtSizeInEth.lt(minDebtSizeInEth) && debtSizeInEth.gt(0)
+                    }
+                  />
+                )
+              })}
           </div>
         </div>
       ) : (
