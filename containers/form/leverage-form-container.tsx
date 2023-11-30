@@ -274,7 +274,14 @@ const LeverageFormContainer = ({
       setEpochs={setEpochs}
       multiple={multiple}
       setMultiple={setMultiple}
-      maxAvailableMultiple={8}
+      maxAvailableMultiple={
+        Math.floor(
+          1 /
+            (1 -
+              Number(collateral.liquidationTargetLtv) /
+                Number(collateral.ltvPrecision)),
+        ) - 0.01
+      }
       balances={balances}
       prices={prices}
       actionButtonProps={{
