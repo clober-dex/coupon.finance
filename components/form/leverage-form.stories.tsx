@@ -22,6 +22,7 @@ const MockedLeverageForm = ({ ...args }) => {
       collateral={args.collateral}
       collateralValue={args.collateralValue}
       setCollateralValue={args.setCollateralValue}
+      collateralAmount={args.collateralAmount}
       borrowValue={args.borrowValue}
       epochs={args.epochs}
       setEpochs={args.setEpochs}
@@ -84,6 +85,7 @@ export const Default: Story = {
       totalBorrowed: 100000000n,
     },
     collateralValue: '5',
+    collateralAmount: 500000000000n,
     setCollateralValue: () => {},
     borrowValue: '1.1',
     epochs: 2,
@@ -157,6 +159,7 @@ export const SelectDebtAsset: Story = {
       totalBorrowed: 100000000n,
     },
     collateralValue: '5',
+    collateralAmount: 500000000000n,
     setCollateralValue: () => {},
     borrowValue: '1.1',
     epochs: 2,

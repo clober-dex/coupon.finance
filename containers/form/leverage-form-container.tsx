@@ -257,6 +257,7 @@ const LeverageFormContainer = ({
       }
       collateral={collateral}
       collateralValue={collateralValue}
+      collateralAmount={collateralAmount}
       setCollateralValue={setCollateralValue}
       borrowValue={formatUnits(
         debtAmountWithoutCouponFee + interest,

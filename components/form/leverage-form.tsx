@@ -33,6 +33,7 @@ export const LeverageForm = ({
   interestsByEpochsBorrowed,
   collateral,
   collateralValue,
+  collateralAmount,
   setCollateralValue,
   borrowValue,
   epochs,
@@ -54,6 +55,7 @@ export const LeverageForm = ({
   interestsByEpochsBorrowed?: { date: string; apy: number }[]
   collateral: Collateral
   collateralValue: string
+  collateralAmount: bigint
   setCollateralValue: (value: string) => void
   borrowValue: string
   epochs: number
@@ -285,7 +287,11 @@ export const LeverageForm = ({
               <div className="ml-auto">
                 {Number.isNaN(parseFloat(collateralValue))
                   ? 0
-                  : parseFloat(collateralValue) * multiple}{' '}
+                  : formatUnits(
+                      collateralAmount,
+                      collateral.underlying.decimals,
+                      prices[collateral.underlying.address],
+                    )}{' '}
                 {collateral.underlying.symbol}
               </div>
             </div>
