@@ -50,6 +50,36 @@ export const isPendingPosition: Story = {
   },
 }
 
+export const SmallDeptPosition: Story = {
+  args: {
+    position: dummyLoanPosition,
+    price: {
+      value: 990000000n,
+      decimals: 8,
+    },
+    collateralPrice: {
+      value: 176800000000n,
+      decimals: 8,
+    },
+    isDeptSizeLessThanMinDebtSize: true,
+  },
+}
+
+export const LiquidatedPosition: Story = {
+  args: {
+    position: { ...dummyLoanPosition, amount: 0n },
+    price: {
+      value: 990000000n,
+      decimals: 8,
+    },
+    collateralPrice: {
+      value: 176800000000n,
+      decimals: 8,
+    },
+    isDeptSizeLessThanMinDebtSize: false,
+  },
+}
+
 // @ts-ignore
 BigInt.prototype.toJSON = function () {
   return this.toString()
