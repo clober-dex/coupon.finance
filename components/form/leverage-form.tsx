@@ -115,7 +115,7 @@ export const LeverageForm = ({
           <div className="flex items-end self-stretch">
             <span className="font-bold text-sm sm:text-lg">Set multiple.</span>
             <span className="ml-auto text-xs sm:text-sm text-gray-400 font-semibold">
-              Max {maxAvailableMultiple.toFixed(2)} x
+              Max {(maxAvailableMultiple - 0.01).toFixed(2)} x
             </span>
           </div>
           <div className="flex justify-between flex-col relative bg-white dark:bg-gray-900 rounded-lg pb-4 h-[70px]">
