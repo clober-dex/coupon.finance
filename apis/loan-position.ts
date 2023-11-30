@@ -50,6 +50,8 @@ function toLoanPosition(
     | 'collateralAmount'
     | 'createdAt'
     | 'updatedAt'
+    | 'isLeveraged'
+    | 'borrowedCollateralAmount'
   > & {
     substitute: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
     underlying: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
@@ -99,6 +101,8 @@ function toLoanPosition(
     },
     createdAt: Number(loanPosition.createdAt),
     updatedAt: Number(loanPosition.updatedAt),
+    isLeverage: loanPosition.isLeveraged,
+    borrowedCollateralAmount: BigInt(loanPosition.borrowedCollateralAmount),
     isPending: false,
   }
 }

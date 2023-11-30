@@ -47,5 +47,7 @@ query getLoanPosition($positionId: ID!) {
     }
     createdAt
     updatedAt
+    isLeveraged
+    borrowedCollateralAmount
   }
 }

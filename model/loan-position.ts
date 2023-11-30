@@ -14,6 +14,9 @@ export type LoanPosition = {
   toEpoch: Epoch
   createdAt: number
   updatedAt: number
+  isLeverage: boolean
+  borrowedCollateralAmount: bigint
+  pnl?: number
   isPending: boolean
 }
 
