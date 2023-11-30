@@ -648,7 +648,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
     async (
       position: LoanPosition,
       amount: bigint,
-      mightBoughtDebtAmount: bigint,
+      repayAmount: bigint,
       expectedProceeds: bigint,
       swapData: `0x${string}`,
       slippage: number = 1,
@@ -678,33 +678,27 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             currency: position.underlying,
             label: `Repay ${position.underlying.symbol}`,
             value: formatUnits(
-              mightBoughtDebtAmount,
+              repayAmount,
               position.underlying.decimals,
               prices[position.underlying.address],
             ),
           },
         ]
 
-        const refundAmountAfterSwap = max(
-          mightBoughtDebtAmount + expectedProceeds - position.amount,
-          0n,
-        )
+        const dust = max(repayAmount + expectedProceeds - position.amount, 0n)
         const newDebtAmount = max(
           position.amount -
-            applyPercent(
-              mightBoughtDebtAmount + expectedProceeds,
-              100 - slippage,
-            ),
+            applyPercent(repayAmount + expectedProceeds, 100 - slippage),
           0n,
         )
         const newCollateralAmount = max(position.collateralAmount - amount, 0n)
-        if (refundAmountAfterSwap > 0) {
+        if (dust > 0) {
           fields.push({
             direction: 'out',
             currency: position.underlying,
             label: position.underlying.symbol,
             value: formatUnits(
-              refundAmountAfterSwap,
+              dust,
               position.underlying.decimals,
               prices[position.underlying.address],
             ),
