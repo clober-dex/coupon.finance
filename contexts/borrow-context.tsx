@@ -38,11 +38,13 @@ export type BorrowContext = {
   leverage: (
     collateral: Collateral,
     collateralAmount: bigint,
+    collateralWithoutBorrow: bigint,
     loanAsset: Asset,
     loanAmount: bigint,
     epochs: number,
     expectedInterest: bigint,
     swapData: `0x${string}`,
+    slippage: number,
     pendingPosition?: LoanPosition,
   ) => Promise<Hash | undefined>
   extendLoanDuration: (
@@ -263,11 +265,13 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
     async (
       collateral: Collateral,
       collateralAmount: bigint,
+      collateralWithoutBorrow: bigint,
       loanAsset: Asset,
       loanAmount: bigint,
       epochs: number,
       expectedInterest: bigint,
       swapData: `0x${string}`,
+      slippage: number,
       pendingPosition?: LoanPosition,
     ): Promise<Hash | undefined> => {
       if (!walletClient) {
@@ -279,9 +283,9 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       try {
         const ethValue = calculateETHValue(
           collateral.underlying,
-          collateralAmount,
+          collateralWithoutBorrow,
         )
-        const permitAmount = collateralAmount - ethValue
+        const permitAmount = collateralWithoutBorrow - ethValue
         const { deadline, r, s, v } = await permit20(
           selectedChain.id,
           walletClient,
@@ -318,18 +322,10 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
                 prices[collateral.underlying.address],
               ),
             },
-            {
-              direction: 'out',
-              currency: loanAsset.underlying,
-              label: loanAsset.underlying.symbol,
-              value: formatUnits(
-                loanAmount,
-                loanAsset.underlying.decimals,
-                prices[loanAsset.underlying.address],
-              ),
-            },
           ],
         })
+        const borrowedCollateralAmount =
+          collateralAmount - collateralWithoutBorrow
         hash = await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
@@ -338,12 +334,13 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           args: [
             collateral.substitute.address,
             loanAsset.substitutes[0].address,
-            collateralAmount,
+            collateralWithoutBorrow +
+              applyPercent(borrowedCollateralAmount, 100 - slippage),
             loanAmount + expectedInterest,
             expectedInterest,
             epochs,
             {
-              inToken: loanAsset.underlying.address,
+              inToken: loanAsset.substitutes[0].address,
               amount: loanAmount,
               data: swapData,
             },
