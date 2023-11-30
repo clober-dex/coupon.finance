@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { getAddress, isAddressEqual, zeroAddress } from 'viem'
 import { useFeeData, useQuery } from 'wagmi'
 import BigNumber from 'bignumber.js'
@@ -36,14 +36,14 @@ const LeverageFormContainer = ({
 
   const [epochs, setEpochs] = useState(0)
   const [multiple, setMultiple] = useState(2)
+  const [multipleBuffer, setMultipleBuffer] = useState({
+    previous: multiple,
+    updateAt: Date.now(),
+  })
   const [collateralValue, setCollateralValue] = useState('')
   const [borrowCurrency, setBorrowCurrency] = useState<Currency | undefined>(
     undefined,
   )
-  const multipleBuffer = useRef({
-    previos: multiple,
-    updateAt: Date.now(),
-  })
 
   const asset = useMemo(() => {
     return borrowCurrency
@@ -85,15 +85,17 @@ const LeverageFormContainer = ({
   useEffect(() => {
     const interval = setInterval(() => {
       if (
-        Date.now() - multipleBuffer.current.updateAt > 100 &&
-        multipleBuffer.current.previos !== multiple
+        Date.now() - multipleBuffer.updateAt > 100 &&
+        multipleBuffer.previous !== multiple
       ) {
-        multipleBuffer.current.previos = multiple
-        multipleBuffer.current.updateAt = Date.now()
+        setMultipleBuffer({
+          previous: multiple,
+          updateAt: Date.now(),
+        })
       }
-    }, 1000)
+    }, 250)
     return () => clearInterval(interval)
-  }, [multiple])
+  }, [multiple, multipleBuffer.previous, multipleBuffer.updateAt])
 
   // ready to calculate
   const {
@@ -109,7 +111,7 @@ const LeverageFormContainer = ({
       'leverage-simulate',
       collateral?.underlying.symbol,
       inputCollateralAmount,
-      multipleBuffer.current.updateAt,
+      multipleBuffer,
       asset?.underlying.symbol,
       selectedChain,
     ], // TODO: useDebounce
