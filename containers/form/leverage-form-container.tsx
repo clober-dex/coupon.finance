@@ -296,6 +296,8 @@ const LeverageFormContainer = ({
       prices={prices}
       actionButtonProps={{
         disabled:
+          !interestsByEpochsBorrowed ||
+          interestsByEpochsBorrowed.length === 0 ||
           inputCollateralAmount === 0n ||
           inputCollateralAmount > collateralUserBalance ||
           debtAmountWithoutCouponFee > available - maxInterest ||
