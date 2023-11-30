@@ -57,8 +57,9 @@ export async function fetchPricesByOdos({
       }>(`pricing/token/${chainId}`)
     ).tokenPrices,
   ).reduce((acc, [address, price]) => {
+    const value = new BigNumber(10).pow(8).times(price)
     acc[getAddress(address)] = {
-      value: BigInt(new BigNumber(10).pow(8).times(price).toFixed(0)),
+      value: value.isNaN() ? 0n : BigInt(value.toFixed(0)),
       decimals: 8,
     }
     return acc
