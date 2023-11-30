@@ -320,16 +320,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
                 prices[collateral.underlying.address],
               ),
             },
-            {
-              direction: 'out',
-              currency: loanAsset.underlying,
-              label: loanAsset.underlying.symbol,
-              value: formatUnits(
-                loanAmount,
-                loanAsset.underlying.decimals,
-                prices[loanAsset.underlying.address],
-              ),
-            },
           ],
         })
         hash = await writeContract(publicClient, walletClient, {
