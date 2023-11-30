@@ -143,12 +143,9 @@ const BorrowStatus = ({
                     collateralPrice={
                       prices[position.collateral.underlying.address]
                     }
-                    entryCollateralCurrencyPrice={{
-                      value: BigInt(
-                        10 ** 8 * position.entryCollateralCurrencyPrice,
-                      ),
-                      decimals: 8,
-                    }}
+                    entryCollateralCurrencyPrice={
+                      position.entryCollateralCurrencyPrice
+                    }
                     onAdjustMultiple={() => {
                       console.log('adjust multiple')
                     }}

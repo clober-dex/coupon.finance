@@ -104,10 +104,16 @@ function toLoanPosition(
     createdAt: Number(loanPosition.createdAt),
     updatedAt: Number(loanPosition.updatedAt),
     isLeverage: loanPosition.isLeveraged,
-    entryCollateralCurrencyPrice: Number(
-      loanPosition.entryCollateralCurrencyPrice,
-    ),
-    entryDebtCurrencyPrice: Number(loanPosition.entryDebtCurrencyPrice),
+    entryCollateralCurrencyPrice: {
+      value: BigInt(
+        Number(loanPosition.entryCollateralCurrencyPrice) * 10 ** 8,
+      ),
+      decimals: 8,
+    },
+    entryDebtCurrencyPrice: {
+      value: BigInt(Number(loanPosition.entryDebtCurrencyPrice) * 10 ** 8),
+      decimals: 8,
+    },
     borrowedCollateralAmount: BigInt(loanPosition.borrowedCollateralAmount),
     isPending: false,
   }
