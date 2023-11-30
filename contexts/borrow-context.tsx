@@ -38,6 +38,7 @@ export type BorrowContext = {
   leverage: (
     collateral: Collateral,
     collateralAmount: bigint,
+    collateralWithoutBorrow: bigint,
     loanAsset: Asset,
     loanAmount: bigint,
     epochs: number,
@@ -263,6 +264,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
     async (
       collateral: Collateral,
       collateralAmount: bigint,
+      collateralWithoutBorrow: bigint,
       loanAsset: Asset,
       loanAmount: bigint,
       epochs: number,
@@ -279,9 +281,9 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       try {
         const ethValue = calculateETHValue(
           collateral.underlying,
-          collateralAmount,
+          collateralWithoutBorrow,
         )
-        const permitAmount = collateralAmount - ethValue
+        const permitAmount = collateralWithoutBorrow - ethValue
         const { deadline, r, s, v } = await permit20(
           selectedChain.id,
           walletClient,

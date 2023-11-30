@@ -318,6 +318,7 @@ const LeverageFormContainer = ({
           const hash = await leverage(
             collateral,
             collateralAmount,
+            inputCollateralAmount,
             asset,
             debtAmountWithoutCouponFee,
             allEpochs[epochs].id,
