@@ -292,7 +292,7 @@ const LeverageFormContainer = ({
             (1 -
               Number(collateral.liquidationTargetLtv) /
                 Number(collateral.ltvPrecision)),
-        ) - 0.01
+        ) - 0.02
       }
       balances={balances}
       prices={prices}
