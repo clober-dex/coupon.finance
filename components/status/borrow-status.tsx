@@ -18,12 +18,14 @@ import BorrowMoreModalContainer from '../../containers/modal/borrow-more-modal-c
 import EditExpiryModalContainer from '../../containers/modal/edit-expiry-modal-container'
 import { Prices } from '../../model/prices'
 import { ethValue } from '../../utils/currency'
+import { LeveragePositionCard } from '../card/leverage-position-card'
 
 const BorrowStatus = ({
   assetStatuses,
   epochs,
   prices,
   positions,
+  pnls,
   removeCollateral,
   minDebtSizeInEth,
 }: {
@@ -31,6 +33,7 @@ const BorrowStatus = ({
   epochs: Epoch[]
   prices: Prices
   positions: LoanPosition[]
+  pnls: BorrowContext['pnls']
   removeCollateral: BorrowContext['removeCollateral']
   minDebtSizeInEth: BigNumber
 }) => {
@@ -103,7 +106,7 @@ const BorrowStatus = ({
                   position.amount,
                   prices[position.underlying.address],
                 )
-                return (
+                return !position.isLeverage ? (
                   <LoanPositionCard
                     key={index}
                     position={position}
@@ -119,6 +122,45 @@ const BorrowStatus = ({
                       )
                     }}
                     onBorrowMore={() => setBorrowMorePosition(position)}
+                    onEditCollateral={() => setEditCollateralPosition(position)}
+                    onEditExpiry={() => setEditExpiryPosition(position)}
+                    isDeptSizeLessThanMinDebtSize={
+                      debtSizeInEth.lt(minDebtSizeInEth) && debtSizeInEth.gt(0)
+                    }
+                  />
+                ) : (
+                  <LeveragePositionCard
+                    position={position}
+                    multiple={
+                      Number(position.collateralAmount) /
+                      Number(
+                        position.collateralAmount -
+                          position.borrowedCollateralAmount,
+                      )
+                    }
+                    pnl={pnls[Number(position.id)]}
+                    price={prices[position.underlying.address]}
+                    collateralPrice={
+                      prices[position.collateral.underlying.address]
+                    }
+                    entryCollateralCurrencyPrice={{
+                      value: BigInt(
+                        10 ** 8 * position.entryCollateralCurrencyPrice,
+                      ),
+                      decimals: 8,
+                    }}
+                    onAdjustMultiple={() => {
+                      console.log('adjust multiple')
+                    }}
+                    onClose={() => {
+                      console.log('close')
+                    }}
+                    onCollect={async () => {
+                      await removeCollateral(
+                        position,
+                        position.collateralAmount,
+                      )
+                    }}
                     onEditCollateral={() => setEditCollateralPosition(position)}
                     onEditExpiry={() => setEditExpiryPosition(position)}
                     isDeptSizeLessThanMinDebtSize={

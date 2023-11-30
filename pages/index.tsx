@@ -15,7 +15,11 @@ const Home = () => {
   const { assetStatuses, epochs, prices } = useCurrencyContext()
   const { selectedMode, onSelectedModeChange } = useModeContext()
   const { positions: bondPositions, collect } = useDepositContext()
-  const { positions: loanPositions, removeCollateral } = useBorrowContext()
+  const {
+    positions: loanPositions,
+    pnls,
+    removeCollateral,
+  } = useBorrowContext()
 
   return (
     <div className="flex flex-1">
@@ -51,6 +55,7 @@ const Home = () => {
             epochs={epochs}
             prices={prices}
             positions={loanPositions}
+            pnls={pnls}
             removeCollateral={removeCollateral}
             minDebtSizeInEth={
               MIN_DEBT_SIZE_IN_ETH[selectedChain.id as CHAIN_IDS]
