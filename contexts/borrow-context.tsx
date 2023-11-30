@@ -35,6 +35,16 @@ export type BorrowContext = {
     expectedInterest: bigint,
     pendingPosition?: LoanPosition,
   ) => Promise<Hash | undefined>
+  leverage: (
+    collateral: Collateral,
+    collateralAmount: bigint,
+    loanAsset: Asset,
+    loanAmount: bigint,
+    epochs: number,
+    expectedInterest: bigint,
+    swapData: `0x${string}`,
+    pendingPosition?: LoanPosition,
+  ) => Promise<Hash | undefined>
   extendLoanDuration: (
     position: LoanPosition,
     extendedEpoch: number,
@@ -70,6 +80,7 @@ export type BorrowContext = {
 const Context = React.createContext<BorrowContext>({
   positions: [],
   borrow: () => Promise.resolve(undefined),
+  leverage: () => Promise.resolve(undefined),
   repay: () => Promise.resolve(),
   repayWithCollateral: () => Promise.resolve(),
   borrowMore: () => Promise.resolve(),
@@ -210,6 +221,131 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               inToken: zeroAddress as `0x${string}`,
               amount: 0n,
               data: zeroBytes32 as `0x${string}`,
+            },
+            {
+              permitAmount,
+              signature: { deadline, v, r, s },
+            },
+          ],
+          value: ethValue,
+          account: walletClient.account,
+        })
+        setPendingPositions(
+          (prevState) =>
+            [
+              ...(pendingPosition ? [pendingPosition] : []),
+              ...prevState,
+            ] as LoanPosition[],
+        )
+        await queryClient.invalidateQueries(['loan-positions'])
+      } catch (e) {
+        setPendingPositions([])
+        console.error(e)
+      } finally {
+        await queryClient.invalidateQueries(['balances'])
+        setConfirmation(undefined)
+      }
+      return hash
+    },
+    [
+      walletClient,
+      calculateETHValue,
+      selectedChain.id,
+      selectedChain.nativeCurrency,
+      setConfirmation,
+      prices,
+      publicClient,
+      queryClient,
+    ],
+  )
+
+  const leverage = useCallback(
+    async (
+      collateral: Collateral,
+      collateralAmount: bigint,
+      loanAsset: Asset,
+      loanAmount: bigint,
+      epochs: number,
+      expectedInterest: bigint,
+      swapData: `0x${string}`,
+      pendingPosition?: LoanPosition,
+    ): Promise<Hash | undefined> => {
+      if (!walletClient) {
+        // TODO: alert wallet connect
+        return
+      }
+
+      let hash: Hash | undefined
+      try {
+        const ethValue = calculateETHValue(
+          collateral.underlying,
+          collateralAmount,
+        )
+        const permitAmount = collateralAmount - ethValue
+        const { deadline, r, s, v } = await permit20(
+          selectedChain.id,
+          walletClient,
+          collateral.underlying,
+          walletClient.account.address,
+          CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
+          permitAmount,
+          getDeadlineTimestampInSeconds(),
+        )
+        setConfirmation({
+          title: `Borrowing ${loanAsset.underlying.symbol}`,
+          body: 'Please confirm in your wallet.',
+          fields: [
+            {
+              direction: 'in',
+              currency: toWrapETH(collateral.underlying),
+              label: toWrapETH(collateral.underlying).symbol,
+              value: formatUnits(
+                permitAmount,
+                collateral.underlying.decimals,
+                prices[collateral.underlying.address],
+              ),
+            },
+            {
+              direction: 'in',
+              currency: {
+                address: zeroAddress,
+                ...selectedChain.nativeCurrency,
+              },
+              label: selectedChain.nativeCurrency.symbol,
+              value: formatUnits(
+                ethValue,
+                selectedChain.nativeCurrency.decimals,
+                prices[collateral.underlying.address],
+              ),
+            },
+            {
+              direction: 'out',
+              currency: loanAsset.underlying,
+              label: loanAsset.underlying.symbol,
+              value: formatUnits(
+                loanAmount,
+                loanAsset.underlying.decimals,
+                prices[loanAsset.underlying.address],
+              ),
+            },
+          ],
+        })
+        hash = await writeContract(publicClient, walletClient, {
+          address:
+            CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
+          abi: BORROW_CONTROLLER_ABI,
+          functionName: 'borrow',
+          args: [
+            collateral.substitute.address,
+            loanAsset.substitutes[0].address,
+            collateralAmount,
+            loanAmount + expectedInterest,
+            expectedInterest,
+            epochs,
+            {
+              inToken: loanAsset.underlying.address,
+              amount: loanAmount,
+              data: swapData,
             },
             {
               permitAmount,
@@ -833,6 +969,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       value={{
         positions,
         borrow,
+        leverage,
         repay,
         repayWithCollateral,
         borrowMore,

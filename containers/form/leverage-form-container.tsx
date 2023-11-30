@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { getAddress, isAddressEqual, zeroAddress } from 'viem'
-import { useFeeData, useQuery } from 'wagmi'
+import { useFeeData, usePublicClient, useQuery } from 'wagmi'
 import BigNumber from 'bignumber.js'
+import { useRouter } from 'next/router'
 
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { fetchBorrowApyByEpochsBorrowed } from '../../apis/market'
@@ -15,8 +16,11 @@ import { formatUnits, parseUnits } from '../../utils/numbers'
 import { Currency } from '../../model/currency'
 import { HelperModalButton } from '../../components/button/helper-modal-button'
 import { LeverageForm } from '../../components/form/leverage-form'
-import { fetchAmountOutByOdos } from '../../apis/odos'
-import { applyPercent } from '../../utils/bigint'
+import { fetchAmountOutByOdos, fetchCallDataByOdos } from '../../apis/odos'
+import { applyPercent, min } from '../../utils/bigint'
+import { buildPendingPosition } from '../../model/loan-position'
+import { useBorrowContext } from '../../contexts/borrow-context'
+import { CONTRACT_ADDRESSES } from '../../constants/addresses'
 
 const LeverageFormContainer = ({
   showHelperModal,
@@ -31,8 +35,10 @@ const LeverageFormContainer = ({
   defaultCollateralCurrency: Currency
 } & React.PropsWithChildren) => {
   const { selectedChain } = useChainContext()
+  const publicClient = usePublicClient()
   const { data: feeData } = useFeeData()
-  const { balances, prices, assets } = useCurrencyContext()
+  const { balances, prices, assets, epochs: allEpochs } = useCurrencyContext()
+  const { leverage } = useBorrowContext()
 
   const [epochs, setEpochs] = useState(0)
   const [multiple, setMultiple] = useState(2)
@@ -45,6 +51,7 @@ const LeverageFormContainer = ({
     undefined,
   )
 
+  const router = useRouter()
   const asset = useMemo(() => {
     return borrowCurrency
       ? assets.find((asset) =>
@@ -170,6 +177,8 @@ const LeverageFormContainer = ({
           tokenIn: asset.underlying.address,
           tokenOut: collateral.underlying.address,
           slippageLimitPercent: 0.5,
+          userAddress:
+            CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
           gasPrice: Number(feeData.gasPrice),
         }),
       ])
@@ -195,7 +204,7 @@ const LeverageFormContainer = ({
     },
   )
 
-  const [apy, available, interest, maxInterest] = useMemo(
+  const [apy, available, interest, maxInterest, endTimestamp] = useMemo(
     () =>
       interestsByEpochsBorrowed && interestsByEpochsBorrowed.length > 0
         ? [
@@ -203,8 +212,9 @@ const LeverageFormContainer = ({
             interestsByEpochsBorrowed[epochs].available ?? 0n,
             interestsByEpochsBorrowed[epochs].interest ?? 0n,
             interestsByEpochsBorrowed[epochs].maxInterest ?? 0n,
+            interestsByEpochsBorrowed[epochs].endTimestamp ?? 0,
           ]
-        : [0, 0n, 0n, 0n],
+        : [0, 0n, 0n, 0n, 0],
     [epochs, interestsByEpochsBorrowed],
   )
 
@@ -295,6 +305,37 @@ const LeverageFormContainer = ({
         onClick: async () => {
           if (!collateral || !asset || !pathId) {
             return
+          }
+          const { data: swapData } = await fetchCallDataByOdos({
+            pathId,
+            userAddress:
+              CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
+                .BorrowController,
+          })
+          const { timestamp } = await publicClient.getBlock()
+          const hash = await leverage(
+            collateral,
+            collateralAmount,
+            asset,
+            debtAmountWithoutCouponFee,
+            allEpochs[epochs].id,
+            min(interest, maxInterest),
+            swapData,
+            asset
+              ? buildPendingPosition(
+                  asset.substitutes[0],
+                  asset.underlying,
+                  collateral,
+                  min(interest, maxInterest),
+                  debtAmountWithoutCouponFee,
+                  collateralAmount,
+                  endTimestamp,
+                  Number(timestamp),
+                )
+              : undefined,
+          )
+          if (hash) {
+            await router.replace('/?mode=borrow')
           }
         },
         text:
