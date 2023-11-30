@@ -135,7 +135,7 @@ export const LeveragePositionCard = ({
             <div className="flex gap-1">
               <div className="text-sm sm:text-base">
                 {formatUnits(
-                  position.collateralAmount - position.borrowedCollateralAmount,
+                  position.collateralAmount,
                   position.collateral.underlying.decimals,
                   collateralPrice,
                 )}{' '}
