@@ -70,7 +70,7 @@ export const LeveragePositionCard = ({
       <div className="flex p-4 items-center self-stretch">
         <div className="flex items-center gap-3 flex-grow shrink-0 basis-0">
           <CurrencyIcon
-            currency={position.underlying}
+            currency={position.collateral.underlying}
             className="w-8 h-8 sm:w-10 sm:h-10"
           />
           <div className="flex flex-col">
@@ -78,7 +78,7 @@ export const LeveragePositionCard = ({
               Leverage x{multiple.toFixed(2)}
             </div>
             <div className="text-base font-bold">
-              {position.underlying.symbol}
+              {position.collateral.underlying.symbol}
             </div>
           </div>
         </div>
@@ -130,33 +130,12 @@ export const LeveragePositionCard = ({
         <div className="flex flex-col items-start gap-3 flex-grow shrink-0 basis-0 self-stretch">
           <div className="flex items-center gap-1 self-stretch">
             <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
-              Borrowed
-            </div>
-            <div className="text-sm sm:text-base">
-              {formatUnits(
-                position.amount,
-                position.underlying.decimals,
-                price,
-              )}{' '}
-              <span className="text-gray-500 text-xs">
-                (
-                {formatDollarValue(
-                  position.amount,
-                  position.underlying.decimals,
-                  price,
-                )}
-                )
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center gap-1 self-stretch">
-            <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
               Collateral
             </div>
             <div className="flex gap-1">
               <div className="text-sm sm:text-base">
                 {formatUnits(
-                  position.collateralAmount,
+                  position.collateralAmount - position.borrowedCollateralAmount,
                   position.collateral.underlying.decimals,
                   collateralPrice,
                 )}{' '}
