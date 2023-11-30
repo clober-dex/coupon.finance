@@ -156,20 +156,24 @@ const LeverageFormContainer = ({
           slippageLimitPercent: 0.5,
           gasPrice: Number(feeData.gasPrice),
         })
-      const interestsByEpochsBorrowed = await fetchBorrowApyByEpochsBorrowed(
-        selectedChain.id,
-        asset,
-        debtAmountWithoutCouponFee,
-        maxLoanableAmountExcludingCouponFee,
-      )
-      const { pathId } = await fetchAmountOutByOdos({
-        chainId: selectedChain.id,
-        amountIn: debtAmountWithoutCouponFee.toString(),
-        tokenIn: asset.underlying.address,
-        tokenOut: collateral.underlying.address,
-        slippageLimitPercent: 0.5,
-        gasPrice: Number(feeData.gasPrice),
-      })
+
+      const [interestsByEpochsBorrowed, { pathId }] = await Promise.all([
+        fetchBorrowApyByEpochsBorrowed(
+          selectedChain.id,
+          asset,
+          debtAmountWithoutCouponFee,
+          maxLoanableAmountExcludingCouponFee,
+        ),
+        fetchAmountOutByOdos({
+          chainId: selectedChain.id,
+          amountIn: debtAmountWithoutCouponFee.toString(),
+          tokenIn: asset.underlying.address,
+          tokenOut: collateral.underlying.address,
+          slippageLimitPercent: 0.5,
+          gasPrice: Number(feeData.gasPrice),
+        }),
+      ])
+
       return {
         pathId,
         debtAmountWithoutCouponFee,
