@@ -54,9 +54,10 @@ export const LoanPositionCard = ({
     [collateralPrice, position, price],
   )
 
-  const isExpired = useMemo(
-    () => now >= Number(position.toEpoch.endTimestamp),
-    [now, position.toEpoch.endTimestamp],
+  const isLiquidated = useMemo(
+    () =>
+      now >= Number(position.toEpoch.endTimestamp) || position.amount === 0n,
+    [now, position.amount, position.toEpoch.endTimestamp],
   )
 
   return (
@@ -78,7 +79,7 @@ export const LoanPositionCard = ({
         </div>
         <div className="flex flex-col justify-center items-end gap-0.5 font-bold">
           <div>
-            {!isExpired ? (
+            {!isLiquidated ? (
               <>
                 <div className="flex text-xs text-gray-500 dark:text-gray-400 justify-end font-normal">
                   <div className="flex flex-row gap-1 items-center justify-center">
@@ -115,7 +116,7 @@ export const LoanPositionCard = ({
                 </div>
               </>
             ) : (
-              <div className="font-bold text-base">Expired</div>
+              <div className="font-bold text-base">Liquidated</div>
             )}
           </div>
         </div>
@@ -177,7 +178,7 @@ export const LoanPositionCard = ({
                 )}{' '}
                 {position.collateral.underlying.symbol}
               </div>
-              {!isExpired &&
+              {!isLiquidated &&
               !position.isPending &&
               !isDeptSizeLessThanMinDebtSize ? (
                 <button>
@@ -204,7 +205,7 @@ export const LoanPositionCard = ({
           {children}
         </div>
         <div className="flex items-start gap-3 self-stretch">
-          {!isExpired ? (
+          {!isLiquidated ? (
             <button
               className="flex-1 bg-green-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-green-500 font-bold px-3 py-2 rounded text-sm"
               onClick={onBorrowMore}
@@ -217,10 +218,10 @@ export const LoanPositionCard = ({
           )}
           <button
             className="flex-1 bg-green-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-green-500 font-bold px-3 py-2 rounded text-sm"
-            onClick={!isExpired ? onRepay : onCollect}
+            onClick={!isLiquidated ? onRepay : onCollect}
             disabled={position.isPending}
           >
-            {!isExpired ? 'Repay' : 'Collect Collateral'}
+            {!isLiquidated ? 'Repay' : 'Collect Collateral'}
           </button>
         </div>
       </div>
