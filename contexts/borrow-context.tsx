@@ -44,6 +44,7 @@ export type BorrowContext = {
     epochs: number,
     expectedInterest: bigint,
     swapData: `0x${string}`,
+    slippage: number,
     pendingPosition?: LoanPosition,
   ) => Promise<Hash | undefined>
   extendLoanDuration: (
@@ -270,6 +271,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       epochs: number,
       expectedInterest: bigint,
       swapData: `0x${string}`,
+      slippage: number,
       pendingPosition?: LoanPosition,
     ): Promise<Hash | undefined> => {
       if (!walletClient) {
@@ -322,6 +324,8 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             },
           ],
         })
+        const borrowedCollateralAmount =
+          collateralAmount - collateralWithoutBorrow
         hash = await writeContract(publicClient, walletClient, {
           address:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
@@ -330,7 +334,8 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           args: [
             collateral.substitute.address,
             loanAsset.substitutes[0].address,
-            collateralAmount,
+            collateralWithoutBorrow +
+              applyPercent(borrowedCollateralAmount, 100 - slippage),
             loanAmount + expectedInterest,
             expectedInterest,
             epochs,

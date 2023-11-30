@@ -22,6 +22,8 @@ import { buildPendingPosition } from '../../model/loan-position'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import { CONTRACT_ADDRESSES } from '../../constants/addresses'
 
+const SLIPPAGE_LIMIT_PERCENT = 0.5
+
 const LeverageFormContainer = ({
   showHelperModal,
   setShowHelperModal,
@@ -160,7 +162,7 @@ const LeverageFormContainer = ({
           amountIn: borrowedCollateralAmount.toString(),
           tokenIn: collateral.underlying.address,
           tokenOut: asset.underlying.address,
-          slippageLimitPercent: 0.5,
+          slippageLimitPercent: SLIPPAGE_LIMIT_PERCENT,
           gasPrice: Number(feeData.gasPrice),
         })
 
@@ -176,7 +178,7 @@ const LeverageFormContainer = ({
           amountIn: debtAmountWithoutCouponFee.toString(),
           tokenIn: asset.underlying.address,
           tokenOut: collateral.underlying.address,
-          slippageLimitPercent: 0.5,
+          slippageLimitPercent: SLIPPAGE_LIMIT_PERCENT,
           userAddress:
             CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
           gasPrice: Number(feeData.gasPrice),
@@ -324,6 +326,7 @@ const LeverageFormContainer = ({
             allEpochs[epochs].id,
             min(interest, maxInterest),
             swapData,
+            SLIPPAGE_LIMIT_PERCENT,
             asset
               ? buildPendingPosition(
                   asset.substitutes[0],
