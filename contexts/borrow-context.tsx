@@ -26,6 +26,8 @@ import { BORROW_CONTROLLER_ABI } from '../abis/periphery/borrow-controller-abi'
 import { zeroBytes32 } from '../utils/bytes'
 import { applyPercent, max } from '../utils/bigint'
 import { fetchAmountOutByOdos } from '../apis/odos'
+import { fetchMarketsByQuoteTokenAddress } from '../apis/market'
+import { calculateCouponsToRepay } from '../model/market'
 
 import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -145,9 +147,21 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           if (!position.isLeverage) {
             return 0
           }
+          const markets = (
+            await fetchMarketsByQuoteTokenAddress(
+              selectedChain.id,
+              position.substitute.address,
+            )
+          ).filter((market) => market.epoch <= position.toEpoch.id)
+          const { maxRefund } = calculateCouponsToRepay(
+            position.substitute,
+            markets,
+            position.amount,
+            0n,
+          )
           const { amountOut } = await fetchAmountOutByOdos({
             chainId: selectedChain.id,
-            amountIn: (position.amount - position.interest).toString(),
+            amountIn: (position.amount - maxRefund).toString(),
             tokenIn: position.underlying.address,
             tokenOut: position.collateral.underlying.address,
             slippageLimitPercent: 0.5,
