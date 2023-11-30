@@ -345,7 +345,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             expectedInterest,
             epochs,
             {
-              inToken: loanAsset.underlying.address,
+              inToken: loanAsset.substitutes[0].address,
               amount: loanAmount,
               data: swapData,
             },
