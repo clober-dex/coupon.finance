@@ -16,7 +16,8 @@ export type LoanPosition = {
   updatedAt: number
   isLeverage: boolean
   borrowedCollateralAmount: bigint
-  pnl?: number
+  entryCollateralCurrencyPrice: number
+  entryDebtCurrencyPrice: number
   isPending: boolean
 }
 
