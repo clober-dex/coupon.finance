@@ -8,28 +8,35 @@ import { getLTVTextColor } from '../../utils/ltv'
 import { ArrowSvg } from '../svg/arrow-svg'
 import { Collateral } from '../../model/collateral'
 import CloseSvg from '../svg/close-svg'
+import { BigDecimal, formatUnits } from '../../utils/numbers'
 
 const AdjustLeverageModal = ({
   isLoadingResults,
   onClose,
   collateral,
+  collateralPrice,
   multiple,
   setMultiple,
   maxAvailableMultiple,
   currentMultiple,
   currentLtv,
   expectedLtv,
+  currentPositionSize,
+  expectedPositionSize,
   actionButtonProps,
 }: {
   isLoadingResults: boolean
   onClose: () => void
   collateral: Collateral
+  collateralPrice: BigDecimal
   multiple: number
   setMultiple: (value: number) => void
   maxAvailableMultiple: number
   currentMultiple: number
   currentLtv: number
   expectedLtv: number
+  currentPositionSize: bigint
+  expectedPositionSize: bigint
   actionButtonProps: ActionButtonProps
 }) => {
   return (
@@ -71,6 +78,20 @@ const AdjustLeverageModal = ({
           </div>
           <div className="flex flex-col gap-2">
             <div className="flex items-start self-stretch">
+              <div className="text-gray-400 text-base">Multiple</div>
+              <div className="flex ml-auto items-center gap-1.5 text-base text-black dark:text-white">
+                {currentMultiple.toFixed(2)}x
+                {currentMultiple !== multiple ? (
+                  <>
+                    <ArrowSvg />
+                    {multiple.toFixed(2)}x
+                  </>
+                ) : (
+                  <></>
+                )}
+              </div>
+            </div>
+            <div className="flex items-start self-stretch">
               <div className="text-gray-400 text-base">LTV</div>
               <div className="flex ml-auto items-center gap-1.5 text-base text-black dark:text-white">
                 <span className={`${getLTVTextColor(currentLtv, collateral)}`}>
@@ -98,13 +119,31 @@ const AdjustLeverageModal = ({
               </div>
             </div>
             <div className="flex items-start self-stretch">
-              <div className="text-gray-400 text-base">Multiple</div>
+              <div className="text-gray-400 text-base">Position Size</div>
               <div className="flex ml-auto items-center gap-1.5 text-base text-black dark:text-white">
-                {currentMultiple.toFixed(2)}x
+                <span>
+                  {formatUnits(
+                    currentPositionSize,
+                    collateral.underlying.decimals,
+                    collateralPrice,
+                  )}{' '}
+                  {collateral.underlying.symbol}
+                </span>
                 {currentMultiple !== multiple ? (
                   <>
                     <ArrowSvg />
-                    {multiple.toFixed(2)}x
+                    {isLoadingResults ? (
+                      <span className="w-[56px] h-[24px] mx-1 rounded animate-pulse bg-gray-300 dark:bg-gray-500" />
+                    ) : (
+                      <span>
+                        {formatUnits(
+                          expectedPositionSize,
+                          collateral.underlying.decimals,
+                          collateralPrice,
+                        )}{' '}
+                        {collateral.underlying.symbol}
+                      </span>
+                    )}
                   </>
                 ) : (
                   <></>

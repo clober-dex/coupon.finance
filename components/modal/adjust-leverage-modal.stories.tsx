@@ -22,11 +22,17 @@ export const Default: Story = {
     onClose: () => {},
     multiple: 3,
     collateral: dummyLoanPosition.collateral,
+    collateralPrice: {
+      value: 200000000000000000n,
+      decimals: 18,
+    },
     setMultiple: () => {},
     maxAvailableMultiple: 5,
     currentMultiple: 2,
     currentLtv: 60,
     expectedLtv: 70,
+    currentPositionSize: 10000000000n,
+    expectedPositionSize: 20000000000n,
     actionButtonProps: {
       disabled: false,
       onClick: () => {},

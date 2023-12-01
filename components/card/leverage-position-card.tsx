@@ -130,7 +130,7 @@ export const LeveragePositionCard = ({
         <div className="flex flex-col items-start gap-3 flex-grow shrink-0 basis-0 self-stretch">
           <div className="flex items-center gap-1 self-stretch">
             <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
-              Collateral
+              Position Size
             </div>
             <div className="flex gap-1">
               <div className="text-sm sm:text-base">
