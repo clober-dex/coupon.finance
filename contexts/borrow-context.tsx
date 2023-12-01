@@ -847,7 +847,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             position.collateralAmount +
             applyPercent(collateralAmountDelta, 100 - slippage),
           swapParams: {
-            inToken: position.collateral.substitute.address,
+            inToken: position.substitute.address,
             amount: loanAmount,
             data: swapData,
           },
