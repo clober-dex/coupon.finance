@@ -9,6 +9,7 @@ import { ArrowSvg } from '../svg/arrow-svg'
 import { Collateral } from '../../model/collateral'
 
 const AdjustLeverageModal = ({
+  isLoadingResults,
   onClose,
   collateral,
   multiple,
@@ -19,6 +20,7 @@ const AdjustLeverageModal = ({
   expectedLtv,
   actionButtonProps,
 }: {
+  isLoadingResults: boolean
   onClose: () => void
   collateral: Collateral
   multiple: number
@@ -71,11 +73,18 @@ const AdjustLeverageModal = ({
                 {currentMultiple !== multiple ? (
                   <>
                     <ArrowSvg />
-                    <span
-                      className={`${getLTVTextColor(expectedLtv, collateral)}`}
-                    >
-                      {expectedLtv.toFixed(2)}%
-                    </span>
+                    {isLoadingResults ? (
+                      <span className="w-[56px] h-[24px] mx-1 rounded animate-pulse bg-gray-300 dark:bg-gray-500" />
+                    ) : (
+                      <span
+                        className={`${getLTVTextColor(
+                          expectedLtv,
+                          collateral,
+                        )}`}
+                      >
+                        {expectedLtv.toFixed(2)}%
+                      </span>
+                    )}
                   </>
                 ) : (
                   <></>

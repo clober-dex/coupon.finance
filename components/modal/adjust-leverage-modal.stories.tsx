@@ -18,6 +18,7 @@ type Story = StoryObj<typeof AdjustLeverageModal>
 
 export const Default: Story = {
   args: {
+    isLoadingResults: false,
     onClose: () => {},
     multiple: 3,
     collateral: dummyLoanPosition.collateral,
