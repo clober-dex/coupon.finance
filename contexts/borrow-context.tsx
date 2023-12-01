@@ -81,7 +81,7 @@ export type BorrowContext = {
   repayWithCollateral: (
     position: LoanPosition,
     amount: bigint,
-    mightBoughtDebtAmount: bigint,
+    repayAmount: bigint,
     expectedProceeds: bigint,
     swapData: `0x${string}`,
     slippage: number,
