@@ -115,7 +115,7 @@ export const LeverageForm = ({
           <div className="flex items-end self-stretch">
             <span className="font-bold text-sm sm:text-lg">Set multiple.</span>
             <span className="ml-auto text-xs sm:text-sm text-gray-400 font-semibold">
-              Max {(maxAvailableMultiple - 0.01).toFixed(2)} x
+              Max {maxAvailableMultiple.toFixed(2)} x
             </span>
           </div>
           <div className="flex justify-between flex-col relative bg-white dark:bg-gray-900 rounded-lg pb-4 h-[70px]">
@@ -123,7 +123,7 @@ export const LeverageForm = ({
               <div>
                 <Slider
                   minPosition={0}
-                  segments={(maxAvailableMultiple - 1) * 100}
+                  segments={(maxAvailableMultiple - 1) * 100 + 1}
                   value={(multiple - 1) * 100}
                   onValueChange={
                     (value) => setMultiple(value / 100 + 1) // value is 0-based
