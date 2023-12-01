@@ -7,6 +7,7 @@ import { DotSvg } from '../svg/dot-svg'
 import { getLTVTextColor } from '../../utils/ltv'
 import { ArrowSvg } from '../svg/arrow-svg'
 import { Collateral } from '../../model/collateral'
+import CloseSvg from '../svg/close-svg'
 
 const AdjustLeverageModal = ({
   isLoadingResults,
@@ -32,11 +33,16 @@ const AdjustLeverageModal = ({
   actionButtonProps: ActionButtonProps
 }) => {
   return (
-    <Modal show onClose={onClose}>
+    <Modal show onClose={() => {}}>
+      <div className="flex ml-auto pb-2">
+        <button onClick={onClose}>
+          <CloseSvg />
+        </button>
+      </div>
       <h1 className="flex font-bold text-xl mb-3">
         Set multiple.
         <span className="ml-auto font-semibold text-gray-400 text-sm">
-          Max {maxAvailableMultiple.toFixed(2)}x
+          Max {maxAvailableMultiple.toFixed(2)}
         </span>
       </h1>
       <div className="flex flex-col gap-4">
