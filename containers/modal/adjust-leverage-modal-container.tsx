@@ -9,7 +9,7 @@ import { calculateLtv, calculateMaxLoanableAmount } from '../../utils/ltv'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { useChainContext } from '../../contexts/chain-context'
 import { abs, applyPercent, max } from '../../utils/bigint'
-import { fetchAmountOutByOdos } from '../../apis/odos'
+import { fetchAmountOutByOdos, fetchCallDataByOdos } from '../../apis/odos'
 import { fetchMarketsByQuoteTokenAddress } from '../../apis/market'
 import { CONTRACT_ADDRESSES } from '../../constants/addresses'
 import { CHAIN_IDS } from '../../constants/chain'
@@ -19,6 +19,7 @@ import {
 } from '../../model/market'
 import { MIN_DEBT_SIZE_IN_ETH } from '../../constants/debt'
 import { ethValue } from '../../utils/currency'
+import { useBorrowContext } from '../../contexts/borrow-context'
 
 const SLIPPAGE_LIMIT_PERCENT = 0.5
 const AdjustLeverageModalContainer = ({
@@ -31,6 +32,7 @@ const AdjustLeverageModalContainer = ({
   const { selectedChain } = useChainContext()
   const { data: feeData } = useFeeData()
   const { prices, assets } = useCurrencyContext()
+  const { deLeverage } = useBorrowContext()
   const currentMultiple =
     Number(position.collateralAmount) /
     Number(position.collateralAmount - position.borrowedCollateralAmount)
@@ -63,7 +65,13 @@ const AdjustLeverageModalContainer = ({
 
   // ready to calculate
   const {
-    data: { debtAmount, collateralAmount, borrowMore, repayWithCollateral },
+    data: {
+      collateralAmountDelta,
+      debtAmount,
+      collateralAmount,
+      borrowMore,
+      repayWithCollateral,
+    },
   } = useQuery(
     [
       'adjust-leverage-position-simulate',
@@ -77,10 +85,16 @@ const AdjustLeverageModalContainer = ({
       const collateralAmountDelta =
         applyPercent(inputCollateralAmount, multiple * 100) -
         position.collateralAmount
-      if (!feeData?.gasPrice || !asset || abs(collateralAmountDelta) <= 100n) {
+      if (
+        !feeData?.gasPrice ||
+        !asset ||
+        abs(collateralAmountDelta) <= 100n ||
+        multiple === 1
+      ) {
         return {
           debtAmount: 0n,
           collateralAmount: 0n,
+          collateralAmountDelta: 0n,
           borrowMore: {
             pathId: undefined,
             interest: 0n,
@@ -122,6 +136,9 @@ const AdjustLeverageModalContainer = ({
             tokenIn: position.collateral.underlying.address,
             tokenOut: asset.underlying.address,
             slippageLimitPercent: SLIPPAGE_LIMIT_PERCENT,
+            userAddress:
+              CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
+                .BorrowController,
             gasPrice: Number(feeData.gasPrice),
           }),
           (
@@ -172,6 +189,7 @@ const AdjustLeverageModalContainer = ({
             ? amountOut + interest
             : -(amountOut + refund)),
         collateralAmount,
+        collateralAmountDelta,
         borrowMore: {
           pathId: borrowMorePathId,
           interest,
@@ -194,6 +212,7 @@ const AdjustLeverageModalContainer = ({
       initialData: {
         debtAmount: 0n,
         collateralAmount: 0n,
+        collateralAmountDelta: 0n,
         borrowMore: {
           pathId: undefined,
           interest: 0n,
@@ -223,9 +242,14 @@ const AdjustLeverageModalContainer = ({
   const isExpectedDebtSizeLessThanMinDebtSize =
     expectedDebtSizeInEth.lt(minDebtSizeInEth) && expectedDebtSizeInEth.gt(0)
 
+  const isLoadingResults = useMemo(
+    () => multiple !== 1 && !borrowMore.pathId && !repayWithCollateral.pathId,
+    [borrowMore.pathId, multiple, repayWithCollateral.pathId],
+  )
+
   return (
     <AdjustLeverageModal
-      isLoadingResults={!borrowMore.pathId && !repayWithCollateral.pathId}
+      isLoadingResults={isLoadingResults}
       onClose={onClose}
       debtCurrency={position.underlying}
       debtCurrencyPrice={prices[position.underlying.address]}
@@ -274,12 +298,31 @@ const AdjustLeverageModalContainer = ({
       currentRemainingDebt={position.amount}
       expectedRemainingDebt={debtAmount}
       actionButtonProps={{
-        onClick: () => {
-          console.log('TODO: adjust leverage')
+        onClick: async () => {
+          if (isLoadingResults || multiple === currentMultiple) {
+            return
+          }
+
+          if (multiple < currentMultiple && repayWithCollateral.pathId) {
+            const { data: swapData } = await fetchCallDataByOdos({
+              pathId: repayWithCollateral.pathId,
+              userAddress:
+                CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
+                  .BorrowController,
+            })
+            await deLeverage(
+              position,
+              abs(collateralAmountDelta),
+              repayWithCollateral.repayAmount,
+              repayWithCollateral.refund,
+              swapData,
+              SLIPPAGE_LIMIT_PERCENT,
+            )
+          }
         },
         disabled:
           multiple === currentMultiple ||
-          (!borrowMore.pathId && !repayWithCollateral.pathId) ||
+          isLoadingResults ||
           (multiple > currentMultiple &&
             borrowMore.debtAmountWithoutCouponFee >
               borrowMore.availableToBorrow - borrowMore.maxInterest) ||
@@ -303,6 +346,8 @@ const AdjustLeverageModalContainer = ({
                 3,
                 BigNumber.ROUND_CEIL,
               )} ETH`
+            : multiple === 1
+            ? 'Close Position'
             : 'Edit Multiple',
       }}
     />
