@@ -86,14 +86,6 @@ export type BorrowContext = {
     swapData: `0x${string}`,
     slippage: number,
   ) => Promise<void>
-  deLeverage: (
-    position: LoanPosition,
-    amount: bigint,
-    repayAmount: bigint,
-    expectedProceeds: bigint,
-    swapData: `0x${string}`,
-    slippage: number,
-  ) => Promise<void>
   addCollateral: (position: LoanPosition, amount: bigint) => Promise<void>
   removeCollateral: (position: LoanPosition, amount: bigint) => Promise<void>
 }
@@ -110,7 +102,6 @@ const Context = React.createContext<BorrowContext>({
   shortenLoanDuration: () => Promise.resolve(),
   addCollateral: () => Promise.resolve(),
   removeCollateral: () => Promise.resolve(),
-  deLeverage: () => Promise.resolve(),
 })
 
 export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
@@ -924,104 +915,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
     [walletClient, setConfirmation, prices, adjustPosition, queryClient],
   )
 
-  const deLeverage = useCallback(
-    async (
-      position: LoanPosition,
-      amount: bigint,
-      repayAmount: bigint,
-      expectedProceeds: bigint,
-      swapData: `0x${string}`,
-      slippage: number = 1,
-    ): Promise<void> => {
-      if (!walletClient) {
-        // TODO: alert wallet connect
-        return
-      }
-
-      try {
-        const fields: {
-          direction?: 'in' | 'out'
-          currency?: Currency
-          label: string
-          value: string
-        }[] = [
-          {
-            currency: position.collateral.underlying,
-            label: `Use ${position.collateral.underlying.symbol}`,
-            value: formatUnits(
-              amount,
-              position.collateral.underlying.decimals,
-              prices[position.collateral.underlying.address],
-            ),
-          },
-          {
-            currency: position.underlying,
-            label: `Repay ${position.underlying.symbol}`,
-            value: formatUnits(
-              repayAmount,
-              position.underlying.decimals,
-              prices[position.underlying.address],
-            ),
-          },
-        ]
-
-        const dust = max(repayAmount + expectedProceeds - position.amount, 0n)
-        const newDebtAmount = max(
-          position.amount -
-            applyPercent(repayAmount + expectedProceeds, 100 - slippage),
-          0n,
-        )
-        const newCollateralAmount = max(position.collateralAmount - amount, 0n)
-        if (dust > 0) {
-          fields.push({
-            direction: 'out',
-            currency: position.underlying,
-            label: position.underlying.symbol,
-            value: formatUnits(
-              dust,
-              position.underlying.decimals,
-              prices[position.underlying.address],
-            ),
-          })
-        }
-        if (newDebtAmount === 0n && newCollateralAmount > 0n) {
-          fields.push({
-            direction: 'out',
-            currency: position.collateral.underlying,
-            label: position.collateral.underlying.symbol,
-            value: formatUnits(
-              newCollateralAmount,
-              position.collateral.underlying.decimals,
-              prices[position.collateral.underlying.address],
-            ),
-          })
-        }
-        setConfirmation({
-          title: `Repay with collateral ${position.underlying.symbol}`,
-          body: 'Please confirm in your wallet.',
-          fields,
-        })
-        await adjustPosition({
-          position,
-          newCollateralAmount: newDebtAmount === 0n ? 0n : newCollateralAmount,
-          newDebtAmount,
-          swapParams: {
-            inToken: position.collateral.substitute.address,
-            amount: amount,
-            data: swapData,
-          },
-        })
-        await queryClient.invalidateQueries(['loan-positions'])
-      } catch (e) {
-        console.error(e)
-      } finally {
-        await queryClient.invalidateQueries(['balances'])
-        setConfirmation(undefined)
-      }
-    },
-    [walletClient, prices, setConfirmation, adjustPosition, queryClient],
-  )
-
   const addCollateral = useCallback(
     async (position: LoanPosition, amount: bigint): Promise<void> => {
       if (!walletClient) {
@@ -1138,7 +1031,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         borrowMore,
         extendLoanDuration,
         shortenLoanDuration,
-        deLeverage,
         addCollateral,
         removeCollateral,
       }}

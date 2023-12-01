@@ -32,7 +32,7 @@ const AdjustLeverageModalContainer = ({
   const { selectedChain } = useChainContext()
   const { data: feeData } = useFeeData()
   const { prices, assets } = useCurrencyContext()
-  const { deLeverage } = useBorrowContext()
+  const { repayWithCollateral: deleverage } = useBorrowContext()
   const currentMultiple =
     Number(position.collateralAmount) /
     Number(position.collateralAmount - position.borrowedCollateralAmount)
@@ -310,7 +310,7 @@ const AdjustLeverageModalContainer = ({
                 CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
                   .BorrowController,
             })
-            await deLeverage(
+            await deleverage(
               position,
               abs(collateralAmountDelta),
               repayWithCollateral.repayAmount,
