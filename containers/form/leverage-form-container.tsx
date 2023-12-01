@@ -292,7 +292,7 @@ const LeverageFormContainer = ({
             (1 -
               Number(collateral.liquidationTargetLtv) /
                 Number(collateral.ltvPrecision)),
-        ) - 0.01
+        ) - 0.02
       }
       balances={balances}
       prices={prices}
@@ -337,6 +337,10 @@ const LeverageFormContainer = ({
                   collateralAmount,
                   endTimestamp,
                   Number(timestamp),
+                  true,
+                  collateralAmount - inputCollateralAmount,
+                  prices[collateral.underlying.address],
+                  prices[asset.underlying.address],
                 )
               : undefined,
           )

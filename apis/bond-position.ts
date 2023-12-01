@@ -11,22 +11,7 @@ import { CHAIN_IDS } from '../constants/chain'
 
 import { toCurrency } from './asset'
 
-const { getBondPositions, getBondPosition } = getBuiltGraphSDK()
-
-export async function fetchBondPositions(
-  chainId: CHAIN_IDS,
-  userAddress: `0x${string}`,
-): Promise<BondPosition[]> {
-  const { bondPositions } = await getBondPositions(
-    {
-      userAddress: userAddress.toLowerCase(),
-    },
-    {
-      url: SUBGRAPH_URL[chainId],
-    },
-  )
-  return bondPositions.map((bondPosition) => toBondPosition(bondPosition))
-}
+const { getBondPosition } = getBuiltGraphSDK()
 
 export function extractBondPositions(
   integratedPositions: getIntegratedPositionsQuery | undefined,

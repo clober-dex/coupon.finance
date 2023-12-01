@@ -257,6 +257,10 @@ const BorrowFormContainer = ({
                   collateralAmount,
                   endTimestamp,
                   Number(timestamp),
+                  false,
+                  0n,
+                  prices[collateral.underlying.address],
+                  prices[asset.underlying.address],
                 )
               : undefined,
           )

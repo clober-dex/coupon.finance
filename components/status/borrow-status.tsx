@@ -18,12 +18,15 @@ import BorrowMoreModalContainer from '../../containers/modal/borrow-more-modal-c
 import EditExpiryModalContainer from '../../containers/modal/edit-expiry-modal-container'
 import { Prices } from '../../model/prices'
 import { ethValue } from '../../utils/currency'
+import { LeveragePositionCard } from '../card/leverage-position-card'
+import AdjustLeverageModalContainer from '../../containers/modal/adjust-leverage-modal-container'
 
 const BorrowStatus = ({
   assetStatuses,
   epochs,
   prices,
   positions,
+  pnls,
   removeCollateral,
   minDebtSizeInEth,
 }: {
@@ -31,6 +34,7 @@ const BorrowStatus = ({
   epochs: Epoch[]
   prices: Prices
   positions: LoanPosition[]
+  pnls: BorrowContext['pnls']
   removeCollateral: BorrowContext['removeCollateral']
   minDebtSizeInEth: BigNumber
 }) => {
@@ -40,6 +44,8 @@ const BorrowStatus = ({
   const [editCollateralPosition, setEditCollateralPosition] =
     useState<LoanPosition | null>(null)
   const [editExpiryPosition, setEditExpiryPosition] =
+    useState<LoanPosition | null>(null)
+  const [adjustLeveragePosition, setAdjustLeveragePosition] =
     useState<LoanPosition | null>(null)
   const currentTimestamp = currentTimestampInSeconds()
   return (
@@ -103,7 +109,7 @@ const BorrowStatus = ({
                   position.amount,
                   prices[position.underlying.address],
                 )
-                return (
+                return !position.isLeverage ? (
                   <LoanPositionCard
                     key={index}
                     position={position}
@@ -119,6 +125,42 @@ const BorrowStatus = ({
                       )
                     }}
                     onBorrowMore={() => setBorrowMorePosition(position)}
+                    onEditCollateral={() => setEditCollateralPosition(position)}
+                    onEditExpiry={() => setEditExpiryPosition(position)}
+                    isDeptSizeLessThanMinDebtSize={
+                      debtSizeInEth.lt(minDebtSizeInEth) && debtSizeInEth.gt(0)
+                    }
+                  />
+                ) : (
+                  <LeveragePositionCard
+                    position={position}
+                    multiple={
+                      Number(position.collateralAmount) /
+                      Number(
+                        position.collateralAmount -
+                          position.borrowedCollateralAmount,
+                      )
+                    }
+                    pnl={pnls[Number(position.id)]}
+                    price={prices[position.underlying.address]}
+                    collateralPrice={
+                      prices[position.collateral.underlying.address]
+                    }
+                    entryCollateralCurrencyPrice={
+                      position.entryCollateralCurrencyPrice
+                    }
+                    onAdjustMultiple={() => {
+                      setAdjustLeveragePosition(position)
+                    }}
+                    onClose={() => {
+                      console.log('close')
+                    }}
+                    onCollect={async () => {
+                      await removeCollateral(
+                        position,
+                        position.collateralAmount,
+                      )
+                    }}
                     onEditCollateral={() => setEditCollateralPosition(position)}
                     onEditExpiry={() => setEditExpiryPosition(position)}
                     isDeptSizeLessThanMinDebtSize={
@@ -223,6 +265,14 @@ const BorrowStatus = ({
         <EditExpiryModalContainer
           position={editExpiryPosition}
           onClose={() => setEditExpiryPosition(null)}
+        />
+      ) : (
+        <></>
+      )}
+      {adjustLeveragePosition ? (
+        <AdjustLeverageModalContainer
+          position={adjustLeveragePosition}
+          onClose={() => setAdjustLeveragePosition(null)}
         />
       ) : (
         <></>

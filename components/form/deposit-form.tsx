@@ -86,7 +86,7 @@ export const DepositForm = ({
                 How long you’d like to secure your deposit?
               </div>
               <div className="text-gray-500 text-xs sm:text-sm">
-                You can exit your position anytime before expiry.
+                You can withdraw before expiry by buying back coupons.
               </div>
             </div>
             <div className="flex justify-between flex-col relative bg-white dark:bg-gray-900 rounded-lg p-4 pb-8 sm:pb-0 sm:h-[90px]">
