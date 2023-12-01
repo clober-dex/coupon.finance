@@ -21,6 +21,11 @@ export const Default: Story = {
     isLoadingResults: false,
     onClose: () => {},
     multiple: 3,
+    debtCurrency: dummyLoanPosition.underlying,
+    debtCurrencyPrice: {
+      value: 200000000000000000n,
+      decimals: 18,
+    },
     collateral: dummyLoanPosition.collateral,
     collateralPrice: {
       value: 200000000000000000n,
@@ -33,6 +38,8 @@ export const Default: Story = {
     expectedLtv: 70,
     currentPositionSize: 10000000000n,
     expectedPositionSize: 20000000000n,
+    currentRemainingDebt: 10000000000n,
+    expectedRemainingDebt: 20000000000n,
     actionButtonProps: {
       disabled: false,
       onClick: () => {},

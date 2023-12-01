@@ -227,6 +227,8 @@ const AdjustLeverageModalContainer = ({
     <AdjustLeverageModal
       isLoadingResults={!borrowMore.pathId && !repayWithCollateral.pathId}
       onClose={onClose}
+      debtCurrency={position.underlying}
+      debtCurrencyPrice={prices[position.underlying.address]}
       collateral={position.collateral}
       collateralPrice={prices[position.collateral.underlying.address]}
       multiple={multiple}
@@ -269,6 +271,8 @@ const AdjustLeverageModalContainer = ({
       }
       currentPositionSize={position.collateralAmount}
       expectedPositionSize={collateralAmount}
+      currentRemainingDebt={position.amount}
+      expectedRemainingDebt={debtAmount}
       actionButtonProps={{
         onClick: () => {
           console.log('TODO: adjust leverage')

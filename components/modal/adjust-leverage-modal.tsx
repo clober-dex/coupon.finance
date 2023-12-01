@@ -7,12 +7,14 @@ import { DotSvg } from '../svg/dot-svg'
 import { getLTVTextColor } from '../../utils/ltv'
 import { ArrowSvg } from '../svg/arrow-svg'
 import { Collateral } from '../../model/collateral'
-import CloseSvg from '../svg/close-svg'
 import { BigDecimal, formatUnits } from '../../utils/numbers'
+import { Currency } from '../../model/currency'
 
 const AdjustLeverageModal = ({
   isLoadingResults,
   onClose,
+  debtCurrency,
+  debtCurrencyPrice,
   collateral,
   collateralPrice,
   multiple,
@@ -23,10 +25,14 @@ const AdjustLeverageModal = ({
   expectedLtv,
   currentPositionSize,
   expectedPositionSize,
+  currentRemainingDebt,
+  expectedRemainingDebt,
   actionButtonProps,
 }: {
   isLoadingResults: boolean
   onClose: () => void
+  debtCurrency: Currency
+  debtCurrencyPrice: BigDecimal
   collateral: Collateral
   collateralPrice: BigDecimal
   multiple: number
@@ -37,21 +43,16 @@ const AdjustLeverageModal = ({
   expectedLtv: number
   currentPositionSize: bigint
   expectedPositionSize: bigint
+  currentRemainingDebt: bigint
+  expectedRemainingDebt: bigint
   actionButtonProps: ActionButtonProps
 }) => {
   return (
-    <Modal show onClose={() => {}}>
-      <div className="flex ml-auto pb-2">
-        <button onClick={onClose}>
-          <CloseSvg />
-        </button>
-      </div>
-      <h1 className="flex font-bold text-xl mb-3">
-        Set multiple.
-        <span className="ml-auto font-semibold text-gray-400 text-sm">
-          Max {maxAvailableMultiple.toFixed(2)}
-        </span>
-      </h1>
+    <Modal show onClose={() => {}} onButtonClick={onClose}>
+      <h1 className="flex font-bold text-xl mb-2">Set multiple.</h1>
+      <h3 className="font-semibold text-gray-400 text-sm">
+        Max {maxAvailableMultiple.toFixed(2)} x
+      </h3>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col bg-gray-50 dark:bg-gray-900">
           <div className="flex justify-between flex-col relative rounded-lg pl-4 pr-12 sm:pl-0 sm:pr-6 sm:py-10">
@@ -119,15 +120,16 @@ const AdjustLeverageModal = ({
               </div>
             </div>
             <div className="flex items-start self-stretch">
-              <div className="text-gray-400 text-base">Position Size</div>
+              <div className="text-gray-400 text-base">
+                Position Size ({collateral.underlying.symbol})
+              </div>
               <div className="flex ml-auto items-center gap-1.5 text-base text-black dark:text-white">
                 <span>
                   {formatUnits(
                     currentPositionSize,
                     collateral.underlying.decimals,
                     collateralPrice,
-                  )}{' '}
-                  {collateral.underlying.symbol}
+                  )}
                 </span>
                 {currentMultiple !== multiple ? (
                   <>
@@ -140,8 +142,39 @@ const AdjustLeverageModal = ({
                           expectedPositionSize,
                           collateral.underlying.decimals,
                           collateralPrice,
-                        )}{' '}
-                        {collateral.underlying.symbol}
+                        )}
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <></>
+                )}
+              </div>
+            </div>
+            <div className="flex items-start self-stretch">
+              <div className="text-gray-400 text-base">
+                Remaining Debt ({debtCurrency.symbol})
+              </div>
+              <div className="flex ml-auto items-center gap-1.5 text-base text-black dark:text-white">
+                <span>
+                  {formatUnits(
+                    currentRemainingDebt,
+                    debtCurrency.decimals,
+                    debtCurrencyPrice,
+                  )}
+                </span>
+                {currentMultiple !== multiple ? (
+                  <>
+                    <ArrowSvg />
+                    {isLoadingResults ? (
+                      <span className="w-[56px] h-[24px] mx-1 rounded animate-pulse bg-gray-300 dark:bg-gray-500" />
+                    ) : (
+                      <span>
+                        {formatUnits(
+                          expectedRemainingDebt,
+                          debtCurrency.decimals,
+                          debtCurrencyPrice,
+                        )}
                       </span>
                     )}
                   </>
