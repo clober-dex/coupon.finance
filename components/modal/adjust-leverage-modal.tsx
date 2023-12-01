@@ -46,7 +46,7 @@ const AdjustLeverageModal = ({
               <div>
                 <Slider
                   minPosition={0}
-                  segments={(maxAvailableMultiple - 1) * 100}
+                  segments={(maxAvailableMultiple - 1) * 100 + 1}
                   value={(multiple - 1) * 100}
                   onValueChange={
                     (value) => setMultiple(value / 100 + 1) // value is 0-based
