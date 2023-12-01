@@ -20,7 +20,7 @@ const AdjustLeverageModal = ({
   multiple,
   setMultiple,
   maxAvailableMultiple,
-  currentMultiple,
+  previousMultiple,
   currentLtv,
   expectedLtv,
   currentPositionSize,
@@ -38,7 +38,7 @@ const AdjustLeverageModal = ({
   multiple: number
   setMultiple: (value: number) => void
   maxAvailableMultiple: number
-  currentMultiple: number
+  previousMultiple: number
   currentLtv: number
   expectedLtv: number
   currentPositionSize: bigint
@@ -81,8 +81,8 @@ const AdjustLeverageModal = ({
             <div className="flex items-start self-stretch">
               <div className="text-gray-400 text-base">Multiple</div>
               <div className="flex ml-auto items-center gap-1.5 text-base text-black dark:text-white">
-                {currentMultiple.toFixed(2)}x
-                {currentMultiple !== multiple ? (
+                {previousMultiple.toFixed(2)}x
+                {previousMultiple !== multiple ? (
                   <>
                     <ArrowSvg />
                     {multiple.toFixed(2)}x
@@ -98,7 +98,7 @@ const AdjustLeverageModal = ({
                 <span className={`${getLTVTextColor(currentLtv, collateral)}`}>
                   {currentLtv.toFixed(2)}%
                 </span>
-                {currentMultiple !== multiple ? (
+                {previousMultiple !== multiple ? (
                   <>
                     <ArrowSvg />
                     {isLoadingResults ? (
@@ -131,7 +131,7 @@ const AdjustLeverageModal = ({
                     collateralPrice,
                   )}
                 </span>
-                {currentMultiple !== multiple ? (
+                {previousMultiple !== multiple ? (
                   <>
                     <ArrowSvg />
                     {isLoadingResults ? (
@@ -163,7 +163,7 @@ const AdjustLeverageModal = ({
                     debtCurrencyPrice,
                   )}
                 </span>
-                {currentMultiple !== multiple ? (
+                {previousMultiple !== multiple ? (
                   <>
                     <ArrowSvg />
                     {isLoadingResults ? (

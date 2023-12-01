@@ -33,10 +33,10 @@ const AdjustLeverageModalContainer = ({
   const { data: feeData } = useFeeData()
   const { prices, assets } = useCurrencyContext()
   const { repayWithCollateral: deleverage, leverageMore } = useBorrowContext()
-  const currentMultiple =
+  const previousMultiple =
     Number(position.collateralAmount) /
     Number(position.collateralAmount - position.borrowedCollateralAmount)
-  const [multiple, setMultiple] = useState(currentMultiple)
+  const [multiple, setMultiple] = useState(previousMultiple)
   const [multipleBuffer, setMultipleBuffer] = useState({
     previous: multiple,
     updateAt: Date.now(),
@@ -166,7 +166,7 @@ const AdjustLeverageModalContainer = ({
           position.amount,
           amountOut,
         ),
-        currentMultiple > multiple
+        multiple > previousMultiple
           ? fetchAmountOutByOdos({
               chainId: selectedChain.id,
               amountIn: amountOut.toString(),
@@ -183,9 +183,9 @@ const AdjustLeverageModalContainer = ({
       return {
         debtAmount:
           position.amount +
-          (multiple === currentMultiple
+          (multiple === previousMultiple
             ? 0n
-            : currentMultiple > multiple
+            : multiple > previousMultiple
             ? amountOut + interest
             : -(amountOut + refund)),
         collateralAmount,
@@ -264,9 +264,9 @@ const AdjustLeverageModalContainer = ({
               Number(position.collateral.liquidationTargetLtv) /
                 Number(position.collateral.ltvPrecision)),
         ) - 0.02,
-        currentMultiple,
+        previousMultiple,
       )}
-      currentMultiple={currentMultiple}
+      previousMultiple={previousMultiple}
       currentLtv={
         prices[position.underlying.address] &&
         prices[position.collateral.underlying.address]
@@ -299,11 +299,11 @@ const AdjustLeverageModalContainer = ({
       expectedRemainingDebt={debtAmount}
       actionButtonProps={{
         onClick: async () => {
-          if (isLoadingResults || multiple === currentMultiple) {
+          if (isLoadingResults || multiple === previousMultiple) {
             return
           }
 
-          if (multiple < currentMultiple && repayWithCollateral.pathId) {
+          if (multiple < previousMultiple && repayWithCollateral.pathId) {
             const { data: swapData } = await fetchCallDataByOdos({
               pathId: repayWithCollateral.pathId,
               userAddress:
@@ -318,7 +318,7 @@ const AdjustLeverageModalContainer = ({
               swapData,
               SLIPPAGE_LIMIT_PERCENT,
             )
-          } else if (multiple > currentMultiple && borrowMore.pathId) {
+          } else if (multiple > previousMultiple && borrowMore.pathId) {
             const { data: swapData } = await fetchCallDataByOdos({
               pathId: borrowMore.pathId,
               userAddress:
@@ -336,22 +336,22 @@ const AdjustLeverageModalContainer = ({
           }
         },
         disabled:
-          multiple === currentMultiple ||
+          multiple === previousMultiple ||
           isLoadingResults ||
-          (multiple > currentMultiple &&
+          (multiple > previousMultiple &&
             borrowMore.debtAmountWithoutCouponFee >
               borrowMore.availableToBorrow - borrowMore.maxInterest) ||
-          (multiple > currentMultiple &&
+          (multiple > previousMultiple &&
             borrowMore.debtAmountWithoutCouponFee >
               borrowMore.maxLoanableAmountExcludingCouponFee -
                 borrowMore.maxInterest) ||
           isExpectedDebtSizeLessThanMinDebtSize,
         text:
-          multiple > currentMultiple &&
+          multiple > previousMultiple &&
           borrowMore.debtAmountWithoutCouponFee >
             borrowMore.availableToBorrow - borrowMore.maxInterest
             ? 'Not enough coupons for sale'
-            : multiple > currentMultiple &&
+            : multiple > previousMultiple &&
               borrowMore.debtAmountWithoutCouponFee >
                 borrowMore.maxLoanableAmountExcludingCouponFee -
                   borrowMore.maxInterest

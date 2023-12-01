@@ -33,7 +33,7 @@ export const Default: Story = {
     },
     setMultiple: () => {},
     maxAvailableMultiple: 5,
-    currentMultiple: 2,
+    previousMultiple: 2,
     currentLtv: 60,
     expectedLtv: 70,
     currentPositionSize: 10000000000n,
