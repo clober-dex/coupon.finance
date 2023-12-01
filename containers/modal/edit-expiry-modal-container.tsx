@@ -1,12 +1,26 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useQuery } from 'wagmi'
+import { zeroAddress } from 'viem'
+import BigNumber from 'bignumber.js'
 
 import { LoanPosition } from '../../model/loan-position'
-import { fetchInterestOrRefundCouponAmountByEpochs } from '../../apis/market'
+import {
+  fetchInterestOrRefundCouponAmountByEpochs,
+  fetchMarketsByQuoteTokenAddress,
+} from '../../apis/market'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import EditExpiryModal from '../../components/modal/edit-expiry-modal'
 import { useChainContext } from '../../contexts/chain-context'
+import { max, min } from '../../utils/bigint'
+import { calculateMaxLoanableAmount } from '../../utils/ltv'
+import {
+  calculateCouponsToBorrow,
+  calculateCouponsToRepay,
+} from '../../model/market'
+import { MIN_DEBT_SIZE_IN_ETH } from '../../constants/debt'
+import { CHAIN_IDS } from '../../constants/chain'
+import { ethValue } from '../../utils/currency'
 
 const EditExpiryModalContainer = ({
   position,
@@ -16,7 +30,7 @@ const EditExpiryModalContainer = ({
   onClose: () => void
 }) => {
   const { selectedChain } = useChainContext()
-  const { balances, prices } = useCurrencyContext()
+  const { prices } = useCurrencyContext()
   const { extendLoanDuration, shortenLoanDuration } = useBorrowContext()
 
   const [epochs, setEpochs] = useState(0)
@@ -30,6 +44,30 @@ const EditExpiryModalContainer = ({
         position.amount,
         position.toEpoch.id,
       ),
+  )
+
+  const maxLoanableAmountExcludingCouponFee = useMemo(
+    () =>
+      prices[position.underlying.address] &&
+      prices[position.collateral.underlying.address]
+        ? max(
+            calculateMaxLoanableAmount(
+              position.underlying,
+              prices[position.underlying.address],
+              position.collateral,
+              prices[position.collateral.underlying.address],
+              position.collateralAmount,
+            ) - position.amount,
+            0n,
+          )
+        : 0n,
+    [
+      position.amount,
+      position.collateral,
+      position.collateralAmount,
+      position.underlying,
+      prices,
+    ],
   )
 
   const [expiryEpochIndex, interest, payable, refund, refundable] =
@@ -59,6 +97,120 @@ const EditExpiryModalContainer = ({
     setEpochs(expiryEpochIndex)
   }, [expiryEpochIndex, position, setEpochs])
 
+  const { data: adjustPositionSimulateData } = useQuery(
+    [
+      'edit-expiry-adjust-position-simulate',
+      selectedChain,
+      position,
+      epochs,
+      expiryEpochIndex,
+      interest,
+      payable,
+      refund,
+      refundable,
+      maxLoanableAmountExcludingCouponFee,
+    ],
+    async () => {
+      const newToEpoch = position.toEpoch.id + epochs - expiryEpochIndex
+      const marketsBeforeEditExpiry = (
+        await fetchMarketsByQuoteTokenAddress(
+          selectedChain.id,
+          position.substitute.address,
+        )
+      ).filter(
+        (market) => market.epoch <= Math.max(newToEpoch, position.toEpoch.id),
+      )
+
+      // extend or shorten loan duration
+      if (position.toEpoch.id < newToEpoch && payable) {
+        // extend
+        for (let i = 0; i < marketsBeforeEditExpiry.length; i++) {
+          if (position.toEpoch.id < marketsBeforeEditExpiry[i].epoch) {
+            ;({ market: marketsBeforeEditExpiry[i] } = marketsBeforeEditExpiry[
+              i
+            ].take(
+              marketsBeforeEditExpiry[i].quoteToken.address,
+              position.amount,
+            ))
+          }
+        }
+        const marketsAfterEditExpiry = marketsBeforeEditExpiry.slice()
+        const calculateCouponsToBorrowResult = calculateCouponsToBorrow(
+          position.substitute,
+          marketsAfterEditExpiry,
+          maxLoanableAmountExcludingCouponFee,
+          interest,
+        )
+        return {
+          positionAmountDelta:
+            interest + calculateCouponsToBorrowResult.interest,
+          enoughCoupon: interest <= calculateCouponsToBorrowResult.available,
+          enoughCollateral:
+            interest <=
+            maxLoanableAmountExcludingCouponFee -
+              calculateCouponsToBorrowResult.maxInterest,
+        }
+      } else if (newToEpoch < position.toEpoch.id && refundable) {
+        // shorten
+        let newToEpochIndex = 0
+        for (let i = 0; i < marketsBeforeEditExpiry.length; i++) {
+          if (newToEpoch === marketsBeforeEditExpiry[i].epoch) {
+            newToEpochIndex = i
+            break
+          }
+        }
+        const marketsAfterEditExpiry = marketsBeforeEditExpiry.slice(
+          0,
+          newToEpochIndex + 1,
+        )
+        const calculateCouponsToRepayResult = calculateCouponsToRepay(
+          position.substitute,
+          marketsAfterEditExpiry,
+          position.amount,
+          refund,
+        )
+        const repayAll =
+          refund + calculateCouponsToRepayResult.maxRefund >= position.amount
+        return {
+          positionAmountDelta: -min(
+            refund +
+              (repayAll
+                ? calculateCouponsToRepayResult.maxRefund
+                : calculateCouponsToRepayResult.refund),
+            position.amount,
+          ),
+          enoughCoupon: true,
+          enoughCollateral: true,
+        }
+      } else {
+        return {
+          positionAmountDelta: 0n,
+          enoughCoupon: payable && refundable,
+          enoughCollateral: true,
+        }
+      }
+    },
+    {
+      keepPreviousData: true,
+    },
+  )
+
+  const positionAmountDelta =
+    adjustPositionSimulateData?.positionAmountDelta ?? 0n
+  const enoughCoupon = adjustPositionSimulateData?.enoughCoupon ?? false
+  const enoughCollateral = adjustPositionSimulateData?.enoughCollateral ?? false
+
+  const minDebtSizeInEth = MIN_DEBT_SIZE_IN_ETH[selectedChain.id as CHAIN_IDS]
+  const expectedDebtSizeInEth = ethValue(
+    prices[zeroAddress],
+    position.underlying,
+    max(position.amount + positionAmountDelta, 0n),
+    prices[position.underlying.address],
+    selectedChain.nativeCurrency.decimals,
+  )
+  const isExpectedDebtSizeLessThanMinDebtSize =
+    expectedDebtSizeInEth.lt(minDebtSizeInEth) && expectedDebtSizeInEth.gt(0)
+
   return (
     <EditExpiryModal
       onClose={onClose}
@@ -67,27 +219,27 @@ const EditExpiryModalContainer = ({
       dateList={data ? data.map(({ date }) => date) : []}
       currency={position.underlying}
       price={prices[position.underlying.address] ?? 0n}
-      interest={interest}
-      refund={refund}
+      interest={positionAmountDelta > 0n ? positionAmountDelta : 0n}
+      refund={positionAmountDelta < 0n ? -positionAmountDelta : 0n}
       actionButtonProps={{
         disabled:
           expiryEpochIndex === epochs ||
-          (refund === 0n && interest === 0n) ||
-          interest > balances[position.underlying.address] ||
-          !payable ||
-          !refundable,
+          (epochs > expiryEpochIndex && !enoughCoupon) ||
+          (epochs < expiryEpochIndex && !enoughCoupon) ||
+          !enoughCollateral ||
+          isExpectedDebtSizeLessThanMinDebtSize,
         onClick: async () => {
           if (epochs > expiryEpochIndex) {
             await extendLoanDuration(
               position,
               epochs - expiryEpochIndex,
-              interest,
+              positionAmountDelta,
             )
           } else if (epochs < expiryEpochIndex) {
             await shortenLoanDuration(
               position,
               expiryEpochIndex - epochs,
-              refund,
+              -positionAmountDelta,
             )
           }
           setEpochs(0)
@@ -96,12 +248,17 @@ const EditExpiryModalContainer = ({
         text:
           expiryEpochIndex === epochs
             ? 'Select new expiry date'
-            : epochs > expiryEpochIndex && !payable
+            : epochs > expiryEpochIndex && !enoughCoupon
             ? 'Not enough coupons for pay'
-            : epochs < expiryEpochIndex && !refundable
+            : epochs < expiryEpochIndex && !enoughCoupon
             ? 'Not enough coupons for refund'
-            : interest > balances[position.underlying.address]
-            ? `Insufficient ${position.underlying.symbol} balance`
+            : !enoughCollateral
+            ? 'Not enough collateral'
+            : isExpectedDebtSizeLessThanMinDebtSize
+            ? `Remaining debt must be ≥ ${minDebtSizeInEth.toFixed(
+                3,
+                BigNumber.ROUND_CEIL,
+              )} ETH`
             : 'Edit expiry date',
       }}
     />
