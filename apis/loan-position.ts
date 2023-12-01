@@ -106,12 +106,14 @@ function toLoanPosition(
     isLeverage: loanPosition.isLeveraged,
     entryCollateralCurrencyPrice: {
       value: BigInt(
-        Number(loanPosition.entryCollateralCurrencyPrice) * 10 ** 8,
+        Math.floor(Number(loanPosition.entryCollateralCurrencyPrice) * 10 ** 8),
       ),
       decimals: 8,
     },
     entryDebtCurrencyPrice: {
-      value: BigInt(Number(loanPosition.entryDebtCurrencyPrice) * 10 ** 8),
+      value: BigInt(
+        Math.floor(Number(loanPosition.entryDebtCurrencyPrice) * 10 ** 8),
+      ),
       decimals: 8,
     },
     borrowedCollateralAmount: BigInt(loanPosition.borrowedCollateralAmount),
