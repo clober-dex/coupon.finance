@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import BigNumber from 'bignumber.js'
 import { isAddressEqual, zeroAddress } from 'viem'
 
-import { BorrowContext } from '../../contexts/borrow-context'
+import { BorrowContext, useBorrowContext } from '../../contexts/borrow-context'
 import { AssetStatus } from '../../model/asset'
 import { dollarValue, toDollarString } from '../../utils/numbers'
 import { Epoch } from '../../model/epoch'
@@ -38,6 +38,7 @@ const BorrowStatus = ({
   removeCollateral: BorrowContext['removeCollateral']
   minDebtSizeInEth: BigNumber
 }) => {
+  const { closeLeveragePosition } = useBorrowContext()
   const [repayPosition, setRepayPosition] = useState<LoanPosition | null>(null)
   const [borrowMorePosition, setBorrowMorePosition] =
     useState<LoanPosition | null>(null)
@@ -152,8 +153,8 @@ const BorrowStatus = ({
                     onAdjustMultiple={() => {
                       setAdjustLeveragePosition(position)
                     }}
-                    onClose={() => {
-                      console.log('close')
+                    onClose={async () => {
+                      await closeLeveragePosition(position)
                     }}
                     onCollect={async () => {
                       await removeCollateral(

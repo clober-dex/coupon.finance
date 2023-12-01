@@ -32,7 +32,11 @@ const AdjustLeverageModalContainer = ({
   const { selectedChain } = useChainContext()
   const { data: feeData } = useFeeData()
   const { prices, assets } = useCurrencyContext()
-  const { repayWithCollateral: deleverage, leverageMore } = useBorrowContext()
+  const {
+    repayWithCollateral: deleverage,
+    leverageMore,
+    closeLeveragePosition,
+  } = useBorrowContext()
   const previousMultiple =
     Number(position.collateralAmount) /
     Number(position.collateralAmount - position.borrowedCollateralAmount)
@@ -303,7 +307,12 @@ const AdjustLeverageModalContainer = ({
             return
           }
 
-          if (multiple < previousMultiple && repayWithCollateral.pathId) {
+          if (multiple === 1) {
+            await closeLeveragePosition(position)
+          } else if (
+            multiple < previousMultiple &&
+            repayWithCollateral.pathId
+          ) {
             const { data: swapData } = await fetchCallDataByOdos({
               pathId: repayWithCollateral.pathId,
               userAddress:
@@ -334,6 +343,7 @@ const AdjustLeverageModalContainer = ({
               SLIPPAGE_LIMIT_PERCENT,
             )
           }
+          onClose()
         },
         disabled:
           multiple === previousMultiple ||

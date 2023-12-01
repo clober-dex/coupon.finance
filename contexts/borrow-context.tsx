@@ -25,7 +25,7 @@ import { toWrapETH } from '../utils/currency'
 import { BORROW_CONTROLLER_ABI } from '../abis/periphery/borrow-controller-abi'
 import { zeroBytes32 } from '../utils/bytes'
 import { applyPercent, max } from '../utils/bigint'
-import { fetchAmountOutByOdos } from '../apis/odos'
+import { fetchAmountOutByOdos, fetchCallDataByOdos } from '../apis/odos'
 import { fetchMarketsByQuoteTokenAddress } from '../apis/market'
 import { calculateCouponsToRepay } from '../model/market'
 
@@ -96,6 +96,7 @@ export type BorrowContext = {
   ) => Promise<void>
   addCollateral: (position: LoanPosition, amount: bigint) => Promise<void>
   removeCollateral: (position: LoanPosition, amount: bigint) => Promise<void>
+  closeLeveragePosition: (position: LoanPosition) => Promise<void>
 }
 
 const Context = React.createContext<BorrowContext>({
@@ -111,6 +112,7 @@ const Context = React.createContext<BorrowContext>({
   shortenLoanDuration: () => Promise.resolve(),
   addCollateral: () => Promise.resolve(),
   removeCollateral: () => Promise.resolve(),
+  closeLeveragePosition: () => Promise.resolve(),
 })
 
 export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
@@ -1082,6 +1084,102 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
     [walletClient, setConfirmation, prices, adjustPosition, queryClient],
   )
 
+  const closeLeveragePosition = useCallback(
+    async (position: LoanPosition): Promise<void> => {
+      if (!walletClient || !feeData || !feeData.gasPrice) {
+        // TODO: alert wallet connect
+        return
+      }
+
+      // show dummy confirmation until api is ready
+      setConfirmation({
+        title: `Closing leverage position`,
+        body: 'Please wait...',
+        fields: [],
+      })
+
+      const SLIPPAGE_LIMIT_PERCENT = 0.5
+      const { amountOut: repaidCollateralAmount } = await fetchAmountOutByOdos({
+        chainId: selectedChain.id,
+        amountIn: position.amount.toString(),
+        tokenIn: position.underlying.address,
+        tokenOut: position.collateral.underlying.address,
+        slippageLimitPercent: SLIPPAGE_LIMIT_PERCENT,
+        userAddress:
+          CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
+        gasPrice: Number(feeData.gasPrice),
+      })
+      const amountIn = applyPercent(
+        repaidCollateralAmount,
+        100 + SLIPPAGE_LIMIT_PERCENT,
+      )
+      const { pathId, amountOut: repaidDebtAmount } =
+        await fetchAmountOutByOdos({
+          chainId: selectedChain.id,
+          amountIn: amountIn.toString(),
+          tokenIn: position.collateral.underlying.address,
+          tokenOut: position.underlying.address,
+          slippageLimitPercent: SLIPPAGE_LIMIT_PERCENT,
+          userAddress:
+            CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
+          gasPrice: Number(feeData.gasPrice),
+        })
+      if (pathId) {
+        const { data: swapData } = await fetchCallDataByOdos({
+          pathId,
+          userAddress:
+            CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
+        })
+        const dust = max(repaidDebtAmount - position.amount, 0n)
+        try {
+          setConfirmation({
+            title: `Closing leverage position`,
+            body: 'Please confirm in your wallet.',
+            fields: [
+              {
+                direction: 'out',
+                currency: position.collateral.underlying,
+                label: position.collateral.underlying.symbol,
+                value: formatUnits(
+                  position.collateralAmount - amountIn,
+                  position.collateral.underlying.decimals,
+                  prices[position.collateral.underlying.address],
+                ),
+              },
+              {
+                direction: 'out',
+                currency: position.underlying,
+                label: position.underlying.symbol,
+                value: formatUnits(
+                  dust,
+                  position.underlying.decimals,
+                  prices[position.underlying.address],
+                ),
+              },
+            ],
+          })
+          await adjustPosition({
+            position,
+            newCollateralAmount: 0n,
+            newDebtAmount: 0n,
+            swapParams: {
+              inToken: position.collateral.substitute.address,
+              amount: amountIn,
+              data: swapData,
+            },
+          })
+          await queryClient.invalidateQueries(['loan-positions'])
+        } catch (e) {
+          console.error(e)
+        } finally {
+          await queryClient.invalidateQueries(['balances'])
+          setConfirmation(undefined)
+        }
+      }
+    },
+    [walletClient, setConfirmation, prices, adjustPosition, queryClient],
+  )
+
   return (
     <Context.Provider
       value={{
@@ -1097,6 +1195,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         shortenLoanDuration,
         addCollateral,
         removeCollateral,
+        closeLeveragePosition,
       }}
     >
       {children}
