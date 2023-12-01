@@ -32,7 +32,7 @@ const AdjustLeverageModalContainer = ({
   const { selectedChain } = useChainContext()
   const { data: feeData } = useFeeData()
   const { prices, assets } = useCurrencyContext()
-  const { repayWithCollateral: deleverage } = useBorrowContext()
+  const { repayWithCollateral: deleverage, leverageMore } = useBorrowContext()
   const currentMultiple =
     Number(position.collateralAmount) /
     Number(position.collateralAmount - position.borrowedCollateralAmount)
@@ -166,7 +166,7 @@ const AdjustLeverageModalContainer = ({
           position.amount,
           amountOut,
         ),
-        collateralAmountDelta > 0n
+        currentMultiple > multiple
           ? fetchAmountOutByOdos({
               chainId: selectedChain.id,
               amountIn: amountOut.toString(),
@@ -183,9 +183,9 @@ const AdjustLeverageModalContainer = ({
       return {
         debtAmount:
           position.amount +
-          (collateralAmountDelta === 0n
+          (multiple === currentMultiple
             ? 0n
-            : collateralAmountDelta > 0n
+            : currentMultiple > multiple
             ? amountOut + interest
             : -(amountOut + refund)),
         collateralAmount,
@@ -315,6 +315,21 @@ const AdjustLeverageModalContainer = ({
               abs(collateralAmountDelta),
               repayWithCollateral.repayAmount,
               repayWithCollateral.refund,
+              swapData,
+              SLIPPAGE_LIMIT_PERCENT,
+            )
+          } else if (multiple > currentMultiple && borrowMore.pathId) {
+            const { data: swapData } = await fetchCallDataByOdos({
+              pathId: borrowMore.pathId,
+              userAddress:
+                CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
+                  .BorrowController,
+            })
+            await leverageMore(
+              position,
+              abs(collateralAmountDelta),
+              borrowMore.debtAmountWithoutCouponFee,
+              borrowMore.interest,
               swapData,
               SLIPPAGE_LIMIT_PERCENT,
             )

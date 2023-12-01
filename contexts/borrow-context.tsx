@@ -73,6 +73,14 @@ export type BorrowContext = {
     amount: bigint,
     expectedInterest: bigint,
   ) => Promise<void>
+  leverageMore: (
+    position: LoanPosition,
+    collateralAmountDelta: bigint, // borrowedCollateralAmount
+    loanAmount: bigint,
+    expectedInterest: bigint,
+    swapData: `0x${string}`,
+    slippage: number,
+  ) => Promise<void>
   repay: (
     position: LoanPosition,
     amount: bigint,
@@ -98,6 +106,7 @@ const Context = React.createContext<BorrowContext>({
   repay: () => Promise.resolve(),
   repayWithCollateral: () => Promise.resolve(),
   borrowMore: () => Promise.resolve(),
+  leverageMore: () => Promise.resolve(),
   extendLoanDuration: () => Promise.resolve(),
   shortenLoanDuration: () => Promise.resolve(),
   addCollateral: () => Promise.resolve(),
@@ -800,6 +809,60 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
     [walletClient, setConfirmation, prices, adjustPosition, queryClient],
   )
 
+  const leverageMore = useCallback(
+    async (
+      position: LoanPosition,
+      collateralAmountDelta: bigint, // borrowedCollateralAmount
+      loanAmount: bigint,
+      expectedInterest: bigint,
+      swapData: `0x${string}`,
+      slippage: number,
+    ): Promise<void> => {
+      if (!walletClient) {
+        // TODO: alert wallet connect
+        return
+      }
+
+      try {
+        setConfirmation({
+          title: `Borrowing more ${position.underlying.symbol}`,
+          body: 'Please confirm in your wallet.',
+          fields: [
+            {
+              currency: position.collateral.underlying,
+              label: `Borrow ${position.collateral.underlying.symbol}`,
+              value: formatUnits(
+                collateralAmountDelta,
+                position.collateral.underlying.decimals,
+                prices[position.collateral.underlying.address],
+              ),
+            },
+          ],
+        })
+        await adjustPosition({
+          position,
+          newDebtAmount: position.amount + loanAmount + expectedInterest,
+          expectedInterest,
+          newCollateralAmount:
+            position.collateralAmount +
+            applyPercent(collateralAmountDelta, 100 - slippage),
+          swapParams: {
+            inToken: position.collateral.substitute.address,
+            amount: loanAmount,
+            data: swapData,
+          },
+        })
+        await queryClient.invalidateQueries(['loan-positions'])
+      } catch (e) {
+        console.error(e)
+      } finally {
+        await queryClient.invalidateQueries(['balances'])
+        setConfirmation(undefined)
+      }
+    },
+    [walletClient, setConfirmation, prices, adjustPosition, queryClient],
+  )
+
   const extendLoanDuration = useCallback(
     async (
       position: LoanPosition,
@@ -1029,6 +1092,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         repay,
         repayWithCollateral,
         borrowMore,
+        leverageMore,
         extendLoanDuration,
         shortenLoanDuration,
         addCollateral,
