@@ -19,6 +19,7 @@ import EditExpiryModalContainer from '../../containers/modal/edit-expiry-modal-c
 import { Prices } from '../../model/prices'
 import { ethValue } from '../../utils/currency'
 import { LeveragePositionCard } from '../card/leverage-position-card'
+import AdjustLeverageModalContainer from '../../containers/modal/adjust-leverage-modal-container'
 
 const BorrowStatus = ({
   assetStatuses,
@@ -43,6 +44,8 @@ const BorrowStatus = ({
   const [editCollateralPosition, setEditCollateralPosition] =
     useState<LoanPosition | null>(null)
   const [editExpiryPosition, setEditExpiryPosition] =
+    useState<LoanPosition | null>(null)
+  const [adjustLeveragePosition, setAdjustLeveragePosition] =
     useState<LoanPosition | null>(null)
   const currentTimestamp = currentTimestampInSeconds()
   return (
@@ -147,7 +150,7 @@ const BorrowStatus = ({
                       position.entryCollateralCurrencyPrice
                     }
                     onAdjustMultiple={() => {
-                      console.log('adjust multiple')
+                      setAdjustLeveragePosition(position)
                     }}
                     onClose={() => {
                       console.log('close')
@@ -262,6 +265,14 @@ const BorrowStatus = ({
         <EditExpiryModalContainer
           position={editExpiryPosition}
           onClose={() => setEditExpiryPosition(null)}
+        />
+      ) : (
+        <></>
+      )}
+      {adjustLeveragePosition ? (
+        <AdjustLeverageModalContainer
+          position={adjustLeveragePosition}
+          onClose={() => setAdjustLeveragePosition(null)}
         />
       ) : (
         <></>
