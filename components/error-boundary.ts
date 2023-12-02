@@ -17,8 +17,8 @@ class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('ErrorBoundary caught an error: ', error, errorInfo)
     {
-      localStorage.clear()
-      sessionStorage.clear()
+      // localStorage.clear()
+      // sessionStorage.clear()
       // TODO: send Sentry error report
     }
     this.setState({ hasError: true })
