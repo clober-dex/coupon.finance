@@ -38,6 +38,7 @@ import {
 import { SubgraphProvider } from '../contexts/subgraph-context'
 import { ModeProvider, useModeContext } from '../contexts/mode-context'
 import { SwapProvider } from '../contexts/swap-context'
+import ErrorBoundary from '../components/error-boundary'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -137,44 +138,46 @@ const CouponWidgetWrapper = () => {
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
-      <Head>
-        <title>Coupon Finance</title>
-        <link href="/favicon.svg" rel="icon" />
-      </Head>
-      <ThemeProvider>
-        <WalletProvider>
-          <ChainProvider>
-            <Web3AnalyticWrapper>
-              <TransactionProvider>
-                <SubgraphProvider>
-                  <CurrencyProvider>
-                    <DepositProvider>
-                      <BorrowProvider>
-                        <AdvancedContractProvider>
-                          <SwapProvider>
-                            <ModeProvider>
-                              <div
-                                className={`${inter.className} flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white`}
-                              >
-                                <HeaderWrapper />
-                                <div className="mb-auto pt-12 md:pt-16">
-                                  <Component {...pageProps} />
-                                  <CouponWidgetWrapper />
+      <ErrorBoundary>
+        <Head>
+          <title>Coupon Finance</title>
+          <link href="/favicon.svg" rel="icon" />
+        </Head>
+        <ThemeProvider>
+          <WalletProvider>
+            <ChainProvider>
+              <Web3AnalyticWrapper>
+                <TransactionProvider>
+                  <SubgraphProvider>
+                    <CurrencyProvider>
+                      <DepositProvider>
+                        <BorrowProvider>
+                          <AdvancedContractProvider>
+                            <SwapProvider>
+                              <ModeProvider>
+                                <div
+                                  className={`${inter.className} flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white`}
+                                >
+                                  <HeaderWrapper />
+                                  <div className="mb-auto pt-12 md:pt-16">
+                                    <Component {...pageProps} />
+                                    <CouponWidgetWrapper />
+                                  </div>
+                                  <Footer />
                                 </div>
-                                <Footer />
-                              </div>
-                            </ModeProvider>
-                          </SwapProvider>
-                        </AdvancedContractProvider>
-                      </BorrowProvider>
-                    </DepositProvider>
-                  </CurrencyProvider>
-                </SubgraphProvider>
-              </TransactionProvider>
-            </Web3AnalyticWrapper>
-          </ChainProvider>
-        </WalletProvider>
-      </ThemeProvider>
+                              </ModeProvider>
+                            </SwapProvider>
+                          </AdvancedContractProvider>
+                        </BorrowProvider>
+                      </DepositProvider>
+                    </CurrencyProvider>
+                  </SubgraphProvider>
+                </TransactionProvider>
+              </Web3AnalyticWrapper>
+            </ChainProvider>
+          </WalletProvider>
+        </ThemeProvider>
+      </ErrorBoundary>
     </>
   )
 }
