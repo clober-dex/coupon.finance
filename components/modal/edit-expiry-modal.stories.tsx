@@ -20,7 +20,7 @@ export const Default: Story = {
     epochs: 0,
     setEpochs: () => {},
     dateList: ['2023-12-31', '2024-06-30', '2024-12-31', '2025-06-30'],
-    currency: {
+    debtCurrency: {
       address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
       name: 'Wrapped Ether',
       symbol: 'WETH',
@@ -30,57 +30,10 @@ export const Default: Story = {
       value: 170000000000n,
       decimals: 8,
     },
-    positionAmountDelta: -100000000n,
-    actionButtonProps: {
-      disabled: false,
-      onClick: () => {},
-      text: 'Select expiry date',
-    },
-  },
-}
-
-export const Half: Story = {
-  args: {
-    onClose: () => {},
-    epochs: 2,
-    setEpochs: () => {},
-    dateList: ['2023-12-31', '2024-06-30', '2024-12-31', '2025-06-30'],
-    currency: {
-      address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
-      name: 'Wrapped Ether',
-      symbol: 'WETH',
-      decimals: 18,
-    },
-    price: {
-      value: 170000000000n,
-      decimals: 8,
-    },
-    positionAmountDelta: -100000000n,
-    actionButtonProps: {
-      disabled: false,
-      onClick: () => {},
-      text: 'Select expiry date',
-    },
-  },
-}
-
-export const Full: Story = {
-  args: {
-    onClose: () => {},
-    epochs: 4,
-    setEpochs: () => {},
-    dateList: ['2023-12-31', '2024-06-30', '2024-12-31', '2025-06-30'],
-    currency: {
-      address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
-      name: 'Wrapped Ether',
-      symbol: 'WETH',
-      decimals: 18,
-    },
-    price: {
-      value: 170000000000n,
-      decimals: 8,
-    },
-    positionAmountDelta: -100000000n,
+    currentDebtAmount: 100000000n,
+    expectedDebtAmount: 200000000n,
+    currentLtv: 50,
+    expectedLtv: 60,
     actionButtonProps: {
       disabled: false,
       onClick: () => {},

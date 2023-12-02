@@ -13,7 +13,7 @@ import { useCurrencyContext } from '../../contexts/currency-context'
 import EditExpiryModal from '../../components/modal/edit-expiry-modal'
 import { useChainContext } from '../../contexts/chain-context'
 import { max, min } from '../../utils/bigint'
-import { calculateMaxLoanableAmount } from '../../utils/ltv'
+import { calculateLtv, calculateMaxLoanableAmount } from '../../utils/ltv'
 import {
   calculateCouponsToBorrow,
   calculateCouponsToRepay,
@@ -208,9 +208,37 @@ const EditExpiryModalContainer = ({
       epochs={epochs}
       setEpochs={setEpochs}
       dateList={data ? data.map(({ date }) => date) : []}
-      currency={position.underlying}
+      debtCurrency={position.underlying}
+      collateral={position.collateral}
       price={prices[position.underlying.address] ?? 0n}
-      positionAmountDelta={enoughCoupon ? positionAmountDelta : 0n}
+      currentDebtAmount={position.amount}
+      expectedDebtAmount={position.amount + positionAmountDelta}
+      currentLtv={
+        prices[position.underlying.address] &&
+        prices[position.collateral.underlying.address]
+          ? calculateLtv(
+              position.underlying,
+              prices[position.underlying.address],
+              position.amount,
+              position.collateral,
+              prices[position.collateral.underlying.address],
+              position.collateralAmount,
+            )
+          : 0
+      }
+      expectedLtv={
+        prices[position.underlying.address] &&
+        prices[position.collateral.underlying.address]
+          ? calculateLtv(
+              position.underlying,
+              prices[position.underlying.address],
+              position.amount + positionAmountDelta,
+              position.collateral,
+              prices[position.collateral.underlying.address],
+              position.collateralAmount,
+            )
+          : 0
+      }
       actionButtonProps={{
         disabled:
           expiryEpochIndex === epochs ||
