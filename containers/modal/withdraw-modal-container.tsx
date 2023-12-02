@@ -86,7 +86,9 @@ const WithdrawModalContainer = ({
       actionButtonProps={{
         disabled:
           amount === 0n ||
-          amount > min(position.amount - maxRepurchaseFee, available),
+          amount > available - maxRepurchaseFee ||
+          amount > position.amount ||
+          amount > position.amount - maxRepurchaseFee,
         onClick: async () => {
           await withdraw(
             position.underlying,
@@ -100,11 +102,11 @@ const WithdrawModalContainer = ({
           onClose()
         },
         text:
-          amount > available
+          amount > available - maxRepurchaseFee
             ? 'Not enough coupons for sale'
             : amount > position.amount
             ? 'Not enough deposited'
-            : amount + maxRepurchaseFee > position.amount
+            : amount > position.amount - maxRepurchaseFee
             ? 'Cannot cover repurchase fee'
             : 'Withdraw',
       }}

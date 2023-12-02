@@ -49,4 +49,14 @@ export const dummyLoanPosition: LoanPosition = {
   createdAt: 1694497281,
   updatedAt: 1694497281,
   isPending: false,
+  borrowedCollateralAmount: 0n,
+  entryCollateralCurrencyPrice: {
+    value: 10000000000n,
+    decimals: 8,
+  },
+  entryDebtCurrencyPrice: {
+    value: 10000000000n,
+    decimals: 8,
+  },
+  isLeverage: false,
 }

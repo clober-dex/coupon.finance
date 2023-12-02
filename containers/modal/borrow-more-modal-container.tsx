@@ -128,7 +128,7 @@ const BorrowMoreModalContainer = ({
       actionButtonProps={{
         disabled:
           amount === 0n ||
-          amount > available ||
+          amount > available - maxInterest ||
           amount > maxLoanableAmountExcludingCouponFee - maxInterest,
         onClick: async () => {
           await borrowMore(position, amount, interest)
@@ -138,7 +138,7 @@ const BorrowMoreModalContainer = ({
         text:
           amount === 0n
             ? 'Enter loan amount'
-            : amount > available
+            : amount > available - maxInterest
             ? 'Not enough coupons for sale'
             : amount > maxLoanableAmountExcludingCouponFee - maxInterest
             ? 'Not enough collateral'

@@ -4,31 +4,37 @@ import { Meta, StoryObj } from '@storybook/react'
 import '../../styles/globals.css'
 import { dummyLoanPosition } from '../../.storybook/dummy-data/loan-position'
 
-import { LoanPositionCard } from './loan-position-card'
+import { LeveragePositionCard } from './leverage-position-card'
 
 export default {
-  title: 'Card/LoanPositionCard',
-  component: LoanPositionCard,
+  title: 'Card/LeveragePositionCard',
+  component: LeveragePositionCard,
   parameters: {
     layout: 'centered',
   },
   render: ({ ...args }) => (
     <div className={'w-96'}>
-      <LoanPositionCard {...args} />
+      <LeveragePositionCard {...args} />
     </div>
   ),
-} as Meta<typeof LoanPositionCard>
+} as Meta<typeof LeveragePositionCard>
 
-type Story = StoryObj<typeof LoanPositionCard>
+type Story = StoryObj<typeof LeveragePositionCard>
 export const Default: Story = {
   args: {
     position: dummyLoanPosition,
+    multiple: 3.33,
+    pnl: 1.1011,
     price: {
       value: 990000000n,
       decimals: 8,
     },
     collateralPrice: {
       value: 176800000000n,
+      decimals: 8,
+    },
+    entryCollateralCurrencyPrice: {
+      value: 106800000000n,
       decimals: 8,
     },
     isDeptSizeLessThanMinDebtSize: false,
@@ -38,12 +44,18 @@ export const Default: Story = {
 export const isPendingPosition: Story = {
   args: {
     position: { ...dummyLoanPosition, isPending: true },
+    multiple: 3.33,
+    pnl: 1.1,
     price: {
       value: 990000000n,
       decimals: 8,
     },
     collateralPrice: {
       value: 176800000000n,
+      decimals: 8,
+    },
+    entryCollateralCurrencyPrice: {
+      value: 106800000000n,
       decimals: 8,
     },
     isDeptSizeLessThanMinDebtSize: false,
@@ -53,12 +65,17 @@ export const isPendingPosition: Story = {
 export const SmallDeptPosition: Story = {
   args: {
     position: dummyLoanPosition,
+    multiple: 3.33,
     price: {
       value: 990000000n,
       decimals: 8,
     },
     collateralPrice: {
       value: 176800000000n,
+      decimals: 8,
+    },
+    entryCollateralCurrencyPrice: {
+      value: 106800000000n,
       decimals: 8,
     },
     isDeptSizeLessThanMinDebtSize: true,
@@ -68,12 +85,39 @@ export const SmallDeptPosition: Story = {
 export const LiquidatedPosition: Story = {
   args: {
     position: { ...dummyLoanPosition, amount: 0n },
+    multiple: 3.33,
+    pnl: 1.1,
     price: {
       value: 990000000n,
       decimals: 8,
     },
     collateralPrice: {
       value: 176800000000n,
+      decimals: 8,
+    },
+    entryCollateralCurrencyPrice: {
+      value: 106800000000n,
+      decimals: 8,
+    },
+    isDeptSizeLessThanMinDebtSize: false,
+  },
+}
+
+export const NegativeProfitPosition: Story = {
+  args: {
+    position: dummyLoanPosition,
+    multiple: 3.33,
+    pnl: 0.899,
+    price: {
+      value: 990000000n,
+      decimals: 8,
+    },
+    collateralPrice: {
+      value: 176800000000n,
+      decimals: 8,
+    },
+    entryCollateralCurrencyPrice: {
+      value: 106800000000n,
       decimals: 8,
     },
     isDeptSizeLessThanMinDebtSize: false,

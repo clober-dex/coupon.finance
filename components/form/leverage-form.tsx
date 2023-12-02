@@ -1,5 +1,5 @@
 import { isAddressEqual } from 'viem'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Tooltip } from 'react-tooltip'
 
 import CurrencyAmountInput from '../input/currency-amount-input'
@@ -23,48 +23,46 @@ import { CurrencyDropdown } from '../dropdown/currency-dropdown'
 import { CurrencyIcon } from '../icon/currency-icon'
 import { QuestionMarkSvg } from '../svg/question-mark-svg'
 
-export const BorrowForm = ({
-  isCollateralFixed,
+export const LeverageForm = ({
   borrowCurrency,
   setBorrowCurrency,
   availableBorrowCurrencies,
-  maxBorrowAmount,
   interest,
   borrowApy,
   borrowLTV,
   interestsByEpochsBorrowed,
   collateral,
-  setCollateral,
-  availableCollaterals,
   collateralValue,
+  collateralAmount,
   setCollateralValue,
   borrowValue,
-  setBorrowValue,
   epochs,
   setEpochs,
+  multiple,
+  setMultiple,
+  maxAvailableMultiple,
   balances,
   prices,
   actionButtonProps,
   children,
 }: {
-  isCollateralFixed: boolean
   borrowCurrency?: Currency
   setBorrowCurrency: (currency?: Currency) => void
   availableBorrowCurrencies: Currency[]
-  maxBorrowAmount: bigint
   interest: bigint
   borrowApy: number
   borrowLTV: number
   interestsByEpochsBorrowed?: { date: string; apy: number }[]
-  collateral?: Collateral
-  setCollateral: (collateral?: Collateral) => void
-  availableCollaterals: Collateral[]
+  collateral: Collateral
   collateralValue: string
+  collateralAmount: bigint
   setCollateralValue: (value: string) => void
   borrowValue: string
-  setBorrowValue: (value: string) => void
   epochs: number
   setEpochs: (value: number) => void
+  multiple: number
+  setMultiple: (value: number) => void
+  maxAvailableMultiple: number
   balances: Balances
   prices: Prices
   actionButtonProps: ActionButtonProps
@@ -78,66 +76,70 @@ export const BorrowForm = ({
         SECONDS_IN_MONTH *
           (interestsByEpochsBorrowed ? interestsByEpochsBorrowed.length : 1))) *
     100
+
+  useEffect(() => {
+    if (availableBorrowCurrencies.length === 1) {
+      setBorrowCurrency(availableBorrowCurrencies[0])
+    }
+  }, [availableBorrowCurrencies, setBorrowCurrency])
+
   return (
     <div className="flex flex-col gap-4">
       <div
-        className={`flex ${
-          isCollateralFixed ? 'flex-col-reverse' : 'flex-col'
-        } bg-white gap-4 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 sm:pb-8 w-full sm:w-[480px]`}
+        className={`flex flex-col bg-white gap-4 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 sm:pb-8 w-full sm:w-[480px]`}
       >
         <div className="flex flex-col gap-4">
           <div className="font-bold text-sm sm:text-lg">
-            How much collateral would you like to add?
+            How much {collateral.underlying.symbol} you’d like to use?
           </div>
           <CurrencyAmountInput
-            currency={collateral?.underlying}
+            currency={collateral.underlying}
             value={collateralValue}
             onValueChange={setCollateralValue}
-            availableAmount={
-              collateral ? balances[collateral?.underlying.address] ?? 0n : 0n
-            }
-            price={
-              collateral ? prices[collateral?.underlying.address] : undefined
-            }
-            disabled={!collateral}
+            availableAmount={balances[collateral.underlying.address] ?? 0n}
+            price={prices[collateral.underlying.address]}
           >
-            {!collateral || availableCollaterals.length > 1 ? (
-              <CurrencyDropdown
-                selectedCurrency={collateral?.underlying}
-                currencies={
-                  availableCollaterals.map(
-                    (collateral) => collateral.underlying,
-                  ) ?? []
-                }
-                onCurrencySelect={(currency) => {
-                  const collateral = availableCollaterals.find((collateral) =>
-                    isAddressEqual(
-                      collateral.underlying.address,
-                      currency.address,
-                    ),
-                  )
-                  setCollateral(collateral)
-                }}
-              >
-                {collateral ? (
-                  <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
-                    <CurrencyIcon
-                      currency={collateral.underlying}
-                      className="w-5 h-5"
-                    />
-                    <div className="text-sm sm:text-base">
-                      {collateral.underlying.symbol}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="w-fit flex items-center rounded-full bg-green-500 text-white pl-3 pr-2 py-1 gap-2 text-sm sm:text-base">
-                    Select token <DownSvg />
-                  </div>
-                )}
-              </CurrencyDropdown>
-            ) : undefined}
+            <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
+              <CurrencyIcon
+                currency={collateral.underlying}
+                className="w-5 h-5"
+              />
+              <div className="text-sm sm:text-base">
+                {collateral.underlying.symbol}
+              </div>
+            </div>
           </CurrencyAmountInput>
-          {collateral ? <div className="flex ml-auto">{children}</div> : <></>}
+          <div className="flex ml-auto">{children}</div>
+        </div>
+        <div className="flex flex-col gap-6">
+          <div className="flex items-end self-stretch">
+            <span className="font-bold text-sm sm:text-lg">Set multiple.</span>
+            <span className="ml-auto text-xs sm:text-sm text-gray-400 font-semibold">
+              Max {maxAvailableMultiple.toFixed(2)} x
+            </span>
+          </div>
+          <div className="flex justify-between flex-col relative bg-white dark:bg-gray-900 rounded-lg pb-4 h-[70px]">
+            <div className="sm:px-6 sm:mb-2 mr-4 sm:mr-0">
+              <div>
+                <Slider
+                  minPosition={0}
+                  segments={(maxAvailableMultiple - 1) * 100 + 1}
+                  value={(multiple - 1) * 100}
+                  onValueChange={
+                    (value) => setMultiple(value / 100 + 1) // value is 0-based
+                  }
+                  renderControl={() => (
+                    <div className="absolute -top-3 -left-7 flex flex-col items-center gap-2 shrink-0">
+                      <DotSvg />
+                      <div className="flex px-2 py-1 justify-center w-[60px] items-center gap-1 rounded-2xl bg-green-500 bg-opacity-10 text-xs text-green-500 font-bold">
+                        {multiple.toFixed(2)} x
+                      </div>
+                    </div>
+                  )}
+                />
+              </div>
+            </div>
+          </div>
         </div>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">
@@ -194,15 +196,15 @@ export const BorrowForm = ({
         </div>
         <div className="flex flex-col gap-4">
           <div className="font-bold text-sm sm:text-lg">
-            How much would you like to borrow?
+            Which token you’d like to borrow?
           </div>
           <CurrencyAmountInput
             currency={borrowCurrency}
             value={borrowValue}
-            onValueChange={setBorrowValue}
+            onValueChange={() => {}}
             price={borrowCurrency ? prices[borrowCurrency.address] : undefined}
-            availableAmount={maxBorrowAmount}
-            disabled={!collateral || !borrowCurrency}
+            availableAmount={0n}
+            disabled={true}
           >
             {!borrowCurrency || availableBorrowCurrencies.length > 1 ? (
               <CurrencyDropdown
@@ -278,6 +280,19 @@ export const BorrowForm = ({
                     ).toFixed(2)
                   : 0}
                 %
+              </div>
+            </div>
+            <div className="flex w-full">
+              <div className="text-gray-400 text-base">Collateral position</div>
+              <div className="ml-auto">
+                {Number.isNaN(parseFloat(collateralValue))
+                  ? 0
+                  : formatUnits(
+                      collateralAmount,
+                      collateral.underlying.decimals,
+                      prices[collateral.underlying.address],
+                    )}{' '}
+                {collateral.underlying.symbol}
               </div>
             </div>
             {interestsByEpochsBorrowed &&
