@@ -186,10 +186,11 @@ const EditExpiryModalContainer = ({
     },
   )
 
-  const positionAmountDelta =
-    adjustPositionSimulateData?.positionAmountDelta ?? 0n
   const enoughCoupon = adjustPositionSimulateData?.enoughCoupon ?? false
   const enoughCollateral = adjustPositionSimulateData?.enoughCollateral ?? false
+  const positionAmountDelta = enoughCoupon
+    ? adjustPositionSimulateData?.positionAmountDelta ?? 0n
+    : 0n
 
   const minDebtSizeInEth = MIN_DEBT_SIZE_IN_ETH[selectedChain.id as CHAIN_IDS]
   const expectedDebtSizeInEth = ethValue(
