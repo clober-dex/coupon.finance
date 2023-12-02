@@ -1,5 +1,5 @@
-const BUILD =
-  process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF !== 'master' ? 'dev' : 'prod'
+// const BUILD =
+//   process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF !== 'master' ? 'dev' : 'prod'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -9,7 +9,7 @@ const nextConfig = {
     return config
   },
   env: {
-    BUILD,
+    BUILD: 'prod',
   },
   images: {
     domains: ['assets.odos.xyz'],
