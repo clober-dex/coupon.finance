@@ -21,6 +21,10 @@ const Home = () => {
     removeCollateral,
   } = useBorrowContext()
 
+  const a = 1
+  // @ts-ignore
+  console.log('aa', a + 1n)
+
   return (
     <div className="flex flex-1">
       <div className="fixed w-full flex gap-16 items-end justify-center pb-1 bg-white dark:bg-gray-900 z-10 h-12 md:hidden">
