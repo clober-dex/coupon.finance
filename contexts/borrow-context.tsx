@@ -877,44 +877,16 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
 
       try {
-        const { ethValue, permitAmount } = calculatePermitAmount(
-          position.underlying,
-          expectedInterest,
-        )
         setConfirmation({
           title: `Extending loan duration with interest`,
           body: 'Please confirm in your wallet.',
-          fields: [
-            {
-              direction: 'in',
-              currency: toWrapETH(position.underlying),
-              label: toWrapETH(position.underlying).symbol,
-              value: formatUnits(
-                permitAmount,
-                position.underlying.decimals,
-                prices[position.underlying.address],
-              ),
-            },
-            {
-              direction: 'in',
-              currency: {
-                address: zeroAddress,
-                ...selectedChain.nativeCurrency,
-              },
-              label: selectedChain.nativeCurrency.symbol,
-              value: formatUnits(
-                ethValue,
-                selectedChain.nativeCurrency.decimals,
-                prices[position.underlying.address],
-              ),
-            },
-          ],
+          fields: [],
         })
 
         await adjustPosition({
           position,
+          newDebtAmount: position.amount + expectedInterest,
           expectedInterest,
-          paidDebtAmount: expectedInterest,
           newToEpoch: position.toEpoch.id + extendedEpoch,
         })
         await queryClient.invalidateQueries(['loan-positions'])
@@ -925,15 +897,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [
-      walletClient,
-      calculatePermitAmount,
-      setConfirmation,
-      prices,
-      selectedChain.nativeCurrency,
-      adjustPosition,
-      queryClient,
-    ],
+    [walletClient, setConfirmation, adjustPosition, queryClient],
   )
 
   const shortenLoanDuration = useCallback(
@@ -951,21 +915,11 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation({
           title: `Shortening loan duration with refund`,
           body: 'Please confirm in your wallet.',
-          fields: [
-            {
-              direction: 'out',
-              currency: position.underlying,
-              label: position.underlying.symbol,
-              value: formatUnits(
-                expectedProceeds,
-                position.underlying.decimals,
-                prices[position.underlying.address],
-              ),
-            },
-          ],
+          fields: [],
         })
         await adjustPosition({
           position,
+          newDebtAmount: max(position.amount - expectedProceeds, 0n),
           expectedProceeds,
           newToEpoch: position.toEpoch.id - shortenedEpoch,
         })
@@ -977,7 +931,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [walletClient, setConfirmation, prices, adjustPosition, queryClient],
+    [walletClient, setConfirmation, adjustPosition, queryClient],
   )
 
   const addCollateral = useCallback(
