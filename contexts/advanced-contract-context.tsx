@@ -497,7 +497,13 @@ export const AdvancedContractProvider = ({
         setConfirmation(undefined)
       }
     },
-    [queryClient, selectedChain.id, setConfirmation, walletClient],
+    [
+      publicClient,
+      queryClient,
+      selectedChain.id,
+      setConfirmation,
+      walletClient,
+    ],
   )
 
   const unWrapCouponERC20ToERC1155 = useCallback(
