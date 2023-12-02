@@ -17,23 +17,29 @@ import {
 import { CurrencyIcon } from '../icon/currency-icon'
 import { QuestionMarkSvg } from '../svg/question-mark-svg'
 
-export const LoanPositionCard = ({
+export const LeveragePositionCard = ({
   position,
+  multiple,
+  pnl,
   price,
   collateralPrice,
-  onRepay,
+  entryCollateralCurrencyPrice,
+  onAdjustMultiple,
+  onClose,
   onCollect,
-  onBorrowMore,
   onEditCollateral,
   onEditExpiry,
   isDeptSizeLessThanMinDebtSize,
 }: {
   position: LoanPosition
+  multiple: number
+  pnl: number
   price?: BigDecimal
-  collateralPrice?: BigDecimal
-  onRepay: () => void
+  collateralPrice: BigDecimal
+  entryCollateralCurrencyPrice: BigDecimal
+  onAdjustMultiple: () => void
+  onClose: () => void
   onCollect: () => void
-  onBorrowMore: () => void
   onEditCollateral: () => void
   onEditExpiry: () => void
   isDeptSizeLessThanMinDebtSize: boolean
@@ -64,15 +70,15 @@ export const LoanPositionCard = ({
       <div className="flex p-4 items-center self-stretch">
         <div className="flex items-center gap-3 flex-grow shrink-0 basis-0">
           <CurrencyIcon
-            currency={position.underlying}
+            currency={position.collateral.underlying}
             className="w-8 h-8 sm:w-10 sm:h-10"
           />
           <div className="flex flex-col">
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              Borrow
+            <div className="w-[89px] text-xs text-gray-500 dark:text-gray-400">
+              Leverage x{multiple.toFixed(2)}
             </div>
             <div className="text-base font-bold">
-              {position.underlying.symbol}
+              {position.collateral.underlying.symbol}
             </div>
           </div>
         </div>
@@ -124,49 +130,7 @@ export const LoanPositionCard = ({
         <div className="flex flex-col items-start gap-3 flex-grow shrink-0 basis-0 self-stretch">
           <div className="flex items-center gap-1 self-stretch">
             <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
-              Borrowed
-            </div>
-            <div className="text-sm sm:text-base">
-              {formatUnits(
-                position.amount,
-                position.underlying.decimals,
-                price,
-              )}{' '}
-              <span className="text-gray-500 text-xs">
-                (
-                {formatDollarValue(
-                  position.amount,
-                  position.underlying.decimals,
-                  price,
-                )}
-                )
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center gap-1 self-stretch">
-            <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
-              Interest Charged
-            </div>
-            <div className="text-sm sm:text-base">
-              {formatUnits(
-                position.interest,
-                position.underlying.decimals,
-                price,
-              )}{' '}
-              <span className="text-gray-500 text-xs">
-                (
-                {formatDollarValue(
-                  position.interest,
-                  position.underlying.decimals,
-                  price,
-                )}
-                )
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center gap-1 self-stretch">
-            <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
-              Collateral
+              Position Size
             </div>
             <div className="flex gap-1">
               <div className="text-sm sm:text-base">
@@ -190,6 +154,51 @@ export const LoanPositionCard = ({
           </div>
           <div className="flex items-center gap-1 self-stretch">
             <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
+              PnL
+            </div>
+            {pnl ? (
+              <div className="flex gap-1">
+                <div className="text-sm sm:text-base flex gap-1">
+                  {formatUnits(
+                    BigInt(
+                      Math.floor(Number(position.collateralAmount) * (pnl - 1)),
+                    ),
+                    position.collateral.underlying.decimals,
+                    collateralPrice,
+                  )}{' '}
+                  {position.collateral.underlying.symbol}
+                  <span
+                    className={pnl >= 1 ? 'text-green-500' : 'text-red-500'}
+                  >
+                    {pnl >= 1 ? '+' : ''}
+                    {((pnl - 1) * 100).toFixed(2)}%
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <></>
+            )}
+          </div>
+          <div className="flex items-center gap-1 self-stretch">
+            <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
+              Entry / Market Price
+            </div>
+            <div className="text-sm sm:text-base">
+              {formatDollarValue(
+                BigInt(10 ** position.collateral.underlying.decimals),
+                position.collateral.underlying.decimals,
+                entryCollateralCurrencyPrice,
+              )}{' '}
+              /{'  '}
+              {formatDollarValue(
+                BigInt(10 ** position.collateral.underlying.decimals),
+                position.collateral.underlying.decimals,
+                collateralPrice,
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-1 self-stretch">
+            <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
               Current / Liq. LTV
             </div>
             <div className="text-sm sm:text-base">
@@ -206,20 +215,20 @@ export const LoanPositionCard = ({
           {!isLiquidated ? (
             <button
               className="flex-1 bg-green-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-green-500 font-bold px-3 py-2 rounded text-sm"
-              onClick={onBorrowMore}
+              onClick={onAdjustMultiple}
               disabled={position.isPending}
             >
-              Borrow More
+              Adjust
             </button>
           ) : (
             <></>
           )}
           <button
             className="flex-1 bg-green-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-green-500 font-bold px-3 py-2 rounded text-sm"
-            onClick={!isLiquidated ? onRepay : onCollect}
+            onClick={!isLiquidated ? onClose : onCollect}
             disabled={position.isPending}
           >
-            {!isLiquidated ? 'Repay' : 'Collect Collateral'}
+            {!isLiquidated ? 'Close' : 'Collect Collateral'}
           </button>
         </div>
       </div>

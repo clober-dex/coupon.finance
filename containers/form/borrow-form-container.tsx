@@ -232,8 +232,8 @@ const BorrowFormContainer = ({
           collateralAmount === 0n ||
           borrowAmount === 0n ||
           collateralAmount > collateralUserBalance ||
-          borrowAmount > available ||
-          borrowAmount + maxInterest > maxLoanableAmountExcludingCouponFee ||
+          borrowAmount > available - maxInterest ||
+          borrowAmount > maxLoanableAmountExcludingCouponFee - maxInterest ||
           isDeptSizeLessThanMinDebtSize,
         onClick: async () => {
           if (!collateral || !asset) {
@@ -257,6 +257,10 @@ const BorrowFormContainer = ({
                   collateralAmount,
                   endTimestamp,
                   Number(timestamp),
+                  false,
+                  0n,
+                  prices[collateral.underlying.address],
+                  prices[asset.underlying.address],
                 )
               : undefined,
           )
@@ -271,9 +275,9 @@ const BorrowFormContainer = ({
             ? 'Enter loan amount'
             : collateralAmount > collateralUserBalance
             ? `Insufficient ${collateral?.underlying.symbol} balance`
-            : borrowAmount > available
+            : borrowAmount > available - maxInterest
             ? 'Not enough coupons for sale'
-            : borrowAmount + maxInterest > maxLoanableAmountExcludingCouponFee
+            : borrowAmount > maxLoanableAmountExcludingCouponFee - maxInterest
             ? 'Not enough collateral'
             : isDeptSizeLessThanMinDebtSize
             ? `Remaining debt must be ≥ ${minDebtSizeInEth.toFixed(
