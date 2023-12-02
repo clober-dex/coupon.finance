@@ -70,28 +70,24 @@ const EditExpiryModalContainer = ({
     ],
   )
 
-  const [expiryEpochIndex, interest, payable, refund, refundable] =
-    useMemo(() => {
-      if (!data) {
-        return [0, 0n, false, 0n, false]
-      }
-      const expiryEpochIndex = data.findIndex((item) => item.expiryEpoch)
-      return [
-        expiryEpochIndex,
-        data
-          .slice(expiryEpochIndex + 1, epochs + 1)
-          .reduce((acc, { interest }) => acc + interest, 0n),
-        data
-          .slice(expiryEpochIndex + 1, epochs + 1)
-          .reduce((acc, { payable }) => acc && payable, true),
-        data
-          .slice(epochs + 1, expiryEpochIndex + 1)
-          .reduce((acc, { refund }) => acc + refund, 0n),
-        data
-          .slice(epochs + 1, expiryEpochIndex + 1)
-          .reduce((acc, { refundable }) => acc && refundable, true),
-      ]
-    }, [data, epochs])
+  const [expiryEpochIndex, borrowAmount, payable, repayAmount] = useMemo(() => {
+    if (!data) {
+      return [0, 0n, false, 0n, false]
+    }
+    const expiryEpochIndex = data.findIndex((item) => item.expiryEpoch)
+    return [
+      expiryEpochIndex,
+      data
+        .slice(expiryEpochIndex + 1, epochs + 1)
+        .reduce((acc, { interest }) => acc + interest, 0n),
+      data
+        .slice(expiryEpochIndex + 1, epochs + 1)
+        .reduce((acc, { payable }) => acc && payable, true),
+      data
+        .slice(epochs + 1, expiryEpochIndex + 1)
+        .reduce((acc, { refund }) => acc + refund, 0n),
+    ]
+  }, [data, epochs])
 
   useEffect(() => {
     setEpochs(expiryEpochIndex)
@@ -101,14 +97,10 @@ const EditExpiryModalContainer = ({
     [
       'edit-expiry-adjust-position-simulate',
       selectedChain,
+      prices,
       position,
       epochs,
-      expiryEpochIndex,
-      interest,
-      payable,
-      refund,
-      refundable,
-      maxLoanableAmountExcludingCouponFee,
+      data,
     ],
     async () => {
       const newToEpoch = position.toEpoch.id + epochs - expiryEpochIndex
@@ -139,18 +131,19 @@ const EditExpiryModalContainer = ({
           position.substitute,
           marketsAfterEditExpiry,
           maxLoanableAmountExcludingCouponFee,
-          interest,
+          borrowAmount,
         )
         return {
           positionAmountDelta:
-            interest + calculateCouponsToBorrowResult.interest,
-          enoughCoupon: interest <= calculateCouponsToBorrowResult.available,
+            borrowAmount + calculateCouponsToBorrowResult.interest,
+          enoughCoupon:
+            borrowAmount <= calculateCouponsToBorrowResult.available,
           enoughCollateral:
-            interest <=
+            borrowAmount <=
             maxLoanableAmountExcludingCouponFee -
               calculateCouponsToBorrowResult.maxInterest,
         }
-      } else if (newToEpoch < position.toEpoch.id && refundable) {
+      } else if (newToEpoch < position.toEpoch.id) {
         // shorten
         let newToEpochIndex = 0
         for (let i = 0; i < marketsBeforeEditExpiry.length; i++) {
@@ -167,13 +160,14 @@ const EditExpiryModalContainer = ({
           position.substitute,
           marketsAfterEditExpiry,
           position.amount,
-          refund,
+          repayAmount,
         )
         const repayAll =
-          refund + calculateCouponsToRepayResult.maxRefund >= position.amount
+          repayAmount + calculateCouponsToRepayResult.maxRefund >=
+          position.amount
         return {
           positionAmountDelta: -min(
-            refund +
+            repayAmount +
               (repayAll
                 ? calculateCouponsToRepayResult.maxRefund
                 : calculateCouponsToRepayResult.refund),
@@ -185,13 +179,10 @@ const EditExpiryModalContainer = ({
       } else {
         return {
           positionAmountDelta: 0n,
-          enoughCoupon: payable && refundable,
+          enoughCoupon: payable,
           enoughCollateral: true,
         }
       }
-    },
-    {
-      keepPreviousData: true,
     },
   )
 
@@ -219,8 +210,7 @@ const EditExpiryModalContainer = ({
       dateList={data ? data.map(({ date }) => date) : []}
       currency={position.underlying}
       price={prices[position.underlying.address] ?? 0n}
-      interest={positionAmountDelta > 0n ? positionAmountDelta : 0n}
-      refund={positionAmountDelta < 0n ? -positionAmountDelta : 0n}
+      positionAmountDelta={positionAmountDelta}
       actionButtonProps={{
         disabled:
           expiryEpochIndex === epochs ||

@@ -20,8 +20,7 @@ const EditExpiryModal = ({
   currency,
   price,
   dateList,
-  interest,
-  refund,
+  positionAmountDelta,
   actionButtonProps,
 }: {
   onClose: () => void
@@ -30,8 +29,7 @@ const EditExpiryModal = ({
   currency: Currency
   price: BigDecimal
   dateList: string[]
-  interest: bigint
-  refund: bigint
+  positionAmountDelta: bigint
   actionButtonProps: ActionButtonProps
 }) => {
   const currentTimestamp = currentTimestampInSeconds()
@@ -46,8 +44,8 @@ const EditExpiryModal = ({
     <Modal show onClose={onClose}>
       <h1 className="font-bold text-xl mb-3">Please select expiry date</h1>
       <div className="text-gray-500 text-sm mb-4">
-        To select a further date, more interest must be paid. Select an earlier
-        date to receive a refund on interest paid.
+        To select a further date, more interest must be borrowed and paid.
+        Select an earlier date to receive a refund on interest paid and repay.
       </div>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col bg-gray-50 dark:bg-gray-900">
@@ -94,13 +92,17 @@ const EditExpiryModal = ({
           </div>
           <div className="flex items-start self-stretch">
             <div className="text-gray-400 text-base">
-              {interest > 0n ? 'Interest' : refund > 0n ? 'Refund' : ''}
+              {positionAmountDelta > 0n
+                ? 'Borrow'
+                : positionAmountDelta < 0n
+                ? 'Repay'
+                : ''}
             </div>
             <div className="ml-auto text-base text-black dark:text-white">
-              {interest > 0n
-                ? formatUnits(interest, currency.decimals, price)
-                : refund > 0n
-                ? formatUnits(refund, currency.decimals, price)
+              {positionAmountDelta > 0n
+                ? formatUnits(positionAmountDelta, currency.decimals, price)
+                : positionAmountDelta < 0n
+                ? formatUnits(-positionAmountDelta, currency.decimals, price)
                 : '0'}{' '}
               {currency.symbol}
             </div>

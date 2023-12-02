@@ -30,8 +30,7 @@ export const Default: Story = {
       value: 170000000000n,
       decimals: 8,
     },
-    interest: 0n,
-    refund: 100000000n,
+    positionAmountDelta: -100000000n,
     actionButtonProps: {
       disabled: false,
       onClick: () => {},
@@ -56,8 +55,7 @@ export const Half: Story = {
       value: 170000000000n,
       decimals: 8,
     },
-    interest: 0n,
-    refund: 100000000n,
+    positionAmountDelta: -100000000n,
     actionButtonProps: {
       disabled: false,
       onClick: () => {},
@@ -82,8 +80,7 @@ export const Full: Story = {
       value: 170000000000n,
       decimals: 8,
     },
-    interest: 0n,
-    refund: 100000000n,
+    positionAmountDelta: -100000000n,
     actionButtonProps: {
       disabled: false,
       onClick: () => {},
