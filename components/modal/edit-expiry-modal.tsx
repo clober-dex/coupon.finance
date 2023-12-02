@@ -12,26 +12,35 @@ import Slider from '../slider'
 import { DotSvg } from '../svg/dot-svg'
 import { BigDecimal, formatUnits } from '../../utils/numbers'
 import { Currency } from '../../model/currency'
+import { ArrowSvg } from '../svg/arrow-svg'
+import { getLTVTextColor } from '../../utils/ltv'
+import { Collateral } from '../../model/collateral'
 
 const EditExpiryModal = ({
   onClose,
   epochs,
   setEpochs,
-  currency,
+  debtCurrency,
+  collateral,
   price,
   dateList,
-  interest,
-  refund,
+  currentDebtAmount,
+  expectedDebtAmount,
+  currentLtv,
+  expectedLtv,
   actionButtonProps,
 }: {
   onClose: () => void
   epochs: number
   setEpochs: (value: number) => void
-  currency: Currency
+  debtCurrency: Currency
+  collateral: Collateral
   price: BigDecimal
   dateList: string[]
-  interest: bigint
-  refund: bigint
+  currentDebtAmount: bigint
+  expectedDebtAmount: bigint
+  currentLtv: number
+  expectedLtv: number
   actionButtonProps: ActionButtonProps
 }) => {
   const currentTimestamp = currentTimestampInSeconds()
@@ -43,7 +52,7 @@ const EditExpiryModal = ({
         SECONDS_IN_MONTH * (dateList ? dateList.length : 1))) *
     100
   return (
-    <Modal show onClose={onClose}>
+    <Modal show onClose={() => {}} onButtonClick={onClose}>
       <h1 className="font-bold text-xl mb-3">Please select expiry date</h1>
       <div className="text-gray-500 text-sm mb-4">
         To select a further date, more interest must be paid. Select an earlier
@@ -92,17 +101,56 @@ const EditExpiryModal = ({
               <></>
             )}
           </div>
-          <div className="flex items-start self-stretch">
-            <div className="text-gray-400 text-base">
-              {interest > 0n ? 'Interest' : refund > 0n ? 'Refund' : ''}
+          <div className="flex flex-col gap-2">
+            <div className="flex items-start self-stretch">
+              <div className="text-gray-400 text-base">LTV</div>
+              <div className="flex ml-auto items-center gap-1.5 text-base text-black dark:text-white">
+                <span className={`${getLTVTextColor(currentLtv, collateral)}`}>
+                  {currentLtv.toFixed(2)}%
+                </span>
+                {currentDebtAmount !== expectedDebtAmount ? (
+                  <>
+                    <ArrowSvg />
+                    <span
+                      className={`${getLTVTextColor(expectedLtv, collateral)}`}
+                    >
+                      {expectedLtv.toFixed(2)}%
+                    </span>
+                  </>
+                ) : (
+                  <></>
+                )}
+              </div>
             </div>
-            <div className="ml-auto text-base text-black dark:text-white">
-              {interest > 0n
-                ? formatUnits(interest, currency.decimals, price)
-                : refund > 0n
-                ? formatUnits(refund, currency.decimals, price)
-                : '0'}{' '}
-              {currency.symbol}
+            <div className="flex items-start self-stretch">
+              <div className="text-gray-400 text-base">
+                Debt Amount ({debtCurrency.symbol})
+              </div>
+              <div className="flex ml-auto items-center gap-1.5 text-base text-black dark:text-white">
+                <span>
+                  {formatUnits(currentDebtAmount, debtCurrency.decimals, price)}
+                </span>
+                {currentDebtAmount !== expectedDebtAmount ? (
+                  <>
+                    <ArrowSvg />
+                    <span
+                      className={
+                        expectedDebtAmount < currentDebtAmount
+                          ? 'text-green-500'
+                          : 'text-red-500'
+                      }
+                    >
+                      {formatUnits(
+                        expectedDebtAmount,
+                        debtCurrency.decimals,
+                        price,
+                      )}
+                    </span>
+                  </>
+                ) : (
+                  <></>
+                )}
+              </div>
             </div>
           </div>
         </div>
