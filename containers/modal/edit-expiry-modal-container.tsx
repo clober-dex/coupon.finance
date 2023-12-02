@@ -210,7 +210,7 @@ const EditExpiryModalContainer = ({
       dateList={data ? data.map(({ date }) => date) : []}
       currency={position.underlying}
       price={prices[position.underlying.address] ?? 0n}
-      positionAmountDelta={positionAmountDelta}
+      positionAmountDelta={enoughCoupon ? positionAmountDelta : 0n}
       actionButtonProps={{
         disabled:
           expiryEpochIndex === epochs ||
