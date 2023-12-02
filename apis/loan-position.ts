@@ -111,9 +111,7 @@ function toLoanPosition(
       decimals: 8,
     },
     entryDebtCurrencyPrice: {
-      value: BigInt(
-        Math.floor(Number(loanPosition.entryDebtCurrencyPrice) * 10 ** 8),
-      ),
+      value: BigInt(123.123),
       decimals: 8,
     },
     borrowedCollateralAmount: BigInt(loanPosition.borrowedCollateralAmount),
