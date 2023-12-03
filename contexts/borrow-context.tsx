@@ -456,7 +456,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
     ],
   )
 
-  const adjustPosition = useCallback(
+  const adjust = useCallback(
     async ({
       position,
       newCollateralAmount,
@@ -646,7 +646,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           body: 'Please confirm in your wallet.',
           fields,
         })
-        await adjustPosition({
+        await adjust({
           position,
           newDebtAmount,
           newCollateralAmount:
@@ -668,7 +668,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       setConfirmation,
       prices,
       selectedChain.nativeCurrency,
-      adjustPosition,
+      adjust,
       queryClient,
     ],
   )
@@ -750,7 +750,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           body: 'Please confirm in your wallet.',
           fields,
         })
-        await adjustPosition({
+        await adjust({
           position,
           newCollateralAmount: newDebtAmount === 0n ? 0n : newCollateralAmount,
           newDebtAmount,
@@ -768,7 +768,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [walletClient, prices, setConfirmation, adjustPosition, queryClient],
+    [walletClient, prices, setConfirmation, adjust, queryClient],
   )
 
   const borrowMore = useCallback(
@@ -799,7 +799,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             },
           ],
         })
-        await adjustPosition({
+        await adjust({
           position,
           newDebtAmount: position.amount + amount + expectedInterest,
           expectedInterest,
@@ -812,7 +812,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [walletClient, setConfirmation, prices, adjustPosition, queryClient],
+    [walletClient, setConfirmation, prices, adjust, queryClient],
   )
 
   const leverageMore = useCallback(
@@ -845,7 +845,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             },
           ],
         })
-        await adjustPosition({
+        await adjust({
           position,
           newDebtAmount: position.amount + loanAmount + expectedInterest,
           expectedInterest,
@@ -866,7 +866,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [walletClient, setConfirmation, prices, adjustPosition, queryClient],
+    [walletClient, setConfirmation, prices, adjust, queryClient],
   )
 
   const extendLoanDuration = useCallback(
@@ -887,7 +887,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           fields: [],
         })
 
-        await adjustPosition({
+        await adjust({
           position,
           newDebtAmount: position.amount + expectedInterest,
           expectedInterest,
@@ -901,7 +901,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [walletClient, setConfirmation, adjustPosition, queryClient],
+    [walletClient, setConfirmation, adjust, queryClient],
   )
 
   const shortenLoanDuration = useCallback(
@@ -921,7 +921,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           body: 'Please confirm in your wallet.',
           fields: [],
         })
-        await adjustPosition({
+        await adjust({
           position,
           newDebtAmount: max(position.amount - expectedProceeds, 0n),
           expectedProceeds,
@@ -935,7 +935,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [walletClient, setConfirmation, adjustPosition, queryClient],
+    [walletClient, setConfirmation, adjust, queryClient],
   )
 
   const addCollateral = useCallback(
@@ -980,7 +980,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             },
           ],
         })
-        await adjustPosition({
+        await adjust({
           position,
           newCollateralAmount: position.collateralAmount + amount,
         })
@@ -998,7 +998,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       selectedChain.nativeCurrency,
       setConfirmation,
       prices,
-      adjustPosition,
+      adjust,
       queryClient,
     ],
   )
@@ -1027,7 +1027,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             },
           ],
         })
-        await adjustPosition({
+        await adjust({
           position,
           newCollateralAmount: max(position.collateralAmount - amount, 0n),
         })
@@ -1039,7 +1039,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [walletClient, setConfirmation, prices, adjustPosition, queryClient],
+    [walletClient, setConfirmation, prices, adjust, queryClient],
   )
 
   const closeLeveragePosition = useCallback(
@@ -1116,7 +1116,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
               },
             ],
           })
-          await adjustPosition({
+          await adjust({
             position,
             newCollateralAmount: 0n,
             newDebtAmount: 0n,
@@ -1135,7 +1135,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         }
       }
     },
-    [walletClient, setConfirmation, prices, adjustPosition, queryClient],
+    [walletClient, setConfirmation, prices, adjust, queryClient],
   )
 
   return (
