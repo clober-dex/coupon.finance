@@ -295,7 +295,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             expectedInterest,
             epochs,
             {
-              inToken: zeroAddress as `0x${string}`,
+              inSubstitute: zeroAddress as `0x${string}`,
               amount: 0n,
               data: zeroBytes32 as `0x${string}`,
             },
@@ -415,7 +415,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             expectedInterest,
             epochs,
             {
-              inToken: loanAsset.substitutes[0].address,
+              inSubstitute: loanAsset.substitutes[0].address,
               amount: loanAmount,
               data: swapData,
             },
@@ -475,7 +475,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       paidDebtAmount?: bigint
       newToEpoch?: number
       swapParams?: {
-        inToken: `0x${string}`
+        inSubstitute: `0x${string}`
         amount: bigint
         data: `0x${string}`
       }
@@ -527,46 +527,50 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
         deadline,
       )
 
-      await writeContract(publicClient, walletClient, {
-        address:
-          CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
-        abi: BORROW_CONTROLLER_ABI,
-        functionName: 'adjustPosition',
-        args: [
-          position.id,
-          newCollateralAmount ?? position.collateralAmount,
-          newDebtAmount ?? position.amount,
-          expectedInterest ?? 0n,
-          expectedProceeds ?? 0n,
-          newToEpoch ?? position.toEpoch.id,
-          swapParams ?? {
-            inToken: zeroAddress as `0x${string}`,
-            amount: 0n,
-            data: zeroBytes32 as `0x${string}`,
-          },
-          { ...positionPermitResult },
-          {
-            permitAmount: collateralPermitAmount,
-            signature: {
-              deadline: collateralPermitResult.deadline,
-              v: collateralPermitResult.v,
-              r: collateralPermitResult.r,
-              s: collateralPermitResult.s,
+      await writeContract(
+        publicClient,
+        walletClient,
+        {
+          address:
+            CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BorrowController,
+          abi: BORROW_CONTROLLER_ABI,
+          functionName: 'adjust',
+          args: [
+            position.id,
+            newCollateralAmount ?? position.collateralAmount,
+            newDebtAmount ?? position.amount,
+            (expectedInterest ?? 0n) - (expectedProceeds ?? 0n),
+            newToEpoch ?? position.toEpoch.id,
+            swapParams ?? {
+              inSubstitute: zeroAddress as `0x${string}`,
+              amount: 0n,
+              data: zeroBytes32 as `0x${string}`,
             },
-          },
-          {
-            permitAmount: debtPermitAmount,
-            signature: {
-              deadline: debtPermitResult.deadline,
-              v: debtPermitResult.v,
-              r: debtPermitResult.r,
-              s: debtPermitResult.s,
+            { ...positionPermitResult },
+            {
+              permitAmount: collateralPermitAmount,
+              signature: {
+                deadline: collateralPermitResult.deadline,
+                v: collateralPermitResult.v,
+                r: collateralPermitResult.r,
+                s: collateralPermitResult.s,
+              },
             },
-          },
-        ],
-        value: addedCollateralEthValue + addedDebtEthValue,
-        account: walletClient.account,
-      })
+            {
+              permitAmount: debtPermitAmount,
+              signature: {
+                deadline: debtPermitResult.deadline,
+                v: debtPermitResult.v,
+                r: debtPermitResult.r,
+                s: debtPermitResult.s,
+              },
+            },
+          ],
+          value: addedCollateralEthValue + addedDebtEthValue,
+          account: walletClient.account,
+        },
+        true,
+      )
     },
     [calculatePermitAmount, publicClient, selectedChain.id, walletClient],
   )
@@ -751,7 +755,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           newCollateralAmount: newDebtAmount === 0n ? 0n : newCollateralAmount,
           newDebtAmount,
           swapParams: {
-            inToken: position.collateral.substitute.address,
+            inSubstitute: position.collateral.substitute.address,
             amount: amount,
             data: swapData,
           },
@@ -849,7 +853,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             position.collateralAmount +
             applyPercent(collateralAmountDelta, 100 - slippage),
           swapParams: {
-            inToken: position.substitute.address,
+            inSubstitute: position.substitute.address,
             amount: loanAmount,
             data: swapData,
           },
@@ -1117,7 +1121,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             newCollateralAmount: 0n,
             newDebtAmount: 0n,
             swapParams: {
-              inToken: position.collateral.substitute.address,
+              inSubstitute: position.collateral.substitute.address,
               amount: amountIn,
               data: swapData,
             },
