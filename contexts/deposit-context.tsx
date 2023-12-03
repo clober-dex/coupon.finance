@@ -4,12 +4,11 @@ import { Hash, zeroAddress } from 'viem'
 
 import { CONTRACT_ADDRESSES } from '../constants/addresses'
 import { Asset } from '../model/asset'
-import { permit20 } from '../utils/permit20'
+import { dummyPermit20Params, permit20 } from '../utils/permit20'
 import { extractBondPositions } from '../apis/bond-position'
 import { BondPosition } from '../model/bond-position'
 import { formatUnits } from '../utils/numbers'
 import { permit721 } from '../utils/permit721'
-import { Currency } from '../model/currency'
 import { writeContract } from '../utils/wallet'
 import { CHAIN_IDS } from '../constants/chain'
 import { getDeadlineTimestampInSeconds } from '../utils/date'
@@ -31,12 +30,11 @@ export type DepositContext = {
     pendingPosition?: BondPosition,
   ) => Promise<Hash | undefined>
   withdraw: (
-    asset: Currency,
-    tokenId: bigint,
+    position: BondPosition,
     amount: bigint,
     repurchaseFee: bigint,
   ) => Promise<void>
-  collect: (asset: Currency, tokenId: bigint, amount: bigint) => Promise<void>
+  collect: (position: BondPosition) => Promise<void>
 }
 
 const Context = React.createContext<DepositContext>({
@@ -184,52 +182,76 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
     ],
   )
 
+  const adjust = useCallback(
+    async ({
+      position,
+      newAmount,
+      expectedInterest,
+    }: {
+      position: BondPosition
+      newAmount: bigint
+      expectedInterest: bigint
+    }) => {
+      if (!walletClient) {
+        return
+      }
+
+      const { deadline, r, s, v } = await permit721(
+        selectedChain.id,
+        walletClient,
+        CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BondPositionManager,
+        position.tokenId,
+        walletClient.account.address,
+        CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
+        getDeadlineTimestampInSeconds(),
+      )
+      await writeContract(publicClient, walletClient, {
+        address:
+          CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
+        abi: DEPOSIT_CONTROLLER_ABI,
+        functionName: 'adjust',
+        args: [
+          position.tokenId,
+          newAmount,
+          position.toEpoch.id,
+          expectedInterest,
+          dummyPermit20Params,
+          { deadline, v, r, s },
+        ],
+        account: walletClient.account,
+      })
+    },
+    [walletClient, selectedChain.id, publicClient],
+  )
+
   const withdraw = useCallback(
-    async (
-      asset: Currency,
-      tokenId: bigint,
-      amount: bigint,
-      repurchaseFee: bigint,
-    ) => {
+    async (position: BondPosition, amount: bigint, repurchaseFee: bigint) => {
       if (!walletClient) {
         // TODO: alert wallet connect
         return
       }
 
       try {
-        const { deadline, r, s, v } = await permit721(
-          selectedChain.id,
-          walletClient,
-          CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BondPositionManager,
-          tokenId,
-          walletClient.account.address,
-          CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
-          getDeadlineTimestampInSeconds(),
-        )
         setConfirmation({
           title: 'Making Withdrawal',
           body: 'Please confirm in your wallet.',
           fields: [
             {
               direction: 'out',
-              currency: asset,
-              label: asset.symbol,
-              value: formatUnits(amount, asset.decimals, prices[asset.address]),
+              currency: position.underlying,
+              label: position.underlying.symbol,
+              value: formatUnits(
+                amount,
+                position.underlying.decimals,
+                prices[position.underlying.address],
+              ),
             },
           ],
         })
-        await writeContract(publicClient, walletClient, {
-          address:
-            CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
-          abi: DEPOSIT_CONTROLLER_ABI,
-          functionName: 'withdraw',
-          args: [
-            tokenId,
-            amount + repurchaseFee,
-            repurchaseFee,
-            { deadline, v, r, s },
-          ],
-          account: walletClient.account,
+        await adjust({
+          position,
+          newAmount: position.amount - amount - repurchaseFee,
+          expectedInterest: repurchaseFee,
         })
       } catch (e) {
         console.error(e)
@@ -237,45 +259,37 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [walletClient, selectedChain.id, setConfirmation, prices, publicClient],
+    [walletClient, setConfirmation, prices, adjust],
   )
 
   const collect = useCallback(
-    async (asset: Currency, tokenId: bigint, amount: bigint) => {
+    async (position: BondPosition) => {
       if (!walletClient) {
         // TODO: alert wallet connect
         return
       }
 
       try {
-        const { deadline, r, s, v } = await permit721(
-          selectedChain.id,
-          walletClient,
-          CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].BondPositionManager,
-          tokenId,
-          walletClient.account.address,
-          CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
-          getDeadlineTimestampInSeconds(),
-        )
         setConfirmation({
           title: 'Collecting',
           body: 'Please confirm in your wallet.',
           fields: [
             {
               direction: 'out',
-              currency: asset,
-              label: asset.symbol,
-              value: formatUnits(amount, asset.decimals, prices[asset.address]),
+              currency: position.underlying,
+              label: position.underlying.symbol,
+              value: formatUnits(
+                position.amount,
+                position.underlying.decimals,
+                prices[position.underlying.address],
+              ),
             },
           ],
         })
-        await writeContract(publicClient, walletClient, {
-          address:
-            CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS].DepositController,
-          abi: DEPOSIT_CONTROLLER_ABI,
-          functionName: 'collect',
-          args: [tokenId, { deadline, v, r, s }],
-          account: walletClient.account,
+        await adjust({
+          position,
+          newAmount: 0n,
+          expectedInterest: 0n,
         })
       } catch (e) {
         console.error(e)
@@ -283,7 +297,7 @@ export const DepositProvider = ({ children }: React.PropsWithChildren<{}>) => {
         setConfirmation(undefined)
       }
     },
-    [walletClient, selectedChain.id, setConfirmation, prices, publicClient],
+    [walletClient, setConfirmation, prices, adjust],
   )
 
   return (

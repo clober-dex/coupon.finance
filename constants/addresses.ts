@@ -30,7 +30,7 @@ export const CONTRACT_ADDRESSES: {
     CouponWrapper:
       '0xc5577988Cc8A49ecF6A48c8e84717E481E3bF57b' as `0x${string}`,
     DepositController:
-      '0x377d954cd4b29931b09d3943F070B28b968F034f' as `0x${string}`,
+      '0xE829fDe841c2a4b8dF34D0ebA146c06393D7F322' as `0x${string}`,
     EthSubstituteMinter:
       '0xeA424D3C88aF908769B3292bd88c60E5652b308E' as `0x${string}`,
     LoanPositionManager:

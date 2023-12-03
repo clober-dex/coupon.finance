@@ -91,8 +91,7 @@ const WithdrawModalContainer = ({
           amount > position.amount - maxRepurchaseFee,
         onClick: async () => {
           await withdraw(
-            position.underlying,
-            position.tokenId,
+            position,
             amount,
             withdrawAll
               ? maxRepurchaseFee
