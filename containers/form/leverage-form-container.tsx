@@ -257,7 +257,17 @@ const LeverageFormContainer = ({
   if (isCollateralFixed && !collateral) {
     return <></>
   }
-  const leveragePosition = router.query.symbol.toString().split('_')[1]
+  const latestWord = router.query.symbol.toString().split('_')[1]
+  const leveragePosition =
+    latestWord === 'LONG'
+      ? 'Long'
+      : latestWord === 'SHORT'
+      ? 'Short'
+      : collateral && asset
+      ? isStableCoin(collateral.underlying) && !isStableCoin(asset.underlying)
+        ? 'Short'
+        : 'Long'
+      : ''
 
   return (
     <main className="flex flex-1 flex-col justify-center items-center">
@@ -268,26 +278,20 @@ const LeverageFormContainer = ({
           href="/?mode=borrow"
         >
           <BackSvg className="w-4 h-4 sm:w-8 sm:h-8" />
-          {leveragePosition[0] + leveragePosition.slice(1).toLowerCase()}{' '}
+          {leveragePosition}{' '}
           <div className="flex gap-2">
-            {leveragePosition === 'LONG' && collateral ? (
-              <CurrencyIcon
-                currency={collateral.underlying}
-                className="w-6 h-6 sm:w-8 sm:h-8"
-              />
-            ) : (
-              <></>
-            )}
-            {leveragePosition === 'SHORT' && asset ? (
-              <CurrencyIcon
-                currency={asset.underlying}
-                className="w-6 h-6 sm:w-8 sm:h-8"
-              />
-            ) : (
-              <></>
-            )}
+            <CurrencyIcon
+              currency={
+                leveragePosition === 'Long' && collateral
+                  ? collateral.underlying
+                  : leveragePosition === 'Short' && asset
+                  ? asset.underlying
+                  : { ...selectedChain.nativeCurrency, address: zeroAddress }
+              }
+              className="w-6 h-6 sm:w-8 sm:h-8"
+            />
             <div>
-              {leveragePosition === 'LONG'
+              {leveragePosition === 'Long'
                 ? collateral?.underlying.symbol
                 : asset?.underlying.symbol}
             </div>
