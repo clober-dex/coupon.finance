@@ -46,6 +46,16 @@ const Context = React.createContext<CurrencyContext>({
   calculateETHValue: () => 0n,
 })
 
+export const isUSDCAddress = (address: `0x${string}`) => {
+  return ['0xaf88d065e77c8cC2239327C5EDb3A432268e5831']
+    .map((ethAddr) => getAddress(ethAddr))
+    .includes(getAddress(address))
+}
+
+export const isUSDC = (currency: Currency) => {
+  return isUSDCAddress(currency.address)
+}
+
 export const isEtherAddress = (address: `0x${string}`) => {
   return [
     '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',

@@ -28,12 +28,14 @@ const LeverageFormContainer = ({
   showHelperModal,
   setShowHelperModal,
   setHelperModalOutputCurrency,
+  defaultDebtCurrency,
   defaultCollateralCurrency,
   children,
 }: {
   showHelperModal: boolean
   setShowHelperModal: (value: boolean) => void
   setHelperModalOutputCurrency: (value: Currency | undefined) => void
+  defaultDebtCurrency: Currency
   defaultCollateralCurrency: Currency
 } & React.PropsWithChildren) => {
   const { selectedChain } = useChainContext()
@@ -50,7 +52,7 @@ const LeverageFormContainer = ({
   })
   const [collateralValue, setCollateralValue] = useState('')
   const [borrowCurrency, setBorrowCurrency] = useState<Currency | undefined>(
-    undefined,
+    defaultDebtCurrency,
   )
 
   const router = useRouter()

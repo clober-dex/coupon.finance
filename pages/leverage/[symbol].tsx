@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import Head from 'next/head'
 import Link from 'next/link'
 
-import { useCurrencyContext } from '../../contexts/currency-context'
+import { isUSDC, useCurrencyContext } from '../../contexts/currency-context'
 import BackSvg from '../../components/svg/back-svg'
 import { CurrencyIcon } from '../../components/icon/currency-icon'
 import { Currency } from '../../model/currency'
@@ -11,8 +11,10 @@ import OdosSwapModalContainer from '../../containers/modal/odos-swap-modal-conta
 import LeverageFormContainer from '../../containers/form/leverage-form-container'
 
 const LeverageForm = ({
+  defaultDebtCurrency,
   defaultCollateralCurrency,
 }: {
+  defaultDebtCurrency: Currency
   defaultCollateralCurrency: Currency
 }) => {
   const [helperModalOutputCurrency, setHelperModalOutputCurrency] = useState<
@@ -24,6 +26,7 @@ const LeverageForm = ({
       showHelperModal={showHelperModal}
       setShowHelperModal={setShowHelperModal}
       setHelperModalOutputCurrency={setHelperModalOutputCurrency}
+      defaultDebtCurrency={defaultDebtCurrency}
       defaultCollateralCurrency={defaultCollateralCurrency}
     >
       <OdosSwapModalContainer
@@ -38,22 +41,55 @@ const Leverage = () => {
   const { assets } = useCurrencyContext()
 
   const router = useRouter()
-  const collateral = useMemo(() => {
-    return assets
-      .map((asset) =>
-        asset.collaterals.map((collateral) => collateral.underlying),
-      )
-      .flat()
-      .find((collateral) => collateral.symbol === router.query.symbol)
+  const [collateralCurrency, debtCurrency] = useMemo(() => {
+    if (!router.query.symbol || !router.query.symbol.toString().includes('_')) {
+      return [undefined, undefined]
+    }
+
+    const [collateralCurrencySymbol, debtCurrencySymbol] = router.query.symbol
+      .toString()
+      .split('_')
+    const [debtCurrencies, collateralCurrencies] = [
+      assets.map((asset) => asset.underlying),
+      assets
+        .map((asset) =>
+          asset.collaterals.map((collateral) => collateral.underlying),
+        )
+        .flat(),
+    ]
+    if (debtCurrencySymbol === 'SHORT') {
+      return [
+        collateralCurrencies.find((currency) => isUSDC(currency)),
+        debtCurrencies.find(
+          (currency) => currency.symbol === collateralCurrencySymbol,
+        ),
+      ]
+    } else if (debtCurrencySymbol === 'LONG') {
+      return [
+        collateralCurrencies.find(
+          (currency) => currency.symbol === collateralCurrencySymbol,
+        ),
+        debtCurrencies.find((currency) => isUSDC(currency)),
+      ]
+    } else {
+      return [
+        collateralCurrencies.find(
+          (currency) => currency.symbol === collateralCurrencySymbol,
+        ),
+        debtCurrencies.find(
+          (currency) => currency.symbol === debtCurrencySymbol,
+        ),
+      ]
+    }
   }, [assets, router.query.symbol])
 
   return (
     <div className="flex flex-1">
       <Head>
-        <title>Leverage {collateral?.symbol}</title>
+        <title>Leverage {collateralCurrency?.symbol}</title>
       </Head>
 
-      {collateral ? (
+      {collateralCurrency ? (
         <main className="flex flex-1 flex-col justify-center items-center">
           <div className="flex flex-1 flex-col w-full gap-6">
             <Link
@@ -65,14 +101,21 @@ const Leverage = () => {
               Leverage
               <div className="flex gap-2">
                 <CurrencyIcon
-                  currency={collateral}
+                  currency={collateralCurrency}
                   className="w-6 h-6 sm:w-8 sm:h-8"
                 />
-                <div>{collateral.symbol}</div>
+                <div>{collateralCurrency.symbol}</div>
               </div>
             </Link>
             <div className="flex flex-col lg:flex-row sm:items-center lg:items-start justify-center gap-4 mb-4 px-2 md:px-0">
-              <LeverageForm defaultCollateralCurrency={collateral} />
+              {debtCurrency && collateralCurrency ? (
+                <LeverageForm
+                  defaultDebtCurrency={debtCurrency}
+                  defaultCollateralCurrency={collateralCurrency}
+                />
+              ) : (
+                <></>
+              )}
             </div>
           </div>
         </main>
