@@ -1,5 +1,10 @@
 import { GetWalletClientResult, readContracts } from '@wagmi/core'
-import { hexToSignature, isAddressEqual, zeroAddress } from 'viem'
+import {
+  hexToSignature,
+  isAddressEqual,
+  verifyTypedData,
+  zeroAddress,
+} from 'viem'
 
 import { fetchApproval } from '../apis/approval'
 import { CHAIN_IDS } from '../constants/chain'
@@ -53,8 +58,7 @@ export const permit721 = async (
     throw new Error('Could not fetch eip712Domain')
   }
 
-  const signature = await walletClient.signTypedData({
-    account: owner,
+  const data = {
     domain: {
       name: eip712Domain[1],
       version: eip712Domain[2].toString(),
@@ -82,7 +86,15 @@ export const permit721 = async (
         { name: 'verifyingContract', type: 'address' },
       ],
     },
+  } as const
+  const signature = await walletClient.signTypedData({
+    ...data,
+    account: owner,
   })
+  const valid = await verifyTypedData({ ...data, signature, address: owner })
+  if (!valid) {
+    throw new Error('Invalid signature')
+  }
 
   const { v, s, r } = hexToSignature(signature)
   return {

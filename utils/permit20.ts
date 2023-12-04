@@ -1,5 +1,5 @@
 import { GetWalletClientResult, readContracts } from '@wagmi/core'
-import { hexToSignature } from 'viem'
+import { hexToSignature, verifyTypedData } from 'viem'
 
 import { Currency } from '../model/currency'
 import { fetchAllowance } from '../apis/allowance'
@@ -90,9 +90,7 @@ export const permit20 = async (
     )
     return dummyPermit20Params.signature
   }
-
-  const signature = await walletClient.signTypedData({
-    account: owner,
+  const data = {
     domain: {
       name: name,
       version: (version || '1').toString(),
@@ -122,7 +120,15 @@ export const permit20 = async (
         { name: 'verifyingContract', type: 'address' },
       ],
     },
+  } as const
+  const signature = await walletClient.signTypedData({
+    ...data,
+    account: owner,
   })
+  const valid = await verifyTypedData({ ...data, signature, address: owner })
+  if (!valid) {
+    throw new Error('Invalid signature')
+  }
 
   const { v, s, r } = hexToSignature(signature)
   return {
