@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { getAddress, isAddressEqual, zeroAddress } from 'viem'
+import { isAddressEqual, zeroAddress } from 'viem'
 import { useFeeData, usePublicClient, useQuery } from 'wagmi'
 import BigNumber from 'bignumber.js'
 import { useRouter } from 'next/router'
@@ -326,7 +326,7 @@ const LeverageFormContainer = ({
             collateral={collateral}
             setCollateral={setCollateral}
             availableCollaterals={
-              asset
+              !isCollateralFixed && asset
                 ? asset.collaterals.filter((collateral) =>
                     isStableCoin(collateral.underlying),
                   )
