@@ -116,7 +116,7 @@ const Deposit = () => {
                             asset.substitutes[0],
                             asset.underlying,
                             proceed,
-                            amount,
+                            amount + proceed,
                             endTimestamp,
                             Number(timestamp),
                           )
