@@ -31,13 +31,35 @@ export const DEPOSIT_CONTROLLER_ABI = [
     type: 'constructor',
   },
   {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'target',
+        type: 'address',
+      },
+    ],
+    name: 'AddressEmptyCode',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+      },
+    ],
+    name: 'AddressInsufficientBalance',
+    type: 'error',
+  },
+  {
     inputs: [],
     name: 'ControllerSlippage',
     type: 'error',
   },
   {
     inputs: [],
-    name: 'EpochOverflow',
+    name: 'FailedInnerCall',
     type: 'error',
   },
   {
@@ -51,13 +73,52 @@ export const DEPOSIT_CONTROLLER_ABI = [
     type: 'error',
   },
   {
-    inputs: [],
-    name: 'NotExpired',
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'owner',
+        type: 'address',
+      },
+    ],
+    name: 'OwnableInvalidOwner',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'account',
+        type: 'address',
+      },
+    ],
+    name: 'OwnableUnauthorizedAccount',
     type: 'error',
   },
   {
     inputs: [],
     name: 'Reentrancy',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'value',
+        type: 'uint256',
+      },
+    ],
+    name: 'SafeCastOverflowedUintToInt',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'token',
+        type: 'address',
+      },
+    ],
+    name: 'SafeERC20FailedOperation',
     type: 'error',
   },
   {
@@ -133,6 +194,100 @@ export const DEPOSIT_CONTROLLER_ABI = [
   {
     inputs: [
       {
+        internalType: 'uint256',
+        name: 'positionId',
+        type: 'uint256',
+      },
+      {
+        internalType: 'uint256',
+        name: 'amount',
+        type: 'uint256',
+      },
+      {
+        internalType: 'Epoch',
+        name: 'expiredWith',
+        type: 'uint16',
+      },
+      {
+        internalType: 'int256',
+        name: 'interestThreshold',
+        type: 'int256',
+      },
+      {
+        components: [
+          {
+            internalType: 'uint256',
+            name: 'permitAmount',
+            type: 'uint256',
+          },
+          {
+            components: [
+              {
+                internalType: 'uint256',
+                name: 'deadline',
+                type: 'uint256',
+              },
+              {
+                internalType: 'uint8',
+                name: 'v',
+                type: 'uint8',
+              },
+              {
+                internalType: 'bytes32',
+                name: 'r',
+                type: 'bytes32',
+              },
+              {
+                internalType: 'bytes32',
+                name: 's',
+                type: 'bytes32',
+              },
+            ],
+            internalType: 'struct PermitSignature',
+            name: 'signature',
+            type: 'tuple',
+          },
+        ],
+        internalType: 'struct ERC20PermitParams',
+        name: 'tokenPermitParams',
+        type: 'tuple',
+      },
+      {
+        components: [
+          {
+            internalType: 'uint256',
+            name: 'deadline',
+            type: 'uint256',
+          },
+          {
+            internalType: 'uint8',
+            name: 'v',
+            type: 'uint8',
+          },
+          {
+            internalType: 'bytes32',
+            name: 'r',
+            type: 'bytes32',
+          },
+          {
+            internalType: 'bytes32',
+            name: 's',
+            type: 'bytes32',
+          },
+        ],
+        internalType: 'struct PermitSignature',
+        name: 'positionPermitParams',
+        type: 'tuple',
+      },
+    ],
+    name: 'adjust',
+    outputs: [],
+    stateMutability: 'payable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
         internalType: 'address',
         name: 'inputToken',
         type: 'address',
@@ -166,46 +321,6 @@ export const DEPOSIT_CONTROLLER_ABI = [
   {
     inputs: [
       {
-        internalType: 'uint256',
-        name: 'positionId',
-        type: 'uint256',
-      },
-      {
-        components: [
-          {
-            internalType: 'uint256',
-            name: 'deadline',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint8',
-            name: 'v',
-            type: 'uint8',
-          },
-          {
-            internalType: 'bytes32',
-            name: 'r',
-            type: 'bytes32',
-          },
-          {
-            internalType: 'bytes32',
-            name: 's',
-            type: 'bytes32',
-          },
-        ],
-        internalType: 'struct IController.PermitSignature',
-        name: 'positionPermitParams',
-        type: 'tuple',
-      },
-    ],
-    name: 'collect',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
         internalType: 'address',
         name: 'asset',
         type: 'address',
@@ -216,14 +331,14 @@ export const DEPOSIT_CONTROLLER_ABI = [
         type: 'uint256',
       },
       {
-        internalType: 'uint16',
-        name: 'lockEpochs',
+        internalType: 'Epoch',
+        name: 'expiredWith',
         type: 'uint16',
       },
       {
-        internalType: 'uint256',
+        internalType: 'int256',
         name: 'minEarnInterest',
-        type: 'uint256',
+        type: 'int256',
       },
       {
         components: [
@@ -255,18 +370,24 @@ export const DEPOSIT_CONTROLLER_ABI = [
                 type: 'bytes32',
               },
             ],
-            internalType: 'struct IController.PermitSignature',
+            internalType: 'struct PermitSignature',
             name: 'signature',
             type: 'tuple',
           },
         ],
-        internalType: 'struct IController.ERC20PermitParams',
+        internalType: 'struct ERC20PermitParams',
         name: 'tokenPermitParams',
         type: 'tuple',
       },
     ],
     name: 'deposit',
-    outputs: [],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'positionId',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'payable',
     type: 'function',
   },
@@ -489,56 +610,6 @@ export const DEPOSIT_CONTROLLER_ABI = [
       },
     ],
     name: 'transferOwnership',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'uint256',
-        name: 'positionId',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'withdrawAmount',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'maxPayInterest',
-        type: 'uint256',
-      },
-      {
-        components: [
-          {
-            internalType: 'uint256',
-            name: 'deadline',
-            type: 'uint256',
-          },
-          {
-            internalType: 'uint8',
-            name: 'v',
-            type: 'uint8',
-          },
-          {
-            internalType: 'bytes32',
-            name: 'r',
-            type: 'bytes32',
-          },
-          {
-            internalType: 'bytes32',
-            name: 's',
-            type: 'bytes32',
-          },
-        ],
-        internalType: 'struct IController.PermitSignature',
-        name: 'positionPermitParams',
-        type: 'tuple',
-      },
-    ],
-    name: 'withdraw',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',

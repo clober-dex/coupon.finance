@@ -504,11 +504,7 @@ const Desk = () => {
                             <button
                               className="w-full bg-blue-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-blue-500 font-bold px-3 py-2 rounded text-sm"
                               onClick={async () => {
-                                await collect(
-                                  position.underlying,
-                                  position.tokenId,
-                                  position.amount,
-                                )
+                                await collect(position)
                               }}
                               disabled={false}
                             >

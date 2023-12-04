@@ -85,11 +85,6 @@ export const BORROW_CONTROLLER_ABI = [
   },
   {
     inputs: [],
-    name: 'InvalidDebtAmount',
-    type: 'error',
-  },
-  {
-    inputs: [],
     name: 'InvalidMarket',
     type: 'error',
   },
@@ -118,6 +113,17 @@ export const BORROW_CONTROLLER_ABI = [
   {
     inputs: [],
     name: 'Reentrancy',
+    type: 'error',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'value',
+        type: 'uint256',
+      },
+    ],
+    name: 'SafeCastOverflowedUintToInt',
     type: 'error',
   },
   {
@@ -215,18 +221,13 @@ export const BORROW_CONTROLLER_ABI = [
       },
       {
         internalType: 'uint256',
-        name: 'borrowAmount',
+        name: 'debtAmount',
         type: 'uint256',
       },
       {
-        internalType: 'uint256',
-        name: 'maxPayInterest',
-        type: 'uint256',
-      },
-      {
-        internalType: 'uint256',
-        name: 'minEarnInterest',
-        type: 'uint256',
+        internalType: 'int256',
+        name: 'interestThreshold',
+        type: 'int256',
       },
       {
         internalType: 'Epoch',
@@ -237,7 +238,7 @@ export const BORROW_CONTROLLER_ABI = [
         components: [
           {
             internalType: 'address',
-            name: 'inToken',
+            name: 'inSubstitute',
             type: 'address',
           },
           {
@@ -361,7 +362,7 @@ export const BORROW_CONTROLLER_ABI = [
         type: 'tuple',
       },
     ],
-    name: 'adjustPosition',
+    name: 'adjust',
     outputs: [],
     stateMutability: 'payable',
     type: 'function',
@@ -385,13 +386,13 @@ export const BORROW_CONTROLLER_ABI = [
       },
       {
         internalType: 'uint256',
-        name: 'borrowAmount',
+        name: 'debtAmount',
         type: 'uint256',
       },
       {
-        internalType: 'uint256',
+        internalType: 'int256',
         name: 'maxPayInterest',
-        type: 'uint256',
+        type: 'int256',
       },
       {
         internalType: 'Epoch',
@@ -402,7 +403,7 @@ export const BORROW_CONTROLLER_ABI = [
         components: [
           {
             internalType: 'address',
-            name: 'inToken',
+            name: 'inSubstitute',
             type: 'address',
           },
           {
@@ -461,7 +462,13 @@ export const BORROW_CONTROLLER_ABI = [
       },
     ],
     name: 'borrow',
-    outputs: [],
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'positionId',
+        type: 'uint256',
+      },
+    ],
     stateMutability: 'payable',
     type: 'function',
   },
