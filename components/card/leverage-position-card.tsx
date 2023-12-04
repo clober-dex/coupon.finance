@@ -16,6 +16,7 @@ import {
 } from '../../utils/date'
 import { CurrencyIcon } from '../icon/currency-icon'
 import { QuestionMarkSvg } from '../svg/question-mark-svg'
+import { isStableCoin } from '../../contexts/currency-context'
 
 export const LeveragePositionCard = ({
   position,
@@ -23,6 +24,7 @@ export const LeveragePositionCard = ({
   pnl,
   price,
   collateralPrice,
+  entryDebtCurrencyPrice,
   entryCollateralCurrencyPrice,
   onAdjustMultiple,
   onClose,
@@ -34,8 +36,9 @@ export const LeveragePositionCard = ({
   position: LoanPosition
   multiple: number
   pnl: number
-  price?: BigDecimal
+  price: BigDecimal
   collateralPrice: BigDecimal
+  entryDebtCurrencyPrice: BigDecimal
   entryCollateralCurrencyPrice: BigDecimal
   onAdjustMultiple: () => void
   onClose: () => void
@@ -64,21 +67,36 @@ export const LeveragePositionCard = ({
       now >= Number(position.toEpoch.endTimestamp) || position.amount === 0n,
     [now, position.amount, position.toEpoch.endTimestamp],
   )
+  const isShortPosition = useMemo(
+    () =>
+      isStableCoin(position.collateral.underlying) &&
+      !isStableCoin(position.underlying),
+    [position.collateral.underlying, position.underlying],
+  )
 
   return (
     <div className="flex w-full pb-4 flex-col items-center gap-3 shrink-0  bg-white dark:bg-gray-800 rounded-xl">
       <div className="flex p-4 items-center self-stretch">
         <div className="flex items-center gap-3 flex-grow shrink-0 basis-0">
-          <CurrencyIcon
-            currency={position.collateral.underlying}
-            className="w-8 h-8 sm:w-10 sm:h-10"
-          />
+          {isShortPosition ? (
+            <CurrencyIcon
+              currency={position.underlying}
+              className="w-8 h-8 sm:w-10 sm:h-10"
+            />
+          ) : (
+            <CurrencyIcon
+              currency={position.collateral.underlying}
+              className="w-8 h-8 sm:w-10 sm:h-10"
+            />
+          )}
           <div className="flex flex-col">
             <div className="w-[89px] text-xs text-gray-500 dark:text-gray-400">
-              Leverage x{multiple.toFixed(2)}
+              {isShortPosition ? 'Short' : 'Long'} x{multiple.toFixed(2)}
             </div>
             <div className="text-base font-bold">
-              {position.collateral.underlying.symbol}
+              {isShortPosition
+                ? position.underlying.symbol
+                : position.collateral.underlying.symbol}
             </div>
           </div>
         </div>
@@ -183,19 +201,35 @@ export const LeveragePositionCard = ({
             <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
               Entry / Market Price
             </div>
-            <div className="text-sm sm:text-base">
-              {formatDollarValue(
-                BigInt(10 ** position.collateral.underlying.decimals),
-                position.collateral.underlying.decimals,
-                entryCollateralCurrencyPrice,
-              )}{' '}
-              /{'  '}
-              {formatDollarValue(
-                BigInt(10 ** position.collateral.underlying.decimals),
-                position.collateral.underlying.decimals,
-                collateralPrice,
-              )}
-            </div>
+            {isShortPosition ? (
+              <div className="text-sm sm:text-base">
+                {formatDollarValue(
+                  BigInt(10 ** position.underlying.decimals),
+                  position.underlying.decimals,
+                  entryDebtCurrencyPrice,
+                )}{' '}
+                /{'  '}
+                {formatDollarValue(
+                  BigInt(10 ** position.underlying.decimals),
+                  position.underlying.decimals,
+                  price,
+                )}
+              </div>
+            ) : (
+              <div className="text-sm sm:text-base">
+                {formatDollarValue(
+                  BigInt(10 ** position.collateral.underlying.decimals),
+                  position.collateral.underlying.decimals,
+                  entryCollateralCurrencyPrice,
+                )}{' '}
+                /{'  '}
+                {formatDollarValue(
+                  BigInt(10 ** position.collateral.underlying.decimals),
+                  position.collateral.underlying.decimals,
+                  collateralPrice,
+                )}
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-1 self-stretch">
             <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
