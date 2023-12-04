@@ -345,7 +345,7 @@ const LeverageFormContainer = ({
             multiple={multiple}
             setMultiple={setMultiple}
             maxAvailableMultiple={
-              collateral
+              collateral && collateral.liquidationTargetLtv > 0n
                 ? Math.floor(
                     1 /
                       (1 -
