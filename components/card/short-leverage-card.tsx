@@ -7,30 +7,30 @@ import { formatDollarValue } from '../../utils/numbers'
 import { CurrencyIcon } from '../icon/currency-icon'
 import { Prices } from '../../model/prices'
 
-export const LongLeverageCard = ({
-  collateralCurrency,
-  debtCurrencies,
+export const ShortLeverageCard = ({
+  collateralCurrencies,
+  debtCurrency,
   lowestApy,
   maxMultiplier,
   prices,
 }: {
-  collateralCurrency: Currency
-  debtCurrencies: Currency[]
+  collateralCurrencies: Currency[]
+  debtCurrency: Currency
   lowestApy: number
   maxMultiplier: number
   prices: Prices
 }) => {
   return (
-    <Link href={`/leverage/${collateralCurrency.symbol}_LONG`}>
+    <Link href={`/leverage/${debtCurrency.symbol}_SHORT`}>
       <div className="h-[314px] flex flex-col w-full px-4 py-6 justify-center items-center gap-4 bg-white dark:bg-gray-800 rounded-xl">
         <div className="flex flex-col items-start gap-6 self-stretch">
           <div className="flex items-center gap-3 self-stretch">
             <CurrencyIcon
-              currency={collateralCurrency}
+              currency={debtCurrency}
               className="w-8 h-8 sm:w-10 sm:h-10"
             />
             <div className="font-bold text-xl sm:text-2xl">
-              {collateralCurrency.symbol}
+              {debtCurrency.symbol}
             </div>
             <div className="flex flex-col justify-center items-end ml-auto">
               <div className="text-xs sm:text-sm text-gray-400">As low as</div>
@@ -63,9 +63,9 @@ export const LongLeverageCard = ({
                   <div className="flex items-baseline gap-1">
                     <span className="text-base sm:text-xl font-bold">
                       {formatDollarValue(
-                        BigInt(10 ** collateralCurrency.decimals),
-                        collateralCurrency.decimals,
-                        prices[collateralCurrency.address],
+                        BigInt(10 ** debtCurrency.decimals),
+                        debtCurrency.decimals,
+                        prices[debtCurrency.address],
                       )}
                     </span>
                   </div>
@@ -76,13 +76,10 @@ export const LongLeverageCard = ({
                   Borrow Against
                 </div>
                 <div className="flex items-start gap-2 self-stretch rounded-lg">
-                  {debtCurrencies
+                  {collateralCurrencies
                     .filter(
                       (currency) =>
-                        !isAddressEqual(
-                          currency.address,
-                          collateralCurrency.address,
-                        ),
+                        !isAddressEqual(currency.address, debtCurrency.address),
                     )
                     .map((currency) => (
                       <React.Fragment key={currency.address}>

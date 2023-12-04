@@ -23,6 +23,7 @@ import AdjustLeverageModalContainer from '../../containers/modal/adjust-leverage
 import { isStableCoin } from '../../contexts/currency-context'
 import { Currency } from '../../model/currency'
 import { LongLeverageCard } from '../card/long-leverage-card'
+import { ShortLeverageCard } from '../card/short-leverage-card'
 
 const BorrowStatus = ({
   assetStatuses,
@@ -195,7 +196,7 @@ const BorrowStatus = ({
                 )
                 return !position.isLeverage ? (
                   <LoanPositionCard
-                    key={index}
+                    key={`loan-position-${index}`}
                     position={position}
                     price={prices[position.underlying.address]}
                     collateralPrice={
@@ -217,6 +218,7 @@ const BorrowStatus = ({
                   />
                 ) : (
                   <LeveragePositionCard
+                    key={`leverage-position-${index}`}
                     position={position}
                     multiple={
                       Number(position.collateralAmount) /
@@ -340,15 +342,11 @@ const BorrowStatus = ({
                     lowestApy,
                   },
                 ) => {
-                  const _acc = acc.find(
-                    ({ collateralCurrency: _collateralCurrency }) =>
-                      isAddressEqual(
-                        _collateralCurrency.address,
-                        collateralCurrency.address,
-                      ),
+                  const _acc = acc.find(({ debtCurrency: _debtCurrency }) =>
+                    isAddressEqual(_debtCurrency.address, debtCurrency.address),
                   )
                   if (_acc) {
-                    _acc.debtCurrencies.push(debtCurrency)
+                    _acc.collateralCurrencies.push(collateralCurrency)
                     _acc.lowestApy = Math.min(_acc.lowestApy, lowestApy)
                     _acc.maxMultiplier = Math.max(
                       _acc.maxMultiplier,
@@ -356,8 +354,8 @@ const BorrowStatus = ({
                     )
                   } else {
                     acc.push({
-                      collateralCurrency,
-                      debtCurrencies: [debtCurrency],
+                      collateralCurrencies: [collateralCurrency],
+                      debtCurrency,
                       lowestApy,
                       maxMultiplier,
                     })
@@ -365,23 +363,23 @@ const BorrowStatus = ({
                   return acc
                 },
                 [] as {
-                  collateralCurrency: Currency
-                  debtCurrencies: Currency[]
+                  collateralCurrencies: Currency[]
+                  debtCurrency: Currency
                   lowestApy: number
                   maxMultiplier: number
                 }[],
               )
               .map(
                 ({
-                  collateralCurrency,
+                  collateralCurrencies,
                   maxMultiplier,
-                  debtCurrencies,
+                  debtCurrency,
                   lowestApy,
                 }) => (
-                  <LeverageCard
-                    key={`leverage-short-${collateralCurrency.symbol}`}
-                    collateralCurrency={collateralCurrency}
-                    debtCurrencies={debtCurrencies}
+                  <ShortLeverageCard
+                    key={`leverage-short-${debtCurrency.symbol}`}
+                    collateralCurrencies={collateralCurrencies}
+                    debtCurrency={debtCurrency}
                     lowestApy={lowestApy}
                     maxMultiplier={maxMultiplier}
                     prices={prices}
