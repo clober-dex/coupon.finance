@@ -20,7 +20,7 @@ import OdosSwapModalContainer from '../../containers/modal/odos-swap-modal-conta
 const Deposit = () => {
   const { selectedChain } = useChainContext()
   const publicClient = usePublicClient()
-  const { balances, prices, assets } = useCurrencyContext()
+  const { balances, prices, assets, epochs: allEpochs } = useCurrencyContext()
   const { deposit } = useDepositContext()
 
   const [showHelperModal, setShowHelperModal] = useState(false)
@@ -109,7 +109,7 @@ const Deposit = () => {
                     const hash = await deposit(
                       asset,
                       amount,
-                      epochs + 1, // todo: absolute epoch index
+                      allEpochs[epochs].id,
                       proceed,
                       asset
                         ? buildPendingPosition(
