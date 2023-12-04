@@ -1,12 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { getAddress, isAddressEqual, zeroAddress } from 'viem'
+import { isAddressEqual, zeroAddress } from 'viem'
 import { useFeeData, usePublicClient, useQuery } from 'wagmi'
 import BigNumber from 'bignumber.js'
 import { useRouter } from 'next/router'
+import Link from 'next/link'
 
-import { useCurrencyContext } from '../../contexts/currency-context'
+import {
+  isStableCoin,
+  useCurrencyContext,
+} from '../../contexts/currency-context'
 import { fetchBorrowApyByEpochsBorrowed } from '../../apis/market'
-import { generateDummyCollateral } from '../../model/collateral'
+import { Collateral, generateDummyCollateral } from '../../model/collateral'
 import { calculateLtv, calculateMaxLoanableAmount } from '../../utils/ltv'
 import { useChainContext } from '../../contexts/chain-context'
 import { MIN_DEBT_SIZE_IN_ETH } from '../../constants/debt'
@@ -21,6 +25,8 @@ import { applyPercent, min } from '../../utils/bigint'
 import { buildPendingPosition } from '../../model/loan-position'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import { CONTRACT_ADDRESSES } from '../../constants/addresses'
+import BackSvg from '../../components/svg/back-svg'
+import { CurrencyIcon } from '../../components/icon/currency-icon'
 
 const SLIPPAGE_LIMIT_PERCENT = 0.5
 
@@ -28,13 +34,17 @@ const LeverageFormContainer = ({
   showHelperModal,
   setShowHelperModal,
   setHelperModalOutputCurrency,
+  defaultDebtCurrency,
+  availableDebtCurrencies,
   defaultCollateralCurrency,
   children,
 }: {
   showHelperModal: boolean
   setShowHelperModal: (value: boolean) => void
   setHelperModalOutputCurrency: (value: Currency | undefined) => void
-  defaultCollateralCurrency: Currency
+  defaultDebtCurrency?: Currency
+  availableDebtCurrencies?: Currency[]
+  defaultCollateralCurrency?: Currency
 } & React.PropsWithChildren) => {
   const { selectedChain } = useChainContext()
   const publicClient = usePublicClient()
@@ -50,7 +60,12 @@ const LeverageFormContainer = ({
   })
   const [collateralValue, setCollateralValue] = useState('')
   const [borrowCurrency, setBorrowCurrency] = useState<Currency | undefined>(
-    undefined,
+    defaultDebtCurrency,
+  )
+  const [_collateral, setCollateral] = useState<Collateral | undefined>(
+    defaultCollateralCurrency
+      ? generateDummyCollateral(defaultCollateralCurrency)
+      : undefined,
   )
 
   const router = useRouter()
@@ -63,7 +78,6 @@ const LeverageFormContainer = ({
   }, [assets, borrowCurrency])
 
   const collateral = useMemo(() => {
-    const _collateral = generateDummyCollateral(defaultCollateralCurrency)
     return asset && _collateral
       ? asset.collaterals.find((collateral) =>
           isAddressEqual(
@@ -72,7 +86,9 @@ const LeverageFormContainer = ({
           ),
         )
       : _collateral
-  }, [asset, defaultCollateralCurrency])
+  }, [_collateral, asset])
+
+  const isCollateralFixed = defaultCollateralCurrency !== undefined
 
   useEffect(() => {
     if (collateral) {
@@ -231,152 +247,197 @@ const LeverageFormContainer = ({
   const isDeptSizeLessThanMinDebtSize =
     debtSizeInEth.lt(minDebtSizeInEth) && debtSizeInEth.gt(0)
 
-  return collateral ? (
-    <LeverageForm
-      borrowCurrency={asset?.underlying}
-      setBorrowCurrency={setBorrowCurrency}
-      availableBorrowCurrencies={
-        collateral
-          ? assets
-              .filter((asset) =>
-                asset.collaterals
-                  .map((c) => getAddress(c.underlying.address))
-                  .includes(getAddress(collateral.underlying.address)),
-              )
-              .map((asset) => asset.underlying)
-          : asset
-          ? [asset.underlying]
-          : []
-      }
-      interest={maxInterest}
-      borrowApy={apy}
-      borrowLTV={
-        collateral &&
-        asset &&
-        prices[asset.underlying.address] &&
-        prices[collateral?.underlying.address]
-          ? calculateLtv(
-              asset.underlying,
-              prices[asset.underlying.address],
+  if (!router.query.symbol || !router.query.symbol.toString().includes('_')) {
+    return <></>
+  }
+
+  if (!isCollateralFixed && !asset) {
+    return <></>
+  }
+  if (isCollateralFixed && !collateral) {
+    return <></>
+  }
+  const leveragePosition = router.query.symbol.toString().split('_')[1]
+
+  return (
+    <main className="flex flex-1 flex-col justify-center items-center">
+      <div className="flex flex-1 flex-col w-full gap-6">
+        <Link
+          className="flex items-center font-bold text-base sm:text-2xl gap-2 sm:gap-3 mt-4 mb-2 sm:mb-2 ml-4 sm:ml-6"
+          replace={true}
+          href="/?mode=borrow"
+        >
+          <BackSvg className="w-4 h-4 sm:w-8 sm:h-8" />
+          {leveragePosition[0] + leveragePosition.slice(1).toLowerCase()}{' '}
+          <div className="flex gap-2">
+            {leveragePosition === 'LONG' && collateral ? (
+              <CurrencyIcon
+                currency={collateral.underlying}
+                className="w-6 h-6 sm:w-8 sm:h-8"
+              />
+            ) : (
+              <></>
+            )}
+            {leveragePosition === 'SHORT' && asset ? (
+              <CurrencyIcon
+                currency={asset.underlying}
+                className="w-6 h-6 sm:w-8 sm:h-8"
+              />
+            ) : (
+              <></>
+            )}
+            <div>
+              {leveragePosition === 'LONG'
+                ? collateral?.underlying.symbol
+                : asset?.underlying.symbol}
+            </div>
+          </div>
+        </Link>
+        <div className="flex flex-col lg:flex-row sm:items-center lg:items-start justify-center gap-4 mb-4 px-2 md:px-0">
+          <LeverageForm
+            borrowCurrency={asset?.underlying}
+            setBorrowCurrency={setBorrowCurrency}
+            availableBorrowCurrencies={availableDebtCurrencies ?? []}
+            interest={maxInterest}
+            borrowApy={apy}
+            borrowLTV={
+              collateral &&
+              asset &&
+              prices[asset.underlying.address] &&
+              prices[collateral?.underlying.address]
+                ? calculateLtv(
+                    asset.underlying,
+                    prices[asset.underlying.address],
+                    debtAmountWithoutCouponFee + interest,
+                    collateral,
+                    prices[collateral?.underlying.address],
+                    collateralAmount,
+                  )
+                : 0
+            }
+            interestsByEpochsBorrowed={
+              interestsByEpochsBorrowed
+                ? interestsByEpochsBorrowed.map(({ date, apy }) => ({
+                    date,
+                    apy,
+                  }))
+                : undefined
+            }
+            collateral={collateral}
+            setCollateral={setCollateral}
+            availableCollaterals={
+              !isCollateralFixed && asset
+                ? asset.collaterals.filter((collateral) =>
+                    isStableCoin(collateral.underlying),
+                  )
+                : []
+            }
+            collateralValue={collateralValue}
+            collateralAmount={collateralAmount}
+            setCollateralValue={setCollateralValue}
+            borrowValue={formatUnits(
               debtAmountWithoutCouponFee + interest,
-              collateral,
-              prices[collateral?.underlying.address],
-              collateralAmount,
-            )
-          : 0
-      }
-      interestsByEpochsBorrowed={
-        interestsByEpochsBorrowed
-          ? interestsByEpochsBorrowed.map(({ date, apy }) => ({
-              date,
-              apy,
-            }))
-          : undefined
-      }
-      collateral={collateral}
-      collateralValue={collateralValue}
-      collateralAmount={collateralAmount}
-      setCollateralValue={setCollateralValue}
-      borrowValue={formatUnits(
-        debtAmountWithoutCouponFee + interest,
-        asset?.underlying.decimals ?? 18,
-        asset ? prices[asset.underlying.address] : undefined,
-      )}
-      epochs={epochs}
-      setEpochs={setEpochs}
-      multiple={multiple}
-      setMultiple={setMultiple}
-      maxAvailableMultiple={
-        Math.floor(
-          1 /
-            (1 -
-              Number(collateral.liquidationTargetLtv) /
-                Number(collateral.ltvPrecision)),
-        ) - 0.02
-      }
-      balances={balances}
-      prices={prices}
-      actionButtonProps={{
-        disabled:
-          !interestsByEpochsBorrowed ||
-          interestsByEpochsBorrowed.length === 0 ||
-          inputCollateralAmount === 0n ||
-          inputCollateralAmount > collateralUserBalance ||
-          debtAmountWithoutCouponFee > available - maxInterest ||
-          debtAmountWithoutCouponFee >
-            maxLoanableAmountExcludingCouponFee - maxInterest ||
-          isDeptSizeLessThanMinDebtSize,
-        onClick: async () => {
-          if (!collateral || !asset || !pathId) {
-            return
-          }
-          const { data: swapData } = await fetchCallDataByOdos({
-            pathId,
-            userAddress:
-              CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
-                .BorrowController,
-          })
-          const { timestamp } = await publicClient.getBlock()
-          const hash = await leverage(
-            collateral,
-            collateralAmount,
-            inputCollateralAmount,
-            asset,
-            debtAmountWithoutCouponFee,
-            allEpochs[epochs].id,
-            min(interest, maxInterest),
-            swapData,
-            SLIPPAGE_LIMIT_PERCENT,
-            asset
-              ? buildPendingPosition(
-                  asset.substitutes[0],
-                  asset.underlying,
+              asset?.underlying.decimals ?? 18,
+              asset ? prices[asset.underlying.address] : undefined,
+            )}
+            epochs={epochs}
+            setEpochs={setEpochs}
+            multiple={multiple}
+            setMultiple={setMultiple}
+            maxAvailableMultiple={
+              collateral && collateral.liquidationTargetLtv > 0n
+                ? Math.floor(
+                    1 /
+                      (1 -
+                        Number(collateral.liquidationTargetLtv) /
+                          Number(collateral.ltvPrecision)),
+                  ) - 0.02
+                : 0
+            }
+            balances={balances}
+            prices={prices}
+            actionButtonProps={{
+              disabled:
+                !interestsByEpochsBorrowed ||
+                interestsByEpochsBorrowed.length === 0 ||
+                inputCollateralAmount === 0n ||
+                inputCollateralAmount > collateralUserBalance ||
+                debtAmountWithoutCouponFee > available - maxInterest ||
+                debtAmountWithoutCouponFee >
+                  maxLoanableAmountExcludingCouponFee - maxInterest ||
+                isDeptSizeLessThanMinDebtSize,
+              onClick: async () => {
+                if (!collateral || !asset || !pathId) {
+                  return
+                }
+                const { data: swapData } = await fetchCallDataByOdos({
+                  pathId,
+                  userAddress:
+                    CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
+                      .BorrowController,
+                })
+                const { timestamp } = await publicClient.getBlock()
+                const hash = await leverage(
                   collateral,
-                  min(interest, maxInterest),
-                  debtAmountWithoutCouponFee,
                   collateralAmount,
-                  endTimestamp,
-                  Number(timestamp),
-                  true,
-                  collateralAmount - inputCollateralAmount,
-                  prices[collateral.underlying.address],
-                  prices[asset.underlying.address],
+                  inputCollateralAmount,
+                  asset,
+                  debtAmountWithoutCouponFee,
+                  allEpochs[epochs].id,
+                  min(interest, maxInterest),
+                  swapData,
+                  SLIPPAGE_LIMIT_PERCENT,
+                  asset
+                    ? buildPendingPosition(
+                        asset.substitutes[0],
+                        asset.underlying,
+                        collateral,
+                        min(interest, maxInterest),
+                        debtAmountWithoutCouponFee,
+                        collateralAmount,
+                        endTimestamp,
+                        Number(timestamp),
+                        true,
+                        collateralAmount - inputCollateralAmount,
+                        prices[collateral.underlying.address],
+                        prices[asset.underlying.address],
+                      )
+                    : undefined,
                 )
-              : undefined,
-          )
-          if (hash) {
-            await router.replace('/?mode=borrow')
-          }
-        },
-        text:
-          inputCollateralAmount === 0n
-            ? 'Enter collateral amount'
-            : inputCollateralAmount > collateralUserBalance
-            ? `Insufficient ${collateral?.underlying.symbol} balance`
-            : debtAmountWithoutCouponFee > available - maxInterest
-            ? 'Not enough coupons for sale'
-            : debtAmountWithoutCouponFee >
-              maxLoanableAmountExcludingCouponFee - maxInterest
-            ? 'Not enough collateral'
-            : isDeptSizeLessThanMinDebtSize
-            ? `Remaining debt must be ≥ ${minDebtSizeInEth.toFixed(
-                3,
-                BigNumber.ROUND_CEIL,
-              )} ETH`
-            : 'Leverage',
-      }}
-    >
-      <HelperModalButton
-        onClick={() => {
-          setShowHelperModal(true)
-        }}
-        text={`Get more ${collateral?.underlying.symbol}`}
-        bounce={collateralAmount > collateralUserBalance}
-      />
-      {showHelperModal ? children : null}
-    </LeverageForm>
-  ) : (
-    <></>
+                if (hash) {
+                  await router.replace('/?mode=borrow')
+                }
+              },
+              text:
+                inputCollateralAmount === 0n
+                  ? 'Enter collateral amount'
+                  : inputCollateralAmount > collateralUserBalance
+                  ? `Insufficient ${collateral?.underlying.symbol} balance`
+                  : debtAmountWithoutCouponFee > available - maxInterest
+                  ? 'Not enough coupons for sale'
+                  : debtAmountWithoutCouponFee >
+                    maxLoanableAmountExcludingCouponFee - maxInterest
+                  ? 'Not enough collateral'
+                  : isDeptSizeLessThanMinDebtSize
+                  ? `Remaining debt must be ≥ ${minDebtSizeInEth.toFixed(
+                      3,
+                      BigNumber.ROUND_CEIL,
+                    )} ETH`
+                  : 'Leverage',
+            }}
+          >
+            <HelperModalButton
+              onClick={() => {
+                setShowHelperModal(true)
+              }}
+              text={`Get more ${collateral?.underlying.symbol}`}
+              bounce={collateralAmount > collateralUserBalance}
+            />
+            {showHelperModal ? children : null}
+          </LeverageForm>
+        </div>
+      </div>
+    </main>
   )
 }
 

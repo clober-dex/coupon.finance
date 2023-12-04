@@ -1,19 +1,20 @@
 import React, { useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
-import Head from 'next/head'
-import Link from 'next/link'
+import { isAddressEqual } from 'viem'
 
 import { useCurrencyContext } from '../../contexts/currency-context'
-import BackSvg from '../../components/svg/back-svg'
-import { CurrencyIcon } from '../../components/icon/currency-icon'
 import { Currency } from '../../model/currency'
 import OdosSwapModalContainer from '../../containers/modal/odos-swap-modal-container'
 import LeverageFormContainer from '../../containers/form/leverage-form-container'
 
 const LeverageForm = ({
+  defaultDebtCurrency,
+  availableDebtCurrencies,
   defaultCollateralCurrency,
 }: {
-  defaultCollateralCurrency: Currency
+  defaultDebtCurrency?: Currency
+  availableDebtCurrencies?: Currency[]
+  defaultCollateralCurrency?: Currency
 }) => {
   const [helperModalOutputCurrency, setHelperModalOutputCurrency] = useState<
     Currency | undefined
@@ -24,6 +25,8 @@ const LeverageForm = ({
       showHelperModal={showHelperModal}
       setShowHelperModal={setShowHelperModal}
       setHelperModalOutputCurrency={setHelperModalOutputCurrency}
+      defaultDebtCurrency={defaultDebtCurrency}
+      availableDebtCurrencies={availableDebtCurrencies}
       defaultCollateralCurrency={defaultCollateralCurrency}
     >
       <OdosSwapModalContainer
@@ -38,44 +41,83 @@ const Leverage = () => {
   const { assets } = useCurrencyContext()
 
   const router = useRouter()
-  const collateral = useMemo(() => {
-    return assets
-      .map((asset) =>
-        asset.collaterals.map((collateral) => collateral.underlying),
-      )
-      .flat()
-      .find((collateral) => collateral.symbol === router.query.symbol)
-  }, [assets, router.query.symbol])
+  const [collateralCurrency, debtCurrency, availableDebtCurrencies] =
+    useMemo(() => {
+      if (
+        !router.query.symbol ||
+        !router.query.symbol.toString().includes('_')
+      ) {
+        return [undefined, undefined, undefined]
+      }
+
+      const [collateralCurrencySymbol, debtCurrencySymbol] = router.query.symbol
+        .toString()
+        .split('_')
+      const [debtCurrencies, collateralCurrencies] = [
+        assets
+          .map((asset) => asset.underlying)
+          .filter((currency, index, self) =>
+            self.findIndex((c) =>
+              isAddressEqual(c.address, currency.address),
+            ) === index
+              ? currency
+              : undefined,
+          ),
+        assets
+          .map((asset) =>
+            asset.collaterals.map((collateral) => collateral.underlying),
+          )
+          .flat()
+          .filter((currency, index, self) =>
+            self.findIndex((c) =>
+              isAddressEqual(c.address, currency.address),
+            ) === index
+              ? currency
+              : undefined,
+          ),
+      ]
+      if (debtCurrencySymbol === 'SHORT') {
+        const debtCurrency = debtCurrencies.find(
+          (currency) => currency.symbol === collateralCurrencySymbol,
+        )
+        return [undefined, debtCurrency, debtCurrency ? [debtCurrency] : []]
+      } else if (debtCurrencySymbol === 'LONG') {
+        const collateralCurrency = collateralCurrencies.find(
+          (currency) => currency.symbol === collateralCurrencySymbol,
+        )
+        return [
+          collateralCurrency,
+          undefined,
+          collateralCurrency
+            ? debtCurrencies.filter(
+                (currency) =>
+                  !isAddressEqual(currency.address, collateralCurrency.address),
+              )
+            : [],
+        ]
+      } else {
+        const debtCurrency = debtCurrencies.find(
+          (currency) => currency.symbol === debtCurrencySymbol,
+        )
+        const collateralCurrency = collateralCurrencies.find(
+          (currency) => currency.symbol === collateralCurrencySymbol,
+        )
+        return [
+          collateralCurrency,
+          debtCurrency,
+          debtCurrency ? [debtCurrency] : [],
+        ]
+      }
+    }, [assets, router.query.symbol])
 
   return (
     <div className="flex flex-1">
-      <Head>
-        <title>Leverage {collateral?.symbol}</title>
-      </Head>
-
-      {collateral ? (
-        <main className="flex flex-1 flex-col justify-center items-center">
-          <div className="flex flex-1 flex-col w-full gap-6">
-            <Link
-              className="flex items-center font-bold text-base sm:text-2xl gap-2 sm:gap-3 mt-4 mb-2 sm:mb-2 ml-4 sm:ml-6"
-              replace={true}
-              href="/?mode=borrow"
-            >
-              <BackSvg className="w-4 h-4 sm:w-8 sm:h-8" />
-              Leverage
-              <div className="flex gap-2">
-                <CurrencyIcon
-                  currency={collateral}
-                  className="w-6 h-6 sm:w-8 sm:h-8"
-                />
-                <div>{collateral.symbol}</div>
-              </div>
-            </Link>
-            <div className="flex flex-col lg:flex-row sm:items-center lg:items-start justify-center gap-4 mb-4 px-2 md:px-0">
-              <LeverageForm defaultCollateralCurrency={collateral} />
-            </div>
-          </div>
-        </main>
+      {debtCurrency || collateralCurrency ? (
+        <LeverageForm
+          defaultDebtCurrency={debtCurrency}
+          availableDebtCurrencies={availableDebtCurrencies}
+          defaultCollateralCurrency={collateralCurrency}
+        />
       ) : (
         <></>
       )}

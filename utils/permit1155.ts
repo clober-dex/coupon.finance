@@ -1,5 +1,5 @@
 import { GetWalletClientResult, readContracts } from '@wagmi/core'
-import { createPublicClient, hexToSignature, http } from 'viem'
+import { createPublicClient, hexToSignature, http, verifyTypedData } from 'viem'
 
 import { CHAIN_IDS, CHAINS } from '../constants/chain'
 import { ERC1155_ABI } from '../abis/@openzeppelin/erc1155-abi'
@@ -80,8 +80,7 @@ export const permit1155 = async (
     throw new Error('Could not fetch eip712Domain')
   }
 
-  const signature = await walletClient.signTypedData({
-    account: owner,
+  const data = {
     domain: {
       name: eip712Domain[1],
       version: eip712Domain[2].toString(),
@@ -111,7 +110,15 @@ export const permit1155 = async (
         { name: 'verifyingContract', type: 'address' },
       ],
     },
+  } as const
+  const signature = await walletClient.signTypedData({
+    ...data,
+    account: owner,
   })
+  const valid = await verifyTypedData({ ...data, signature, address: owner })
+  if (!valid) {
+    throw new Error('Invalid signature')
+  }
 
   const { v, s, r } = hexToSignature(signature)
   return {

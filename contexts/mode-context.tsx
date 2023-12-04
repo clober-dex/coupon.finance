@@ -22,7 +22,12 @@ export const ModeProvider = ({ children }: React.PropsWithChildren<{}>) => {
     if (router.query.mode === 'deposit' || router.route.includes('deposit')) {
       return 'deposit'
     }
-    if (router.query.mode === 'borrow' || router.route.includes('borrow')) {
+    if (
+      router.query.mode === 'borrow' ||
+      router.route.includes('borrow') ||
+      router.query.mode === 'leverage' ||
+      router.route.includes('leverage')
+    ) {
       return 'borrow'
     }
     return 'deposit'
