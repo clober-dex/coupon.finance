@@ -10,7 +10,7 @@ import {
   useCurrencyContext,
 } from '../../contexts/currency-context'
 import { fetchBorrowApyByEpochsBorrowed } from '../../apis/market'
-import { generateDummyCollateral } from '../../model/collateral'
+import { Collateral, generateDummyCollateral } from '../../model/collateral'
 import { calculateLtv, calculateMaxLoanableAmount } from '../../utils/ltv'
 import { useChainContext } from '../../contexts/chain-context'
 import { MIN_DEBT_SIZE_IN_ETH } from '../../constants/debt'
@@ -35,6 +35,7 @@ const LeverageFormContainer = ({
   setShowHelperModal,
   setHelperModalOutputCurrency,
   defaultDebtCurrency,
+  availableDebtCurrencies,
   defaultCollateralCurrency,
   children,
 }: {
@@ -42,7 +43,8 @@ const LeverageFormContainer = ({
   setShowHelperModal: (value: boolean) => void
   setHelperModalOutputCurrency: (value: Currency | undefined) => void
   defaultDebtCurrency?: Currency
-  defaultCollateralCurrency: Currency
+  availableDebtCurrencies?: Currency[]
+  defaultCollateralCurrency?: Currency
 } & React.PropsWithChildren) => {
   const { selectedChain } = useChainContext()
   const publicClient = usePublicClient()
@@ -60,6 +62,11 @@ const LeverageFormContainer = ({
   const [borrowCurrency, setBorrowCurrency] = useState<Currency | undefined>(
     defaultDebtCurrency,
   )
+  const [_collateral, setCollateral] = useState<Collateral | undefined>(
+    defaultCollateralCurrency
+      ? generateDummyCollateral(defaultCollateralCurrency)
+      : undefined,
+  )
 
   const router = useRouter()
   const asset = useMemo(() => {
@@ -71,7 +78,6 @@ const LeverageFormContainer = ({
   }, [assets, borrowCurrency])
 
   const collateral = useMemo(() => {
-    const _collateral = generateDummyCollateral(defaultCollateralCurrency)
     return asset && _collateral
       ? asset.collaterals.find((collateral) =>
           isAddressEqual(
@@ -80,7 +86,9 @@ const LeverageFormContainer = ({
           ),
         )
       : _collateral
-  }, [asset, defaultCollateralCurrency])
+  }, [_collateral, asset])
+
+  const isCollateralFixed = defaultCollateralCurrency !== undefined
 
   useEffect(() => {
     if (collateral) {
@@ -239,16 +247,19 @@ const LeverageFormContainer = ({
   const isDeptSizeLessThanMinDebtSize =
     debtSizeInEth.lt(minDebtSizeInEth) && debtSizeInEth.gt(0)
 
-  const isShortPosition = useMemo(
-    () =>
-      collateral &&
-      borrowCurrency &&
-      isStableCoin(collateral.underlying) &&
-      !isStableCoin(borrowCurrency),
-    [borrowCurrency, collateral],
-  )
+  if (!router.query.symbol || !router.query.symbol.toString().includes('_')) {
+    return <></>
+  }
 
-  return collateral ? (
+  if (!isCollateralFixed && !asset) {
+    return <></>
+  }
+  if (isCollateralFixed && !collateral) {
+    return <></>
+  }
+  const leveragePosition = router.query.symbol.toString().split('_')[1]
+
+  return (
     <main className="flex flex-1 flex-col justify-center items-center">
       <div className="flex flex-1 flex-col w-full gap-6">
         <Link
@@ -257,32 +268,36 @@ const LeverageFormContainer = ({
           href="/?mode=borrow"
         >
           <BackSvg className="w-4 h-4 sm:w-8 sm:h-8" />
-          {isShortPosition ? 'Short' : 'Long'}
+          {leveragePosition[0] + leveragePosition.slice(1).toLowerCase()}{' '}
           <div className="flex gap-2">
-            <CurrencyIcon
-              currency={collateral.underlying}
-              className="w-6 h-6 sm:w-8 sm:h-8"
-            />
-            <div>{collateral.underlying.symbol}</div>
+            {leveragePosition === 'LONG' && collateral ? (
+              <CurrencyIcon
+                currency={collateral.underlying}
+                className="w-6 h-6 sm:w-8 sm:h-8"
+              />
+            ) : (
+              <></>
+            )}
+            {leveragePosition === 'SHORT' && asset ? (
+              <CurrencyIcon
+                currency={asset.underlying}
+                className="w-6 h-6 sm:w-8 sm:h-8"
+              />
+            ) : (
+              <></>
+            )}
+            <div>
+              {leveragePosition === 'LONG'
+                ? collateral?.underlying.symbol
+                : asset?.underlying.symbol}
+            </div>
           </div>
         </Link>
         <div className="flex flex-col lg:flex-row sm:items-center lg:items-start justify-center gap-4 mb-4 px-2 md:px-0">
           <LeverageForm
             borrowCurrency={asset?.underlying}
             setBorrowCurrency={setBorrowCurrency}
-            availableBorrowCurrencies={
-              collateral
-                ? assets
-                    .filter((asset) =>
-                      asset.collaterals
-                        .map((c) => getAddress(c.underlying.address))
-                        .includes(getAddress(collateral.underlying.address)),
-                    )
-                    .map((asset) => asset.underlying)
-                : asset
-                ? [asset.underlying]
-                : []
-            }
+            availableBorrowCurrencies={availableDebtCurrencies ?? []}
             interest={maxInterest}
             borrowApy={apy}
             borrowLTV={
@@ -309,6 +324,14 @@ const LeverageFormContainer = ({
                 : undefined
             }
             collateral={collateral}
+            setCollateral={setCollateral}
+            availableCollaterals={
+              asset
+                ? asset.collaterals.filter((collateral) =>
+                    isStableCoin(collateral.underlying),
+                  )
+                : []
+            }
             collateralValue={collateralValue}
             collateralAmount={collateralAmount}
             setCollateralValue={setCollateralValue}
@@ -322,12 +345,14 @@ const LeverageFormContainer = ({
             multiple={multiple}
             setMultiple={setMultiple}
             maxAvailableMultiple={
-              Math.floor(
-                1 /
-                  (1 -
-                    Number(collateral.liquidationTargetLtv) /
-                      Number(collateral.ltvPrecision)),
-              ) - 0.02
+              collateral
+                ? Math.floor(
+                    1 /
+                      (1 -
+                        Number(collateral.liquidationTargetLtv) /
+                          Number(collateral.ltvPrecision)),
+                  ) - 0.02
+                : 0
             }
             balances={balances}
             prices={prices}
@@ -413,8 +438,6 @@ const LeverageFormContainer = ({
         </div>
       </div>
     </main>
-  ) : (
-    <></>
   )
 }
 

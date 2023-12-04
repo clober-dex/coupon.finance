@@ -2,24 +2,24 @@ import React from 'react'
 import { Meta, StoryObj } from '@storybook/react'
 
 import '../../styles/globals.css'
-import { LeverageCard } from './leverage-card'
+import { LongLeverageCard } from './long-leverage-card'
 
 export default {
-  title: 'Card/LeverageCard',
-  component: LeverageCard,
+  title: 'Card/LongLeverageCard',
+  component: LongLeverageCard,
   parameters: {
     layout: 'centered',
   },
   render: ({ ...args }) => {
     return (
       <div className="w-[296px]">
-        <LeverageCard {...args} />
+        <LongLeverageCard {...args} />
       </div>
     )
   },
-} as Meta<typeof LeverageCard>
+} as Meta<typeof LongLeverageCard>
 
-type Story = StoryObj<typeof LeverageCard>
+type Story = StoryObj<typeof LongLeverageCard>
 export const Default: Story = {
   args: {
     collateralCurrency: {

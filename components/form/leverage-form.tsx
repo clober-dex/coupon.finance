@@ -32,6 +32,8 @@ export const LeverageForm = ({
   borrowLTV,
   interestsByEpochsBorrowed,
   collateral,
+  setCollateral,
+  availableCollaterals,
   collateralValue,
   collateralAmount,
   setCollateralValue,
@@ -53,7 +55,9 @@ export const LeverageForm = ({
   borrowApy: number
   borrowLTV: number
   interestsByEpochsBorrowed?: { date: string; apy: number }[]
-  collateral: Collateral
+  collateral?: Collateral
+  setCollateral: (collateral?: Collateral) => void
+  availableCollaterals: Collateral[]
   collateralValue: string
   collateralAmount: bigint
   setCollateralValue: (value: string) => void
@@ -83,6 +87,12 @@ export const LeverageForm = ({
     }
   }, [availableBorrowCurrencies, setBorrowCurrency])
 
+  useEffect(() => {
+    if (availableCollaterals.length === 1) {
+      setCollateral(availableCollaterals[0])
+    }
+  }, [availableCollaterals, setCollateral])
+
   return (
     <div className="flex flex-col gap-4">
       <div
@@ -90,26 +100,57 @@ export const LeverageForm = ({
       >
         <div className="flex flex-col gap-4">
           <div className="font-bold text-sm sm:text-lg">
-            How much {collateral.underlying.symbol} you’d like to use?
+            How much collateral would you like to add?
           </div>
           <CurrencyAmountInput
-            currency={collateral.underlying}
+            currency={collateral?.underlying}
             value={collateralValue}
             onValueChange={setCollateralValue}
-            availableAmount={balances[collateral.underlying.address] ?? 0n}
-            price={prices[collateral.underlying.address]}
+            availableAmount={
+              collateral ? balances[collateral?.underlying.address] ?? 0n : 0n
+            }
+            price={
+              collateral ? prices[collateral?.underlying.address] : undefined
+            }
+            disabled={!collateral}
           >
-            <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
-              <CurrencyIcon
-                currency={collateral.underlying}
-                className="w-5 h-5"
-              />
-              <div className="text-sm sm:text-base">
-                {collateral.underlying.symbol}
-              </div>
-            </div>
+            {!collateral || availableCollaterals.length > 1 ? (
+              <CurrencyDropdown
+                selectedCurrency={collateral?.underlying}
+                currencies={
+                  availableCollaterals.map(
+                    (collateral) => collateral.underlying,
+                  ) ?? []
+                }
+                onCurrencySelect={(currency) => {
+                  const collateral = availableCollaterals.find((collateral) =>
+                    isAddressEqual(
+                      collateral.underlying.address,
+                      currency.address,
+                    ),
+                  )
+                  setCollateral(collateral)
+                }}
+              >
+                {collateral ? (
+                  <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
+                    <CurrencyIcon
+                      currency={collateral.underlying}
+                      className="w-5 h-5"
+                    />
+                    <div className="text-sm sm:text-base">
+                      {collateral.underlying.symbol}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-fit flex items-center rounded-full bg-green-500 text-white pl-3 pr-2 py-1 gap-2 text-sm sm:text-base">
+                    Select token <DownSvg />
+                  </div>
+                )}
+              </CurrencyDropdown>
+            ) : undefined}
           </CurrencyAmountInput>
-          <div className="flex ml-auto">{children}</div>
+          {collateral ? <div className="flex ml-auto">{children}</div> : <></>}
         </div>
         <div className="flex flex-col gap-6">
           <div className="flex items-end self-stretch">
@@ -282,19 +323,25 @@ export const LeverageForm = ({
                 %
               </div>
             </div>
-            <div className="flex w-full">
-              <div className="text-gray-400 text-base">Collateral position</div>
-              <div className="ml-auto">
-                {Number.isNaN(parseFloat(collateralValue))
-                  ? 0
-                  : formatUnits(
-                      collateralAmount,
-                      collateral.underlying.decimals,
-                      prices[collateral.underlying.address],
-                    )}{' '}
-                {collateral.underlying.symbol}
+            {collateral ? (
+              <div className="flex w-full">
+                <div className="text-gray-400 text-base">
+                  Collateral position
+                </div>
+                <div className="ml-auto">
+                  {Number.isNaN(parseFloat(collateralValue))
+                    ? 0
+                    : formatUnits(
+                        collateralAmount,
+                        collateral.underlying.decimals,
+                        prices[collateral.underlying.address],
+                      )}{' '}
+                  {collateral.underlying.symbol}
+                </div>
               </div>
-            </div>
+            ) : (
+              <></>
+            )}
             {interestsByEpochsBorrowed &&
             interestsByEpochsBorrowed.length > 0 ? (
               <div className="flex w-full">

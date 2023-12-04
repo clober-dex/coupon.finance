@@ -20,9 +20,9 @@ import { Prices } from '../../model/prices'
 import { ethValue } from '../../utils/currency'
 import { LeveragePositionCard } from '../card/leverage-position-card'
 import AdjustLeverageModalContainer from '../../containers/modal/adjust-leverage-modal-container'
-import { isStableCoin, isUSDC } from '../../contexts/currency-context'
+import { isStableCoin } from '../../contexts/currency-context'
 import { Currency } from '../../model/currency'
-import { LeverageCard } from '../card/leverage-card'
+import { LongLeverageCard } from '../card/long-leverage-card'
 
 const BorrowStatus = ({
   assetStatuses,
@@ -314,7 +314,7 @@ const BorrowStatus = ({
                   debtCurrencies,
                   lowestApy,
                 }) => (
-                  <LeverageCard
+                  <LongLeverageCard
                     key={`leverage-long-${collateralCurrency.symbol}`}
                     collateralCurrency={collateralCurrency}
                     debtCurrencies={debtCurrencies}

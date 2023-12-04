@@ -7,7 +7,7 @@ import { formatDollarValue } from '../../utils/numbers'
 import { CurrencyIcon } from '../icon/currency-icon'
 import { Prices } from '../../model/prices'
 
-export const LeverageCard = ({
+export const LongLeverageCard = ({
   collateralCurrency,
   debtCurrencies,
   lowestApy,
@@ -24,7 +24,7 @@ export const LeverageCard = ({
     <Link
       href={
         debtCurrencies.length > 1
-          ? `/leverage/${collateralCurrency.symbol}`
+          ? `/leverage/${collateralCurrency.symbol}_LONG`
           : `/leverage/${collateralCurrency.symbol}_${debtCurrencies[0].symbol}`
       }
     >
