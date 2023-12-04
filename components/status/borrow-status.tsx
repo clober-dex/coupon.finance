@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import BigNumber from 'bignumber.js'
 import { isAddressEqual, zeroAddress } from 'viem'
 
@@ -20,6 +20,9 @@ import { Prices } from '../../model/prices'
 import { ethValue } from '../../utils/currency'
 import { LeveragePositionCard } from '../card/leverage-position-card'
 import AdjustLeverageModalContainer from '../../containers/modal/adjust-leverage-modal-container'
+import { isStableCoin, isUSDC } from '../../contexts/currency-context'
+import { Currency } from '../../model/currency'
+import { LeverageCard } from '../card/leverage-card'
 
 const BorrowStatus = ({
   assetStatuses,
@@ -49,6 +52,86 @@ const BorrowStatus = ({
   const [adjustLeveragePosition, setAdjustLeveragePosition] =
     useState<LoanPosition | null>(null)
   const currentTimestamp = currentTimestampInSeconds()
+  const [shortLeveragePairs, longLeveragePairs] = useMemo(() => {
+    const _assetStatuses = assetStatuses
+      .filter((assetStatus) => assetStatus.epoch.id === epochs[0].id)
+      .filter((assetStatus) => assetStatus.totalBorrowAvailable !== 0n)
+      .map((assetStatus) => {
+        const assetStatusesByAsset = assetStatuses
+          .filter(({ asset }) =>
+            isAddressEqual(
+              asset.underlying.address,
+              assetStatus.asset.underlying.address,
+            ),
+          )
+          .filter(({ epoch }) => Number(epoch.endTimestamp) > currentTimestamp)
+          .slice(0, MAX_VISIBLE_MARKETS)
+        const apys = assetStatusesByAsset.map(
+          ({ epoch, totalBorrowAvailable }) => ({
+            date: formatDate(new Date(Number(epoch.endTimestamp) * 1000)),
+            apy:
+              totalBorrowAvailable > 0n
+                ? calculateApy(
+                    assetStatusesByAsset
+                      .filter(({ epoch: _epoch }) => _epoch.id <= epoch.id)
+                      .reduce(
+                        (acc, { bestCouponAskPrice }) =>
+                          acc + bestCouponAskPrice,
+                        0,
+                      ),
+                    epoch.endTimestamp - currentTimestamp,
+                  )
+                : Number.NaN,
+          }),
+        )
+        return {
+          ...assetStatus,
+          lowestApy: Math.min(
+            ...apys
+              .filter(({ apy }) => !Number.isNaN(apy))
+              .map(({ apy }) => apy),
+          ),
+        }
+      })
+      .reduce(
+        (acc, assetStatus) => {
+          return [
+            ...acc,
+            ...assetStatus.asset.collaterals.map((collateral) => ({
+              lowestApy: assetStatus.lowestApy,
+              maxMultiplier:
+                Math.floor(
+                  1 /
+                    (1 -
+                      Number(collateral.liquidationTargetLtv) /
+                        Number(collateral.ltvPrecision)),
+                ) - 0.02,
+              collateralCurrency: collateral.underlying,
+              debtCurrency: assetStatus.asset.underlying,
+            })),
+          ]
+        },
+        [] as {
+          lowestApy: number
+          maxMultiplier: number
+          collateralCurrency: Currency
+          debtCurrency: Currency
+        }[],
+      )
+    return [
+      _assetStatuses.filter(
+        (assetStatus) =>
+          isStableCoin(assetStatus.collateralCurrency) &&
+          !isStableCoin(assetStatus.debtCurrency),
+      ),
+      _assetStatuses.filter(
+        (assetStatus) =>
+          !isStableCoin(assetStatus.collateralCurrency) ||
+          isStableCoin(assetStatus.debtCurrency),
+      ),
+    ]
+  }, [assetStatuses, currentTimestamp, epochs])
+
   return (
     <div className="flex flex-1 flex-col w-full md:w-[640px] lg:w-[960px]">
       <h1 className="flex justify-center text-center font-bold text-3xl sm:text-5xl sm:leading-[48px] mt-8 sm:mt-16 mb-8 sm:mb-16">
@@ -147,6 +230,7 @@ const BorrowStatus = ({
                     collateralPrice={
                       prices[position.collateral.underlying.address]
                     }
+                    entryDebtCurrencyPrice={position.entryDebtCurrencyPrice}
                     entryCollateralCurrencyPrice={
                       position.entryCollateralCurrencyPrice
                     }
@@ -178,6 +262,134 @@ const BorrowStatus = ({
       {epochs && epochs.length > 0 ? (
         <div className="flex flex-col gap-6 sm:gap-8 px-4 lg:p-0">
           <div className="flex items-center gap-6 justify-between">
+            <h2 className="font-bold text-base sm:text-2xl">Long</h2>
+          </div>
+          <div className="flex flex-1 flex-col w-full h-full sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 mb-8 justify-center">
+            {longLeveragePairs
+              .reduce(
+                (
+                  acc,
+                  {
+                    collateralCurrency,
+                    maxMultiplier,
+                    debtCurrency,
+                    lowestApy,
+                  },
+                ) => {
+                  const _acc = acc.find(
+                    ({ collateralCurrency: _collateralCurrency }) =>
+                      isAddressEqual(
+                        _collateralCurrency.address,
+                        collateralCurrency.address,
+                      ),
+                  )
+                  if (_acc) {
+                    _acc.debtCurrencies.push(debtCurrency)
+                    _acc.lowestApy = Math.min(_acc.lowestApy, lowestApy)
+                    _acc.maxMultiplier = Math.max(
+                      _acc.maxMultiplier,
+                      maxMultiplier,
+                    )
+                  } else {
+                    acc.push({
+                      collateralCurrency,
+                      debtCurrencies: [debtCurrency],
+                      lowestApy,
+                      maxMultiplier,
+                    })
+                  }
+                  return acc
+                },
+                [] as {
+                  collateralCurrency: Currency
+                  debtCurrencies: Currency[]
+                  lowestApy: number
+                  maxMultiplier: number
+                }[],
+              )
+              .map(
+                ({
+                  collateralCurrency,
+                  maxMultiplier,
+                  debtCurrencies,
+                  lowestApy,
+                }) => (
+                  <LeverageCard
+                    key={`leverage-long-${collateralCurrency.symbol}`}
+                    collateralCurrency={collateralCurrency}
+                    debtCurrencies={debtCurrencies}
+                    lowestApy={lowestApy}
+                    maxMultiplier={maxMultiplier}
+                    prices={prices}
+                  />
+                ),
+              )}
+          </div>
+          <div className="flex items-center gap-6 justify-between">
+            <h2 className="font-bold text-base sm:text-2xl">Short</h2>
+          </div>
+          <div className="flex flex-1 flex-col w-full h-full sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 mb-8 justify-center">
+            {shortLeveragePairs
+              .reduce(
+                (
+                  acc,
+                  {
+                    collateralCurrency,
+                    maxMultiplier,
+                    debtCurrency,
+                    lowestApy,
+                  },
+                ) => {
+                  const _acc = acc.find(
+                    ({ collateralCurrency: _collateralCurrency }) =>
+                      isAddressEqual(
+                        _collateralCurrency.address,
+                        collateralCurrency.address,
+                      ),
+                  )
+                  if (_acc) {
+                    _acc.debtCurrencies.push(debtCurrency)
+                    _acc.lowestApy = Math.min(_acc.lowestApy, lowestApy)
+                    _acc.maxMultiplier = Math.max(
+                      _acc.maxMultiplier,
+                      maxMultiplier,
+                    )
+                  } else {
+                    acc.push({
+                      collateralCurrency,
+                      debtCurrencies: [debtCurrency],
+                      lowestApy,
+                      maxMultiplier,
+                    })
+                  }
+                  return acc
+                },
+                [] as {
+                  collateralCurrency: Currency
+                  debtCurrencies: Currency[]
+                  lowestApy: number
+                  maxMultiplier: number
+                }[],
+              )
+              .map(
+                ({
+                  collateralCurrency,
+                  maxMultiplier,
+                  debtCurrencies,
+                  lowestApy,
+                }) => (
+                  <LeverageCard
+                    key={`leverage-short-${collateralCurrency.symbol}`}
+                    collateralCurrency={collateralCurrency}
+                    debtCurrencies={debtCurrencies}
+                    lowestApy={lowestApy}
+                    maxMultiplier={maxMultiplier}
+                    prices={prices}
+                  />
+                ),
+              )}
+          </div>
+          <div className="flex items-center gap-6 justify-between">
             <h2 className="font-bold text-base sm:text-2xl">Borrow</h2>
           </div>
           <div className="flex flex-1 flex-col w-full h-full sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 mb-8 justify-center">
@@ -201,7 +413,7 @@ const BorrowStatus = ({
                   <BorrowCard
                     currency={assetStatus.asset.underlying}
                     collaterals={assetStatus.asset.collaterals}
-                    key={index}
+                    key={`borrow-${index}`}
                     apys={assetStatusesByAsset.map(
                       ({ epoch, totalBorrowAvailable }) => ({
                         date: formatDate(

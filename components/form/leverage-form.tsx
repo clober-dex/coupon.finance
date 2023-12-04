@@ -141,6 +141,49 @@ export const LeverageForm = ({
             </div>
           </div>
         </div>
+        <div className="flex flex-col gap-4">
+          <div className="font-bold text-sm sm:text-lg">
+            Which token you’d like to borrow?
+          </div>
+          <CurrencyAmountInput
+            currency={borrowCurrency}
+            value={borrowValue}
+            onValueChange={() => {}}
+            price={borrowCurrency ? prices[borrowCurrency.address] : undefined}
+            availableAmount={0n}
+            disabled={true}
+          >
+            {!borrowCurrency || availableBorrowCurrencies.length > 1 ? (
+              <CurrencyDropdown
+                selectedCurrency={borrowCurrency}
+                currencies={availableBorrowCurrencies}
+                onCurrencySelect={(currency) => {
+                  setBorrowCurrency(
+                    availableBorrowCurrencies.find((c) =>
+                      isAddressEqual(c.address, currency.address),
+                    ),
+                  )
+                }}
+              >
+                {borrowCurrency ? (
+                  <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
+                    <CurrencyIcon
+                      currency={borrowCurrency}
+                      className="w-5 h-5"
+                    />
+                    <div className="text-sm sm:text-base">
+                      {borrowCurrency.symbol}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-fit flex items-center rounded-full bg-green-500 text-white pl-3 pr-2 py-1 gap-2 text-sm sm:text-base">
+                    Select token <DownSvg />
+                  </div>
+                )}
+              </CurrencyDropdown>
+            ) : undefined}
+          </CurrencyAmountInput>
+        </div>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-2">
             <div className="font-bold text-sm sm:text-lg">
@@ -193,49 +236,6 @@ export const LeverageForm = ({
               <></>
             )}
           </div>
-        </div>
-        <div className="flex flex-col gap-4">
-          <div className="font-bold text-sm sm:text-lg">
-            Which token you’d like to borrow?
-          </div>
-          <CurrencyAmountInput
-            currency={borrowCurrency}
-            value={borrowValue}
-            onValueChange={() => {}}
-            price={borrowCurrency ? prices[borrowCurrency.address] : undefined}
-            availableAmount={0n}
-            disabled={true}
-          >
-            {!borrowCurrency || availableBorrowCurrencies.length > 1 ? (
-              <CurrencyDropdown
-                selectedCurrency={borrowCurrency}
-                currencies={availableBorrowCurrencies}
-                onCurrencySelect={(currency) => {
-                  setBorrowCurrency(
-                    availableBorrowCurrencies.find((c) =>
-                      isAddressEqual(c.address, currency.address),
-                    ),
-                  )
-                }}
-              >
-                {borrowCurrency ? (
-                  <div className="flex w-fit items-center rounded-full bg-gray-100 dark:bg-gray-700 py-1 pl-2 pr-3 gap-2">
-                    <CurrencyIcon
-                      currency={borrowCurrency}
-                      className="w-5 h-5"
-                    />
-                    <div className="text-sm sm:text-base">
-                      {borrowCurrency.symbol}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="w-fit flex items-center rounded-full bg-green-500 text-white pl-3 pr-2 py-1 gap-2 text-sm sm:text-base">
-                    Select token <DownSvg />
-                  </div>
-                )}
-              </CurrencyDropdown>
-            ) : undefined}
-          </CurrencyAmountInput>
         </div>
       </div>
       <div className="flex flex-col bg-white gap-6 dark:bg-gray-900 sm:rounded-3xl p-4 sm:p-6 w-full sm:w-[480px]">
