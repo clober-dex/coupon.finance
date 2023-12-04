@@ -20,6 +20,8 @@ const MockedLeverageForm = ({ ...args }) => {
       borrowLTV={args.borrowLTV}
       interestsByEpochsBorrowed={args.interestsByEpochsBorrowed}
       collateral={args.collateral}
+      setCollateral={() => {}}
+      availableCollaterals={[]}
       collateralValue={args.collateralValue}
       setCollateralValue={args.setCollateralValue}
       collateralAmount={args.collateralAmount}
