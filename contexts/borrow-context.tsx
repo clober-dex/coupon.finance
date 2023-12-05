@@ -1141,7 +1141,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       setConfirmation,
       selectedChain.id,
       prices,
-      adjustPosition,
+      adjust,
       queryClient,
     ],
   )
