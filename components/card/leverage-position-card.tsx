@@ -77,11 +77,13 @@ export const LeveragePositionCard = ({
   )
   const expectedProceeds = useMemo(
     () =>
-      formatUnits(
-        applyPercent(position.collateralAmount, (pnl - 1) * 100),
-        position.collateral.underlying.decimals,
-        collateralPrice,
-      ),
+      pnl
+        ? formatUnits(
+            applyPercent(position.collateralAmount, (pnl - 1) * 100),
+            position.collateral.underlying.decimals,
+            collateralPrice,
+          )
+        : '',
     [
       collateralPrice,
       pnl,
