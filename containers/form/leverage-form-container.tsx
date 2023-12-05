@@ -35,7 +35,6 @@ const LeverageFormContainer = ({
   setShowHelperModal,
   setHelperModalOutputCurrency,
   defaultDebtCurrency,
-  availableDebtCurrencies,
   defaultCollateralCurrency,
   children,
 }: {
@@ -43,7 +42,6 @@ const LeverageFormContainer = ({
   setShowHelperModal: (value: boolean) => void
   setHelperModalOutputCurrency: (value: Currency | undefined) => void
   defaultDebtCurrency?: Currency
-  availableDebtCurrencies?: Currency[]
   defaultCollateralCurrency?: Currency
 } & React.PropsWithChildren) => {
   const { selectedChain } = useChainContext()
@@ -89,6 +87,37 @@ const LeverageFormContainer = ({
   }, [_collateral, asset])
 
   const isCollateralFixed = defaultCollateralCurrency !== undefined
+  const availableDebtCurrencies = useMemo(() => {
+    const debtCurrencies = assets
+      .map((asset) => asset.underlying)
+      .filter((currency, index, self) =>
+        self.findIndex((c) => isAddressEqual(c.address, currency.address)) ===
+        index
+          ? currency
+          : undefined,
+      )
+    return defaultDebtCurrency
+      ? [defaultDebtCurrency] // short or fixed debt currency
+      : defaultCollateralCurrency
+      ? // else, long
+        debtCurrencies.filter(
+          (currency) =>
+            !isAddressEqual(
+              currency.address,
+              defaultCollateralCurrency.address,
+            ),
+        )
+      : debtCurrencies
+  }, [assets, defaultCollateralCurrency, defaultDebtCurrency])
+  const availableCollaterals = useMemo(
+    () =>
+      !isCollateralFixed && asset
+        ? asset.collaterals.filter((collateral) =>
+            isStableCoin(collateral.underlying),
+          ) // short
+        : [], // else, long or fixed collateral currency
+    [asset, isCollateralFixed],
+  )
 
   useEffect(() => {
     if (collateral) {
@@ -301,7 +330,7 @@ const LeverageFormContainer = ({
           <LeverageForm
             borrowCurrency={asset?.underlying}
             setBorrowCurrency={setBorrowCurrency}
-            availableBorrowCurrencies={availableDebtCurrencies ?? []}
+            availableBorrowCurrencies={availableDebtCurrencies}
             interest={maxInterest}
             borrowApy={apy}
             borrowLTV={
@@ -329,13 +358,7 @@ const LeverageFormContainer = ({
             }
             collateral={collateral}
             setCollateral={setCollateral}
-            availableCollaterals={
-              !isCollateralFixed && asset
-                ? asset.collaterals.filter((collateral) =>
-                    isStableCoin(collateral.underlying),
-                  )
-                : []
-            }
+            availableCollaterals={availableCollaterals}
             collateralValue={collateralValue}
             collateralAmount={collateralAmount}
             setCollateralValue={setCollateralValue}
