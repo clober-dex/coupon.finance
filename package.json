@@ -10,7 +10,7 @@
     "lint": "next lint",
     "test": "jest",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "graphclient build && storybook build"
   },
   "dependencies": {
     "reactflow": "^11.9.4",
