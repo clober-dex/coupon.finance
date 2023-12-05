@@ -97,11 +97,7 @@ const DepositStatus = ({
                   price={prices[position.underlying.address]}
                   onWithdraw={() => setWithdrawPosition(position)}
                   onCollect={async () => {
-                    await collect(
-                      position.underlying,
-                      position.tokenId,
-                      position.amount,
-                    )
+                    await collect(position)
                   }}
                 />
               ))}

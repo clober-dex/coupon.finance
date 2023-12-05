@@ -21,7 +21,7 @@ export const CONTRACT_ADDRESSES: {
     BondPositionManager:
       '0x0Cf91Bc7a67B063142C029a69fF9C8ccd93476E2' as `0x${string}`,
     BorrowController:
-      '0xF3E6FDDCcdaEC2C4B78B86d7a58e352Bf246abc9' as `0x${string}`,
+      '0x3989557B16fc8dB74CC8Ab0c5981b2396555d3C2' as `0x${string}`,
     CouponManager:
       '0x8bbcA766D175aDbffB073832262990df1c5ef748' as `0x${string}`,
     CouponMarketRouter:
@@ -30,7 +30,7 @@ export const CONTRACT_ADDRESSES: {
     CouponWrapper:
       '0xc5577988Cc8A49ecF6A48c8e84717E481E3bF57b' as `0x${string}`,
     DepositController:
-      '0x377d954cd4b29931b09d3943F070B28b968F034f' as `0x${string}`,
+      '0xE829fDe841c2a4b8dF34D0ebA146c06393D7F322' as `0x${string}`,
     EthSubstituteMinter:
       '0xeA424D3C88aF908769B3292bd88c60E5652b308E' as `0x${string}`,
     LoanPositionManager:
