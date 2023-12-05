@@ -7,6 +7,7 @@ import {
   dollarValue,
   formatDollarValue,
   formatUnits,
+  toPlacesString,
 } from '../../utils/numbers'
 import { EditSvg } from '../svg/edit-svg'
 import {
@@ -17,6 +18,7 @@ import {
 import { CurrencyIcon } from '../icon/currency-icon'
 import { QuestionMarkSvg } from '../svg/question-mark-svg'
 import { isStableCoin } from '../../contexts/currency-context'
+import { applyPercent } from '../../utils/bigint'
 
 export const LeveragePositionCard = ({
   position,
@@ -72,6 +74,22 @@ export const LeveragePositionCard = ({
       isStableCoin(position.collateral.underlying) &&
       !isStableCoin(position.underlying),
     [position.collateral.underlying, position.underlying],
+  )
+  const expectedProceeds = useMemo(
+    () =>
+      pnl
+        ? formatUnits(
+            applyPercent(position.collateralAmount, (pnl - 1) * 100),
+            position.collateral.underlying.decimals,
+            collateralPrice,
+          )
+        : '',
+    [
+      collateralPrice,
+      pnl,
+      position.collateral.underlying.decimals,
+      position.collateralAmount,
+    ],
   )
 
   return (
@@ -177,13 +195,9 @@ export const LeveragePositionCard = ({
             {pnl ? (
               <div className="flex gap-1">
                 <div className="text-sm sm:text-base flex gap-1">
-                  {formatUnits(
-                    BigInt(
-                      Math.floor(Number(position.collateralAmount) * (pnl - 1)),
-                    ),
-                    position.collateral.underlying.decimals,
-                    collateralPrice,
-                  )}{' '}
+                  {expectedProceeds.length > 6
+                    ? toPlacesString(expectedProceeds, 2)
+                    : expectedProceeds}{' '}
                   {position.collateral.underlying.symbol}
                   <span
                     className={pnl >= 1 ? 'text-green-500' : 'text-red-500'}
@@ -199,7 +213,7 @@ export const LeveragePositionCard = ({
           </div>
           <div className="flex items-center gap-1 self-stretch">
             <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
-              Entry / Market Price
+              Entry Price
             </div>
             {isShortPosition ? (
               <div className="text-sm sm:text-base">
@@ -207,12 +221,6 @@ export const LeveragePositionCard = ({
                   BigInt(10 ** position.underlying.decimals),
                   position.underlying.decimals,
                   entryDebtCurrencyPrice,
-                )}{' '}
-                /{'  '}
-                {formatDollarValue(
-                  BigInt(10 ** position.underlying.decimals),
-                  position.underlying.decimals,
-                  price,
                 )}
               </div>
             ) : (
@@ -221,12 +229,6 @@ export const LeveragePositionCard = ({
                   BigInt(10 ** position.collateral.underlying.decimals),
                   position.collateral.underlying.decimals,
                   entryCollateralCurrencyPrice,
-                )}{' '}
-                /{'  '}
-                {formatDollarValue(
-                  BigInt(10 ** position.collateral.underlying.decimals),
-                  position.collateral.underlying.decimals,
-                  collateralPrice,
                 )}
               </div>
             )}
