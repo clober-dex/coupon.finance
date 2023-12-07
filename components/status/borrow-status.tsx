@@ -287,17 +287,18 @@ const BorrowStatus = ({
                   )
                   if (_acc) {
                     _acc.debtCurrencies.push(debtCurrency)
-                    _acc.lowestApy = Math.min(_acc.lowestApy, lowestApy)
-                    _acc.maxMultiplier = Math.max(
-                      _acc.maxMultiplier,
-                      maxMultiplier,
-                    )
+                    _acc.apys[debtCurrency.address] = lowestApy
+                    _acc.maxMultipliers[debtCurrency.address] = maxMultiplier
                   } else {
                     acc.push({
                       collateralCurrency,
                       debtCurrencies: [debtCurrency],
-                      lowestApy,
-                      maxMultiplier,
+                      apys: {
+                        [debtCurrency.address]: lowestApy,
+                      },
+                      maxMultipliers: {
+                        [debtCurrency.address]: maxMultiplier,
+                      },
                     })
                   }
                   return acc
@@ -305,23 +306,23 @@ const BorrowStatus = ({
                 [] as {
                   collateralCurrency: Currency
                   debtCurrencies: Currency[]
-                  lowestApy: number
-                  maxMultiplier: number
+                  apys: { [address: `0x${string}`]: number }
+                  maxMultipliers: { [address: `0x${string}`]: number }
                 }[],
               )
               .map(
                 ({
                   collateralCurrency,
-                  maxMultiplier,
                   debtCurrencies,
-                  lowestApy,
+                  apys,
+                  maxMultipliers,
                 }) => (
                   <LongLeverageCard
                     key={`leverage-long-${collateralCurrency.symbol}`}
                     collateralCurrency={collateralCurrency}
                     debtCurrencies={debtCurrencies}
-                    lowestApy={lowestApy}
-                    maxMultiplier={maxMultiplier}
+                    apys={apys}
+                    maxMultipliers={maxMultipliers}
                     prices={prices}
                   />
                 ),
@@ -347,17 +348,19 @@ const BorrowStatus = ({
                   )
                   if (_acc) {
                     _acc.collateralCurrencies.push(collateralCurrency)
-                    _acc.lowestApy = Math.min(_acc.lowestApy, lowestApy)
-                    _acc.maxMultiplier = Math.max(
-                      _acc.maxMultiplier,
-                      maxMultiplier,
-                    )
+                    _acc.apys[collateralCurrency.address] = lowestApy
+                    _acc.maxMultipliers[collateralCurrency.address] =
+                      maxMultiplier
                   } else {
                     acc.push({
                       collateralCurrencies: [collateralCurrency],
                       debtCurrency,
-                      lowestApy,
-                      maxMultiplier,
+                      apys: {
+                        [collateralCurrency.address]: lowestApy,
+                      },
+                      maxMultipliers: {
+                        [collateralCurrency.address]: maxMultiplier,
+                      },
                     })
                   }
                   return acc
@@ -365,23 +368,23 @@ const BorrowStatus = ({
                 [] as {
                   collateralCurrencies: Currency[]
                   debtCurrency: Currency
-                  lowestApy: number
-                  maxMultiplier: number
+                  apys: { [address: `0x${string}`]: number }
+                  maxMultipliers: { [address: `0x${string}`]: number }
                 }[],
               )
               .map(
                 ({
                   collateralCurrencies,
-                  maxMultiplier,
                   debtCurrency,
-                  lowestApy,
+                  apys,
+                  maxMultipliers,
                 }) => (
                   <ShortLeverageCard
                     key={`leverage-short-${debtCurrency.symbol}`}
                     collateralCurrencies={collateralCurrencies}
                     debtCurrency={debtCurrency}
-                    lowestApy={lowestApy}
-                    maxMultiplier={maxMultiplier}
+                    apys={apys}
+                    maxMultipliers={maxMultipliers}
                     prices={prices}
                   />
                 ),
