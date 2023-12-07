@@ -27,6 +27,8 @@ import { useBorrowContext } from '../../contexts/borrow-context'
 import { CONTRACT_ADDRESSES } from '../../constants/addresses'
 import BackSvg from '../../components/svg/back-svg'
 import { CurrencyIcon } from '../../components/icon/currency-icon'
+import { RiskSidebar } from '../../components/bar/risk-sidebar'
+import { ChartSidebar } from '../../components/bar/chart-sidebar'
 
 const SLIPPAGE_LIMIT_PERCENT = 0.5
 
@@ -59,6 +61,10 @@ const LeverageFormContainer = ({
   const [collateralValue, setCollateralValue] = useState('')
   const [borrowCurrency, setBorrowCurrency] = useState<Currency | undefined>(
     defaultDebtCurrency,
+  )
+  const targetCurrency = useMemo(
+    () => defaultCollateralCurrency ?? defaultDebtCurrency,
+    [defaultCollateralCurrency, defaultDebtCurrency],
   )
   const [_collateral, setCollateral] = useState<Collateral | undefined>(
     defaultCollateralCurrency
@@ -326,7 +332,15 @@ const LeverageFormContainer = ({
             </div>
           </div>
         </Link>
-        <div className="flex flex-col lg:flex-row sm:items-center lg:items-start justify-center gap-4 mb-4 px-2 md:px-0">
+        <div className="flex flex-col lg:flex-row-reverse sm:items-center lg:items-start justify-center gap-4 mb-4 px-2 md:px-0">
+          {targetCurrency ? (
+            <ChartSidebar
+              currency={targetCurrency}
+              price={prices[targetCurrency.address]}
+            />
+          ) : (
+            <></>
+          )}
           <LeverageForm
             borrowCurrency={asset?.underlying}
             setBorrowCurrency={setBorrowCurrency}
