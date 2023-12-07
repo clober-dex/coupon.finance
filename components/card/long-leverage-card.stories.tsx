@@ -150,6 +150,37 @@ Hover.parameters = {
   pseudo: { hover: true },
 }
 
+export const One: Story = {
+  args: {
+    collateralCurrency: {
+      address: '0x82af49447d8a07e3bd95bd0d56f35241523fbab1',
+      name: 'Wrapped Ether',
+      symbol: 'WETH',
+      decimals: 18,
+    },
+    debtCurrencies: [
+      {
+        address: '0x0000000000000000000000000000000000000001',
+        name: 'USDC',
+        symbol: 'USDC',
+        decimals: 6,
+      },
+    ],
+    apys: {
+      '0x0000000000000000000000000000000000000001': 3.42,
+    },
+    maxMultipliers: {
+      '0x0000000000000000000000000000000000000001': 3.42,
+    },
+    prices: {
+      '0x82af49447d8a07e3bd95bd0d56f35241523fbab1': {
+        value: 200000000000n,
+        decimals: 8,
+      },
+    },
+  },
+}
+
 // @ts-ignore
 BigInt.prototype.toJSON = function () {
   return this.toString()
