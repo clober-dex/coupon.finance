@@ -29,6 +29,7 @@ import BackSvg from '../../components/svg/back-svg'
 import { CurrencyIcon } from '../../components/icon/currency-icon'
 import { RiskSidebar } from '../../components/bar/risk-sidebar'
 import { ChartSidebar } from '../../components/bar/chart-sidebar'
+import { ChartSidebarContainer } from '../chart-sidebar-container'
 
 const SLIPPAGE_LIMIT_PERCENT = 0.5
 
@@ -334,10 +335,7 @@ const LeverageFormContainer = ({
         </Link>
         <div className="flex flex-col lg:flex-row-reverse sm:items-center lg:items-start justify-center gap-4 mb-4 px-2 md:px-0">
           {targetCurrency ? (
-            <ChartSidebar
-              currency={targetCurrency}
-              price={prices[targetCurrency.address]}
-            />
+            <ChartSidebarContainer currency={targetCurrency} />
           ) : (
             <></>
           )}

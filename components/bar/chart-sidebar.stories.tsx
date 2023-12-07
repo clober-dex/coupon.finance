@@ -22,14 +22,13 @@ export default {
 type Story = StoryObj<typeof ChartSidebar>
 export const Default: Story = {
   args: {
+    intervals: ['1H', '1D', '1W', '1M', '1Y'],
+    interval: '1H',
+    setInterval: () => {},
     currency: {
       address: '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f',
       name: 'Wrapped BTC',
       symbol: 'WBTC',
-      decimals: 8,
-    },
-    price: {
-      value: 2500000000000n,
       decimals: 8,
     },
   },
