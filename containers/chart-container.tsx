@@ -1,5 +1,4 @@
 import React from 'react'
-import appleStock from '@visx/mock-data/lib/mocks/appleStock'
 import { useQuery } from 'wagmi'
 
 import { Currency } from '../model/currency'
@@ -24,7 +23,9 @@ export const ChartContainer = ({
   HTMLInputElement
 >) => {
   const { prices } = useCurrencyContext()
-  const [interval, setInterval] = React.useState(intervalList[0])
+  const [interval, setInterval] = React.useState(
+    intervalList[intervalList.length - 1],
+  )
 
   const { data } = useQuery(
     ['chart', currency, interval],

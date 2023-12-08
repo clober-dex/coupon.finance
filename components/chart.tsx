@@ -205,7 +205,7 @@ export default withTooltip<AreaProps, TooltipData>(
           <div>
             <TooltipWithBounds
               key={Math.random()}
-              top={tooltipTop - 50}
+              top={tooltipTop - 12}
               left={tooltipLeft + 12}
               style={tooltipStyles}
             >

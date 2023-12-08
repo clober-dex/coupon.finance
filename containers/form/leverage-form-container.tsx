@@ -352,7 +352,7 @@ const LeverageFormContainer = ({
           </div>
         </Link>
         <div className="flex flex-col lg:flex-row-reverse sm:items-center lg:items-start justify-center gap-4 mb-4 px-2 md:px-0">
-          {targetCurrency ? (
+          {targetCurrency && !isStableCoin(targetCurrency) ? (
             <ChartContainer
               currency={targetCurrency}
               intervalList={[240, 1440, 10080, 21600]}

@@ -4,7 +4,6 @@ import { BigDecimal, formatDollarValue } from '../../utils/numbers'
 import Chart, { AreaProps } from '../chart'
 import { Currency } from '../../model/currency'
 import { minutesToString } from '../../utils/date'
-import { isStableCoin } from '../../contexts/currency-context'
 
 export const ChartWrapper = ({
   data,
@@ -58,17 +57,7 @@ export const ChartWrapper = ({
       </div>
     </div>
     <div className="flex justify-center">
-      <Chart
-        data={data}
-        width={width}
-        height={height}
-        margin={{
-          top: 0,
-          right: 0,
-          bottom: isStableCoin(currency) ? height / 2 : 0,
-          left: 0,
-        }}
-      />
+      <Chart data={data} width={width} height={height} />
     </div>
   </div>
 )
