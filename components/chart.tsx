@@ -93,6 +93,9 @@ export default withTooltip<AreaProps, TooltipData>(
           | React.MouseEvent<SVGRectElement>,
       ) => {
         const { x } = localPoint(event) || { x: 0 }
+        if (x > width) {
+          return
+        }
         const x0 = dateScale.invert(x)
         const index = bisectDate(data, x0, 1)
         const d0 = data[index - 1]
