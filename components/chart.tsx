@@ -114,7 +114,7 @@ export default withTooltip<AreaProps, TooltipData>(
           tooltipTop: stockValueScale(getStockValue(d)),
         })
       },
-      [dateScale, data, showTooltip, stockValueScale],
+      [width, dateScale, data, showTooltip, stockValueScale],
     )
 
     return (
