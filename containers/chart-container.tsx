@@ -1,4 +1,5 @@
 import React from 'react'
+import appleStock from '@visx/mock-data/lib/mocks/appleStock'
 
 import { Currency } from '../model/currency'
 import { useCurrencyContext } from '../contexts/currency-context'
@@ -26,6 +27,7 @@ export const ChartContainer = ({
   return (
     <div {...props}>
       <ChartWrapper
+        data={appleStock.slice(800)}
         currency={currency}
         price={prices[currency.address]}
         intervalList={intervalList}

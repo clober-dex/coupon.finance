@@ -1,5 +1,6 @@
 import React from 'react'
 import { Meta, StoryObj } from '@storybook/react'
+import appleStock from '@visx/mock-data/lib/mocks/appleStock'
 
 import '../../styles/globals.css'
 import { ChartWrapper } from './chart-wrapper'
@@ -22,6 +23,7 @@ export default {
 type Story = StoryObj<typeof ChartWrapper>
 export const Default: Story = {
   args: {
+    data: appleStock.slice(800),
     intervalList: ['1H', '1D', '1W', '1M', '1Y'],
     interval: '1H',
     setInterval: () => {},

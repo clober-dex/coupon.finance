@@ -1,10 +1,11 @@
 import React from 'react'
 
 import { BigDecimal, formatDollarValue } from '../../utils/numbers'
-import Chart from '../chart'
+import Chart, { AreaProps } from '../chart'
 import { Currency } from '../../model/currency'
 
 export const ChartWrapper = ({
+  data,
   currency,
   price,
   intervalList,
@@ -13,6 +14,7 @@ export const ChartWrapper = ({
   width,
   height,
 }: {
+  data: AreaProps['data']
   currency: Currency
   price: BigDecimal
   intervalList: string[]
@@ -54,7 +56,7 @@ export const ChartWrapper = ({
       </div>
     </div>
     <div className="flex justify-center">
-      <Chart width={width} height={height} />
+      <Chart data={data} width={width} height={height} />
     </div>
   </div>
 )

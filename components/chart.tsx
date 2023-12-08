@@ -1,6 +1,5 @@
 import React, { useMemo, useCallback } from 'react'
 import { AreaClosed, Line, Bar } from '@visx/shape'
-import appleStock, { AppleStock } from '@visx/mock-data/lib/mocks/appleStock'
 import { curveMonotoneX } from '@visx/curve'
 import { GridRows, GridColumns } from '@visx/grid'
 import { scaleTime, scaleLinear } from '@visx/scale'
@@ -15,10 +14,13 @@ import { localPoint } from '@visx/event'
 import { LinearGradient } from '@visx/gradient'
 import { max, extent, bisector } from '@visx/vendor/d3-array'
 import { timeFormat } from '@visx/vendor/d3-time-format'
+import appleStock from '@visx/mock-data/lib/mocks/appleStock'
 
-type TooltipData = AppleStock
+type TooltipData = {
+  date: string
+  close: number
+}
 
-const stock = appleStock.slice(800)
 export const background = '#3b6978'
 export const background2 = '#204051'
 export const accentColor = 'rgb(74 222 128)'
@@ -34,11 +36,12 @@ const tooltipStyles = {
 const formatDate = timeFormat("%b %d, '%y")
 
 // accessors
-const getDate = (d: AppleStock) => new Date(d.date)
-const getStockValue = (d: AppleStock) => d.close
-const bisectDate = bisector<AppleStock, Date>((d) => new Date(d.date)).left
+const getDate = (d: TooltipData) => new Date(d.date)
+const getStockValue = (d: TooltipData) => d.close
+const bisectDate = bisector<TooltipData, Date>((d) => new Date(d.date)).left
 
 export type AreaProps = {
+  data: TooltipData[]
   width: number
   height: number
   margin?: { top: number; right: number; bottom: number; left: number }
@@ -46,6 +49,7 @@ export type AreaProps = {
 
 export default withTooltip<AreaProps, TooltipData>(
   ({
+    data,
     width,
     height,
     margin = { top: 0, right: 0, bottom: 0, left: 0 },
@@ -68,18 +72,18 @@ export default withTooltip<AreaProps, TooltipData>(
       () =>
         scaleTime({
           range: [margin.left, innerWidth + margin.left],
-          domain: extent(stock, getDate) as [Date, Date],
+          domain: extent(data, getDate) as [Date, Date],
         }),
-      [innerWidth, margin.left],
+      [data, innerWidth, margin.left],
     )
     const stockValueScale = useMemo(
       () =>
         scaleLinear({
           range: [innerHeight + margin.top, margin.top],
-          domain: [0, (max(stock, getStockValue) || 0) + innerHeight / 3],
+          domain: [0, (max(data, getStockValue) || 0) + innerHeight / 3],
           nice: true,
         }),
-      [margin.top, innerHeight],
+      [innerHeight, margin.top, data],
     )
 
     // tooltip handler
@@ -91,9 +95,9 @@ export default withTooltip<AreaProps, TooltipData>(
       ) => {
         const { x } = localPoint(event) || { x: 0 }
         const x0 = dateScale.invert(x)
-        const index = bisectDate(stock, x0, 1)
-        const d0 = stock[index - 1]
-        const d1 = stock[index]
+        const index = bisectDate(data, x0, 1)
+        const d0 = data[index - 1]
+        const d1 = data[index]
         let d = d0
         if (d1 && getDate(d1)) {
           d =
@@ -108,7 +112,7 @@ export default withTooltip<AreaProps, TooltipData>(
           tooltipTop: stockValueScale(getStockValue(d)),
         })
       },
-      [showTooltip, stockValueScale, dateScale],
+      [dateScale, data, showTooltip, stockValueScale],
     )
 
     return (
@@ -143,8 +147,8 @@ export default withTooltip<AreaProps, TooltipData>(
             strokeOpacity={0.2}
             pointerEvents="none"
           />
-          <AreaClosed<AppleStock>
-            data={stock}
+          <AreaClosed<TooltipData>
+            data={data}
             x={(d) => dateScale(getDate(d)) ?? 0}
             y={(d) => stockValueScale(getStockValue(d)) ?? 0}
             yScale={stockValueScale}
