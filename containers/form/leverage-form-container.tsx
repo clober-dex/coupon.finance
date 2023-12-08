@@ -356,7 +356,7 @@ const LeverageFormContainer = ({
             <ChartContainer
               currency={targetCurrency}
               intervalList={[240, 1440, 10080, 21600]}
-              width={isMobile ? (windowSize.width * 6) / 7 : 432}
+              width={isMobile ? (windowSize.width * 5) / 7 : 432}
               height={isMobile ? 158 : 386}
               className="sm:w-[480px] h-[256px] sm:h-[496px]"
             />
