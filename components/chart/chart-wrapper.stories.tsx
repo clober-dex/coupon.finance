@@ -2,29 +2,31 @@ import React from 'react'
 import { Meta, StoryObj } from '@storybook/react'
 
 import '../../styles/globals.css'
-import { ChartSidebar } from './chart-sidebar'
+import { ChartWrapper } from './chart-wrapper'
 
 export default {
-  title: 'Sidebar/ChartSidebar',
-  component: ChartSidebar,
+  title: 'Sidebar/ChartWrapper',
+  component: ChartWrapper,
   parameters: {
     layout: 'centered',
   },
   render: ({ ...args }) => {
     return (
       <div className="border border-solid border-gray-700">
-        <ChartSidebar {...args} />
+        <ChartWrapper {...args} />
       </div>
     )
   },
-} as Meta<typeof ChartSidebar>
+} as Meta<typeof ChartWrapper>
 
-type Story = StoryObj<typeof ChartSidebar>
+type Story = StoryObj<typeof ChartWrapper>
 export const Default: Story = {
   args: {
-    intervals: ['1H', '1D', '1W', '1M', '1Y'],
+    intervalList: ['1H', '1D', '1W', '1M', '1Y'],
     interval: '1H',
     setInterval: () => {},
+    height: 300,
+    width: 600,
     currency: {
       address: '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f',
       name: 'Wrapped BTC',
