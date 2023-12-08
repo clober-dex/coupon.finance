@@ -9,7 +9,6 @@ import { Balances } from '../model/balances'
 import { COUPON_ORACLE_ABI } from '../abis/core/coupon-oracle-abi'
 import { ERC20_PERMIT_ABI } from '../abis/@openzeppelin/erc20-permit-abi'
 import { TooltipData } from '../components/chart'
-import { KRAKEN_MARKET_ID } from '../constants/currencies'
 
 import { fetchAssets } from './asset'
 
