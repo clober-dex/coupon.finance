@@ -27,8 +27,16 @@ import { useBorrowContext } from '../../contexts/borrow-context'
 import { CONTRACT_ADDRESSES } from '../../constants/addresses'
 import BackSvg from '../../components/svg/back-svg'
 import { CurrencyIcon } from '../../components/icon/currency-icon'
+import { ChartContainer } from '../chart-container'
 
 const SLIPPAGE_LIMIT_PERCENT = 0.5
+
+const getWindowSize = () => {
+  if (typeof window === 'undefined') {
+    return { width: 0, height: 0 }
+  }
+  return { width: window.innerWidth, height: window.innerHeight }
+}
 
 const LeverageFormContainer = ({
   showHelperModal,
@@ -50,6 +58,7 @@ const LeverageFormContainer = ({
   const { balances, prices, assets, epochs: allEpochs } = useCurrencyContext()
   const { leverage } = useBorrowContext()
 
+  const [windowSize, setWindowSize] = useState(getWindowSize())
   const [epochs, setEpochs] = useState(0)
   const [multiple, setMultiple] = useState(2)
   const [multipleBuffer, setMultipleBuffer] = useState({
@@ -59,6 +68,10 @@ const LeverageFormContainer = ({
   const [collateralValue, setCollateralValue] = useState('')
   const [borrowCurrency, setBorrowCurrency] = useState<Currency | undefined>(
     defaultDebtCurrency,
+  )
+  const targetCurrency = useMemo(
+    () => defaultCollateralCurrency ?? defaultDebtCurrency,
+    [defaultCollateralCurrency, defaultDebtCurrency],
   )
   const [_collateral, setCollateral] = useState<Collateral | undefined>(
     defaultCollateralCurrency
@@ -150,6 +163,18 @@ const LeverageFormContainer = ({
     }, 250)
     return () => clearInterval(interval)
   }, [multiple, multipleBuffer.previous, multipleBuffer.updateAt])
+
+  useEffect(() => {
+    const handleWindowResize = () => {
+      setWindowSize(getWindowSize())
+    }
+    window.addEventListener('resize', handleWindowResize)
+    return () => {
+      window.removeEventListener('resize', handleWindowResize)
+    }
+  }, [])
+
+  const isMobile = useMemo(() => windowSize.width < 640, [windowSize])
 
   // ready to calculate
   const {
@@ -326,7 +351,18 @@ const LeverageFormContainer = ({
             </div>
           </div>
         </Link>
-        <div className="flex flex-col lg:flex-row sm:items-center lg:items-start justify-center gap-4 mb-4 px-2 md:px-0">
+        <div className="flex flex-col lg:flex-row-reverse sm:items-center lg:items-start justify-center gap-4 mb-4 px-2 md:px-0">
+          {targetCurrency && !isStableCoin(targetCurrency) ? (
+            <ChartContainer
+              currency={targetCurrency}
+              intervalList={[240, 1440, 10080, 21600]}
+              width={isMobile ? (windowSize.width * 6) / 7 : 432}
+              height={isMobile ? 158 : 386}
+              className="sm:w-[480px] h-[256px] sm:h-[496px]"
+            />
+          ) : (
+            <></>
+          )}
           <LeverageForm
             borrowCurrency={asset?.underlying}
             setBorrowCurrency={setBorrowCurrency}
