@@ -48,7 +48,7 @@ export async function fetchChart(
     }
   }
   return (result[marketId] ?? []).map(([time, , , , close, ,]) => ({
-    date: new Date(time * 1000).toLocaleDateString(),
+    date: new Date(time * 1000).toISOString(),
     close: Number(close),
   }))
 }
