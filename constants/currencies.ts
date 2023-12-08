@@ -1,0 +1,9 @@
+export const KRAKEN_MARKET_ID = {
+  DAI: 'DAIUSD',
+  ETH: 'XETHZUSD',
+  USDC: 'USDCUSD',
+  'USDC.e': 'USDCUSD',
+  USDT: 'USDTZUSD',
+  WBTC: 'XXBTZUSD',
+  wstETH: 'XETHZUSD',
+}

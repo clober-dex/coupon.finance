@@ -3,6 +3,7 @@ import React from 'react'
 import { BigDecimal, formatDollarValue } from '../../utils/numbers'
 import Chart, { AreaProps } from '../chart'
 import { Currency } from '../../model/currency'
+import { minutesToString } from '../../utils/date'
 
 export const ChartWrapper = ({
   data,
@@ -17,9 +18,9 @@ export const ChartWrapper = ({
   data: AreaProps['data']
   currency: Currency
   price: BigDecimal
-  intervalList: string[]
-  interval: string
-  setInterval: (interval: string) => void
+  intervalList: number[]
+  interval: number
+  setInterval: (interval: number) => void
   width: number
   height: number
 }) => (
@@ -49,7 +50,7 @@ export const ChartWrapper = ({
                 interval === i ? 'bg-gray-100 dark:bg-gray-700' : ''
               }`}
             >
-              {i}
+              {minutesToString(i)}
             </button>
           ))}
         </div>

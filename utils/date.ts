@@ -1,6 +1,13 @@
 export const SECONDS_IN_DAY = 60 * 60 * 24
 export const SECONDS_IN_MONTH = 60 * 60 * 24 * 30
 
+export const minutesToString = (minutes: number): string => {
+  const days = Math.floor(minutes / (60 * 24))
+  const hours = Math.floor(minutes / 60)
+  const minutesLeft = minutes % 60
+  return days ? `${days}D` : hours ? `${hours}H` : `${minutesLeft}M`
+}
+
 export const formatDate = (date: Date): string =>
   Intl.DateTimeFormat('en-US', {
     year: 'numeric',

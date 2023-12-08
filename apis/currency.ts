@@ -8,6 +8,8 @@ import { isEtherAddress } from '../contexts/currency-context'
 import { Balances } from '../model/balances'
 import { COUPON_ORACLE_ABI } from '../abis/core/coupon-oracle-abi'
 import { ERC20_PERMIT_ABI } from '../abis/@openzeppelin/erc20-permit-abi'
+import { TooltipData } from '../components/chart'
+import { KRAKEN_MARKET_ID } from '../constants/currencies'
 
 import { fetchAssets } from './asset'
 
@@ -32,6 +34,23 @@ export async function fetchCurrencies(chainId: CHAIN_IDS) {
         }
       }, {}),
   )
+}
+
+export async function fetchChart(
+  marketId: string,
+  interval: number,
+): Promise<TooltipData[]> {
+  const { result } = (await fetch(
+    `https://api.kraken.com/0/public/OHLC?pair=${marketId}&interval=${interval}`,
+  ).then((res) => res.json())) as {
+    result: {
+      [key: string]: [number, string, string, string, string, string, number][]
+    }
+  }
+  return (result[marketId] ?? []).map(([time, , , , close, ,]) => ({
+    date: new Date(time * 1000).toLocaleDateString(),
+    close: Number(close),
+  }))
 }
 
 export async function fetchPrices(

@@ -14,9 +14,8 @@ import { localPoint } from '@visx/event'
 import { LinearGradient } from '@visx/gradient'
 import { max, extent, bisector } from '@visx/vendor/d3-array'
 import { timeFormat } from '@visx/vendor/d3-time-format'
-import appleStock from '@visx/mock-data/lib/mocks/appleStock'
 
-type TooltipData = {
+export type TooltipData = {
   date: string
   close: number
 }
