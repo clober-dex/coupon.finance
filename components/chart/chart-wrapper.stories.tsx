@@ -24,8 +24,8 @@ type Story = StoryObj<typeof ChartWrapper>
 export const Default: Story = {
   args: {
     data: appleStock.slice(800),
-    intervalList: ['1H', '1D', '1W', '1M', '1Y'],
-    interval: '1H',
+    intervalList: [240, 1440, 10080, 21600],
+    interval: 240,
     setInterval: () => {},
     height: 300,
     width: 600,
