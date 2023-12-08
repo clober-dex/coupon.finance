@@ -1,7 +1,15 @@
-import React from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import { BigDecimal, formatDollarValue } from '../../utils/numbers'
 import { Currency } from '../../model/currency'
+import Chart from '../chart'
+
+const getWindowSize = () => {
+  if (typeof window === 'undefined') {
+    return { width: 0, height: 0 }
+  }
+  return { width: window.innerWidth, height: window.innerHeight }
+}
 
 export const ChartSidebar = ({
   currency,
@@ -20,9 +28,23 @@ export const ChartSidebar = ({
   React.InputHTMLAttributes<HTMLInputElement>,
   HTMLInputElement
 >) => {
+  const [windowSize, setWindowSize] = useState(getWindowSize())
+
+  useEffect(() => {
+    const handleWindowResize = () => {
+      setWindowSize(getWindowSize())
+    }
+    window.addEventListener('resize', handleWindowResize)
+    return () => {
+      window.removeEventListener('resize', handleWindowResize)
+    }
+  }, [])
+
+  const isMobile = useMemo(() => windowSize.width < 640, [windowSize])
+
   return (
     <div {...props}>
-      <div className="rounded-2xl flex-shrink-0 bg-white dark:bg-gray-900 flex w-full p-4 sm:p-6 sm:w-[480px] h-[240px] sm:h-[480px]">
+      <div className="flex flex-col rounded-2xl flex-shrink-0 bg-white dark:bg-gray-900 w-full p-4 sm:p-6 sm:w-[480px] h-[256px] sm:h-[496px]">
         <div className="flex items-start flex-grow shrink-0 basis-0">
           <div className="flex-1 flex flex-col items-start gap-1 flex-grow shrink-0 basis-0">
             <div className="text-xs sm:text-sm text-gray-500">
@@ -53,6 +75,9 @@ export const ChartSidebar = ({
               ))}
             </div>
           </div>
+        </div>
+        <div className="flex justify-center">
+          <Chart width={isMobile ? 320 : 432} height={isMobile ? 158 : 386} />
         </div>
       </div>
     </div>
