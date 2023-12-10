@@ -97,7 +97,7 @@ export const CouponUserBalanceModal = ({
                         <div className="flex items-center flex-grow shrink-0 gap-4 basis-0">
                           <div className="flex p-2 items-center gap-1 flex-grow shrink-0 basis-0 bg-gray-50 dark:bg-gray-700 rounded-lg">
                             <div className="flex flex-col justify-center items-start gap-3 flex-grow shrink-0 basis-0">
-                              <div className="text-sm">
+                              <div className="text-sm text-gray-950 dark:text-white">
                                 {toPlacesString(
                                   formatUnits(
                                     balance,
@@ -109,7 +109,7 @@ export const CouponUserBalanceModal = ({
                               <div className="flex flex-col justify-center items-start gap-2">
                                 <div className="flex items-center gap-3 text-xs w-[180px] sm:w-[228px]">
                                   <span className="text-gray-400">Expires</span>
-                                  <span className="text-gray-500 dark:text-gray-300">
+                                  <span className="text-gray-950 dark:text-white">
                                     {formatDate(
                                       new Date(
                                         Number(market.endTimestamp) * 1000,
@@ -119,7 +119,7 @@ export const CouponUserBalanceModal = ({
                                 </div>
                                 <div className="flex items-center gap-2 text-xs">
                                   <span className="text-gray-400">Value</span>
-                                  <span className="text-gray-500 dark:text-gray-300">
+                                  <span className="text-gray-950 dark:text-white">
                                     {toPlacesString(
                                       formatUnits(
                                         assetValue,
