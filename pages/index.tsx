@@ -9,6 +9,7 @@ import { useBorrowContext } from '../contexts/borrow-context'
 import { MIN_DEBT_SIZE_IN_ETH } from '../constants/debt'
 import { CHAIN_IDS } from '../constants/chain'
 import { useChainContext } from '../contexts/chain-context'
+import { FarmingContainer } from '../containers/farming-container'
 
 const Home = () => {
   const { selectedChain } = useChainContext()
@@ -75,6 +76,8 @@ const Home = () => {
               MIN_DEBT_SIZE_IN_ETH[selectedChain.id as CHAIN_IDS]
             }
           />
+        ) : selectedMode === 'farming' ? (
+          <FarmingContainer />
         ) : (
           <></>
         )}
