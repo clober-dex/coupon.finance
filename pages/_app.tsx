@@ -159,7 +159,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                                   className={`${inter.className} flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white`}
                                 >
                                   <HeaderWrapper />
-                                  <div className="mb-auto pt-12 md:pt-16">
+                                  <div className="mb-auto pt-12 lg:pt-16">
                                     <Component {...pageProps} />
                                     <CouponWidgetWrapper />
                                   </div>

@@ -23,7 +23,7 @@ const Home = () => {
 
   return (
     <div className="flex flex-1">
-      <div className="fixed w-full flex gap-16 items-end justify-center pb-1 bg-white dark:bg-gray-900 z-10 h-12 md:hidden">
+      <div className="fixed w-full flex gap-2 sm:gap-16 items-end justify-center pb-1 bg-white dark:bg-gray-900 z-10 h-12 lg:hidden">
         <button
           onClick={() => onSelectedModeChange('deposit')}
           disabled={selectedMode === 'deposit'}
@@ -37,6 +37,20 @@ const Home = () => {
           className="disabled:text-gray-950 disabled:dark:text-white font-bold pb-1 border-b-2 border-solid disabled:border-b-gray-950 disabled:dark:border-b-white w-24 text-gray-400 dark:text-gray-500 border-b-transparent dark:border-b-transparent"
         >
           Strategies
+        </button>
+        <button
+          onClick={() => onSelectedModeChange('farming')}
+          disabled={selectedMode === 'farming'}
+          className="disabled:text-gray-950 disabled:dark:text-white font-bold pb-1 border-b-2 border-solid disabled:border-b-gray-950 disabled:dark:border-b-white w-24 text-gray-400 dark:text-gray-500 border-b-transparent dark:border-b-transparent"
+        >
+          Farming
+        </button>
+        <button
+          onClick={() => onSelectedModeChange('airdrop')}
+          disabled={selectedMode === 'airdrop'}
+          className="disabled:text-gray-950 disabled:dark:text-white font-bold pb-1 border-b-2 border-solid disabled:border-b-gray-950 disabled:dark:border-b-white w-24 text-gray-400 dark:text-gray-500 border-b-transparent dark:border-b-transparent"
+        >
+          Airdrop
         </button>
       </div>
 
