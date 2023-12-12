@@ -4,6 +4,7 @@ import { CouponSvg } from '../components/svg/coupon-svg'
 import CurrencyAmountInput from '../components/input/currency-amount-input'
 import { dummyCurrencies } from '../.storybook/dummy-data/currencies'
 import { ActionButton } from '../components/button/action-button'
+import Slider from '../components/slider'
 
 export const FarmingContainer = () => (
   <div className="flex flex-1 flex-col w-full md:w-[640px] lg:w-[960px] mt-8 md:mt-16 gap-4 lg:gap-16">
@@ -86,12 +87,14 @@ export const FarmingContainer = () => (
               <div className="flex text-sm lg:text-lg font-semibold">
                 How much USDC you’d like to deposit?
               </div>
-              <CurrencyAmountInput
-                currency={dummyCurrencies[0]}
-                value={'0'}
-                onValueChange={() => {}}
-                availableAmount={0n}
-              />
+              <div className="w-full">
+                <CurrencyAmountInput
+                  currency={dummyCurrencies[0]}
+                  value={'0'}
+                  onValueChange={() => {}}
+                  availableAmount={0n}
+                />
+              </div>
               <div className="text-start text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-semibold">
                 You can deposit from over 30,000 USDC.
               </div>
@@ -100,7 +103,21 @@ export const FarmingContainer = () => (
               <div className="flex text-sm lg:text-lg font-semibold">
                 Your position term will be...
               </div>
-              Slider
+              <div className="w-full mt-4 px-12">
+                <Slider
+                  value={1}
+                  onValueChange={() => {}}
+                  minPosition={0}
+                  segments={7}
+                  disabled={true}
+                  tickMarks={Array.from({ length: 7 }).map((_, i) => {
+                    return {
+                      value: i,
+                      label: i === 0 || i === 6 ? `${i + 1} epoch` : undefined,
+                    }
+                  })}
+                />
+              </div>
               <div className="text-start text-xs sm:text-sm text-gray-500 dark:text-gray-400 font-semibold">
                 For each epochs(total 7 epochs), coupons will be issued.
               </div>

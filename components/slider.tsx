@@ -18,7 +18,7 @@ const Slider = ({
   renderControl?: () => JSX.Element
   minPosition?: number
   disabled?: boolean
-  tickMarks?: number[]
+  tickMarks?: { value: number; label: string | undefined }[]
 } & React.HTMLAttributes<HTMLDivElement> &
   React.PropsWithChildren) => {
   value = Math.max(value, 0)
@@ -28,7 +28,7 @@ const Slider = ({
 
   const initialValue = {
     height: 4,
-    borderRadius: 2,
+    borderRadius: 4,
   }
   const ref = useRef<HTMLDivElement>(null)
   const startValue = useRef(value)
@@ -115,10 +115,25 @@ const Slider = ({
               length: segments && tickMarks ? segments : 0,
             }).map((_, i) => (
               <React.Fragment key={`${i}`}>
-                {segments && tickMarks && tickMarks.includes(i) ? (
+                {segments &&
+                tickMarks &&
+                tickMarks.map(({ value }) => value).includes(i) ? (
                   <div
-                    className={`absolute h-[12px] group-hover:h-0 w-[2px] bg-gray-400 rounded-sm z-[1] -top-full left-${i}/${segments}`}
-                  />
+                    className={`absolute h-6 ${
+                      disabled ? '' : 'group-hover:h-0'
+                    } w-[2px] bg-gray-400 rounded-sm z-[1] -top-2.5`}
+                    style={{
+                      left: `${Math.floor((i * 100) / segments)}%`,
+                    }}
+                  >
+                    {tickMarks.find(({ value }) => value === i)?.label ? (
+                      <div className="absolute -top-10 -right-12 flex px-2 py-1 w-[100px] justify-center items-center gap-1 rounded-2xl bg-green-500 bg-opacity-10 text-xs text-green-500 font-bold">
+                        {tickMarks.find(({ value }) => value === i)?.label}
+                      </div>
+                    ) : (
+                      <></>
+                    )}
+                  </div>
                 ) : (
                   <></>
                 )}
@@ -130,10 +145,22 @@ const Slider = ({
                 ></div>
               </React.Fragment>
             ))}
-            {segments && tickMarks && tickMarks.includes(segments) ? (
+            {segments &&
+            tickMarks &&
+            tickMarks.map(({ value }) => value).includes(segments) ? (
               <div
-                className={`absolute h-[12px] group-hover:h-0 w-[2px] bg-gray-400 rounded-sm z-[1] -top-full right-0`}
-              />
+                className={`absolute h-6 ${
+                  disabled ? '' : 'group-hover:h-0'
+                } w-[2px] bg-gray-400 rounded-sm z-[1] -top-2.5 right-0`}
+              >
+                {tickMarks.find(({ value }) => value === segments)?.label ? (
+                  <div className="absolute -top-10 -right-12 w-[100px] flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-green-500 bg-opacity-10 text-xs text-green-500 font-bold">
+                    {tickMarks.find(({ value }) => value === segments)?.label}
+                  </div>
+                ) : (
+                  <></>
+                )}
+              </div>
             ) : (
               <></>
             )}
