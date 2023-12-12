@@ -41,6 +41,13 @@ export const TickMarks: Story = {
   },
 }
 
+export const TickMarks2: Story = {
+  args: {
+    segments: 3,
+    tickMarks: [1],
+  },
+}
+
 export const Segments: Story = {
   args: {
     segments: 3,

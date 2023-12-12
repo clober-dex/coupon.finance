@@ -130,7 +130,7 @@ const Slider = ({
                 ></div>
               </React.Fragment>
             ))}
-            {segments && tickMarks && tickMarks.includes(segments - 1) ? (
+            {segments && tickMarks && tickMarks.includes(segments) ? (
               <div
                 className={`absolute h-[12px] group-hover:h-0 w-[2px] bg-gray-400 rounded-sm z-[1] -top-full right-0`}
               />
