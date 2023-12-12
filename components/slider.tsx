@@ -1,6 +1,48 @@
 import React, { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 
+const TickMark = ({
+  label,
+  width,
+  disabled,
+  position,
+}: {
+  label: string | undefined
+  width: number
+  disabled: boolean
+  position: number
+}) => {
+  const right = Math.floor(width / 2)
+  return (
+    <>
+      <div
+        className={`absolute h-6 ${
+          disabled ? '' : 'group-hover:h-9'
+        } w-[2px] bg-gray-400 rounded-sm z-[1] -top-2.5`}
+        style={{
+          left: `${position}%`,
+        }}
+      >
+        {label ? (
+          <div
+            className={`absolute -top-8 w-[${width}px] -right-[${right}px] flex h-6 px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-green-500 bg-opacity-10 text-xs text-green-500 font-bold`}
+          >
+            {label}
+          </div>
+        ) : (
+          <></>
+        )}
+      </div>
+      <div
+        className="relative z-0 flex-1 h-full rounded-3xl"
+        style={{
+          background: '#D1D5DB',
+        }}
+      />
+    </>
+  )
+}
+
 const Slider = ({
   value,
   onValueChange,
@@ -18,7 +60,7 @@ const Slider = ({
   renderControl?: () => JSX.Element
   minPosition?: number
   disabled?: boolean
-  tickMarks?: { value: number; label: string | undefined }[]
+  tickMarks?: { value: number; width: number; label: string | undefined }[]
 } & React.HTMLAttributes<HTMLDivElement> &
   React.PropsWithChildren) => {
   value = Math.max(value, 0)
@@ -44,6 +86,8 @@ const Slider = ({
   if (minPosition > 0) {
     renderedValue = minPosition + ((100 - minPosition) / 100) * renderedValue
   }
+
+  const lastTickMark = tickMarks?.find(({ value }) => value === segments)
 
   return (
     <motion.div
@@ -113,54 +157,28 @@ const Slider = ({
             {minPosition > 0 && <div style={{ width: `${minPosition}%` }} />}
             {Array.from({
               length: segments && tickMarks ? segments : 0,
-            }).map((_, i) => (
-              <React.Fragment key={`${i}`}>
-                {segments &&
-                tickMarks &&
-                tickMarks.map(({ value }) => value).includes(i) ? (
-                  <div
-                    className={`absolute h-6 ${
-                      disabled ? '' : 'group-hover:h-0'
-                    } w-[2px] bg-gray-400 rounded-sm z-[1] -top-2.5`}
-                    style={{
-                      left: `${Math.floor((i * 100) / segments)}%`,
-                    }}
-                  >
-                    {tickMarks.find(({ value }) => value === i)?.label ? (
-                      <div className="absolute -top-10 -right-12 flex px-2 py-1 w-[100px] justify-center items-center gap-1 rounded-2xl bg-green-500 bg-opacity-10 text-xs text-green-500 font-bold">
-                        {tickMarks.find(({ value }) => value === i)?.label}
-                      </div>
-                    ) : (
-                      <></>
-                    )}
-                  </div>
-                ) : (
-                  <></>
-                )}
-                <div
-                  className="relative z-0 flex-1 h-full rounded-3xl"
-                  style={{
-                    background: '#D1D5DB',
-                  }}
-                ></div>
-              </React.Fragment>
-            ))}
-            {segments &&
-            tickMarks &&
-            tickMarks.map(({ value }) => value).includes(segments) ? (
-              <div
-                className={`absolute h-6 ${
-                  disabled ? '' : 'group-hover:h-0'
-                } w-[2px] bg-gray-400 rounded-sm z-[1] -top-2.5 right-0`}
-              >
-                {tickMarks.find(({ value }) => value === segments)?.label ? (
-                  <div className="absolute -top-10 -right-12 w-[100px] flex px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-green-500 bg-opacity-10 text-xs text-green-500 font-bold">
-                    {tickMarks.find(({ value }) => value === segments)?.label}
-                  </div>
-                ) : (
-                  <></>
-                )}
-              </div>
+            }).map((_, i) => {
+              const tickMark = tickMarks?.find(({ value }) => value === i)
+              return segments && tickMark ? (
+                <TickMark
+                  key={i}
+                  label={tickMark.label}
+                  width={tickMark.width}
+                  disabled={disabled ?? false}
+                  position={Math.floor((i * 100) / segments)}
+                />
+              ) : (
+                <></>
+              )
+            })}
+            {lastTickMark ? (
+              <TickMark
+                key={segments}
+                label={lastTickMark.label}
+                width={lastTickMark.width}
+                disabled={disabled ?? false}
+                position={100}
+              />
             ) : (
               <></>
             )}

@@ -37,10 +37,11 @@ export const Disabled: Story = {
 export const TickMarks: Story = {
   args: {
     segments: 3,
+    disabled: true,
     tickMarks: [
-      { value: 0, label: '0' },
-      { value: 1, label: '1' },
-      { value: 2, label: '2' },
+      { value: 0, label: '0', width: 60 },
+      { value: 1, label: '1', width: 60 },
+      { value: 2, label: '2', width: 60 },
     ],
   },
 }
@@ -48,7 +49,8 @@ export const TickMarks: Story = {
 export const TickMarks2: Story = {
   args: {
     segments: 3,
-    tickMarks: [{ value: 1, label: '1' }],
+    disabled: true,
+    tickMarks: [{ value: 1, label: '1', width: 60 }],
   },
 }
 
