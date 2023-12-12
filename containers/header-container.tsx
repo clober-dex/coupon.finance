@@ -52,20 +52,6 @@ const HeaderContainer = ({
             >
               Strategies
             </button>
-            <button
-              onClick={() => onSelectedModeChange('farming')}
-              disabled={selectedMode === 'farming'}
-              className="h-full hover:text-gray-950 dark:hover:text-gray-100 disabled:text-gray-950 disabled:dark:text-white text-gray-400"
-            >
-              Farming
-            </button>
-            <button
-              onClick={() => onSelectedModeChange('airdrop')}
-              disabled={selectedMode === 'airdrop'}
-              className="h-full hover:text-gray-950 dark:hover:text-gray-100 disabled:text-gray-950 disabled:dark:text-white text-gray-400"
-            >
-              Airdrop
-            </button>
             <button className="relative h-full items-center text-gray-400 group dark:hover:text-gray-100 hover:text-gray-950 hidden lg:flex">
               Community
               <div className="hidden group-hover:flex">

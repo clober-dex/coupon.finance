@@ -39,20 +39,6 @@ const Home = () => {
         >
           Strategies
         </button>
-        <button
-          onClick={() => onSelectedModeChange('farming')}
-          disabled={selectedMode === 'farming'}
-          className="disabled:text-gray-950 disabled:dark:text-white font-bold pb-1 border-b-2 border-solid disabled:border-b-gray-950 disabled:dark:border-b-white w-24 text-gray-400 dark:text-gray-500 border-b-transparent dark:border-b-transparent"
-        >
-          Farming
-        </button>
-        <button
-          onClick={() => onSelectedModeChange('airdrop')}
-          disabled={selectedMode === 'airdrop'}
-          className="disabled:text-gray-950 disabled:dark:text-white font-bold pb-1 border-b-2 border-solid disabled:border-b-gray-950 disabled:dark:border-b-white w-24 text-gray-400 dark:text-gray-500 border-b-transparent dark:border-b-transparent"
-        >
-          Airdrop
-        </button>
       </div>
 
       <main className="flex flex-1 flex-col justify-center items-center pt-12 md:pt-0">
