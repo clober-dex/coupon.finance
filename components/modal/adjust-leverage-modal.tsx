@@ -79,8 +79,8 @@ const AdjustLeverageModal = ({
           </div>
           <div className="flex flex-col gap-2">
             <div className="flex items-start self-stretch">
-              <div className="text-gray-400 text-base">Multiple</div>
-              <div className="flex ml-auto items-center gap-1.5 text-base text-black dark:text-white">
+              <div className="text-gray-400 text-xs sm:text-sm">Multiple</div>
+              <div className="flex ml-auto items-center gap-1.5 text-xs sm:text-sm text-black dark:text-white">
                 {previousMultiple.toFixed(2)}x
                 {previousMultiple !== multiple ? (
                   <>
@@ -93,8 +93,8 @@ const AdjustLeverageModal = ({
               </div>
             </div>
             <div className="flex items-start self-stretch">
-              <div className="text-gray-400 text-base">LTV</div>
-              <div className="flex ml-auto items-center gap-1.5 text-base text-black dark:text-white">
+              <div className="text-gray-400 text-xs sm:text-sm">LTV</div>
+              <div className="flex ml-auto items-center gap-1.5 text-xs sm:text-sm text-black dark:text-white">
                 <span className={`${getLTVTextColor(currentLtv, collateral)}`}>
                   {currentLtv.toFixed(2)}%
                 </span>
@@ -120,10 +120,10 @@ const AdjustLeverageModal = ({
               </div>
             </div>
             <div className="flex items-start self-stretch">
-              <div className="text-gray-400 text-base">
+              <div className="text-gray-400 text-xs sm:text-sm">
                 Position Size ({collateral.underlying.symbol})
               </div>
-              <div className="flex ml-auto items-center gap-1.5 text-base text-black dark:text-white">
+              <div className="flex ml-auto items-center gap-1.5 text-xs sm:text-sm text-black dark:text-white">
                 <span>
                   {formatUnits(
                     currentPositionSize,
@@ -152,10 +152,10 @@ const AdjustLeverageModal = ({
               </div>
             </div>
             <div className="flex items-start self-stretch">
-              <div className="text-gray-400 text-base">
+              <div className="text-gray-400 text-xs sm:text-sm">
                 Remaining Debt ({debtCurrency.symbol})
               </div>
-              <div className="flex ml-auto items-center gap-1.5 text-base text-black dark:text-white">
+              <div className="flex ml-auto items-center gap-1.5 text-xs sm:text-sm text-black dark:text-white">
                 <span>
                   {formatUnits(
                     currentRemainingDebt,
