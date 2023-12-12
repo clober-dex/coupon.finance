@@ -34,7 +34,7 @@ const TickMark = ({
         )}
       </div>
       <div
-        className="relative z-0 flex-1 h-full rounded-3xl"
+        className="relative z-0 flex-1 h-full"
         style={{
           background: '#D1D5DB',
         }}
@@ -132,7 +132,7 @@ const Slider = ({
         onDragEnd={() => setDragged(false)}
         onHoverStart={() => setHovered(true)}
         onHoverEnd={() => setHovered(false)}
-        className="rounded-l-3xl relative flex items-center flex-1 h-full"
+        className="relative flex items-center flex-1 h-full"
       >
         <motion.div
           className="relative flex-1"
@@ -148,7 +148,7 @@ const Slider = ({
           }
         >
           <div
-            className="relative flex flex-1 h-full gap-[1px] rounded-3xl"
+            className="relative flex flex-1 h-full gap-[1px]"
             style={{
               background:
                 segments && segmentsVisible ? 'transparent' : '#D1D5DB',
@@ -185,7 +185,7 @@ const Slider = ({
           </div>
 
           <motion.div
-            className="absolute inset-0 rounded-l-3xl"
+            className="absolute inset-0"
             animate={{
               width: `${renderedValue}%`,
             }}
