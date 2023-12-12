@@ -171,9 +171,9 @@ const Slider = ({
                 <></>
               )
             })}
-            {lastTickMark ? (
+            {segments && lastTickMark ? (
               <TickMark
-                key={segments}
+                key={segments + 1}
                 label={lastTickMark.label}
                 width={lastTickMark.width}
                 disabled={disabled ?? false}
