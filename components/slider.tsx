@@ -8,6 +8,8 @@ const Slider = ({
   segmentsVisible = false,
   renderControl,
   minPosition = 0,
+  tickMarks,
+  disabled,
 }: {
   value: number
   onValueChange: (value: number) => void
@@ -15,6 +17,8 @@ const Slider = ({
   segmentsVisible?: boolean
   renderControl?: () => JSX.Element
   minPosition?: number
+  disabled?: boolean
+  tickMarks?: number[]
 } & React.HTMLAttributes<HTMLDivElement> &
   React.PropsWithChildren) => {
   value = Math.max(value, 0)
@@ -22,6 +26,10 @@ const Slider = ({
     segments -= 1
   }
 
+  const initialValue = {
+    height: 4,
+    borderRadius: 2,
+  }
   const ref = useRef<HTMLDivElement>(null)
   const startValue = useRef(value)
 
@@ -38,7 +46,10 @@ const Slider = ({
   }
 
   return (
-    <motion.div ref={ref} className="relative flex items-center h-[2.75rem]">
+    <motion.div
+      ref={ref}
+      className="group relative flex items-center h-[2.75rem]"
+    >
       <motion.div
         drag="x"
         dragConstraints={ref}
@@ -77,21 +88,23 @@ const Slider = ({
         onDragEnd={() => setDragged(false)}
         onHoverStart={() => setHovered(true)}
         onHoverEnd={() => setHovered(false)}
-        className="relative flex items-center flex-1 h-full"
+        className="rounded-l-3xl relative flex items-center flex-1 h-full"
       >
         <motion.div
-          className="relative flex-1 overflow-hidden"
-          initial={{
-            height: 4,
-            borderRadius: 2,
-          }}
-          animate={{
-            height: dragged || hovered ? 14 : 4,
-            borderRadius: dragged || hovered ? 14 : 4,
-          }}
+          className="relative flex-1"
+          initial={initialValue}
+          animate={
+            disabled
+              ? initialValue
+              : {
+                  height: dragged || hovered ? 14 : initialValue.height,
+                  borderRadius:
+                    dragged || hovered ? 14 : initialValue.borderRadius,
+                }
+          }
         >
           <div
-            className="relative flex flex-1 h-full gap-[1px]"
+            className="relative flex flex-1 h-full gap-[1px] rounded-3xl"
             style={{
               background:
                 segments && segmentsVisible ? 'transparent' : '#D1D5DB',
@@ -99,20 +112,35 @@ const Slider = ({
           >
             {minPosition > 0 && <div style={{ width: `${minPosition}%` }} />}
             {Array.from({
-              length: segments && segmentsVisible ? segments : 0,
+              length: segments && tickMarks ? segments : 0,
             }).map((_, i) => (
-              <div
-                key={`${i}`}
-                className="relative z-0 flex-1 h-full"
-                style={{
-                  background: '#D1D5DB',
-                }}
-              ></div>
+              <React.Fragment key={`${i}`}>
+                {segments && tickMarks && tickMarks.includes(i) ? (
+                  <div
+                    className={`absolute h-[12px] group-hover:h-0 w-[2px] bg-gray-400 rounded-sm z-[1] -top-full left-${i}/${segments}`}
+                  />
+                ) : (
+                  <></>
+                )}
+                <div
+                  className="relative z-0 flex-1 h-full rounded-3xl"
+                  style={{
+                    background: '#D1D5DB',
+                  }}
+                ></div>
+              </React.Fragment>
             ))}
+            {segments && tickMarks && tickMarks.includes(segments - 1) ? (
+              <div
+                className={`absolute h-[12px] group-hover:h-0 w-[2px] bg-gray-400 rounded-sm z-[1] -top-full right-0`}
+              />
+            ) : (
+              <></>
+            )}
           </div>
 
           <motion.div
-            className="absolute inset-0"
+            className="absolute inset-0 rounded-l-3xl"
             animate={{
               width: `${renderedValue}%`,
             }}
