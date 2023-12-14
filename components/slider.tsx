@@ -6,17 +6,15 @@ const TickMark = ({
   width,
   disabled,
   position,
-  key,
 }: {
   label: string | undefined
   width: number
   disabled: boolean
   position: number
-  key: string
 }) => {
   const right = Math.floor(width / 2)
   return (
-    <React.Fragment key={key}>
+    <React.Fragment key={position}>
       <div
         className={`absolute h-6 ${
           disabled ? '' : 'group-hover:h-9'
@@ -163,7 +161,6 @@ const Slider = ({
               const tickMark = tickMarks?.find(({ value }) => value === i)
               return segments && tickMark ? (
                 <TickMark
-                  key={tickMark.value.toString()}
                   label={tickMark.label}
                   width={tickMark.width}
                   disabled={disabled ?? false}
@@ -175,7 +172,6 @@ const Slider = ({
             })}
             {segments && lastTickMark ? (
               <TickMark
-                key={lastTickMark.value.toString()}
                 label={lastTickMark.label}
                 width={lastTickMark.width}
                 disabled={disabled ?? false}
