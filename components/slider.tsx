@@ -1,6 +1,50 @@
 import React, { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 
+const TickMark = ({
+  label,
+  width,
+  disabled,
+  position,
+  key,
+}: {
+  label: string | undefined
+  width: number
+  disabled: boolean
+  position: number
+  key: string
+}) => {
+  const right = Math.floor(width / 2)
+  return (
+    <React.Fragment key={key}>
+      <div
+        className={`absolute h-6 ${
+          disabled ? '' : 'group-hover:h-9'
+        } w-[2px] bg-gray-400 rounded-sm z-[1] -top-2.5`}
+        style={{
+          left: `${position}%`,
+        }}
+      >
+        {label ? (
+          <div
+            className={`absolute -top-8 w-[${width}px] -right-[${right}px] flex h-6 px-2 py-1 justify-center items-center gap-1 rounded-2xl bg-green-500 bg-opacity-10 text-xs text-green-500 font-bold`}
+          >
+            {label}
+          </div>
+        ) : (
+          <></>
+        )}
+      </div>
+      <div
+        className="relative z-0 flex-1 h-full"
+        style={{
+          background: '#D1D5DB',
+        }}
+      />
+    </React.Fragment>
+  )
+}
+
 const Slider = ({
   value,
   onValueChange,
@@ -8,6 +52,8 @@ const Slider = ({
   segmentsVisible = false,
   renderControl,
   minPosition = 0,
+  tickMarks,
+  disabled,
 }: {
   value: number
   onValueChange: (value: number) => void
@@ -15,6 +61,8 @@ const Slider = ({
   segmentsVisible?: boolean
   renderControl?: () => JSX.Element
   minPosition?: number
+  disabled?: boolean
+  tickMarks?: { value: number; width: number; label: string | undefined }[]
 } & React.HTMLAttributes<HTMLDivElement> &
   React.PropsWithChildren) => {
   value = Math.max(value, 0)
@@ -22,6 +70,10 @@ const Slider = ({
     segments -= 1
   }
 
+  const initialValue = {
+    height: 4,
+    borderRadius: 4,
+  }
   const ref = useRef<HTMLDivElement>(null)
   const startValue = useRef(value)
 
@@ -37,8 +89,13 @@ const Slider = ({
     renderedValue = minPosition + ((100 - minPosition) / 100) * renderedValue
   }
 
+  const lastTickMark = tickMarks?.find(({ value }) => value === segments)
+
   return (
-    <motion.div ref={ref} className="relative flex items-center h-[2.75rem]">
+    <motion.div
+      ref={ref}
+      className="group relative flex items-center h-[2.75rem]"
+    >
       <motion.div
         drag="x"
         dragConstraints={ref}
@@ -80,15 +137,17 @@ const Slider = ({
         className="relative flex items-center flex-1 h-full"
       >
         <motion.div
-          className="relative flex-1 overflow-hidden"
-          initial={{
-            height: 4,
-            borderRadius: 2,
-          }}
-          animate={{
-            height: dragged || hovered ? 14 : 4,
-            borderRadius: dragged || hovered ? 14 : 4,
-          }}
+          className="relative flex-1"
+          initial={initialValue}
+          animate={
+            disabled
+              ? initialValue
+              : {
+                  height: dragged || hovered ? 14 : initialValue.height,
+                  borderRadius:
+                    dragged || hovered ? 14 : initialValue.borderRadius,
+                }
+          }
         >
           <div
             className="relative flex flex-1 h-full gap-[1px]"
@@ -99,16 +158,32 @@ const Slider = ({
           >
             {minPosition > 0 && <div style={{ width: `${minPosition}%` }} />}
             {Array.from({
-              length: segments && segmentsVisible ? segments : 0,
-            }).map((_, i) => (
-              <div
-                key={`${i}`}
-                className="relative z-0 flex-1 h-full"
-                style={{
-                  background: '#D1D5DB',
-                }}
-              ></div>
-            ))}
+              length: segments && tickMarks ? segments : 0,
+            }).map((_, i) => {
+              const tickMark = tickMarks?.find(({ value }) => value === i)
+              return segments && tickMark ? (
+                <TickMark
+                  key={tickMark.value.toString()}
+                  label={tickMark.label}
+                  width={tickMark.width}
+                  disabled={disabled ?? false}
+                  position={Math.floor((i * 100) / segments)}
+                />
+              ) : (
+                <></>
+              )
+            })}
+            {segments && lastTickMark ? (
+              <TickMark
+                key={lastTickMark.value.toString()}
+                label={lastTickMark.label}
+                width={lastTickMark.width}
+                disabled={disabled ?? false}
+                position={100}
+              />
+            ) : (
+              <></>
+            )}
           </div>
 
           <motion.div

@@ -9,6 +9,7 @@ import { useBorrowContext } from '../contexts/borrow-context'
 import { MIN_DEBT_SIZE_IN_ETH } from '../constants/debt'
 import { CHAIN_IDS } from '../constants/chain'
 import { useChainContext } from '../contexts/chain-context'
+import { FarmingContainer } from '../containers/farming-container'
 
 const Home = () => {
   const { selectedChain } = useChainContext()
@@ -23,7 +24,7 @@ const Home = () => {
 
   return (
     <div className="flex flex-1">
-      <div className="fixed w-full flex gap-16 items-end justify-center pb-1 bg-white dark:bg-gray-900 z-10 h-12 md:hidden">
+      <div className="fixed w-full flex gap-2 sm:gap-16 items-end justify-center pb-1 bg-white dark:bg-gray-900 z-10 h-12 lg:hidden">
         <button
           onClick={() => onSelectedModeChange('deposit')}
           disabled={selectedMode === 'deposit'}
@@ -61,6 +62,8 @@ const Home = () => {
               MIN_DEBT_SIZE_IN_ETH[selectedChain.id as CHAIN_IDS]
             }
           />
+        ) : selectedMode === 'farming' ? (
+          <FarmingContainer />
         ) : (
           <></>
         )}

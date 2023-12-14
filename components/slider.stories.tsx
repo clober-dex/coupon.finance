@@ -27,10 +27,36 @@ export const Default: Story = {
   args: {},
 }
 
+export const Disabled: Story = {
+  args: {
+    segments: 3,
+    disabled: true,
+  },
+}
+
+export const TickMarks: Story = {
+  args: {
+    segments: 3,
+    disabled: true,
+    tickMarks: [
+      { value: 0, label: '0', width: 60 },
+      { value: 1, label: '1', width: 60 },
+      { value: 2, label: '2', width: 60 },
+    ],
+  },
+}
+
+export const TickMarks2: Story = {
+  args: {
+    segments: 3,
+    disabled: true,
+    tickMarks: [{ value: 1, label: '1', width: 60 }],
+  },
+}
+
 export const Segments: Story = {
   args: {
     segments: 3,
-    segmentsVisible: true,
     minPosition: 15,
   },
 }

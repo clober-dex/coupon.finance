@@ -29,15 +29,15 @@ const HeaderContainer = ({
   const [showSwapModal, setShowSwapModal] = useState(false)
   return (
     <div
-      className={`fixed w-full flex flex-col justify-between items-center px-4 md:px-8 bg-white dark:bg-gray-900 md:dark:bg-transparent md:bg-opacity-5 md:backdrop-blur ${ZIndices.modal} h-12 md:h-16`}
+      className={`fixed w-full flex flex-col justify-between items-center px-4 lg:px-8 bg-white dark:bg-gray-900 lg:dark:bg-transparent lg:bg-opacity-5 lg:backdrop-blur ${ZIndices.modal} h-12 lg:h-16`}
     >
-      <div className="flex w-full justify-between items-center h-12 md:h-full">
+      <div className="flex w-full justify-between items-center h-12 lg:h-full">
         <div className="flex h-full items-center gap-6 lg:gap-16">
           <Link href="/">
-            <LogoSvg className="h-9 hidden md:flex w-[232.52px]" />
-            <LogotypeSvg className="h-4 md:hidden w-[123.09px]" />
+            <LogoSvg className="h-9 hidden lg:flex w-[232.52px]" />
+            <LogotypeSvg className="h-4 lg:hidden w-[123.09px]" />
           </Link>
-          <div className="h-full hidden md:flex items-center gap-6 lg:gap-8 font-bold text-gray-400 hover:text-gray-500">
+          <div className="h-full hidden lg:flex items-center gap-6 lg:gap-8 font-bold text-gray-400 hover:text-gray-500">
             <button
               onClick={() => onSelectedModeChange('deposit')}
               disabled={selectedMode === 'deposit'}
@@ -73,7 +73,7 @@ const HeaderContainer = ({
           )}
           <WalletSelect address={address} status={status} />
           <button
-            className="w-8 h-8 hover:bg-gray-100 md:hover:bg-gray-200 dark:hover:bg-gray-700 rounded sm:rounded-lg flex items-center justify-center lg:hidden "
+            className="w-8 h-8 hover:bg-gray-100 lg:hover:bg-gray-200 dark:hover:bg-gray-700 rounded sm:rounded-lg flex items-center justify-center lg:hidden "
             onClick={onMenuClick}
           >
             <MenuSvg />

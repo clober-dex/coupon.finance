@@ -62,6 +62,17 @@ const AdjustLeverageModal = ({
                   minPosition={0}
                   segments={(maxAvailableMultiple - 1) * 100 + 1}
                   value={(multiple - 1) * 100}
+                  tickMarks={
+                    Math.abs(multiple - previousMultiple) > 0.1
+                      ? [
+                          {
+                            value: Math.floor((previousMultiple - 1) * 100),
+                            label: `${previousMultiple.toFixed(2)}x`,
+                            width: 60,
+                          },
+                        ]
+                      : undefined
+                  }
                   onValueChange={
                     (value) => setMultiple(value / 100 + 1) // value is 0-based
                   }
@@ -78,20 +89,6 @@ const AdjustLeverageModal = ({
             </div>
           </div>
           <div className="flex flex-col gap-2">
-            <div className="flex items-start self-stretch">
-              <div className="text-gray-400 text-xs sm:text-sm">Multiple</div>
-              <div className="flex ml-auto items-center gap-1.5 text-xs sm:text-sm text-black dark:text-white">
-                {previousMultiple.toFixed(2)}x
-                {previousMultiple !== multiple ? (
-                  <>
-                    <ArrowSvg />
-                    {multiple.toFixed(2)}x
-                  </>
-                ) : (
-                  <></>
-                )}
-              </div>
-            </div>
             <div className="flex items-start self-stretch">
               <div className="text-gray-400 text-xs sm:text-sm">LTV</div>
               <div className="flex ml-auto items-center gap-1.5 text-xs sm:text-sm text-black dark:text-white">
