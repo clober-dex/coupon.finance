@@ -93,6 +93,28 @@ export const LeverageForm = ({
     }
   }, [availableCollaterals, setCollateral])
 
+  useEffect(() => {
+    if (!collateral) {
+      const usdcCurrency = availableCollaterals.find(
+        (collateral) => collateral.underlying.symbol === 'USDC',
+      )
+      if (usdcCurrency) {
+        setCollateral(usdcCurrency)
+      }
+    }
+  }, [availableCollaterals, collateral, setCollateral])
+
+  useEffect(() => {
+    if (!borrowCurrency) {
+      const usdcCurrency = availableBorrowCurrencies.find(
+        (currency) => currency.symbol === 'USDC',
+      )
+      if (usdcCurrency) {
+        setBorrowCurrency(usdcCurrency)
+      }
+    }
+  }, [availableBorrowCurrencies, borrowCurrency, setBorrowCurrency])
+
   return (
     <div className="flex flex-col gap-4">
       <div
@@ -141,6 +163,7 @@ export const LeverageForm = ({
                     <div className="text-sm sm:text-base">
                       {collateral.underlying.symbol}
                     </div>
+                    <DownSvg className="stroke-gray-950 dark:stroke-white" />
                   </div>
                 ) : (
                   <div className="w-fit flex items-center rounded-full bg-green-500 text-white pl-3 pr-2 py-1 gap-2 text-sm sm:text-base">
@@ -219,6 +242,7 @@ export const LeverageForm = ({
                     <div className="text-sm sm:text-base">
                       {borrowCurrency.symbol}
                     </div>
+                    <DownSvg className="stroke-gray-950 dark:stroke-white" />
                   </div>
                 ) : (
                   <div className="w-fit flex items-center rounded-full bg-green-500 text-white pl-3 pr-2 py-1 gap-2 text-sm sm:text-base">
