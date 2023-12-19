@@ -33,9 +33,7 @@ export const ShortLeverageCard = ({
     <Link href={`/leverage/${debtCurrency.symbol}_SHORT`}>
       <div
         className={`h-[314px] ${
-          collateralCurrencies.length === 1
-            ? ''
-            : 'transition ease-in-out delay-150 duration-300 sm:hover:-translate-y-1 sm:hover:scale-105 group '
+          collateralCurrencies.length === 1 ? '' : 'group '
         } flex flex-col w-full px-4 py-6 justify-center items-center gap-4 bg-white dark:bg-gray-800 rounded-xl`}
       >
         {' '}
