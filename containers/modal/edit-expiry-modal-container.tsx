@@ -268,7 +268,7 @@ const EditExpiryModalContainer = ({
           expiryEpochIndex === epochs
             ? 'Select new expiry date'
             : epochs > expiryEpochIndex && !enoughCoupon
-            ? 'Not enough coupons for pay'
+            ? 'Not enough coupons available'
             : epochs < expiryEpochIndex && !enoughCoupon
             ? 'Not enough coupons for refund'
             : !enoughCollateral
