@@ -13,7 +13,21 @@ import { CHAIN_IDS } from '../constants/chain'
 
 import { toCurrency } from './asset'
 
-const { getLoanPosition } = getBuiltGraphSDK()
+const { getLoanPosition, getLoanPositions } = getBuiltGraphSDK()
+
+export async function fetchLoanPositions(
+  chainId: CHAIN_IDS,
+): Promise<LoanPosition[]> {
+  const loanPositions = await getLoanPositions(
+    {},
+    {
+      url: SUBGRAPH_URL[chainId],
+    },
+  )
+  return loanPositions.loanPositions.map((loanPosition) =>
+    toLoanPosition(loanPosition),
+  )
+}
 
 export function extractLoanPositions(
   integratedPositions: getIntegratedPositionsQuery | undefined,
