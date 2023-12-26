@@ -2,9 +2,21 @@ import React, { useCallback, useMemo } from 'react'
 import { useRouter } from 'next/router'
 
 export type ModeContext = {
-  selectedMode: 'deposit' | 'borrow' | 'banker' | 'farming' | 'airdrop'
+  selectedMode:
+    | 'deposit'
+    | 'borrow'
+    | 'banker'
+    | 'farming'
+    | 'airdrop'
+    | 'dashboard'
   onSelectedModeChange: (
-    selectedMode: 'deposit' | 'borrow' | 'banker' | 'farming' | 'airdrop',
+    selectedMode:
+      | 'deposit'
+      | 'borrow'
+      | 'banker'
+      | 'farming'
+      | 'airdrop'
+      | 'dashboard',
   ) => Promise<void>
 }
 
@@ -18,6 +30,9 @@ export const ModeProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const selectedMode = useMemo(() => {
     if (router.route.includes('banker')) {
       return 'banker'
+    }
+    if (router.route.includes('dashboard')) {
+      return 'dashboard'
     }
     if (router.query.mode === 'deposit' || router.route.includes('deposit')) {
       return 'deposit'
