@@ -65,6 +65,7 @@ function toBondPosition(
 ): BondPosition {
   return {
     tokenId: BigInt(bondPosition.id),
+    user: bondPosition.user as `0x${string}`,
     substitute: toCurrency(bondPosition.substitute),
     underlying: toCurrency(bondPosition.underlying),
     interest: BigInt(bondPosition.amount) - BigInt(bondPosition.principal),

@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import { usePublicClient, useQuery } from 'wagmi'
+import { useAccount, usePublicClient, useQuery } from 'wagmi'
 import Link from 'next/link'
 
 import { useDepositContext } from '../../contexts/deposit-context'
@@ -20,6 +20,7 @@ import OdosSwapModalContainer from '../../containers/modal/odos-swap-modal-conta
 const Deposit = () => {
   const { selectedChain } = useChainContext()
   const publicClient = usePublicClient()
+  const { address: userAddress } = useAccount()
   const { balances, prices, assets, epochs: allEpochs } = useCurrencyContext()
   const { deposit } = useDepositContext()
 
@@ -111,8 +112,9 @@ const Deposit = () => {
                       amount,
                       allEpochs[epochs].id,
                       proceed,
-                      asset
+                      asset && userAddress
                         ? buildPendingPosition(
+                            userAddress,
                             asset.substitutes[0],
                             asset.underlying,
                             proceed,

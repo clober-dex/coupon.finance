@@ -1,7 +1,9 @@
 import { BondPosition } from '../../model/bond-position'
+import { zeroAddress } from 'viem'
 
 export const dummyBondPosition: BondPosition = {
   tokenId: 51n,
+  user: zeroAddress,
   substitute: {
     address: '0xed720edc99b7e05101a9bc093fbc7a3f76a4212d',
     name: 'Wrapped Aave Dai Stablecoin',
