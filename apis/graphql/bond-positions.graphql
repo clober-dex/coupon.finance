@@ -1,5 +1,5 @@
 query getBondPositions {
-  bondPositions {
+  bondPositions(first: 100000000) {
     id
     user
     amount
