@@ -1,5 +1,5 @@
 query getLoanPositions {
-  loanPositions {
+  loanPositions(first: 100000000) {
     id
     user
     amount
