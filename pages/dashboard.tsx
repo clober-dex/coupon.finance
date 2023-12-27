@@ -9,7 +9,10 @@ import { MAX_VISIBLE_MARKETS } from '../utils/market'
 import { formatDate } from '../utils/date'
 import { fetchBondPositions } from '../apis/bond-position'
 import { max, min } from '../utils/bigint'
-import { formatUnits } from '../utils/numbers'
+import { formatDollarValue, formatUnits } from '../utils/numbers'
+import { fetchLoanPositions } from '../apis/loan-position'
+import { formatAddress } from '../utils/string'
+import { calculateLtv } from '../utils/ltv'
 
 const Dashboard = () => {
   const { selectedChain } = useChainContext()
@@ -64,8 +67,9 @@ const Dashboard = () => {
   )
 
   const { data: withdrawAvailableBondPositions } = useQuery(
-    ['dashboard-withdraw-available-bond-positions', selectedChain, markets],
+    ['dashboard-withdraw-available-bond-positions', selectedChain],
     async () => {
+      const markets = await fetchMarkets(selectedChain.id)
       const bondPositions = await fetchBondPositions(selectedChain.id)
       return markets.reduce((acc, market) => {
         const filteredMarkets = markets
@@ -101,8 +105,9 @@ const Dashboard = () => {
   )
 
   const { data: borrowAvailable } = useQuery(
-    ['dashboard-borrow-available', selectedChain, markets],
+    ['dashboard-borrow-available', selectedChain],
     async () => {
+      const markets = await fetchMarkets(selectedChain.id)
       return markets.reduce((acc, market) => {
         const filteredMarkets = markets
           .filter((m) =>
@@ -125,6 +130,39 @@ const Dashboard = () => {
     },
     {
       initialData: {},
+    },
+  )
+
+  const { data: loanPositions } = useQuery(
+    ['dashboard-loan-positions', selectedChain, markets],
+    async () => {
+      const loanPositions = await fetchLoanPositions(selectedChain.id)
+      return loanPositions.sort(
+        (a, b) =>
+          parseFloat(
+            formatUnits(b.collateralAmount, b.collateral.underlying.decimals),
+          ) *
+            parseFloat(
+              formatUnits(
+                prices[b.collateral.underlying.address].value,
+                prices[b.collateral.underlying.address].decimals,
+              ),
+            ) -
+          parseFloat(
+            formatUnits(a.collateralAmount, a.collateral.underlying.decimals),
+          ) *
+            parseFloat(
+              formatUnits(
+                prices[a.collateral.underlying.address].value,
+                prices[a.collateral.underlying.address].decimals,
+              ),
+            ),
+      )
+    },
+    {
+      initialData: [],
+      refetchInterval: 10 * 1000,
+      refetchIntervalInBackground: true,
     },
   )
 
@@ -281,6 +319,153 @@ const Dashboard = () => {
                               </td>
                             )
                           })}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="px-4 sm:px-6 lg:px-8">
+          <div className="sm:flex sm:items-center">
+            <div className="sm:flex-auto">
+              <h1 className="text-xl font-semibold leading-8 text-gray-900">
+                Borrow Positions
+              </h1>
+            </div>
+          </div>
+          <div className="mt-8 flow-root">
+            <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+              <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+                <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+                  <table className="min-w-full divide-y divide-gray-300">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th
+                          scope="col"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                        >
+                          Id
+                        </th>
+                        <th
+                          scope="col"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                        >
+                          User
+                        </th>
+                        <th
+                          scope="col"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                        >
+                          Collateral Amount
+                        </th>
+                        <th
+                          scope="col"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                        >
+                          Asset Amount
+                        </th>
+                        <th
+                          scope="col"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                        >
+                          Expiry
+                        </th>
+                        <th
+                          scope="col"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                        >
+                          LTV
+                        </th>
+                        <th
+                          scope="col"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                        >
+                          Liquidation Threshold
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 bg-white">
+                      {loanPositions.map((loanPosition) => (
+                        <tr key={`${loanPosition.id}`}>
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                            {Number(loanPosition.id)}
+                          </td>
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                            <a
+                              target="_blank"
+                              href={`https://arbiscan.io/address/${loanPosition.user}`}
+                              rel="noreferrer"
+                            >
+                              {formatAddress(loanPosition.user)}
+                            </a>
+                          </td>
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                            {formatUnits(
+                              loanPosition.collateralAmount,
+                              loanPosition.collateral.underlying.decimals,
+                              prices[
+                                loanPosition.collateral.underlying.address
+                              ],
+                            )}{' '}
+                            {loanPosition.collateral.underlying.symbol} (
+                            {formatDollarValue(
+                              loanPosition.collateralAmount,
+                              loanPosition.collateral.underlying.decimals,
+                              prices[
+                                loanPosition.collateral.underlying.address
+                              ],
+                            )}
+                            )
+                          </td>
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                            {formatUnits(
+                              loanPosition.amount,
+                              loanPosition.underlying.decimals,
+                              prices[loanPosition.underlying.address],
+                            )}{' '}
+                            {loanPosition.underlying.symbol} (
+                            {formatDollarValue(
+                              loanPosition.amount,
+                              loanPosition.underlying.decimals,
+                              prices[loanPosition.underlying.address],
+                            )}
+                            )
+                          </td>
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                            {formatDate(
+                              new Date(
+                                Number(loanPosition.toEpoch.endTimestamp) *
+                                  1000,
+                              ),
+                            )}{' '}
+                            ({loanPosition.toEpoch.id})
+                          </td>
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                            {calculateLtv(
+                              loanPosition.underlying,
+                              prices[loanPosition.underlying.address],
+                              loanPosition.amount,
+                              loanPosition.collateral,
+                              prices[
+                                loanPosition.collateral.underlying.address
+                              ],
+                              loanPosition.collateralAmount,
+                            ).toFixed(2)}
+                            %
+                          </td>
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                            {(
+                              (Number(
+                                loanPosition.collateral.liquidationThreshold,
+                              ) *
+                                100) /
+                              Number(loanPosition.collateral.ltvPrecision)
+                            ).toFixed(2)}
+                            %
+                          </td>
                         </tr>
                       ))}
                     </tbody>
