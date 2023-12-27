@@ -18,49 +18,39 @@ const Dashboard = () => {
   const { selectedChain } = useChainContext()
   const { epochs, assets, prices } = useCurrencyContext()
 
-  const {
-    data: { markets, availableCouponInAsks },
-  } = useQuery(
+  const { data: availableCouponInAsks } = useQuery(
     ['dashboard-markets', selectedChain],
     async () => {
       const markets = await fetchMarkets(selectedChain.id)
-      return {
-        markets,
-        availableCouponInAsks: markets.reduce((acc, market) => {
-          const filteredMarkets = markets
-            .filter((m) =>
-              isAddressEqual(m.quoteToken.address, market.quoteToken.address),
-            )
-            .filter((m) => m.epoch <= market.epoch)
-          const availableCoupons = min(
-            ...filteredMarkets.map((market) =>
-              market.totalAsksInBaseAfterFees(),
+      return markets.reduce((acc, market) => {
+        const filteredMarkets = markets
+          .filter((m) =>
+            isAddressEqual(m.quoteToken.address, market.quoteToken.address),
+          )
+          .filter((m) => m.epoch <= market.epoch)
+        const availableCoupons = min(
+          ...filteredMarkets.map((market) => market.totalAsksInBaseAfterFees()),
+        )
+        const available = max(
+          availableCoupons -
+            filteredMarkets.reduce(
+              (acc, market) =>
+                acc +
+                market.take(market.quoteToken.address, availableCoupons)
+                  .amountIn,
+              0n,
             ),
-          )
-          const available = max(
-            availableCoupons -
-              filteredMarkets.reduce(
-                (acc, market) =>
-                  acc +
-                  market.take(market.quoteToken.address, availableCoupons)
-                    .amountIn,
-                0n,
-              ),
-            0n,
-          )
-          acc[market.quoteToken.address] = {
-            ...acc[market.quoteToken.address],
-            [market.epoch]: available,
-          }
-          return acc
-        }, {} as Record<`0x${string}`, Record<number, bigint>>),
-      }
+          0n,
+        )
+        acc[market.quoteToken.address] = {
+          ...acc[market.quoteToken.address],
+          [market.epoch]: available,
+        }
+        return acc
+      }, {} as Record<`0x${string}`, Record<number, bigint>>)
     },
     {
-      initialData: {
-        availableCouponInAsks: {},
-        markets: [],
-      },
+      initialData: {},
       refetchInterval: 10 * 1000,
       refetchIntervalInBackground: true,
     },
@@ -134,7 +124,7 @@ const Dashboard = () => {
   )
 
   const { data: loanPositions } = useQuery(
-    ['dashboard-loan-positions', selectedChain, markets],
+    ['dashboard-loan-positions', selectedChain],
     async () => {
       const loanPositions = await fetchLoanPositions(selectedChain.id)
       return loanPositions.sort(
