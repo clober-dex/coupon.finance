@@ -87,6 +87,7 @@ function toLoanPosition(
 ): LoanPosition {
   return {
     id: BigInt(loanPosition.id),
+    user: loanPosition.user as `0x${string}`,
     substitute: toCurrency(loanPosition.substitute),
     underlying: toCurrency(loanPosition.underlying),
     collateral: {

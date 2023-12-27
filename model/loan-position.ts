@@ -6,6 +6,7 @@ import { Epoch } from './epoch'
 
 export type LoanPosition = {
   id: bigint
+  user: `0x${string}`
   substitute: Currency
   underlying: Currency
   collateral: Collateral
@@ -24,6 +25,7 @@ export type LoanPosition = {
 }
 
 export const buildPendingPosition = (
+  user: `0x${string}`,
   substitute: Currency,
   underlying: Currency,
   collateral: Collateral,
@@ -39,6 +41,7 @@ export const buildPendingPosition = (
 ): LoanPosition => {
   return {
     id: -1n,
+    user,
     substitute,
     underlying,
     collateral,

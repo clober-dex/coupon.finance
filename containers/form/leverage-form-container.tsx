@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { isAddressEqual, zeroAddress } from 'viem'
-import { useFeeData, usePublicClient, useQuery } from 'wagmi'
+import { useAccount, useFeeData, usePublicClient, useQuery } from 'wagmi'
 import BigNumber from 'bignumber.js'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
@@ -54,6 +54,7 @@ const LeverageFormContainer = ({
 } & React.PropsWithChildren) => {
   const { selectedChain } = useChainContext()
   const publicClient = usePublicClient()
+  const { address: userAddress } = useAccount()
   const { data: feeData } = useFeeData()
   const { balances, prices, assets, epochs: allEpochs } = useCurrencyContext()
   const { leverage } = useBorrowContext()
@@ -450,8 +451,9 @@ const LeverageFormContainer = ({
                   min(interest, maxInterest),
                   swapData,
                   SLIPPAGE_LIMIT_PERCENT,
-                  asset
+                  asset && userAddress
                     ? buildPendingPosition(
+                        userAddress,
                         asset.substitutes[0],
                         asset.underlying,
                         collateral,

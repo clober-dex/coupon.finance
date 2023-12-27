@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
 import { getAddress, isAddressEqual, zeroAddress } from 'viem'
-import { usePublicClient, useQuery } from 'wagmi'
+import { useAccount, usePublicClient, useQuery } from 'wagmi'
 import BigNumber from 'bignumber.js'
 
 import { useCurrencyContext } from '../../contexts/currency-context'
@@ -36,6 +36,7 @@ const BorrowFormContainer = ({
 } & React.PropsWithChildren) => {
   const { selectedChain } = useChainContext()
   const publicClient = usePublicClient()
+  const { address: userAddress } = useAccount()
   const { balances, prices, assets, epochs: allEpochs } = useCurrencyContext()
   const { borrow } = useBorrowContext()
 
@@ -247,8 +248,9 @@ const BorrowFormContainer = ({
             borrowAmount,
             allEpochs[epochs].id,
             min(interest, maxInterest),
-            asset
+            asset && userAddress
               ? buildPendingPosition(
+                  userAddress,
                   asset.substitutes[0],
                   asset.underlying,
                   collateral,
