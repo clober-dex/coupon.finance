@@ -64,8 +64,9 @@ const Dashboard = () => {
   )
 
   const { data: withdrawAvailableBondPositions } = useQuery(
-    ['dashboard-withdraw-available-bond-positions', selectedChain, markets],
+    ['dashboard-withdraw-available-bond-positions', selectedChain],
     async () => {
+      const markets = await fetchMarkets(selectedChain.id)
       const bondPositions = await fetchBondPositions(selectedChain.id)
       return markets.reduce((acc, market) => {
         const filteredMarkets = markets
@@ -101,8 +102,9 @@ const Dashboard = () => {
   )
 
   const { data: borrowAvailable } = useQuery(
-    ['dashboard-borrow-available', selectedChain, markets],
+    ['dashboard-borrow-available', selectedChain],
     async () => {
+      const markets = await fetchMarkets(selectedChain.id)
       return markets.reduce((acc, market) => {
         const filteredMarkets = markets
           .filter((m) =>
