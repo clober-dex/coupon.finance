@@ -213,7 +213,7 @@ const Dashboard = () => {
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="sm:flex sm:items-center">
             <div className="sm:flex-auto">
-              <h1 className="text-xl font-semibold leading-8 text-gray-900">
+              <h1 className="text-xl font-semibold leading-8">
                 Current available coupon / Maximum withdrawable amount
               </h1>
             </div>
@@ -223,11 +223,11 @@ const Dashboard = () => {
               <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
                 <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
                   <table className="min-w-full divide-y divide-gray-300">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gray-50 dark:bg-gray-950">
                       <tr>
                         <th
                           scope="col"
-                          className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
+                          className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6"
                         >
                           Asset
                         </th>
@@ -235,7 +235,7 @@ const Dashboard = () => {
                           <th
                             key={epoch.id}
                             scope="col"
-                            className="px-3 py-3.5 text-center text-sm font-semibold text-gray-900"
+                            className="px-3 py-3.5 text-center text-sm font-semibold text-gray-900 dark:text-gray-50"
                           >
                             Epoch {epoch.id} <br /> (
                             {formatDate(
@@ -246,10 +246,10 @@ const Dashboard = () => {
                         ))}
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200 bg-white">
+                    <tbody className="divide-y divide-gray-200 bg-white dark:bg-gray-900">
                       {assets.map((asset) => (
                         <tr key={asset.underlying.address}>
-                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6">
                             {asset.underlying.symbol}
                           </td>
                           {availableCouponInAsks &&
@@ -300,7 +300,7 @@ const Dashboard = () => {
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="sm:flex sm:items-center">
             <div className="sm:flex-auto">
-              <h1 className="text-xl font-semibold leading-8 text-gray-900">
+              <h1 className="text-xl font-semibold leading-8">
                 Maximum borrowable amount
               </h1>
             </div>
@@ -310,11 +310,11 @@ const Dashboard = () => {
               <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
                 <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
                   <table className="min-w-full divide-y divide-gray-300">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gray-50 dark:bg-gray-950">
                       <tr>
                         <th
                           scope="col"
-                          className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6"
+                          className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6"
                         >
                           Asset
                         </th>
@@ -322,7 +322,7 @@ const Dashboard = () => {
                           <th
                             key={epoch.id}
                             scope="col"
-                            className="px-3 py-3.5 text-center text-sm font-semibold text-gray-900"
+                            className="px-3 py-3.5 text-center text-sm font-semibold text-gray-900 dark:text-gray-50"
                           >
                             Epoch {epoch.id} <br /> (
                             {formatDate(
@@ -333,10 +333,10 @@ const Dashboard = () => {
                         ))}
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200 bg-white">
+                    <tbody className="divide-y divide-gray-200 bg-white dark:bg-gray-900">
                       {assets.map((asset) => (
                         <tr key={asset.underlying.address}>
-                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                          <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6">
                             {asset.underlying.symbol}
                           </td>
                           {epochs.slice(0, MAX_VISIBLE_MARKETS).map((epoch) => {
@@ -369,7 +369,7 @@ const Dashboard = () => {
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="sm:flex sm:items-center">
             <div className="sm:flex-auto">
-              <h1 className="text-xl font-semibold leading-8 text-gray-900">
+              <h1 className="text-xl font-semibold leading-8">
                 Deposit Positions
               </h1>
             </div>
@@ -379,47 +379,47 @@ const Dashboard = () => {
               <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
                 <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
                   <table className="min-w-full divide-y divide-gray-300">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gray-50 dark:bg-gray-950">
                       <tr>
                         <th
                           scope="col"
-                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6"
                         >
                           Id
                         </th>
                         <th
                           scope="col"
-                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6"
                         >
                           User
                         </th>
                         <th
                           scope="col"
-                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6"
                         >
                           Amount
                         </th>
                         <th
                           scope="col"
-                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6"
                         >
                           Proceeds
                         </th>
                         <th
                           scope="col"
-                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6"
                         >
                           Expiry
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200 bg-white">
+                    <tbody className="divide-y divide-gray-200 bg-white dark:bg-gray-900">
                       {bondPositions.map((bondPosition) => (
                         <tr key={`bondPosition-${bondPosition.tokenId}`}>
-                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6">
                             {Number(bondPosition.tokenId)}
                           </td>
-                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6">
                             <a
                               target="_blank"
                               href={`https://arbiscan.io/address/${bondPosition.user}`}
@@ -428,7 +428,7 @@ const Dashboard = () => {
                               {formatAddress(bondPosition.user)}
                             </a>
                           </td>
-                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6">
                             {formatUnits(
                               bondPosition.amount,
                               bondPosition.underlying.decimals,
@@ -442,7 +442,7 @@ const Dashboard = () => {
                             )}
                             )
                           </td>
-                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6">
                             {formatUnits(
                               bondPosition.interest,
                               bondPosition.underlying.decimals,
@@ -456,7 +456,7 @@ const Dashboard = () => {
                             )}
                             )
                           </td>
-                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6">
                             {formatDate(
                               new Date(
                                 Number(bondPosition.toEpoch.endTimestamp) *
@@ -477,7 +477,7 @@ const Dashboard = () => {
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="sm:flex sm:items-center">
             <div className="sm:flex-auto">
-              <h1 className="text-xl font-semibold leading-8 text-gray-900">
+              <h1 className="text-xl font-semibold leading-8">
                 Borrow Positions
               </h1>
             </div>
@@ -487,65 +487,65 @@ const Dashboard = () => {
               <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
                 <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
                   <table className="min-w-full divide-y divide-gray-300">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gray-50 dark:bg-gray-950">
                       <tr>
                         <th
                           scope="col"
-                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6"
                         >
                           Id
                         </th>
                         <th
                           scope="col"
-                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6"
                         >
                           User
                         </th>
                         <th
                           scope="col"
-                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6"
                         >
                           Collateral Amount
                         </th>
                         <th
                           scope="col"
-                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6"
                         >
                           Asset Amount
                         </th>
                         <th
                           scope="col"
-                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6"
                         >
                           Interest Amount
                         </th>
                         <th
                           scope="col"
-                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6"
                         >
                           Expiry
                         </th>
                         <th
                           scope="col"
-                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6"
                         >
                           LTV
                         </th>
                         <th
                           scope="col"
-                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6"
                         >
                           Liquidation Threshold
                         </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200 bg-white">
+                    <tbody className="divide-y divide-gray-200 bg-white dark:bg-gray-900">
                       {loanPositions.map((loanPosition) => (
                         <tr key={`loanPosition-${loanPosition.id}`}>
-                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6">
                             {Number(loanPosition.id)}
                           </td>
-                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6">
                             <a
                               target="_blank"
                               href={`https://arbiscan.io/address/${loanPosition.user}`}
@@ -554,7 +554,7 @@ const Dashboard = () => {
                               {formatAddress(loanPosition.user)}
                             </a>
                           </td>
-                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6">
                             {formatUnits(
                               loanPosition.collateralAmount,
                               loanPosition.collateral.underlying.decimals,
@@ -572,7 +572,7 @@ const Dashboard = () => {
                             )}
                             )
                           </td>
-                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6">
                             {formatUnits(
                               loanPosition.amount,
                               loanPosition.underlying.decimals,
@@ -586,7 +586,7 @@ const Dashboard = () => {
                             )}
                             )
                           </td>
-                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6">
                             {formatUnits(
                               loanPosition.interest,
                               loanPosition.underlying.decimals,
@@ -600,7 +600,7 @@ const Dashboard = () => {
                             )}
                             )
                           </td>
-                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6">
                             {formatDate(
                               new Date(
                                 Number(loanPosition.toEpoch.endTimestamp) *
@@ -609,7 +609,7 @@ const Dashboard = () => {
                             )}{' '}
                             ({loanPosition.toEpoch.id})
                           </td>
-                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6">
                             {calculateLtv(
                               loanPosition.underlying,
                               prices[loanPosition.underlying.address],
@@ -622,7 +622,7 @@ const Dashboard = () => {
                             ).toFixed(2)}
                             %
                           </td>
-                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6">
                             {(
                               (Number(
                                 loanPosition.collateral.liquidationThreshold,
