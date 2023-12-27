@@ -3,6 +3,7 @@ import { Epoch } from './epoch'
 
 export type BondPosition = {
   tokenId: bigint
+  user: `0x${string}`
   substitute: Currency
   underlying: Currency
   interest: bigint
@@ -15,6 +16,7 @@ export type BondPosition = {
 }
 
 export const buildPendingPosition = (
+  user: `0x${string}`,
   substitute: Currency,
   underlying: Currency,
   interest: bigint,
@@ -24,6 +26,7 @@ export const buildPendingPosition = (
 ) => {
   return {
     tokenId: -1n,
+    user,
     substitute,
     underlying,
     interest,

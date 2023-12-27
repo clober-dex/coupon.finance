@@ -14,6 +14,8 @@ import { fetchLoanPositions } from '../apis/loan-position'
 import { formatAddress } from '../utils/string'
 import { calculateLtv } from '../utils/ltv'
 
+const MINIMUM_BOND_POSITION_DOLLAR_VALUE = 100
+
 const Dashboard = () => {
   const { selectedChain } = useChainContext()
   const { epochs, assets, prices } = useCurrencyContext()
@@ -120,6 +122,52 @@ const Dashboard = () => {
     },
     {
       initialData: {},
+    },
+  )
+
+  const { data: bondPositions } = useQuery(
+    ['dashboard-bond-positions', selectedChain],
+    async () => {
+      const bondPositions = await fetchBondPositions(selectedChain.id)
+      return bondPositions
+        .filter(
+          (bondPosition) =>
+            parseFloat(
+              formatUnits(
+                bondPosition.amount,
+                bondPosition.underlying.decimals,
+              ),
+            ) *
+              parseFloat(
+                formatUnits(
+                  prices[bondPosition.underlying.address].value,
+                  prices[bondPosition.underlying.address].decimals,
+                ),
+              ) >=
+            MINIMUM_BOND_POSITION_DOLLAR_VALUE,
+        )
+        .sort(
+          (a, b) =>
+            parseFloat(formatUnits(b.amount, b.underlying.decimals)) *
+              parseFloat(
+                formatUnits(
+                  prices[b.underlying.address].value,
+                  prices[b.underlying.address].decimals,
+                ),
+              ) -
+            parseFloat(formatUnits(a.amount, a.underlying.decimals)) *
+              parseFloat(
+                formatUnits(
+                  prices[a.underlying.address].value,
+                  prices[a.underlying.address].decimals,
+                ),
+              ),
+        )
+    },
+    {
+      initialData: [],
+      refetchInterval: 10 * 1000,
+      refetchIntervalInBackground: true,
     },
   )
 
@@ -322,6 +370,94 @@ const Dashboard = () => {
           <div className="sm:flex sm:items-center">
             <div className="sm:flex-auto">
               <h1 className="text-xl font-semibold leading-8 text-gray-900">
+                Deposit Positions
+              </h1>
+            </div>
+          </div>
+          <div className="mt-8 flow-root">
+            <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+              <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+                <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+                  <table className="min-w-full divide-y divide-gray-300">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th
+                          scope="col"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                        >
+                          Id
+                        </th>
+                        <th
+                          scope="col"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                        >
+                          User
+                        </th>
+                        <th
+                          scope="col"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                        >
+                          Amount
+                        </th>
+                        <th
+                          scope="col"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                        >
+                          Expiry
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 bg-white">
+                      {bondPositions.map((bondPosition) => (
+                        <tr key={`bondPosition-${bondPosition.tokenId}`}>
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                            {Number(bondPosition.tokenId)}
+                          </td>
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                            <a
+                              target="_blank"
+                              href={`https://arbiscan.io/address/${bondPosition.user}`}
+                              rel="noreferrer"
+                            >
+                              {formatAddress(bondPosition.user)}
+                            </a>
+                          </td>
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                            {formatUnits(
+                              bondPosition.amount,
+                              bondPosition.underlying.decimals,
+                              prices[bondPosition.underlying.address],
+                            )}{' '}
+                            {bondPosition.underlying.symbol} (
+                            {formatDollarValue(
+                              bondPosition.amount,
+                              bondPosition.underlying.decimals,
+                              prices[bondPosition.underlying.address],
+                            )}
+                            )
+                          </td>
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                            {formatDate(
+                              new Date(
+                                Number(bondPosition.toEpoch.endTimestamp) *
+                                  1000,
+                              ),
+                            )}{' '}
+                            ({bondPosition.toEpoch.id})
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="px-4 sm:px-6 lg:px-8">
+          <div className="sm:flex sm:items-center">
+            <div className="sm:flex-auto">
+              <h1 className="text-xl font-semibold leading-8 text-gray-900">
                 Borrow Positions
               </h1>
             </div>
@@ -379,7 +515,7 @@ const Dashboard = () => {
                     </thead>
                     <tbody className="divide-y divide-gray-200 bg-white">
                       {loanPositions.map((loanPosition) => (
-                        <tr key={`${loanPosition.id}`}>
+                        <tr key={`loanPosition-${loanPosition.id}`}>
                           <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
                             {Number(loanPosition.id)}
                           </td>
