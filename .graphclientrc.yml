@@ -6,7 +6,7 @@ sources:
     transforms:
       - autoPagination:
           validateSchema: true
-          limitOfRecords: 100000000
+          limitOfRecords: 100000
   - name: coupon-finance-point
     handler:
       graphql:
