@@ -403,6 +403,12 @@ const Dashboard = () => {
                           scope="col"
                           className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
                         >
+                          Proceeds
+                        </th>
+                        <th
+                          scope="col"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                        >
                           Expiry
                         </th>
                       </tr>
@@ -431,6 +437,20 @@ const Dashboard = () => {
                             {bondPosition.underlying.symbol} (
                             {formatDollarValue(
                               bondPosition.amount,
+                              bondPosition.underlying.decimals,
+                              prices[bondPosition.underlying.address],
+                            )}
+                            )
+                          </td>
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                            {formatUnits(
+                              bondPosition.interest,
+                              bondPosition.underlying.decimals,
+                              prices[bondPosition.underlying.address],
+                            )}{' '}
+                            {bondPosition.underlying.symbol} (
+                            {formatDollarValue(
+                              bondPosition.interest,
                               bondPosition.underlying.decimals,
                               prices[bondPosition.underlying.address],
                             )}
@@ -497,6 +517,12 @@ const Dashboard = () => {
                           scope="col"
                           className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
                         >
+                          Interest Amount
+                        </th>
+                        <th
+                          scope="col"
+                          className="text-center py-3.5 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6"
+                        >
                           Expiry
                         </th>
                         <th
@@ -555,6 +581,20 @@ const Dashboard = () => {
                             {loanPosition.underlying.symbol} (
                             {formatDollarValue(
                               loanPosition.amount,
+                              loanPosition.underlying.decimals,
+                              prices[loanPosition.underlying.address],
+                            )}
+                            )
+                          </td>
+                          <td className="whitespace-nowrap text-center py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 sm:pl-6">
+                            {formatUnits(
+                              loanPosition.interest,
+                              loanPosition.underlying.decimals,
+                              prices[loanPosition.underlying.address],
+                            )}{' '}
+                            {loanPosition.underlying.symbol} (
+                            {formatDollarValue(
+                              loanPosition.interest,
                               loanPosition.underlying.decimals,
                               prices[loanPosition.underlying.address],
                             )}
