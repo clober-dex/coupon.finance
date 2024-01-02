@@ -33,6 +33,10 @@ export const ChartWrapper = ({
       // Limits the number of ticks based on graph width
       const maxTicks = Math.floor(dimensions.width / 100)
 
+      const userLocale =
+        navigator.languages && navigator.languages.length
+          ? navigator.languages[0]
+          : navigator.language
       const ticks = getTicks(
         chart.startingPrice.timestamp,
         chart.endingPrice.timestamp,
@@ -41,12 +45,12 @@ export const ChartWrapper = ({
       )
       const tickTimestampFormatter = getTimestampFormatter(
         timePeriod,
-        'en-US',
+        userLocale,
         TimestampFormatterType.TICK,
       )
       const crosshairTimestampFormatter = getTimestampFormatter(
         timePeriod,
-        'en-US',
+        userLocale,
         TimestampFormatterType.CROSSHAIR,
       )
 
