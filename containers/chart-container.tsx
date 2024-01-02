@@ -58,12 +58,7 @@ export const ChartContainer = ({
         chart={chart}
         timePeriod={timePeriod}
         setTimePeriod={setTimePeriod}
-        periodList={[
-          TimePeriod.HOUR,
-          TimePeriod.DAY,
-          TimePeriod.WEEK,
-          TimePeriod.MONTH,
-        ]}
+        periodList={periodList}
         currency={currency}
       />
     </div>
