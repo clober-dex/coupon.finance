@@ -13,18 +13,26 @@ import {
   TimePeriod,
   TimestampFormatterType,
 } from '../../model/chart'
-import { getNearestPricePoint, getTicks } from '../../utils/chart'
+import {
+  CHART_RESOLUTION_TABLE,
+  getNearestPricePoint,
+  getTicks,
+} from '../../utils/chart'
 import { getTimestampFormatter } from '../../utils/date'
 
 import AnimatedInLineChart from './AnimatedInLineChart'
 
 export const ChartWrapper = ({
   chart,
+  periodList,
   timePeriod,
+  setTimePeriod,
   currency,
 }: {
   chart: ChartModel
+  periodList: TimePeriod[]
   timePeriod: TimePeriod
+  setTimePeriod: (timePeriod: TimePeriod) => void
   currency: Currency
 }) => {
   const { prices, timeScale, priceScale, dimensions, lastValidPrice } = chart
@@ -121,19 +129,21 @@ export const ChartWrapper = ({
           </div>
         </div>
         <div className="flex-1 flex items-start ">
-          {/*<div className="flex ml-auto gap-1 sm:gap-2">*/}
-          {/*  {periodList.map((i) => (*/}
-          {/*    <button*/}
-          {/*      key={i.period}*/}
-          {/*      onClick={() => setPeriod(i.period)}*/}
-          {/*      className={`text-xs sm:text-sm flex px-2 py-1 flex-col justify-center items-center gap-2.5 min-w-[40px] rounded-2xl ${*/}
-          {/*        period === i.period ? 'bg-gray-100 dark:bg-gray-700' : ''*/}
-          {/*      }`}*/}
-          {/*    >*/}
-          {/*      {i.period}*/}
-          {/*    </button>*/}
-          {/*  ))}*/}
-          {/*</div>*/}
+          <div className="flex ml-auto gap-1 sm:gap-2">
+            {periodList.map((_timePeriod) => (
+              <button
+                key={_timePeriod}
+                onClick={() => setTimePeriod(_timePeriod)}
+                className={`text-xs sm:text-sm flex px-2 py-1 flex-col justify-center items-center gap-2.5 min-w-[40px] rounded-2xl ${
+                  timePeriod === _timePeriod
+                    ? 'bg-gray-100 dark:bg-gray-700'
+                    : ''
+                }`}
+              >
+                {CHART_RESOLUTION_TABLE[_timePeriod].label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
       <div className="flex justify-center">

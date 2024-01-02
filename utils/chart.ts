@@ -136,13 +136,25 @@ const TIME_PERIOD_INTERVAL_TABLE: Record<
 }
 export const CHART_RESOLUTION_TABLE: Record<
   TimePeriod,
-  { resolution: string; period: number }
+  { resolution: string; period: number; label: string }
 > = {
-  [TimePeriod.HOUR]: { resolution: '5', period: 60 * 60 },
-  [TimePeriod.DAY]: { resolution: '10', period: 60 * 60 * 24 },
-  [TimePeriod.WEEK]: { resolution: '60', period: 60 * 60 * 24 * 7 },
-  [TimePeriod.MONTH]: { resolution: '60', period: 60 * 60 * 24 * 30 },
-  [TimePeriod.YEAR]: { resolution: '1D', period: 60 * 60 * 24 * 365 },
+  [TimePeriod.HOUR]: { resolution: '5', period: 60 * 60, label: '1H' },
+  [TimePeriod.DAY]: { resolution: '10', period: 60 * 60 * 24, label: '1D' },
+  [TimePeriod.WEEK]: {
+    resolution: '60',
+    period: 60 * 60 * 24 * 7,
+    label: '1W',
+  },
+  [TimePeriod.MONTH]: {
+    resolution: '60',
+    period: 60 * 60 * 24 * 30,
+    label: '1M',
+  },
+  [TimePeriod.YEAR]: {
+    resolution: '1D',
+    period: 60 * 60 * 24 * 365,
+    label: '1Y',
+  },
 }
 
 /**

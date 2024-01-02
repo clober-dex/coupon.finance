@@ -9,11 +9,13 @@ import { TimePeriod } from '../model/chart'
 import { currentTimestampInSeconds } from '../utils/date'
 
 export const ChartContainer = ({
+  periodList,
   currency,
   width,
   height,
   ...props
 }: {
+  periodList: TimePeriod[]
   currency: Currency
   width: number
   height: number
@@ -21,15 +23,20 @@ export const ChartContainer = ({
   React.InputHTMLAttributes<HTMLInputElement>,
   HTMLInputElement
 >) => {
-  const [timePeriod, setTimePeriod] = useState<TimePeriod>(TimePeriod.DAY)
-  const { data: prices } = useQuery(['chart', currency], async () => {
-    const now = currentTimestampInSeconds()
-    return fetchPricePoints(
-      currency.address,
-      CHART_RESOLUTION_TABLE[timePeriod].resolution,
-      now - CHART_RESOLUTION_TABLE[timePeriod].period,
-    )
-  })
+  const [timePeriod, setTimePeriod] = useState<(typeof periodList)[number]>(
+    TimePeriod.DAY,
+  )
+  const { data: prices } = useQuery(
+    ['chart', currency, timePeriod],
+    async () => {
+      const now = currentTimestampInSeconds()
+      return fetchPricePoints(
+        currency.address,
+        CHART_RESOLUTION_TABLE[timePeriod].resolution,
+        now - CHART_RESOLUTION_TABLE[timePeriod].period,
+      )
+    },
+  )
 
   const chart = useMemo(
     () =>
@@ -47,7 +54,18 @@ export const ChartContainer = ({
 
   return chart && chart.error === undefined ? (
     <div {...props}>
-      <ChartWrapper chart={chart} timePeriod={timePeriod} currency={currency} />
+      <ChartWrapper
+        chart={chart}
+        timePeriod={timePeriod}
+        setTimePeriod={setTimePeriod}
+        periodList={[
+          TimePeriod.HOUR,
+          TimePeriod.DAY,
+          TimePeriod.WEEK,
+          TimePeriod.MONTH,
+        ]}
+        currency={currency}
+      />
     </div>
   ) : (
     <></>
