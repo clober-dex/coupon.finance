@@ -134,6 +134,16 @@ const TIME_PERIOD_INTERVAL_TABLE: Record<
   [TimePeriod.MONTH]: { interval: timeDay, step: 7 }, // spaced 1 week apart
   [TimePeriod.YEAR]: { interval: timeMonth, step: 2 }, // spaced 2 months apart
 }
+export const CHART_RESOLUTION_TABLE: Record<
+  TimePeriod,
+  { resolution: string; period: number }
+> = {
+  [TimePeriod.HOUR]: { resolution: '5', period: 60 * 60 },
+  [TimePeriod.DAY]: { resolution: '10', period: 60 * 60 * 24 },
+  [TimePeriod.WEEK]: { resolution: '60', period: 60 * 60 * 24 * 7 },
+  [TimePeriod.MONTH]: { resolution: '60', period: 60 * 60 * 24 * 30 },
+  [TimePeriod.YEAR]: { resolution: '1D', period: 60 * 60 * 24 * 365 },
+}
 
 /**
  * Returns an array of tick values for a given time range and time period.

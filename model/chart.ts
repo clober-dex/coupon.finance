@@ -1,5 +1,4 @@
 import { ScaleLinear } from 'd3-scale'
-import { DefaultOutput } from '@visx/scale'
 
 export type PricePoint = { timestamp: number; value: number }
 export enum TimePeriod {

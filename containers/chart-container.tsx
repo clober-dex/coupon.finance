@@ -1,11 +1,12 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useQuery } from 'wagmi'
 
 import { Currency } from '../model/currency'
 import { ChartWrapper } from '../components/chart/chart-wrapper'
 import { fetchPricePoints } from '../apis/currency'
-import { KRAKEN_MARKET_ID } from '../constants/currencies'
-import { buildChartModel } from '../utils/chart'
+import { buildChartModel, CHART_RESOLUTION_TABLE } from '../utils/chart'
+import { TimePeriod } from '../model/chart'
+import { currentTimestampInSeconds } from '../utils/date'
 
 export const ChartContainer = ({
   currency,
@@ -20,18 +21,15 @@ export const ChartContainer = ({
   React.InputHTMLAttributes<HTMLInputElement>,
   HTMLInputElement
 >) => {
-  const { data } = useQuery(
-    ['chart', currency],
-    async () => {
-      return fetchPricePoints(
-        KRAKEN_MARKET_ID[currency.symbol as keyof typeof KRAKEN_MARKET_ID],
-        60,
-      )
-    },
-    {
-      refetchOnWindowFocus: true,
-    },
-  )
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>(TimePeriod.DAY)
+  const { data: prices } = useQuery(['chart', currency], async () => {
+    const now = currentTimestampInSeconds()
+    return fetchPricePoints(
+      currency.address,
+      CHART_RESOLUTION_TABLE[timePeriod].resolution,
+      now - CHART_RESOLUTION_TABLE[timePeriod].period,
+    )
+  })
 
   const chart = useMemo(
     () =>
@@ -40,17 +38,16 @@ export const ChartContainer = ({
           width,
           height,
           marginBottom: 30,
-          marginTop: 0,
+          marginTop: 30,
         },
-        prices: data,
+        prices: prices,
       }),
-    [width, height, data],
+    [width, height, prices],
   )
-  console.log('chart', chart)
 
   return chart && chart.error === undefined ? (
     <div {...props}>
-      <ChartWrapper chart={chart} timePeriod={0} currency={currency} />
+      <ChartWrapper chart={chart} timePeriod={timePeriod} currency={currency} />
     </div>
   ) : (
     <></>

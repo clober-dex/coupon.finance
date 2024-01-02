@@ -155,7 +155,6 @@ export const ChartWrapper = ({
             <g>
               <AxisBottom
                 top={dimensions.height + 5}
-                left={10}
                 scale={timeScale}
                 stroke="#FFFFFF12"
                 hideTicks={true}
