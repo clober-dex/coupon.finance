@@ -68,6 +68,15 @@ export const ChartContainer = ({
       />
     </div>
   ) : (
-    <></>
+    <div className="sm:w-[480px] flex flex-col rounded-2xl flex-shrink-0 bg-white dark:bg-gray-900 p-4 sm:p-6">
+      <div className="flex justify-center">
+        <svg
+          data-cy="price-chart"
+          width={width}
+          height={height}
+          style={{ minWidth: '100%' }}
+        />
+      </div>
+    </div>
   )
 }

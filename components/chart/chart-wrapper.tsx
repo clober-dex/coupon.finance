@@ -124,7 +124,11 @@ export const ChartWrapper = ({
           </div>
           <div className="flex items-end gap-1">
             <div className="font-semibold sm:text-lg">
-              {crosshair ? crosshair.price.value : lastValidPrice.value}
+              $
+              {(crosshair
+                ? crosshair.price.value
+                : lastValidPrice.value
+              ).toFixed(2)}
             </div>
           </div>
         </div>

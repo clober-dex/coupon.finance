@@ -28,6 +28,7 @@ import { CONTRACT_ADDRESSES } from '../../constants/addresses'
 import BackSvg from '../../components/svg/back-svg'
 import { CurrencyIcon } from '../../components/icon/currency-icon'
 import { ChartContainer } from '../chart-container'
+import { TimePeriod } from '../../model/chart'
 
 const SLIPPAGE_LIMIT_PERCENT = 0.5
 
@@ -353,9 +354,16 @@ const LeverageFormContainer = ({
           </div>
         </Link>
         <div className="flex flex-col lg:flex-row-reverse sm:items-center lg:items-start justify-center gap-4 mb-4 px-2 md:px-0">
-          {targetCurrency && !isStableCoin(targetCurrency) ? (
+          {targetCurrency ? (
             <ChartContainer
               currency={targetCurrency}
+              periodList={[
+                TimePeriod.HOUR,
+                TimePeriod.DAY,
+                TimePeriod.WEEK,
+                TimePeriod.MONTH,
+                TimePeriod.YEAR,
+              ]}
               width={isMobile ? (windowSize.width * 7) / 8 : 432}
               height={isMobile ? 185 : 386}
               className="sm:w-[480px] h-[256px] sm:h-[496px]"

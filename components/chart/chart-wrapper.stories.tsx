@@ -4,7 +4,7 @@ import appleStock from '@visx/mock-data/lib/mocks/appleStock'
 
 import '../../styles/globals.css'
 import { buildChartModel } from '../../utils/chart'
-import { ChartModel, PricePoint } from '../../model/chart'
+import { ChartModel, PricePoint, TimePeriod } from '../../model/chart'
 
 import { ChartWrapper } from './chart-wrapper'
 
@@ -40,7 +40,15 @@ export const Default: Story = {
       },
       prices: prices as PricePoint[],
     }) as ChartModel,
+    setTimePeriod: () => {},
     timePeriod: 0,
+    periodList: [
+      TimePeriod.HOUR,
+      TimePeriod.DAY,
+      TimePeriod.WEEK,
+      TimePeriod.MONTH,
+      TimePeriod.YEAR,
+    ],
     currency: {
       address: '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f',
       name: 'Wrapped BTC',
