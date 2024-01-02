@@ -1,38 +1,31 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { useQuery } from 'wagmi'
 
 import { Currency } from '../model/currency'
-import { useCurrencyContext } from '../contexts/currency-context'
 import { ChartWrapper } from '../components/chart/chart-wrapper'
-import { fetchChart } from '../apis/currency'
+import { fetchPricePoints } from '../apis/currency'
 import { KRAKEN_MARKET_ID } from '../constants/currencies'
+import { buildChartModel } from '../utils/chart'
 
 export const ChartContainer = ({
   currency,
-  intervalList,
   width,
   height,
   ...props
 }: {
   currency: Currency
-  intervalList: number[]
   width: number
   height: number
 } & React.DetailedHTMLProps<
   React.InputHTMLAttributes<HTMLInputElement>,
   HTMLInputElement
 >) => {
-  const { prices } = useCurrencyContext()
-  const [interval, setInterval] = React.useState(
-    intervalList[intervalList.length - 1],
-  )
-
   const { data } = useQuery(
-    ['chart', currency, interval],
+    ['chart', currency],
     async () => {
-      return fetchChart(
+      return fetchPricePoints(
         KRAKEN_MARKET_ID[currency.symbol as keyof typeof KRAKEN_MARKET_ID],
-        interval,
+        60,
       )
     },
     {
@@ -40,18 +33,26 @@ export const ChartContainer = ({
     },
   )
 
-  return (
+  const chart = useMemo(
+    () =>
+      buildChartModel({
+        dimensions: {
+          width,
+          height,
+          marginBottom: 30,
+          marginTop: 0,
+        },
+        prices: data,
+      }),
+    [width, height, data],
+  )
+  console.log('chart', chart)
+
+  return chart && chart.error === undefined ? (
     <div {...props}>
-      <ChartWrapper
-        data={data ?? []}
-        currency={currency}
-        price={prices[currency.address]}
-        intervalList={intervalList}
-        interval={interval}
-        setInterval={setInterval}
-        width={width}
-        height={height}
-      />
+      <ChartWrapper chart={chart} timePeriod={0} currency={currency} />
     </div>
+  ) : (
+    <></>
   )
 }

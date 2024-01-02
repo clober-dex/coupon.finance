@@ -3,6 +3,9 @@ import { Meta, StoryObj } from '@storybook/react'
 import appleStock from '@visx/mock-data/lib/mocks/appleStock'
 
 import '../../styles/globals.css'
+import { buildChartModel } from '../../utils/chart'
+import { ChartModel, PricePoint } from '../../model/chart'
+
 import { ChartWrapper } from './chart-wrapper'
 
 export default {
@@ -21,14 +24,23 @@ export default {
 } as Meta<typeof ChartWrapper>
 
 type Story = StoryObj<typeof ChartWrapper>
+
+const prices = appleStock.slice(0, 24).map((d) => ({
+  timestamp: new Date(d.date).getTime(),
+  value: d.close,
+}))
 export const Default: Story = {
   args: {
-    data: appleStock.slice(800),
-    intervalList: [240, 1440, 10080, 21600],
-    interval: 240,
-    setInterval: () => {},
-    height: 300,
-    width: 600,
+    chart: buildChartModel({
+      dimensions: {
+        width: 432,
+        height: 386,
+        marginBottom: 30,
+        marginTop: 0,
+      },
+      prices: prices as PricePoint[],
+    }) as ChartModel,
+    timePeriod: 0,
     currency: {
       address: '0x2f2a2543b76a4166549f7aab2e75bef0aefc5b0f',
       name: 'Wrapped BTC',
