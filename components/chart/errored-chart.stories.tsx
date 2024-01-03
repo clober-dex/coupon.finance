@@ -4,14 +4,8 @@ import appleStock from '@visx/mock-data/lib/mocks/appleStock'
 
 import '../../styles/globals.css'
 import { buildChartModel } from '../../utils/chart'
-import {
-  ChartModel,
-  ErroredChartModel,
-  PricePoint,
-  TimePeriod,
-} from '../../model/chart'
+import { ErroredChartModel, PricePoint, TimePeriod } from '../../model/chart'
 
-import { ChartWrapper } from './chart-wrapper'
 import { ErroredChart } from './errored-chart'
 
 export default {
