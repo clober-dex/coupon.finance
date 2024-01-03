@@ -5,7 +5,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { animated, useSpring } from 'react-spring'
 import { easeSinOut } from 'd3-ease'
 
-import { LineChartProps } from './LineChart'
+import { LineChartProps } from './line-chart'
 
 type AnimatedInLineChartProps<T> = Omit<
   LineChartProps<T>,
@@ -19,7 +19,7 @@ const config = {
 
 // code reference: https://airbnb.io/visx/lineradial
 
-function AnimatedInLineChart<T>({
+function AnimatedInlineChart<T>({
   data,
   getX,
   getY,
@@ -90,4 +90,4 @@ function AnimatedInLineChart<T>({
   )
 }
 
-export default React.memo(AnimatedInLineChart) as typeof AnimatedInLineChart
+export default React.memo(AnimatedInlineChart) as typeof AnimatedInlineChart
