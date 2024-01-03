@@ -8,7 +8,8 @@ import { isEtherAddress } from '../contexts/currency-context'
 import { Balances } from '../model/balances'
 import { COUPON_ORACLE_ABI } from '../abis/core/coupon-oracle-abi'
 import { ERC20_PERMIT_ABI } from '../abis/@openzeppelin/erc20-permit-abi'
-import { TooltipData } from '../components/chart'
+import { PricePoint } from '../model/chart'
+import { currentTimestampInSeconds } from '../utils/date'
 
 import { fetchAssets } from './asset'
 
@@ -35,20 +36,21 @@ export async function fetchCurrencies(chainId: CHAIN_IDS) {
   )
 }
 
-export async function fetchChart(
-  marketId: string,
-  interval: number,
-): Promise<TooltipData[]> {
-  const { result } = (await fetch(
-    `https://api.kraken.com/0/public/OHLC?pair=${marketId}&interval=${interval}`,
+export async function fetchPricePoints(
+  currencyAddress: `0x${string}`,
+  resolution: string,
+  startTimestamp: number,
+): Promise<PricePoint[]> {
+  const now = currentTimestampInSeconds()
+  const { t, c } = (await fetch(
+    `https://api.dex.guru/v1/tradingview/history?symbol=${currencyAddress}-arbitrum_USD&resolution=${resolution}&from=${startTimestamp}&to=${now}`,
   ).then((res) => res.json())) as {
-    result: {
-      [key: string]: [number, string, string, string, string, string, number][]
-    }
+    t: number[]
+    c: number[]
   }
-  return (result[marketId] ?? []).map(([time, , , , close, ,]) => ({
-    date: new Date(time * 1000).toISOString(),
-    close: Number(close),
+  return t.map((timestamp, index) => ({
+    timestamp: timestamp,
+    value: c[index],
   }))
 }
 

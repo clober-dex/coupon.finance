@@ -1,57 +1,75 @@
-import React from 'react'
+import React, { useMemo, useState } from 'react'
 import { useQuery } from 'wagmi'
 
 import { Currency } from '../model/currency'
-import { useCurrencyContext } from '../contexts/currency-context'
 import { ChartWrapper } from '../components/chart/chart-wrapper'
-import { fetchChart } from '../apis/currency'
-import { KRAKEN_MARKET_ID } from '../constants/currencies'
+import { fetchPricePoints } from '../apis/currency'
+import { buildChartModel, CHART_RESOLUTION_TABLE } from '../utils/chart'
+import { TimePeriod } from '../model/chart'
+import { currentTimestampInSeconds } from '../utils/date'
+import { ErroredChart } from '../components/chart/errored-chart'
 
 export const ChartContainer = ({
+  periodList,
   currency,
-  intervalList,
   width,
   height,
   ...props
 }: {
+  periodList: TimePeriod[]
   currency: Currency
-  intervalList: number[]
   width: number
   height: number
 } & React.DetailedHTMLProps<
   React.InputHTMLAttributes<HTMLInputElement>,
   HTMLInputElement
 >) => {
-  const { prices } = useCurrencyContext()
-  const [interval, setInterval] = React.useState(
-    intervalList[intervalList.length - 1],
+  const [timePeriod, setTimePeriod] = useState<(typeof periodList)[number]>(
+    TimePeriod.DAY,
   )
-
-  const { data } = useQuery(
-    ['chart', currency, interval],
+  const { data: prices } = useQuery(
+    ['chart', currency, timePeriod],
     async () => {
-      return fetchChart(
-        KRAKEN_MARKET_ID[currency.symbol as keyof typeof KRAKEN_MARKET_ID],
-        interval,
+      const now = currentTimestampInSeconds()
+      return fetchPricePoints(
+        currency.address,
+        CHART_RESOLUTION_TABLE[timePeriod].resolution,
+        now - CHART_RESOLUTION_TABLE[timePeriod].period,
       )
     },
-    {
-      refetchOnWindowFocus: true,
-    },
+  )
+
+  const chart = useMemo(
+    () =>
+      buildChartModel({
+        dimensions: {
+          width,
+          height,
+          marginBottom: 30,
+          marginTop: 30,
+        },
+        prices: prices,
+      }),
+    [width, height, prices],
   )
 
   return (
     <div {...props}>
-      <ChartWrapper
-        data={data ?? []}
-        currency={currency}
-        price={prices[currency.address]}
-        intervalList={intervalList}
-        interval={interval}
-        setInterval={setInterval}
-        width={width}
-        height={height}
-      />
+      {chart && chart.error === undefined ? (
+        <ChartWrapper
+          chart={chart}
+          timePeriod={timePeriod}
+          setTimePeriod={setTimePeriod}
+          periodList={periodList}
+          currency={currency}
+        />
+      ) : (
+        <ErroredChart
+          chart={chart}
+          periodList={periodList}
+          currency={currency}
+        />
+      )}
     </div>
   )
 }

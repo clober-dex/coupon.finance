@@ -1,12 +1,13 @@
+import { NumberValue } from 'd3-scale'
+
+import {
+  TIME_PERIOD_TO_FORMAT_OPTIONS,
+  TimePeriod,
+  TimestampFormatterType,
+} from '../model/chart'
+
 export const SECONDS_IN_DAY = 60 * 60 * 24
 export const SECONDS_IN_MONTH = 60 * 60 * 24 * 30
-
-export const minutesToString = (minutes: number): string => {
-  const days = Math.floor(minutes / (60 * 24))
-  const hours = Math.floor(minutes / 60)
-  const minutesLeft = minutes % 60
-  return days ? `${days}D` : hours ? `${hours}H` : `${minutesLeft}M`
-}
 
 export const formatDate = (date: Date): string =>
   Intl.DateTimeFormat('en-US', {
@@ -49,4 +50,23 @@ export const getNextMonthStartTimestamp = (now: number): number => {
 export const getDaysBetweenDates = (date1: Date, date2: Date): number => {
   const diffTime = Math.abs(date2.getTime() - date1.getTime())
   return Math.ceil(diffTime / (1000 * SECONDS_IN_DAY))
+}
+
+/**
+ * Returns a function to format timestamps, specialized by timePeriod and type to display ('tick' or 'crosshair'),
+ * localized for the given locale.
+ */
+export function getTimestampFormatter(
+  timePeriod: TimePeriod,
+  locale: string,
+  formatterType: TimestampFormatterType,
+): (n: NumberValue) => string {
+  // Choose appropriate formatting options based on type and timePeriod
+  const options = TIME_PERIOD_TO_FORMAT_OPTIONS[timePeriod][formatterType]
+  const dateTimeFormatter = new Intl.DateTimeFormat(locale, options)
+
+  return (timestamp: NumberValue): string => {
+    const epochTimeInMilliseconds = timestamp.valueOf() * 1000
+    return dateTimeFormatter.format(epochTimeInMilliseconds)
+  }
 }
