@@ -7,6 +7,7 @@ import { fetchPricePoints } from '../apis/currency'
 import { buildChartModel, CHART_RESOLUTION_TABLE } from '../utils/chart'
 import { TimePeriod } from '../model/chart'
 import { currentTimestampInSeconds } from '../utils/date'
+import { ErroredChart } from '../components/chart/errored-chart'
 
 export const ChartContainer = ({
   periodList,
@@ -52,26 +53,23 @@ export const ChartContainer = ({
     [width, height, prices],
   )
 
-  return chart && chart.error === undefined ? (
+  return (
     <div {...props}>
-      <ChartWrapper
-        chart={chart}
-        timePeriod={timePeriod}
-        setTimePeriod={setTimePeriod}
-        periodList={periodList}
-        currency={currency}
-      />
-    </div>
-  ) : (
-    <div className="sm:w-[480px] flex flex-col rounded-2xl flex-shrink-0 bg-white dark:bg-gray-900 p-4 sm:p-6">
-      <div className="flex justify-center">
-        <svg
-          data-cy="price-chart"
-          width={width}
-          height={height}
-          style={{ minWidth: '100%' }}
+      {chart && chart.error === undefined ? (
+        <ChartWrapper
+          chart={chart}
+          timePeriod={timePeriod}
+          setTimePeriod={setTimePeriod}
+          periodList={periodList}
+          currency={currency}
         />
-      </div>
+      ) : (
+        <ErroredChart
+          chart={chart}
+          periodList={periodList}
+          currency={currency}
+        />
+      )}
     </div>
   )
 }

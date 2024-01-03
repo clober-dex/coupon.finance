@@ -20,7 +20,7 @@ import {
 } from '../../utils/chart'
 import { getTimestampFormatter } from '../../utils/date'
 
-import AnimatedInLineChart from './AnimatedInLineChart'
+import AnimatedInLineChart from './animated-inline-chart'
 
 export const ChartWrapper = ({
   chart,

@@ -4,26 +4,32 @@ import appleStock from '@visx/mock-data/lib/mocks/appleStock'
 
 import '../../styles/globals.css'
 import { buildChartModel } from '../../utils/chart'
-import { ChartModel, PricePoint, TimePeriod } from '../../model/chart'
+import {
+  ChartModel,
+  ErroredChartModel,
+  PricePoint,
+  TimePeriod,
+} from '../../model/chart'
 
 import { ChartWrapper } from './chart-wrapper'
+import { ErroredChart } from './errored-chart'
 
 export default {
-  title: 'Chart/ChartWrapper',
-  component: ChartWrapper,
+  title: 'Chart/ErroredChart',
+  component: ErroredChart,
   parameters: {
     layout: 'centered',
   },
   render: ({ ...args }) => {
     return (
       <div className="border border-solid border-gray-700">
-        <ChartWrapper {...args} />
+        <ErroredChart {...args} />
       </div>
     )
   },
-} as Meta<typeof ChartWrapper>
+} as Meta<typeof ErroredChart>
 
-type Story = StoryObj<typeof ChartWrapper>
+type Story = StoryObj<typeof ErroredChart>
 
 const prices = appleStock.slice(0, 24).map((d) => ({
   timestamp: new Date(d.date).getTime(),
@@ -39,9 +45,7 @@ export const Default: Story = {
         marginTop: 0,
       },
       prices: prices as PricePoint[],
-    }) as ChartModel,
-    setTimePeriod: () => {},
-    timePeriod: 0,
+    }) as ErroredChartModel,
     periodList: [
       TimePeriod.HOUR,
       TimePeriod.DAY,
