@@ -61,14 +61,9 @@ export const ChartContainer = ({
           timePeriod={timePeriod}
           setTimePeriod={setTimePeriod}
           periodList={periodList}
-          currency={currency}
         />
       ) : (
-        <ErroredChart
-          chart={chart}
-          periodList={periodList}
-          currency={currency}
-        />
+        <ErroredChart chart={chart} periodList={periodList} />
       )}
     </div>
   )
