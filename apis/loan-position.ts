@@ -12,20 +12,30 @@ import { SUBGRAPH_URL } from '../constants/subgraph-url'
 import { CHAIN_IDS } from '../constants/chain'
 
 import { toCurrency } from './asset'
+import { fetchPositionStatus } from './position-status'
 
 const { getLoanPosition, getLoanPositions } = getBuiltGraphSDK()
+
+const PAGE_SIZE = 1000
 
 export async function fetchLoanPositions(
   chainId: CHAIN_IDS,
 ): Promise<LoanPosition[]> {
-  const loanPositions = await getLoanPositions(
-    {},
-    {
-      url: SUBGRAPH_URL[chainId],
-    },
+  const { totalLoanPositionCount } = await fetchPositionStatus(chainId)
+  const loanPositions = await Promise.all(
+    Array.from({ length: Math.ceil(totalLoanPositionCount / PAGE_SIZE) }).map(
+      (_, index) =>
+        getLoanPositions({
+          skip: index * PAGE_SIZE,
+        }),
+    ),
   )
-  return loanPositions.loanPositions.map((loanPosition) =>
-    toLoanPosition(loanPosition),
+  return loanPositions.reduce(
+    (acc, { loanPositions }) =>
+      acc.concat(
+        loanPositions.map((loanPosition) => toLoanPosition(loanPosition)),
+      ),
+    [] as LoanPosition[],
   )
 }
 
