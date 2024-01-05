@@ -1,5 +1,5 @@
-query getBondPositions {
-  bondPositions(first: 2000) {
+query getBondPositions($skip: Int) {
+  bondPositions(first: 1000, skip: $skip) {
     id
     user
     amount
