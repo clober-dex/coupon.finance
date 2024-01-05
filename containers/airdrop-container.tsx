@@ -6,6 +6,10 @@ import { NumberThreeBoxSvg } from '../components/svg/number-three-box-svg'
 import { RightBracketAngleSvg } from '../components/svg/right-bracket-angle-svg'
 import { DownBracketAngleSvg } from '../components/svg/down-bracket-angle-svg'
 import { DepositIconSvg } from '../components/svg/deposit-icon-svg'
+import { BorrowIconSvg } from '../components/svg/borrow-icon-svg'
+import { ReferralIconSvg } from '../components/svg/referral-icon-svg'
+import { LeaderboardIconSvg } from '../components/svg/leaderboard-icon-svg'
+import { ClaimIconSvg } from '../components/svg/claim-icon-svg'
 
 export const AirdropContainer = () => {
   return (
@@ -69,27 +73,27 @@ export const AirdropContainer = () => {
             </div>
           </div>
         </div>
-        <div className="flex lg:hidden flex-row gap-4 text-xs justify-center font-semibold">
+        <div className="flex lg:hidden flex-row gap-1 text-xs justify-center font-semibold">
           <div className="flex flex-row gap-2 items-center">
             <NumberOneBoxSvg className="h-4 w-4" /> Collect point
           </div>
           <div className="flex items-center">
-            <RightBracketAngleSvg />
+            <RightBracketAngleSvg className="w-4 h-4 stroke-[#9CA3AF]" />
           </div>
           <div className="flex flex-row gap-2 items-center">
             <NumberTwoBoxSvg className="h-4 w-4" /> Get airdrop
           </div>
           <div className="flex items-center">
-            <RightBracketAngleSvg />
+            <RightBracketAngleSvg className="w-4 h-4 stroke-[#9CA3AF]" />
           </div>
           <div className="flex flex-row gap-2 items-center">
             <NumberThreeBoxSvg className="h-4 w-4" /> Claim $CPN
           </div>
         </div>
         <div className="flex lg:hidden justify-center">
-          <div className="flex px-4 py-3 justify-center text-sm lg:text-xl font-semibold">
+          <div className="flex px-4 py-3 justify-center w-full text-sm lg:text-xl font-semibold">
             <div>How can I get points?</div>
-            <DownBracketAngleSvg className="ml-56" />
+            <DownBracketAngleSvg className="ml-auto" />
           </div>
         </div>
 
@@ -119,31 +123,51 @@ export const AirdropContainer = () => {
             </div>
             <div className="flex flex-1 px-6 py-4 flex-col items-start gap-4 flex-grow flex-shrink-0 basis-0 rounded-xl ring-2 ring-gray-200">
               <div className="flex flex-row gap-2 text-lg font-semibold">
-                <DepositIconSvg />
-                Deposit points
+                <BorrowIconSvg />
+                Borrow points
               </div>
               <p className="font-semibold text-sm">
                 <span className="block">For every $1000 in trades,</span>
                 <span className="block">earn 40 points.</span>
               </p>
               <button className="flex w-[267px] h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold">
-                Go to deposit
+                Go to borrow
               </button>
             </div>
             <div className="flex flex-1 px-6 py-4 flex-col items-start gap-4 flex-grow flex-shrink-0 basis-0 rounded-xl ring-2 ring-gray-200">
               <div className="flex flex-row gap-2 text-lg font-semibold">
-                <DepositIconSvg />
-                Deposit points
+                <ReferralIconSvg className="stroke-[#030712] stroke-2" />
+                Referral points
               </div>
               <p className="font-semibold text-sm">
-                <span className="block">For every $1000 in trades,</span>
-                <span className="block">earn 40 points.</span>
+                <span className="block">You can get 10% from</span>
+                <span className="block">your referees’ points.</span>
               </p>
               <button className="flex w-[267px] h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold">
                 Go to deposit
               </button>
             </div>
           </div>
+        </div>
+        <div className="text-sm lg:text-xl mt-0 lg:mt-8 w-full flex gap-8 lg:gap-[160px] items-end justify-center pb-1 bg-white dark:bg-gray-900 h-[26px] lg:h-[52px]">
+          <button className="disabled:text-gray-950 flex flex-row gap-1 lg:gap-2 items-center disabled:dark:text-white font-bold pb-1 border-b-2 border-solid disabled:border-b-gray-950 disabled:dark:border-b-white w-24 text-gray-400 dark:text-gray-500 border-b-transparent dark:border-b-transparent">
+            <div className="relative">
+              <LeaderboardIconSvg className="stroke-gray-400 stroke-2 w-4 h-4 lg:w-6 lg:h-6" />
+            </div>
+            Leaderboard
+          </button>
+          <button className="disabled:text-gray-950 flex flex-row gap-1 lg:gap-2 items-center disabled:dark:text-white font-bold pb-1 border-b-2 border-solid disabled:border-b-gray-950 disabled:dark:border-b-white w-24 text-gray-400 dark:text-gray-500 border-b-transparent dark:border-b-transparent">
+            <div className="relative">
+              <ReferralIconSvg className="stroke-gray-400 stroke-2 w-4 h-4 lg:w-6 lg:h-6" />
+            </div>
+            Referral
+          </button>
+          <button className="disabled:text-gray-950 flex flex-row gap-1 lg:gap-2 items-center disabled:dark:text-white font-bold pb-1 border-b-2 border-solid disabled:border-b-gray-950 disabled:dark:border-b-white w-24 text-gray-400 dark:text-gray-500 border-b-transparent dark:border-b-transparent">
+            <div className="relative">
+              <ClaimIconSvg className="stroke-gray-400 stroke-2 w-4 h-4 lg:w-6 lg:h-6" />
+            </div>
+            Claim
+          </button>
         </div>
       </div>
       <div className="flex justify-center">DOWN</div>
