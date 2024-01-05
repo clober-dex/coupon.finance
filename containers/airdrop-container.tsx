@@ -93,7 +93,7 @@ export const AirdropContainer = () => {
         <div className="flex lg:hidden justify-center">
           <div className="flex px-4 py-3 justify-center w-full text-sm lg:text-xl font-semibold">
             <div>How can I get points?</div>
-            <DownBracketAngleSvg className="ml-auto" />
+            <DownBracketAngleSvg className="ml-44" />
           </div>
         </div>
 
