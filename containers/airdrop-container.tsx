@@ -17,7 +17,9 @@ import { SilverMedalIconSvg } from '../components/svg/silver-medal-icon-svg'
 import { BronzeMedalIconSvg } from '../components/svg/bronze-medal-icon-svg'
 import { RocketMobileIconSvg } from '../components/svg/rocket-mobile-icon-svg'
 import { RocketPCIconSvg } from '../components/svg/rocket-pc-icon-svg'
-import NumberInput from '../components/input/number-input'
+import { InvitePCIconSvg } from '../components/svg/invite-pc-icon-svg'
+import { InviteMobileIconSvg } from '../components/svg/invite-mobile-icon-svg'
+import { CopyIconSvg } from '../components/svg/copy-icon-svg'
 
 const LeaderboardTab = () => {
   return (
@@ -127,7 +129,7 @@ const ReferralTab = () => {
   )
 
   return (
-    <div className="flex p-4 lg:pt-8 lg:pb-16 flex-col items-start gap-8 lg:gap-16 self-stretch bg-white dark:bg-gray-850 rounded-2xl mt-8">
+    <div className="flex p-4 lg:pt-8 lg:pb-8 flex-col items-start gap-8 lg:gap-16 self-stretch bg-white dark:bg-gray-850 rounded-2xl mt-8">
       <div className="flex w-full rounded text-sm lg:text-base text-gray-500">
         <button
           disabled={mode === 'setReferralCode'}
@@ -171,7 +173,59 @@ const ReferralTab = () => {
           </div>
         </>
       ) : mode === 'getReferralCode' ? (
-        <>Se</>
+        <div className="flex flex-col items-center w-full gap-8 lg:gap-12">
+          <div className="flex flex-col lg:flex-row justify-center items-center gap-4 lg:gap-8 self-stretch">
+            <InviteMobileIconSvg className="flex lg:hidden" />
+            <InvitePCIconSvg className="hidden lg:flex" />
+            <div className="flex flex-col gap-2 lg:gap-4">
+              <div className="text-base lg:text-xl font-semibold text-center lg:text-start">
+                Referring others <br />
+                boosts your points by 10%!
+              </div>
+              <div className="text-gray-500 text-xs lg:text-base text-center lg:text-start">
+                Copy your referral code below and invite friends!
+              </div>
+            </div>
+          </div>
+          <div className="w-full lg:w-[476px] flex px-4 py-3 justify-center items-center gap-2 rounded-lg border-2 border-solid dark:border-white">
+            <div className="flex flex-col lg:flex-row justify-center items-center gap-1">
+              <div className="text-sm lg:text-base">Your referral code is</div>
+              <div className="flex gap-1 text-sm lg:text-base text-green-500 font-semibold">
+                0xf7xfdh1231kdflm2f
+                <div className="flex items-center">
+                  <CopyIconSvg />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="w-full flex flex-col items-start gap-3 lg:gap-8 self-stretch">
+            <div className="flex flex-row lg:px-8 gap-2 lg:gap-3 text-sm lg:text-xl font-semibold">
+              Wallets you referred
+              <div className="w-6 h-6 lg:w-9 lg:h-8 px-2 lg:px-3 py-1 bg-gray-50 rounded-2xl flex-col justify-center items-center gap-2.5 inline-flex">
+                2
+              </div>
+            </div>
+            <div className="flex flex-col items-start gap-4 self-stretch">
+              <div className="flex lg:px-8 items-start self-stretch text-gray-400 text-xs lg:text-sm">
+                <div className="flex-1">User</div>
+                <div className="flex-1">Point</div>
+                <div className="flex-1">Referral points</div>
+              </div>
+              <div className="flex lg:px-4 flex-col items-start gap-2 self-stretch text-xs lg:text-sm">
+                <div className="w-full flex lg:h-10 lg:px-4 items-center">
+                  <div className="flex-1">0xe30a...723c</div>
+                  <div className="flex-1">6000</div>
+                  <div className="flex-1">2913</div>
+                </div>
+                <div className="w-full flex lg:h-10 lg:px-4 items-center">
+                  <div className="flex-1">0xe30a...723c</div>
+                  <div className="flex-1">4000</div>
+                  <div className="flex-1">143</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       ) : (
         <></>
       )}
