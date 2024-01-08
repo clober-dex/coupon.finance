@@ -268,7 +268,7 @@ export const AirdropContainer = () => {
   )
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col items-center">
       <div className="flex flex-col gap-4 justify-center shrink-0 w-screen bg-white dark:bg-gray-850">
         <div className="flex flex-col gap-4 mt-8 lg:mt-24 px-4 sm:px-0">
           <div className="flex lg:h-[418px] justify-center">
@@ -437,7 +437,7 @@ export const AirdropContainer = () => {
           </button>
         </div>
       </div>
-      <div className="lg:px-60">
+      <div className="lg:w-[960px]">
         {mode === 'leaderboard' ? (
           <LeaderboardTab />
         ) : mode === 'referral' ? (
