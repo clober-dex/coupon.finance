@@ -11,7 +11,34 @@ import { ReferralIconSvg } from '../components/svg/referral-icon-svg'
 import { LeaderboardIconSvg } from '../components/svg/leaderboard-icon-svg'
 import { ClaimIconSvg } from '../components/svg/claim-icon-svg'
 
+const LeaderboardTab = () => {
+  return <div>L</div>
+}
+
+const ReferralTab = () => {
+  return (
+    <div className="flex p-4 flex-col items-start gap-8 self-stretch">
+      <div className="flex mb-6 w-full rounded text-xs bg-gray-100 dark:bg-gray-800 text-gray-500">
+        <button className="flex-1 py-2 rounded border-gray-100 dark:border-gray-800 disabled:bg-white dark:disabled:bg-gray-800 disabled:border-green-500 dark:disabled:border-green-500 disabled:text-green-500 border-[1.5px]">
+          Get referred
+        </button>
+        <button className="flex-1 py-2 rounded border-gray-100 dark:border-gray-800 disabled:bg-white dark:disabled:bg-gray-800 disabled:border-green-500 dark:disabled:border-green-500 disabled:text-green-500 border-[1.5px]">
+          Refer others
+        </button>
+      </div>
+    </div>
+  )
+}
+
+const ClaimTab = () => {
+  return <div>C</div>
+}
+
 export const AirdropContainer = () => {
+  const [mode, setMode] = React.useState<'leaderboard' | 'referral' | 'claim'>(
+    'leaderboard',
+  )
+
   return (
     <div className="flex flex-col">
       <div className="flex flex-col gap-4 justify-center shrink-0 w-screen bg-white dark:bg-gray-850">
@@ -149,28 +176,48 @@ export const AirdropContainer = () => {
             </div>
           </div>
         </div>
-        <div className="text-sm lg:text-xl mt-0 lg:mt-8 w-full flex gap-8 lg:gap-[160px] items-end justify-center pb-1 bg-white dark:bg-gray-900 h-[26px] lg:h-[52px]">
-          <button className="disabled:text-gray-950 flex flex-row gap-1 lg:gap-2 items-center disabled:dark:text-white font-bold pb-1 border-b-2 border-solid disabled:border-b-gray-950 disabled:dark:border-b-white w-24 text-gray-400 dark:text-gray-500 border-b-transparent dark:border-b-transparent">
+        <div className="text-sm lg:text-xl mt-0 lg:mt-8 w-full flex gap-2 lg:gap-[100px] items-end justify-center pb-1 bg-white dark:bg-gray-850 h-[26px] lg:h-[52px]">
+          <button
+            disabled={mode === 'leaderboard'}
+            onClick={() => setMode('leaderboard')}
+            className="group w-[108px] lg:w-[220px] disabled:text-green-500 flex flex-row gap-1 lg:gap-2 items-center justify-center font-bold pb-1 border-b-2 border-solid disabled:border-b-green-500 text-gray-400 dark:text-gray-500 border-b-transparent dark:border-b-transparent"
+          >
             <div className="relative">
-              <LeaderboardIconSvg className="stroke-gray-400 stroke-2 w-4 h-4 lg:w-6 lg:h-6" />
+              <LeaderboardIconSvg className="group-disabled:stroke-green-500 stroke-gray-400 stroke-2 w-4 h-4 lg:w-6 lg:h-6" />
             </div>
             Leaderboard
           </button>
-          <button className="disabled:text-gray-950 flex flex-row gap-1 lg:gap-2 items-center disabled:dark:text-white font-bold pb-1 border-b-2 border-solid disabled:border-b-gray-950 disabled:dark:border-b-white w-24 text-gray-400 dark:text-gray-500 border-b-transparent dark:border-b-transparent">
+          <button
+            disabled={mode === 'referral'}
+            onClick={() => setMode('referral')}
+            className="group w-[108px] lg:w-[220px] disabled:text-green-500 flex flex-row gap-1 lg:gap-2 items-center justify-center font-bold pb-1 border-b-2 border-solid disabled:border-b-green-500 text-gray-400 dark:text-gray-500 border-b-transparent dark:border-b-transparent"
+          >
             <div className="relative">
-              <ReferralIconSvg className="stroke-gray-400 stroke-2 w-4 h-4 lg:w-6 lg:h-6" />
+              <ReferralIconSvg className="group-disabled:stroke-green-500 stroke-gray-400 stroke-2 w-4 h-4 lg:w-6 lg:h-6" />
             </div>
             Referral
           </button>
-          <button className="disabled:text-gray-950 flex flex-row gap-1 lg:gap-2 items-center disabled:dark:text-white font-bold pb-1 border-b-2 border-solid disabled:border-b-gray-950 disabled:dark:border-b-white w-24 text-gray-400 dark:text-gray-500 border-b-transparent dark:border-b-transparent">
+          <button
+            disabled={mode === 'claim'}
+            onClick={() => setMode('claim')}
+            className="group w-[96px] lg:w-[220px] disabled:text-green-500 flex flex-row gap-1 lg:gap-2 items-center justify-center font-bold pb-1 border-b-2 border-solid disabled:border-b-green-500 text-gray-400 dark:text-gray-500 border-b-transparent dark:border-b-transparent"
+          >
             <div className="relative">
-              <ClaimIconSvg className="stroke-gray-400 stroke-2 w-4 h-4 lg:w-6 lg:h-6" />
+              <ClaimIconSvg className="group-disabled:stroke-green-500 stroke-gray-400 stroke-2 w-4 h-4 lg:w-6 lg:h-6" />
             </div>
             Claim
           </button>
         </div>
       </div>
-      <div className="flex justify-center">DOWN</div>
+      {mode === 'leaderboard' ? (
+        <LeaderboardTab />
+      ) : mode === 'referral' ? (
+        <ReferralTab />
+      ) : mode === 'claim' ? (
+        <ClaimTab />
+      ) : (
+        <></>
+      )}
     </div>
   )
 }
