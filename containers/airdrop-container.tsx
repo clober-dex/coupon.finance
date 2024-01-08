@@ -11,6 +11,7 @@ import { ReferralIconSvg } from '../components/svg/referral-icon-svg'
 import { LeaderboardIconSvg } from '../components/svg/leaderboard-icon-svg'
 import { ClaimIconSvg } from '../components/svg/claim-icon-svg'
 import { PointIconSvg } from '../components/svg/point-icon-svg'
+import { PointCard } from '../components/card/point-card'
 
 const LeaderboardTab = () => {
   return (
@@ -21,11 +22,27 @@ const LeaderboardTab = () => {
           <div>My Point</div>
         </div>
         <div className="flex flex-col gap-4 w-full">
-          <div className="flex py-6 flex-col items-center w-full gap-3 bg-white rounded-xl dark:bg-gray-850">
+          <div className="flex py-6 flex-col items-center w-full gap-3 rounded-xl bg-white dark:bg-gray-850">
             <div className="text-gray-500 text-xs lg:text-lg font-semibold">
               Total points
             </div>
             <div className="font-bold text-3xl lg:text-5xl">1295012</div>
+          </div>
+          <div className="flex lg:hidden flex-col items-start gap-2 self-stretch">
+            <div className="flex items-start gap-2 self-stretch">
+              <PointCard title="Deposit points" value="82010" />
+              <PointCard title="Borrow points" value="82010" />
+            </div>
+            <div className="flex items-start gap-2 self-stretch">
+              <PointCard title="Referral points" value="82010" />
+              <PointCard title="Dragon points" value="82010" />
+            </div>
+          </div>
+          <div className="hidden lg:flex w-full items-start gap-4">
+            <PointCard title="Deposit points" value="82010" />
+            <PointCard title="Borrow points" value="82010" />
+            <PointCard title="Referral points" value="82010" />
+            <PointCard title="Dragon points" value="82010" />
           </div>
         </div>
       </div>
