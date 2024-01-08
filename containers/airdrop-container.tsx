@@ -20,6 +20,8 @@ import { RocketPCIconSvg } from '../components/svg/rocket-pc-icon-svg'
 import { InvitePCIconSvg } from '../components/svg/invite-pc-icon-svg'
 import { InviteMobileIconSvg } from '../components/svg/invite-mobile-icon-svg'
 import { CopyIconSvg } from '../components/svg/copy-icon-svg'
+import { CouponMobileIconSvg } from '../components/svg/coupon-mobile-icon-svg'
+import { CouponPCIconSvg } from '../components/svg/coupon-pc-icon-svg'
 
 const LeaderboardTab = () => {
   return (
@@ -129,7 +131,7 @@ const ReferralTab = () => {
   )
 
   return (
-    <div className="flex p-4 lg:pt-8 lg:pb-8 flex-col items-start gap-8 lg:gap-16 self-stretch bg-white dark:bg-gray-850 rounded-2xl mt-8">
+    <div className="flex mx-4 p-4 lg:pt-8 lg:pb-8 flex-col items-start gap-8 lg:gap-16 self-stretch bg-white dark:bg-gray-850 rounded-2xl mt-8">
       <div className="flex w-full rounded text-sm lg:text-base text-gray-500">
         <button
           disabled={mode === 'setReferralCode'}
@@ -234,7 +236,26 @@ const ReferralTab = () => {
 }
 
 const ClaimTab = () => {
-  return <div>C</div>
+  return (
+    <div className="flex mx-4 px-4 py-8 lg:py-16 flex-col items-start self-stretch bg-white dark:bg-gray-850 rounded-2xl mt-8">
+      <>
+        <div className="flex flex-col lg:flex-row justify-center items-center gap-4 lg:gap-8 self-stretch">
+          <CouponMobileIconSvg className="flex lg:hidden" />
+          <CouponPCIconSvg className="hidden lg:flex" />
+          <div className="flex flex-col gap-2 lg:gap-4">
+            <div className="text-base lg:text-xl font-semibold text-center lg:text-start">
+              You can claim $CPN <br />
+              after the snapshot.
+            </div>
+            <div className="text-gray-500 text-xs lg:text-base text-center lg:text-start">
+              The more points you earn, the more $CPN you get!
+              <br className="inline lg:hidden" /> Airdrop will come soon.
+            </div>
+          </div>
+        </div>
+      </>
+    </div>
+  )
 }
 
 export const AirdropContainer = () => {
@@ -412,7 +433,7 @@ export const AirdropContainer = () => {
           </button>
         </div>
       </div>
-      <div className="lg:px-24">
+      <div className="lg:px-60">
         {mode === 'leaderboard' ? (
           <LeaderboardTab />
         ) : mode === 'referral' ? (
