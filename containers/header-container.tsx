@@ -29,7 +29,11 @@ const HeaderContainer = ({
   const [showSwapModal, setShowSwapModal] = useState(false)
   return (
     <div
-      className={`fixed w-full flex flex-col justify-between items-center px-4 lg:px-8 bg-white dark:bg-gray-900 lg:dark:bg-transparent lg:bg-opacity-5 lg:backdrop-blur ${ZIndices.modal} h-12 lg:h-16`}
+      className={`fixed w-full flex flex-col justify-between items-center px-4 lg:px-8 bg-white ${
+        selectedMode === 'airdrop'
+          ? 'dark:bg-gray-850'
+          : 'lg:dark:bg-transparent lg:bg-opacity-5 dark:bg-gray-900'
+      }  lg:backdrop-blur ${ZIndices.modal} h-12 lg:h-16`}
     >
       <div className="flex w-full justify-between items-center h-12 lg:h-full">
         <div className="flex h-full items-center gap-6 lg:gap-16">

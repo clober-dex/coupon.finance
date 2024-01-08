@@ -7,7 +7,7 @@ import { ActionButton } from '../components/button/action-button'
 import Slider from '../components/slider'
 
 export const FarmingContainer = () => (
-  <div className="flex flex-1 flex-col w-full md:w-[640px] lg:w-[960px] mt-8 md:mt-16 gap-4 lg:gap-16">
+  <div className="flex flex-1 flex-col w-full md:w-[640px] lg:w-[960px] mt-8 gap-4 lg:gap-16">
     <div className="flex flex-row justify-center lg:justify-start text-center lg:text-start lg:gap-[196px]">
       <div className="flex flex-col lg:gap-6">
         <h1 className="flex justify-center text-center lg:justify-start lg:text-start font-bold text-3xl lg:text-5xl lg:leading-[48px] mb-6">

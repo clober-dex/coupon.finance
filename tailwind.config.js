@@ -7,7 +7,11 @@ module.exports = {
     './containers/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        'gray-850': '#18212F',
+      },
+    },
   },
   plugins: [],
   darkMode: 'class',
