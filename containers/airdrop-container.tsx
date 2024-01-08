@@ -171,7 +171,7 @@ const ReferralTab = () => {
               className="w-full outline-none lg:w-[386px] bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 text-start pl-4 text-sm h-12"
               placeholder="Please input the referral code"
             />
-            <button className="w-full lg:w-[160px] font-bold text-base sm:text-xl bg-green-500 hover:bg-green-400 dark:hover:bg-green-600 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500">
+            <button className="w-full lg:w-[160px] font-bold bg-green-500 hover:bg-green-400 dark:hover:bg-green-600 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500">
               Accept
             </button>
           </div>
