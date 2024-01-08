@@ -15,6 +15,9 @@ import { PointCard } from '../components/card/point-card'
 import { GoldMedalIconSvg } from '../components/svg/gold-medal-icon-svg'
 import { SilverMedalIconSvg } from '../components/svg/silver-medal-icon-svg'
 import { BronzeMedalIconSvg } from '../components/svg/bronze-medal-icon-svg'
+import { RocketMobileIconSvg } from '../components/svg/rocket-mobile-icon-svg'
+import { RocketPCIconSvg } from '../components/svg/rocket-pc-icon-svg'
+import NumberInput from '../components/input/number-input'
 
 const LeaderboardTab = () => {
   return (
@@ -119,16 +122,59 @@ const LeaderboardTab = () => {
 }
 
 const ReferralTab = () => {
+  const [mode, setMode] = React.useState<'setReferralCode' | 'getReferralCode'>(
+    'setReferralCode',
+  )
+
   return (
-    <div className="flex p-4 flex-col items-start gap-8 self-stretch">
-      <div className="flex mb-6 w-full rounded text-xs bg-gray-100 dark:bg-gray-800 text-gray-500">
-        <button className="flex-1 py-2 rounded border-gray-100 dark:border-gray-800 disabled:bg-white dark:disabled:bg-gray-800 disabled:border-green-500 dark:disabled:border-green-500 disabled:text-green-500 border-[1.5px]">
+    <div className="flex p-4 lg:pt-8 lg:pb-16 flex-col items-start gap-8 lg:gap-16 self-stretch bg-white dark:bg-gray-850 rounded-2xl mt-8">
+      <div className="flex w-full rounded text-sm lg:text-base text-gray-500">
+        <button
+          disabled={mode === 'setReferralCode'}
+          onClick={() => setMode('setReferralCode')}
+          className="font-semibold flex-1 py-2 rounded-lg bg-gray-50 border-gray-50 dark:bg-gray-800 dark:border-gray-800 disabled:bg-white dark:disabled:bg-gray-800 disabled:border-green-500 dark:disabled:border-green-500 disabled:text-green-500 border-[2px]"
+        >
           Get referred
         </button>
-        <button className="flex-1 py-2 rounded border-gray-100 dark:border-gray-800 disabled:bg-white dark:disabled:bg-gray-800 disabled:border-green-500 dark:disabled:border-green-500 disabled:text-green-500 border-[1.5px]">
+        <button
+          disabled={mode === 'getReferralCode'}
+          onClick={() => setMode('getReferralCode')}
+          className="font-semibold flex-1 py-2 rounded-lg bg-gray-50 border-gray-50 dark:bg-gray-800 dark:border-gray-800 disabled:bg-white dark:disabled:bg-gray-800 disabled:border-green-500 dark:disabled:border-green-500 disabled:text-green-500 border-[2px]"
+        >
           Refer others
         </button>
       </div>
+      {mode === 'setReferralCode' ? (
+        <>
+          <div className="flex flex-col lg:flex-row justify-center items-center gap-4 lg:gap-8 self-stretch">
+            <RocketMobileIconSvg className="flex lg:hidden" />
+            <RocketPCIconSvg className="hidden lg:flex" />
+            <div className="flex flex-col gap-2 lg:gap-4">
+              <div className="text-base lg:text-xl font-semibold text-center lg:text-start">
+                Accepting a referral <br />
+                boosts your points by 10%!
+              </div>
+              <div className="text-gray-500 text-xs lg:text-base text-center lg:text-start">
+                Please enter your fren’s code below{' '}
+                <br className="inline lg:hidden" /> to accept a referral.
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col lg:flex-row gap-3 lg:gap-4 self-stretch w-full justify-center">
+            <input
+              className="w-full outline-none lg:w-[386px] bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 text-start pl-4 text-sm h-12"
+              placeholder="Please input the referral code"
+            />
+            <button className="w-full lg:w-[160px] font-bold text-base sm:text-xl bg-green-500 hover:bg-green-400 dark:hover:bg-green-600 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500">
+              Accept
+            </button>
+          </div>
+        </>
+      ) : mode === 'getReferralCode' ? (
+        <>Se</>
+      ) : (
+        <></>
+      )}
     </div>
   )
 }
