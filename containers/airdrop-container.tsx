@@ -10,9 +10,28 @@ import { BorrowIconSvg } from '../components/svg/borrow-icon-svg'
 import { ReferralIconSvg } from '../components/svg/referral-icon-svg'
 import { LeaderboardIconSvg } from '../components/svg/leaderboard-icon-svg'
 import { ClaimIconSvg } from '../components/svg/claim-icon-svg'
+import { PointIconSvg } from '../components/svg/point-icon-svg'
 
 const LeaderboardTab = () => {
-  return <div>L</div>
+  return (
+    <div className="flex flex-col items-start gap-8 mt-8">
+      <div className="flex flex-col items-start gap-4 px-4 w-full">
+        <div className="flex items-center gap-1 font-semibold text-sm lg:text-xl">
+          <PointIconSvg className="w-4 h-4 lg:w-8 lg:h-8" />
+          <div>My Point</div>
+        </div>
+        <div className="flex flex-col gap-4 w-full">
+          <div className="flex py-6 flex-col items-center w-full gap-3 bg-white rounded-xl dark:bg-gray-850">
+            <div className="text-gray-500 text-xs lg:text-lg font-semibold">
+              Total points
+            </div>
+            <div className="font-bold text-3xl lg:text-5xl">1295012</div>
+          </div>
+        </div>
+      </div>
+      <div>b</div>
+    </div>
+  )
 }
 
 const ReferralTab = () => {
@@ -163,7 +182,7 @@ export const AirdropContainer = () => {
             </div>
             <div className="flex flex-1 px-6 py-4 flex-col items-start gap-4 flex-grow flex-shrink-0 basis-0 rounded-xl ring-2 ring-gray-200">
               <div className="flex flex-row gap-2 text-lg font-semibold">
-                <ReferralIconSvg className="stroke-[#030712] stroke-2" />
+                <ReferralIconSvg className="stroke-gray-950 dark:stroke-white stroke-2" />
                 Referral points
               </div>
               <p className="font-semibold text-sm">
@@ -180,7 +199,7 @@ export const AirdropContainer = () => {
           <button
             disabled={mode === 'leaderboard'}
             onClick={() => setMode('leaderboard')}
-            className="group w-[108px] lg:w-[220px] disabled:text-green-500 flex flex-row gap-1 lg:gap-2 items-center justify-center font-bold pb-1 border-b-2 border-solid disabled:border-b-green-500 text-gray-400 dark:text-gray-500 border-b-transparent dark:border-b-transparent"
+            className="group w-[108px] lg:w-[220px] disabled:text-green-500 flex flex-row gap-1 lg:gap-2 items-center justify-center font-bold pb-1 lg:pb-3 border-b-2 border-solid disabled:border-b-green-500 text-gray-400 border-b-transparent"
           >
             <div className="relative">
               <LeaderboardIconSvg className="group-disabled:stroke-green-500 stroke-gray-400 stroke-2 w-4 h-4 lg:w-6 lg:h-6" />
@@ -190,7 +209,7 @@ export const AirdropContainer = () => {
           <button
             disabled={mode === 'referral'}
             onClick={() => setMode('referral')}
-            className="group w-[108px] lg:w-[220px] disabled:text-green-500 flex flex-row gap-1 lg:gap-2 items-center justify-center font-bold pb-1 border-b-2 border-solid disabled:border-b-green-500 text-gray-400 dark:text-gray-500 border-b-transparent dark:border-b-transparent"
+            className="group w-[108px] lg:w-[220px] disabled:text-green-500 flex flex-row gap-1 lg:gap-2 items-center justify-center font-bold pb-1 lg:pb-3 border-b-2 border-solid disabled:border-b-green-500 text-gray-400 border-b-transparent"
           >
             <div className="relative">
               <ReferralIconSvg className="group-disabled:stroke-green-500 stroke-gray-400 stroke-2 w-4 h-4 lg:w-6 lg:h-6" />
@@ -200,7 +219,7 @@ export const AirdropContainer = () => {
           <button
             disabled={mode === 'claim'}
             onClick={() => setMode('claim')}
-            className="group w-[96px] lg:w-[220px] disabled:text-green-500 flex flex-row gap-1 lg:gap-2 items-center justify-center font-bold pb-1 border-b-2 border-solid disabled:border-b-green-500 text-gray-400 dark:text-gray-500 border-b-transparent dark:border-b-transparent"
+            className="group w-[96px] lg:w-[220px] disabled:text-green-500 flex flex-row gap-1 lg:gap-2 items-center justify-center font-bold pb-1 lg:pb-3 border-b-2 border-solid disabled:border-b-green-500 text-gray-400 border-b-transparent"
           >
             <div className="relative">
               <ClaimIconSvg className="group-disabled:stroke-green-500 stroke-gray-400 stroke-2 w-4 h-4 lg:w-6 lg:h-6" />
@@ -209,15 +228,17 @@ export const AirdropContainer = () => {
           </button>
         </div>
       </div>
-      {mode === 'leaderboard' ? (
-        <LeaderboardTab />
-      ) : mode === 'referral' ? (
-        <ReferralTab />
-      ) : mode === 'claim' ? (
-        <ClaimTab />
-      ) : (
-        <></>
-      )}
+      <div className="lg:px-24">
+        {mode === 'leaderboard' ? (
+          <LeaderboardTab />
+        ) : mode === 'referral' ? (
+          <ReferralTab />
+        ) : mode === 'claim' ? (
+          <ClaimTab />
+        ) : (
+          <></>
+        )}
+      </div>
     </div>
   )
 }
