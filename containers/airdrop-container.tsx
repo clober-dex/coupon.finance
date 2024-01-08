@@ -12,10 +12,13 @@ import { LeaderboardIconSvg } from '../components/svg/leaderboard-icon-svg'
 import { ClaimIconSvg } from '../components/svg/claim-icon-svg'
 import { PointIconSvg } from '../components/svg/point-icon-svg'
 import { PointCard } from '../components/card/point-card'
+import { GoldMedalIconSvg } from '../components/svg/gold-medal-icon-svg'
+import { SilverMedalIconSvg } from '../components/svg/silver-medal-icon-svg'
+import { BronzeMedalIconSvg } from '../components/svg/bronze-medal-icon-svg'
 
 const LeaderboardTab = () => {
   return (
-    <div className="flex flex-col items-start gap-8 mt-8">
+    <div className="flex flex-col items-start gap-8 lg:gap-16 mt-8">
       <div className="flex flex-col items-start gap-4 px-4 w-full">
         <div className="flex items-center gap-1 font-semibold text-sm lg:text-xl">
           <PointIconSvg className="w-4 h-4 lg:w-8 lg:h-8" />
@@ -46,7 +49,71 @@ const LeaderboardTab = () => {
           </div>
         </div>
       </div>
-      <div>b</div>
+      <div className="flex flex-col items-start gap-4 px-4 w-full">
+        <div className="flex items-center gap-1 font-semibold text-sm lg:text-xl">
+          <LeaderboardIconSvg className="stroke-gray-950 dark:stroke-white w-4 h-4 lg:w-8 lg:h-8" />
+          <div>Leaderboard</div>
+        </div>
+        <div className="flex pt-4 pb-3 flex-col items-start gap-4 w-full rounded-xl bg-white dark:bg-gray-850">
+          <div className="px-5 items-start gap-4 self-stretch flex flex-row text-xs lg:text-sm text-gray-500">
+            <div className="w-8 lg:w-[192px]">Rank</div>
+            <div className="flex flex-row w-full">
+              <div className="flex-1">User</div>
+              <div className="flex-1">Points</div>
+            </div>
+          </div>
+          <div className="flex px-2 flex-col items-start gap-1 lg:gap-2 self-stretch text-xs lg:text-sm">
+            <div className="flex h-8 lg:h-10 px-3 items-center gap-4 self-stretch rounded bg-green-500 bg-opacity-5">
+              <div className="w-8 lg:w-[192px]">240</div>
+              <div className="flex flex-row w-full">
+                <div className="flex-1">Me (0xe30a...723c)</div>
+                <div className="flex-1 font-semibold">1295012</div>
+              </div>
+            </div>
+            <div className="flex h-8 lg:h-10 px-3 items-center gap-4 self-stretch rounded bg-amber-300 bg-opacity-10">
+              <div className="w-8 lg:w-[192px]">
+                <GoldMedalIconSvg className="w-5 h-5 lg:w-6 lg:h-6" />
+              </div>
+              <div className="flex flex-row w-full">
+                <div className="flex-1">0xe30a...723c</div>
+                <div className="flex-1">1295012</div>
+              </div>
+            </div>
+            <div className="flex h-8 lg:h-10 px-3 items-center gap-4 self-stretch rounded bg-slate-300 bg-opacity-20">
+              <div className="w-8 lg:w-[192px]">
+                <SilverMedalIconSvg className="w-5 h-5 lg:w-6 lg:h-6" />
+              </div>
+              <div className="flex flex-row w-full">
+                <div className="flex-1">0xe30a...723c</div>
+                <div className="flex-1">1295012</div>
+              </div>
+            </div>
+            <div className="flex h-8 lg:h-10 px-3 items-center gap-4 self-stretch rounded bg-orange-300 bg-opacity-20">
+              <div className="w-8 lg:w-[192px]">
+                <BronzeMedalIconSvg className="w-5 h-5 lg:w-6 lg:h-6" />
+              </div>
+              <div className="flex flex-row w-full">
+                <div className="flex-1">0xe30a...723c</div>
+                <div className="flex-1">1295012</div>
+              </div>
+            </div>
+            <div className="flex h-8 lg:h-10 px-3 items-center gap-4 self-stretch rounded">
+              <div className="w-8 lg:w-[192px] pl-1.5 lg:pl-2">4</div>
+              <div className="flex flex-row w-full">
+                <div className="flex-1">0xe30a...723c</div>
+                <div className="flex-1">1295012</div>
+              </div>
+            </div>
+            <div className="flex h-8 lg:h-10 px-3 items-center gap-4 self-stretch rounded">
+              <div className="w-8 lg:w-[192px] pl-1.5 lg:pl-2">5</div>
+              <div className="flex flex-row w-full">
+                <div className="flex-1">0xe30a...723c</div>
+                <div className="flex-1">1295012</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
