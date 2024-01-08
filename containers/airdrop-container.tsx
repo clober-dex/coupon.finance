@@ -205,7 +205,7 @@ const ReferralTab = () => {
           <div className="w-full flex flex-col items-start gap-3 lg:gap-8 self-stretch">
             <div className="flex flex-row lg:px-8 gap-2 lg:gap-3 text-sm lg:text-xl font-semibold">
               Wallets you referred
-              <div className="w-6 h-6 lg:w-9 lg:h-8 px-2 lg:px-3 py-1 bg-gray-50 rounded-2xl flex-col justify-center items-center gap-2.5 inline-flex">
+              <div className="w-6 h-6 lg:w-9 lg:h-8 px-2 lg:px-3 py-1 bg-gray-50 dark:bg-gray-800 rounded-2xl flex-col justify-center items-center gap-2.5 inline-flex">
                 2
               </div>
             </div>
