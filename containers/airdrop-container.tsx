@@ -22,6 +22,8 @@ import { InviteMobileIconSvg } from '../components/svg/invite-mobile-icon-svg'
 import { CopyIconSvg } from '../components/svg/copy-icon-svg'
 import { CouponMobileIconSvg } from '../components/svg/coupon-mobile-icon-svg'
 import { CouponPCIconSvg } from '../components/svg/coupon-pc-icon-svg'
+import { MoneyTopIconSvg } from '../components/svg/money-top-icon-svg'
+import { MoneyBottomIconSvg } from '../components/svg/money-bottom-icon-svg'
 
 const LeaderboardTab = () => {
   return (
@@ -237,8 +239,9 @@ const ReferralTab = () => {
 
 const ClaimTab = () => {
   return (
-    <div className="flex mx-4 px-4 py-8 lg:py-16 flex-col items-start self-stretch bg-white dark:bg-gray-850 rounded-2xl mt-8">
+    <div className="flex relative mx-4 px-4 py-8 lg:py-16 flex-col items-start self-stretch bg-white dark:bg-gray-850 rounded-2xl mt-8">
       <>
+        <MoneyTopIconSvg className="hidden lg:block absolute left-0 top-0 overflow-hidden" />
         <div className="flex flex-col lg:flex-row justify-center items-center gap-4 lg:gap-8 self-stretch">
           <CouponMobileIconSvg className="flex lg:hidden" />
           <CouponPCIconSvg className="hidden lg:flex" />
@@ -249,10 +252,11 @@ const ClaimTab = () => {
             </div>
             <div className="text-gray-500 text-xs lg:text-base text-center lg:text-start">
               The more points you earn, the more $CPN you get!
-              <br className="inline lg:hidden" /> Airdrop will come soon.
+              <br /> Airdrop will come soon.
             </div>
           </div>
         </div>
+        <MoneyBottomIconSvg className="hidden lg:block absolute right-0 bottom-0 overflow-hidden" />
       </>
     </div>
   )
