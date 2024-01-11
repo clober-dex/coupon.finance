@@ -23,6 +23,7 @@ import { applyPercent } from '../../utils/bigint'
 export const LeveragePositionCard = ({
   position,
   multiple,
+  multipleFactor,
   pnl,
   price,
   collateralPrice,
@@ -37,6 +38,7 @@ export const LeveragePositionCard = ({
 }: {
   position: LoanPosition
   multiple: number
+  multipleFactor?: number
   pnl: number
   price: BigDecimal
   collateralPrice: BigDecimal
@@ -252,7 +254,7 @@ export const LeveragePositionCard = ({
             <button
               className="flex-1 bg-green-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-green-500 font-bold px-3 py-2 rounded text-sm"
               onClick={onAdjustMultiple}
-              disabled={position.isPending}
+              disabled={position.isPending || !multipleFactor}
             >
               Adjust
             </button>
