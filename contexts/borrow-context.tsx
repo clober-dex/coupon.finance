@@ -154,7 +154,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { data: pnls } = useQuery(
     ['pnls', selectedChain.id, userAddress],
     async () => {
-      if (!userAddress || !feeData || !feeData.gasPrice) {
+      if (!feeData || !feeData.gasPrice) {
         return {}
       }
       const pnls = await Promise.all(
@@ -196,7 +196,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }, {} as { [key in number]: number })
     },
     {
-      refetchInterval: 30 * 1000,
+      refetchInterval: 60 * 1000,
       refetchIntervalInBackground: true,
     },
   )
@@ -204,7 +204,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { data: multipleFactors } = useQuery(
     ['multipleFactors', selectedChain.id, userAddress],
     async () => {
-      if (!userAddress || !feeData || !feeData.gasPrice) {
+      if (!feeData || !feeData.gasPrice) {
         return {}
       }
       const gasPrice = feeData.gasPrice
@@ -249,7 +249,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }, {} as { [key in number]: number })
     },
     {
-      refetchInterval: 30 * 1000,
+      refetchInterval: 60 * 1000,
       refetchIntervalInBackground: true,
     },
   )
