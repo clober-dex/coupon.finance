@@ -250,7 +250,6 @@ const AdjustLeverageModalContainer = ({
     () => multiple !== 1 && !borrowMore.pathId && !repayWithCollateral.pathId,
     [borrowMore.pathId, multiple, repayWithCollateral.pathId],
   )
-  console.log('multiple', previousMultiple)
   return (
     <AdjustLeverageModal
       isLoadingResults={isLoadingResults}
