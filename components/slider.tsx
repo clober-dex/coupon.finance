@@ -14,7 +14,7 @@ const TickMark = ({
 }) => {
   const right = Math.floor(width / 2)
   return (
-    <React.Fragment key={position}>
+    <React.Fragment key={`${position}-${label}`}>
       <div
         className={`absolute h-6 ${
           disabled ? '' : 'group-hover:h-9'
