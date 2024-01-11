@@ -172,7 +172,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           )
           const { amountOut } = await fetchAmountOutByOdos({
             chainId: selectedChain.id,
-            amountIn: (position.amount - maxRefund).toString(),
+            amountIn: position.amount - maxRefund,
             tokenIn: position.underlying.address,
             tokenOut: position.collateral.underlying.address,
             slippageLimitPercent: 0.5,
@@ -1059,7 +1059,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       const SLIPPAGE_LIMIT_PERCENT = 0.5
       const { amountOut: repaidCollateralAmount } = await fetchAmountOutByOdos({
         chainId: selectedChain.id,
-        amountIn: position.amount.toString(),
+        amountIn: position.amount,
         tokenIn: position.underlying.address,
         tokenOut: position.collateral.underlying.address,
         slippageLimitPercent: SLIPPAGE_LIMIT_PERCENT,
@@ -1074,7 +1074,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       const { pathId, amountOut: repaidDebtAmount } =
         await fetchAmountOutByOdos({
           chainId: selectedChain.id,
-          amountIn: amountIn.toString(),
+          amountIn,
           tokenIn: position.collateral.underlying.address,
           tokenOut: position.underlying.address,
           slippageLimitPercent: SLIPPAGE_LIMIT_PERCENT,

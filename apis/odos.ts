@@ -137,9 +137,9 @@ export async function fetchAmountOutByOdos({
   gasPrice,
 }: {
   chainId: CHAIN_IDS
-  amountIn: string
-  tokenIn: string
-  tokenOut: string
+  amountIn: bigint
+  tokenIn: `0x${string}`
+  tokenOut: `0x${string}`
   slippageLimitPercent: number
   userAddress?: string
   gasPrice: number
