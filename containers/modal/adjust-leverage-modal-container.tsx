@@ -37,10 +37,9 @@ const AdjustLeverageModalContainer = ({
     leverageMore,
     closeLeveragePosition,
   } = useBorrowContext()
-  const previousMultiple = Math.floor(
+  const previousMultiple =
     Number(position.collateralAmount) /
-      Number(position.collateralAmount - position.borrowedCollateralAmount),
-  )
+    Number(position.collateralAmount - position.borrowedCollateralAmount)
   const [multiple, setMultiple] = useState(previousMultiple)
   const [multipleBuffer, setMultipleBuffer] = useState({
     previous: multiple,
@@ -251,7 +250,7 @@ const AdjustLeverageModalContainer = ({
     () => multiple !== 1 && !borrowMore.pathId && !repayWithCollateral.pathId,
     [borrowMore.pathId, multiple, repayWithCollateral.pathId],
   )
-
+  console.log('multiple', previousMultiple)
   return (
     <AdjustLeverageModal
       isLoadingResults={isLoadingResults}
