@@ -149,6 +149,14 @@ export async function fetchAmountOutByOdos({
   pathViz: PathViz | undefined
   pathId: string
 }> {
+  if (amountIn <= 0n) {
+    return {
+      amountOut: 0n,
+      gasLimit: 0n,
+      pathViz: undefined,
+      pathId: '',
+    }
+  }
   const result: {
     outAmounts: string[]
     pathViz: PathViz
