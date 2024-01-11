@@ -5,23 +5,22 @@ import BigNumber from 'bignumber.js'
 
 import { LoanPosition } from '../../model/loan-position'
 import AdjustLeverageModal from '../../components/modal/adjust-leverage-modal'
-import { calculateLtv, calculateMaxLoanableAmount } from '../../utils/ltv'
+import { calculateLtv } from '../../utils/ltv'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { useChainContext } from '../../contexts/chain-context'
-import { abs, applyPercent, max } from '../../utils/bigint'
-import { fetchAmountOutByOdos, fetchCallDataByOdos } from '../../apis/odos'
-import { fetchMarketsByQuoteTokenAddress } from '../../apis/market'
+import { abs } from '../../utils/bigint'
+import { fetchCallDataByOdos } from '../../apis/odos'
 import { CONTRACT_ADDRESSES } from '../../constants/addresses'
 import { CHAIN_IDS } from '../../constants/chain'
-import {
-  calculateCouponsToBorrow,
-  calculateCouponsToRepay,
-} from '../../model/market'
 import { MIN_DEBT_SIZE_IN_ETH } from '../../constants/debt'
 import { ethValue } from '../../utils/currency'
 import { useBorrowContext } from '../../contexts/borrow-context'
+import {
+  DEFAULT_LEVERAGE_SIMULATION,
+  simulateLeverage,
+  SLIPPAGE_LIMIT_PERCENT,
+} from '../../model/leverage'
 
-const SLIPPAGE_LIMIT_PERCENT = 0.5
 const AdjustLeverageModalContainer = ({
   position,
   onClose,
@@ -84,154 +83,22 @@ const AdjustLeverageModalContainer = ({
       selectedChain,
     ], // TODO: useDebounce
     async () => {
-      const inputCollateralAmount =
-        position.collateralAmount - position.borrowedCollateralAmount
-      const collateralAmountDelta =
-        applyPercent(inputCollateralAmount, multiple * 100) -
-        position.collateralAmount
-      if (
-        !feeData?.gasPrice ||
-        !asset ||
-        abs(collateralAmountDelta) <= 100n ||
-        multiple === 1
-      ) {
-        return {
-          debtAmount: 0n,
-          collateralAmount: 0n,
-          collateralAmountDelta: 0n,
-          borrowMore: {
-            pathId: undefined,
-            interest: 0n,
-            maxInterest: 0n,
-            availableToBorrow: 0n,
-            debtAmountWithoutCouponFee: 0n,
-            maxLoanableAmountExcludingCouponFee: 0n,
-          },
-          repayWithCollateral: {
-            pathId: undefined,
-            refund: 0n,
-            maxRefund: 0n,
-            repayAmount: 0n,
-          },
-        }
-      }
-
-      const collateralAmount = position.collateralAmount + collateralAmountDelta
-      const maxLoanableAmountExcludingCouponFee =
-        prices[asset.underlying.address] &&
-        prices[position.collateral.underlying.address]
-          ? max(
-              calculateMaxLoanableAmount(
-                position.underlying,
-                prices[position.underlying.address],
-                position.collateral,
-                prices[position.collateral.underlying.address],
-                collateralAmount,
-              ) - position.amount,
-              0n,
-            )
-          : 0n
-
-      const [{ amountOut, pathId: repayWithCollateralPathId }, markets] =
-        await Promise.all([
-          fetchAmountOutByOdos({
-            chainId: selectedChain.id,
-            amountIn: abs(collateralAmountDelta),
-            tokenIn: position.collateral.underlying.address,
-            tokenOut: asset.underlying.address,
-            slippageLimitPercent: SLIPPAGE_LIMIT_PERCENT,
-            userAddress:
-              CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
-                .BorrowController,
-            gasPrice: Number(feeData.gasPrice),
-          }),
-          (
-            await fetchMarketsByQuoteTokenAddress(
-              selectedChain.id,
-              position.substitute.address,
-            )
-          ).filter((market) => market.epoch <= position.toEpoch.id),
-        ])
-
-      const [
-        { interest, maxInterest, available: availableToBorrow },
-        { refund, maxRefund },
-        { pathId: borrowMorePathId },
-      ] = await Promise.all([
-        calculateCouponsToBorrow(
-          position.substitute,
-          markets,
-          maxLoanableAmountExcludingCouponFee,
-          amountOut,
-        ),
-        calculateCouponsToRepay(
-          position.substitute,
-          markets,
-          position.amount,
-          amountOut,
-        ),
-        multiple > previousMultiple
-          ? fetchAmountOutByOdos({
-              chainId: selectedChain.id,
-              amountIn: amountOut,
-              tokenIn: asset.underlying.address,
-              tokenOut: position.collateral.underlying.address,
-              slippageLimitPercent: SLIPPAGE_LIMIT_PERCENT,
-              userAddress:
-                CONTRACT_ADDRESSES[selectedChain.id as CHAIN_IDS]
-                  .BorrowController,
-              gasPrice: Number(feeData.gasPrice),
-            })
-          : Promise.resolve({ pathId: undefined }),
-      ])
-      return {
-        debtAmount:
-          position.amount +
-          (multiple === previousMultiple
-            ? 0n
-            : multiple > previousMultiple
-            ? amountOut + interest
-            : -(amountOut + refund)),
-        collateralAmount,
-        collateralAmountDelta,
-        borrowMore: {
-          pathId: borrowMorePathId,
-          interest,
-          maxInterest,
-          availableToBorrow,
-          debtAmountWithoutCouponFee: amountOut,
-          maxLoanableAmountExcludingCouponFee,
-        },
-        repayWithCollateral: {
-          pathId: repayWithCollateralPathId,
-          refund,
-          maxRefund,
-          repayAmount: amountOut,
-        },
-      }
+      return asset && feeData && feeData.gasPrice
+        ? simulateLeverage(
+            multiple,
+            previousMultiple,
+            position,
+            asset,
+            prices,
+            selectedChain.id as CHAIN_IDS,
+            feeData.gasPrice,
+          )
+        : DEFAULT_LEVERAGE_SIMULATION
     },
     {
       refetchInterval: 10 * 1000,
       refetchIntervalInBackground: true,
-      initialData: {
-        debtAmount: 0n,
-        collateralAmount: 0n,
-        collateralAmountDelta: 0n,
-        borrowMore: {
-          pathId: undefined,
-          interest: 0n,
-          maxInterest: 0n,
-          availableToBorrow: 0n,
-          debtAmountWithoutCouponFee: 0n,
-          maxLoanableAmountExcludingCouponFee: 0n,
-        },
-        repayWithCollateral: {
-          pathId: undefined,
-          refund: 0n,
-          maxRefund: 0n,
-          repayAmount: 0n,
-        },
-      },
+      initialData: DEFAULT_LEVERAGE_SIMULATION,
     },
   )
 
