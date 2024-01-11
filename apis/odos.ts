@@ -173,7 +173,7 @@ export async function fetchAmountOutByOdos({
       inputTokens: [
         {
           tokenAddress: tokenIn,
-          amount: amountIn,
+          amount: amountIn.toString(),
         },
       ],
       outputTokens: [
