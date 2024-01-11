@@ -83,7 +83,7 @@ export const LongLeverageCard = ({
                 </div>
                 <div className="flex flex-col items-end gap-1">
                   <div className="text-xs sm:text-sm text-gray-400">
-                    Current Price
+                    Mark Price
                   </div>
                   <div className="flex items-baseline gap-1">
                     <span className="text-base sm:text-xl font-bold">

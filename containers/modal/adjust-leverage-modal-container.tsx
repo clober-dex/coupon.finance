@@ -137,7 +137,7 @@ const AdjustLeverageModalContainer = ({
         await Promise.all([
           fetchAmountOutByOdos({
             chainId: selectedChain.id,
-            amountIn: abs(collateralAmountDelta).toString(),
+            amountIn: abs(collateralAmountDelta),
             tokenIn: position.collateral.underlying.address,
             tokenOut: asset.underlying.address,
             slippageLimitPercent: SLIPPAGE_LIMIT_PERCENT,
@@ -174,7 +174,7 @@ const AdjustLeverageModalContainer = ({
         multiple > previousMultiple
           ? fetchAmountOutByOdos({
               chainId: selectedChain.id,
-              amountIn: amountOut.toString(),
+              amountIn: amountOut,
               tokenIn: asset.underlying.address,
               tokenOut: position.collateral.underlying.address,
               slippageLimitPercent: SLIPPAGE_LIMIT_PERCENT,

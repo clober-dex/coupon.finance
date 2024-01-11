@@ -231,7 +231,7 @@ const LeverageFormContainer = ({
       const { amountOut: debtAmountWithoutCouponFee } =
         await fetchAmountOutByOdos({
           chainId: selectedChain.id,
-          amountIn: borrowedCollateralAmount.toString(),
+          amountIn: borrowedCollateralAmount,
           tokenIn: collateral.underlying.address,
           tokenOut: asset.underlying.address,
           slippageLimitPercent: SLIPPAGE_LIMIT_PERCENT,
@@ -247,7 +247,7 @@ const LeverageFormContainer = ({
         ),
         fetchAmountOutByOdos({
           chainId: selectedChain.id,
-          amountIn: debtAmountWithoutCouponFee.toString(),
+          amountIn: debtAmountWithoutCouponFee,
           tokenIn: asset.underlying.address,
           tokenOut: collateral.underlying.address,
           slippageLimitPercent: SLIPPAGE_LIMIT_PERCENT,
