@@ -1,3 +1,5 @@
+import { isAddressEqual } from 'viem'
+
 import { abs, applyPercent, max } from '../utils/bigint'
 import { calculateMaxLoanableAmount } from '../utils/ltv'
 import { fetchAmountOutByOdos } from '../apis/odos'
@@ -56,7 +58,6 @@ export const simulateLeverage = async (
   multiple: number,
   previousMultiple: number,
   position: LoanPosition,
-  asset: Asset,
   prices: Prices,
   chainId: CHAIN_IDS,
   gasPrice: bigint,
@@ -66,13 +67,13 @@ export const simulateLeverage = async (
   const collateralAmountDelta =
     applyPercent(inputCollateralAmount, multiple * 100) -
     position.collateralAmount
-  if (!asset || abs(collateralAmountDelta) <= 100n || multiple === 1) {
+  if (abs(collateralAmountDelta) <= 100n || multiple === 1) {
     return DEFAULT_LEVERAGE_SIMULATION
   }
 
   const collateralAmount = position.collateralAmount + collateralAmountDelta
   const maxLoanableAmountExcludingCouponFee =
-    prices[asset.underlying.address] &&
+    prices[position.underlying.address] &&
     prices[position.collateral.underlying.address]
       ? max(
           calculateMaxLoanableAmount(
@@ -92,7 +93,7 @@ export const simulateLeverage = async (
         chainId,
         amountIn: abs(collateralAmountDelta),
         tokenIn: position.collateral.underlying.address,
-        tokenOut: asset.underlying.address,
+        tokenOut: position.underlying.address,
         slippageLimitPercent: SLIPPAGE_LIMIT_PERCENT,
         userAddress: CONTRACT_ADDRESSES[chainId as CHAIN_IDS].BorrowController,
         gasPrice: Number(gasPrice),
@@ -126,7 +127,7 @@ export const simulateLeverage = async (
       ? fetchAmountOutByOdos({
           chainId,
           amountIn: amountOut,
-          tokenIn: asset.underlying.address,
+          tokenIn: position.underlying.address,
           tokenOut: position.collateral.underlying.address,
           slippageLimitPercent: SLIPPAGE_LIMIT_PERCENT,
           userAddress:

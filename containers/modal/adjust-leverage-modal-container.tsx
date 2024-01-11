@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useFeeData, useQuery } from 'wagmi'
-import { isAddressEqual, zeroAddress } from 'viem'
+import { zeroAddress } from 'viem'
 import BigNumber from 'bignumber.js'
 
 import { LoanPosition } from '../../model/loan-position'
@@ -30,7 +30,7 @@ const AdjustLeverageModalContainer = ({
 }) => {
   const { selectedChain } = useChainContext()
   const { data: feeData } = useFeeData()
-  const { prices, assets } = useCurrencyContext()
+  const { prices } = useCurrencyContext()
   const {
     repayWithCollateral: deleverage,
     leverageMore,
@@ -44,12 +44,6 @@ const AdjustLeverageModalContainer = ({
     previous: multiple,
     updateAt: Date.now(),
   })
-
-  const asset = useMemo(() => {
-    return assets.find((asset) =>
-      isAddressEqual(asset.underlying.address, position.underlying.address),
-    )
-  }, [assets, position.underlying.address])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -83,12 +77,11 @@ const AdjustLeverageModalContainer = ({
       selectedChain,
     ], // TODO: useDebounce
     async () => {
-      return asset && feeData && feeData.gasPrice
+      return feeData && feeData.gasPrice
         ? simulateLeverage(
             multiple,
             previousMultiple,
             position,
-            asset,
             prices,
             selectedChain.id as CHAIN_IDS,
             feeData.gasPrice,
