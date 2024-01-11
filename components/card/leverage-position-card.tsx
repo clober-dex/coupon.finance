@@ -252,7 +252,7 @@ export const LeveragePositionCard = ({
         <div className="flex items-start gap-3 self-stretch">
           {!isLiquidated ? (
             <button
-              className="flex-1 bg-green-500 bg-opacity-10 hover:bg-opacity-20 disabled:animate-pulse disabled:text-gray-500 disabled:bg-gray-100 text-green-500 font-bold px-3 py-2 rounded text-sm"
+              className="flex-1 bg-green-500 bg-opacity-10 hover:bg-opacity-20 disabled:text-gray-500 disabled:bg-gray-100 text-green-500 font-bold px-3 py-2 rounded text-sm"
               onClick={onAdjustMultiple}
               disabled={position.isPending || !multipleFactor}
             >
