@@ -54,7 +54,7 @@ export const DEFAULT_LEVERAGE_SIMULATION: LeverageSimulation = {
   },
 }
 
-export const simulateLeverage = async (
+export const simulateLeverageAdjusting = async (
   multiple: number,
   previousMultiple: number,
   position: LoanPosition,

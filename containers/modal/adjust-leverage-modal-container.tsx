@@ -17,7 +17,7 @@ import { ethValue } from '../../utils/currency'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import {
   DEFAULT_LEVERAGE_SIMULATION,
-  simulateLeverage,
+  simulateLeverageAdjusting,
   SLIPPAGE_LIMIT_PERCENT,
 } from '../../model/leverage'
 
@@ -78,7 +78,7 @@ const AdjustLeverageModalContainer = ({
     ], // TODO: useDebounce
     async () => {
       return feeData && feeData.gasPrice
-        ? simulateLeverage(
+        ? simulateLeverageAdjusting(
             multiple,
             previousMultiple,
             position,
