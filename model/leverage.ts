@@ -1,6 +1,4 @@
-import { isAddressEqual } from 'viem'
-
-import { abs, applyPercent, max } from '../utils/bigint'
+import { abs, max } from '../utils/bigint'
 import { calculateMaxLoanableAmount } from '../utils/ltv'
 import { fetchAmountOutByOdos } from '../apis/odos'
 import { CONTRACT_ADDRESSES } from '../constants/addresses'
@@ -9,7 +7,6 @@ import { fetchMarketsByQuoteTokenAddress } from '../apis/market'
 
 import { calculateCouponsToBorrow, calculateCouponsToRepay } from './market'
 import { LoanPosition } from './loan-position'
-import { Asset } from './asset'
 import { Prices } from './prices'
 
 export const SLIPPAGE_LIMIT_PERCENT = 0.5
@@ -17,7 +14,6 @@ export const SLIPPAGE_LIMIT_PERCENT = 0.5
 export type LeverageSimulation = {
   debtAmount: bigint
   collateralAmount: bigint
-  collateralAmountDelta: bigint
   borrowMore: {
     pathId: undefined | string
     interest: bigint
@@ -37,7 +33,6 @@ export type LeverageSimulation = {
 export const DEFAULT_LEVERAGE_SIMULATION: LeverageSimulation = {
   debtAmount: 0n,
   collateralAmount: 0n,
-  collateralAmountDelta: 0n,
   borrowMore: {
     pathId: undefined,
     interest: 0n,
@@ -54,7 +49,8 @@ export const DEFAULT_LEVERAGE_SIMULATION: LeverageSimulation = {
   },
 }
 
-export const simulateLeverageAdjusting = async (
+export const simulateAdjustingLeverage = async (
+  collateralAmountDelta: bigint,
   multiple: number,
   previousMultiple: number,
   position: LoanPosition,
@@ -62,11 +58,6 @@ export const simulateLeverageAdjusting = async (
   chainId: CHAIN_IDS,
   gasPrice: bigint,
 ): Promise<LeverageSimulation> => {
-  const inputCollateralAmount =
-    position.collateralAmount - position.borrowedCollateralAmount
-  const collateralAmountDelta =
-    applyPercent(inputCollateralAmount, multiple * 100) -
-    position.collateralAmount
   if (abs(collateralAmountDelta) <= 100n || multiple === 1) {
     return DEFAULT_LEVERAGE_SIMULATION
   }
@@ -145,7 +136,6 @@ export const simulateLeverageAdjusting = async (
         ? amountOut + interest
         : -(amountOut + refund)),
     collateralAmount,
-    collateralAmountDelta,
     borrowMore: {
       pathId: borrowMorePathId,
       interest,

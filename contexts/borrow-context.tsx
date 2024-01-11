@@ -28,7 +28,7 @@ import { applyPercent, max } from '../utils/bigint'
 import { fetchAmountOutByOdos, fetchCallDataByOdos } from '../apis/odos'
 import { fetchMarketsByQuoteTokenAddress } from '../apis/market'
 import { calculateCouponsToRepay } from '../model/market'
-import { simulateLeverageAdjusting } from '../model/leverage'
+import { simulateAdjustingLeverage } from '../model/leverage'
 import { calculateLtv } from '../utils/ltv'
 
 import { useCurrencyContext } from './currency-context'
@@ -213,17 +213,20 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           if (!position.isLeverage) {
             return 0
           }
-          const maxMultiple =
-            Math.floor(
-              1 /
-                (1 -
-                  Number(position.collateral.liquidationTargetLtv) /
-                    Number(position.collateral.ltvPrecision)),
-            ) - 0.02
+          const liquidationTargetLtv =
+            Number(position.collateral.liquidationTargetLtv) /
+            Number(position.collateral.ltvPrecision)
+          const maxMultiple = Math.floor(1 / (1 - liquidationTargetLtv)) - 0.02
+          const inputCollateralAmount =
+            position.collateralAmount - position.borrowedCollateralAmount
+          const collateralAmountDelta =
+            applyPercent(inputCollateralAmount, maxMultiple * 100) -
+            position.collateralAmount
           const { debtAmount, collateralAmount } =
-            await simulateLeverageAdjusting(
+            await simulateAdjustingLeverage(
+              collateralAmountDelta,
               maxMultiple,
-              0,
+              1,
               position,
               prices,
               selectedChain.id,
@@ -237,13 +240,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             prices[position.collateral.underlying.address],
             collateralAmount,
           )
-          return Math.min(
-            1,
-            maxLTV /
-              ((Number(position.collateral.liquidationTargetLtv) /
-                Number(position.collateral.ltvPrecision)) *
-                100),
-          )
+          return Math.min(1, maxLTV / (liquidationTargetLtv * 100))
         }),
       )
       return multipleFactors.reduce((acc, multipleFactor, index) => {

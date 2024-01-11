@@ -8,7 +8,7 @@ import AdjustLeverageModal from '../../components/modal/adjust-leverage-modal'
 import { calculateLtv } from '../../utils/ltv'
 import { useCurrencyContext } from '../../contexts/currency-context'
 import { useChainContext } from '../../contexts/chain-context'
-import { abs } from '../../utils/bigint'
+import { abs, applyPercent } from '../../utils/bigint'
 import { fetchCallDataByOdos } from '../../apis/odos'
 import { CONTRACT_ADDRESSES } from '../../constants/addresses'
 import { CHAIN_IDS } from '../../constants/chain'
@@ -17,7 +17,7 @@ import { ethValue } from '../../utils/currency'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import {
   DEFAULT_LEVERAGE_SIMULATION,
-  simulateLeverageAdjusting,
+  simulateAdjustingLeverage,
   SLIPPAGE_LIMIT_PERCENT,
 } from '../../model/leverage'
 
@@ -35,10 +35,13 @@ const AdjustLeverageModalContainer = ({
     repayWithCollateral: deleverage,
     leverageMore,
     closeLeveragePosition,
+    multipleFactors,
   } = useBorrowContext()
+  const multipleFactor = multipleFactors[Number(position.id)]
   const previousMultiple =
-    Number(position.collateralAmount) /
-    Number(position.collateralAmount - position.borrowedCollateralAmount)
+    (Number(position.collateralAmount) /
+      Number(position.collateralAmount - position.borrowedCollateralAmount)) *
+    multipleFactor
   const [multiple, setMultiple] = useState(previousMultiple)
   const [multipleBuffer, setMultipleBuffer] = useState({
     previous: multiple,
@@ -60,15 +63,18 @@ const AdjustLeverageModalContainer = ({
     return () => clearInterval(interval)
   }, [multiple, multipleBuffer.previous, multipleBuffer.updateAt])
 
+  const collateralAmountDelta = useMemo(() => {
+    return (
+      applyPercent(
+        position.collateralAmount,
+        (multiple / (previousMultiple * multipleFactor)) * 100,
+      ) - position.collateralAmount
+    )
+  }, [multiple, multipleFactor, position.collateralAmount, previousMultiple])
+
   // ready to calculate
   const {
-    data: {
-      collateralAmountDelta,
-      debtAmount,
-      collateralAmount,
-      borrowMore,
-      repayWithCollateral,
-    },
+    data: { debtAmount, collateralAmount, borrowMore, repayWithCollateral },
   } = useQuery(
     [
       'adjust-leverage-position-simulate',
@@ -78,7 +84,8 @@ const AdjustLeverageModalContainer = ({
     ], // TODO: useDebounce
     async () => {
       return feeData && feeData.gasPrice
-        ? simulateLeverageAdjusting(
+        ? simulateAdjustingLeverage(
+            collateralAmountDelta,
             multiple,
             previousMultiple,
             position,
