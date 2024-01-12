@@ -8,7 +8,11 @@ import { useCurrencyContext } from '../../contexts/currency-context'
 import { fetchBorrowApyByEpochsBorrowed } from '../../apis/market'
 import { useBorrowContext } from '../../contexts/borrow-context'
 import { Collateral, generateDummyCollateral } from '../../model/collateral'
-import { calculateLtv, calculateMaxLoanableAmount } from '../../utils/ltv'
+import {
+  calculateLiquidationPrice,
+  calculateLtv,
+  calculateMaxLoanableAmount,
+} from '../../utils/ltv'
 import { max, min } from '../../utils/bigint'
 import { BorrowForm } from '../../components/form/borrow-form'
 import { useChainContext } from '../../contexts/chain-context'
@@ -194,6 +198,7 @@ const BorrowFormContainer = ({
         0n,
       )}
       interest={interest}
+      borrowingFeePercentage={(Number(interest) / Number(borrowAmount)) * 100}
       borrowApy={apy}
       borrowLTV={
         collateral &&
@@ -228,6 +233,21 @@ const BorrowFormContainer = ({
       setEpochs={setEpochs}
       balances={balances}
       prices={prices}
+      liquidationPrice={
+        collateral &&
+        asset &&
+        prices[asset.underlying.address] &&
+        prices[collateral.underlying.address]
+          ? calculateLiquidationPrice(
+              asset.underlying,
+              prices[asset.underlying.address],
+              collateral,
+              prices[collateral.underlying.address],
+              borrowAmount,
+              collateralAmount,
+            )
+          : 0
+      }
       actionButtonProps={{
         disabled:
           collateralAmount === 0n ||

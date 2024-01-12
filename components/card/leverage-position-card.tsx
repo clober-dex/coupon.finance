@@ -4,7 +4,6 @@ import { Tooltip } from 'react-tooltip'
 import { LoanPosition } from '../../model/loan-position'
 import {
   BigDecimal,
-  dollarValue,
   formatDollarValue,
   formatUnits,
   toCommaSeparated,
@@ -18,6 +17,7 @@ import {
 import { CurrencyIcon } from '../icon/currency-icon'
 import { QuestionMarkSvg } from '../svg/question-mark-svg'
 import { isStableCoin } from '../../contexts/currency-context'
+import { calculateLiquidationPrice, calculateLtv } from '../../utils/ltv'
 
 export const LeveragePositionCard = ({
   position,
@@ -63,35 +63,25 @@ export const LeveragePositionCard = ({
     [position.collateral.underlying, position.underlying],
   )
   const [currentLtv, liquidationPrice] = useMemo(() => {
-    const collateralDollarValue = dollarValue(
-      position.collateralAmount,
-      position.collateral.underlying.decimals,
-      collateralPrice,
-    )
-    const debtDollarValue = dollarValue(
-      position.amount,
-      position.underlying.decimals,
-      price,
-    )
-    const liquidationThreshold =
-      Number(position.collateral.liquidationThreshold) /
-      Number(position.collateral.ltvPrecision)
-    const currentPrice = Number(price.value) / Number(collateralPrice.value)
-    const liquidatePrice = collateralDollarValue
-      .div(debtDollarValue)
-      .times(liquidationThreshold)
-      .times(currentPrice)
-      .toNumber()
     return [
-      debtDollarValue.times(100).div(collateralDollarValue),
-      isStableCoin(position.collateral.underlying) ||
-      isStableCoin(position.underlying)
-        ? isShortPosition
-          ? liquidatePrice
-          : 1 / liquidatePrice
-        : 0,
+      calculateLtv(
+        position.underlying,
+        price,
+        position.amount,
+        position.collateral,
+        collateralPrice,
+        position.collateralAmount,
+      ),
+      calculateLiquidationPrice(
+        position.underlying,
+        price,
+        position.collateral,
+        collateralPrice,
+        position.amount,
+        position.collateralAmount,
+      ),
     ]
-  }, [collateralPrice, isShortPosition, position, price])
+  }, [collateralPrice, position, price])
 
   return (
     <div className="flex w-full pb-4 flex-col items-center gap-3 shrink-0  bg-white dark:bg-gray-800 rounded-xl">

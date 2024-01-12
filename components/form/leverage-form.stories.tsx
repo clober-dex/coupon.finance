@@ -16,6 +16,7 @@ const MockedLeverageForm = ({ ...args }) => {
       setBorrowCurrency={setBorrowCurrency}
       availableBorrowCurrencies={args.availableBorrowCurrencies}
       interest={args.interest}
+      borrowingFeePercentage={args.borrowingFeePercentage}
       borrowApy={args.borrowApy}
       borrowLTV={args.borrowLTV}
       interestsByEpochsBorrowed={args.interestsByEpochsBorrowed}
@@ -33,6 +34,7 @@ const MockedLeverageForm = ({ ...args }) => {
       maxAvailableMultiple={args.maxAvailableMultiple}
       balances={args.balances}
       prices={args.prices}
+      liquidationPrice={args.liquidationPrice}
       actionButtonProps={args.actionButtonProps}
     />
   )
@@ -59,6 +61,7 @@ export const Default: Story = {
       },
     ],
     interest: 1000000000000000000n,
+    borrowingFeePercentage: 3,
     borrowApy: 10,
     borrowLTV: 60,
     interestsByEpochsBorrowed: [
@@ -108,6 +111,7 @@ export const Default: Story = {
         decimals: 8,
       },
     },
+    liquidationPrice: 2000,
     actionButtonProps: {
       disabled: false,
       onClick: () => {},
@@ -133,6 +137,7 @@ export const SelectDebtAsset: Story = {
       },
     ],
     interest: 1000000000000000000n,
+    borrowingFeePercentage: 3,
     borrowApy: 10,
     borrowLTV: 60,
     interestsByEpochsBorrowed: [
@@ -182,6 +187,7 @@ export const SelectDebtAsset: Story = {
         decimals: 8,
       },
     },
+    liquidationPrice: 2000,
     actionButtonProps: {
       disabled: false,
       onClick: () => {},
