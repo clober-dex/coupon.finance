@@ -52,7 +52,7 @@ export const BorrowCard = ({
               Fixed APY
             </div>
           </div>
-          <div className="group flex flex-col items-start gap-6 self-stretch">
+          <div className="group flex flex-col items-start gap-[52px] group-hover:gap-6 self-stretch">
             <div className="flex flex-col items-start gap-4 self-stretch group-hover:hidden">
               <div className="flex items-center self-stretch">
                 <div className="flex flex-col items-start gap-1 flex-grow flex-shrink-0 basis-0">
@@ -111,7 +111,7 @@ export const BorrowCard = ({
                 : apys
               ).map(({ date, apy }, index) => (
                 <div
-                  className="flex-grow flex-shrink basis-1/2 pb-1 flex flex-col gap-1"
+                  className="sm:h-[56px] md:h-[50px] flex-grow flex-shrink basis-1/2 pb-1 flex flex-col gap-1"
                   key={index}
                 >
                   <div className="felx flex-grow shrink-0 basis-0 font-bold text-lg">
@@ -125,7 +125,7 @@ export const BorrowCard = ({
                 </div>
               ))}
             </div>
-            <div className="w-full flex sm:absolute sm:bottom-4 sm:h-12 md:w-[264px] lg:w-[277px] flex-col items-center justify-center self-stretch bg-green-500 rounded-lg h-12 px-3 py-2 font-bold text-base text-white gap-2 hover:bg-green-400 dark:hover:bg-green-600">
+            <div className="w-full flex md:absolute sm:bottom-4 sm:h-12 md:w-[264px] lg:w-[277px] flex-col items-center justify-center self-stretch bg-green-500 rounded-lg h-12 px-3 py-2 font-bold text-base text-white gap-2 hover:bg-green-400 dark:hover:bg-green-600">
               Borrow
             </div>
           </div>

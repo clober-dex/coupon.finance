@@ -32,7 +32,7 @@ export const ShortLeverageCard = ({
   return (
     <Link href={`/leverage/${debtCurrency.symbol}_SHORT`}>
       <div
-        className={`relative h-[300px] ${
+        className={`relative h-[310px] ${
           collateralCurrencies.length === 1 ? '' : 'group '
         } flex flex-col w-full px-4 py-6 items-center gap-4 bg-white dark:bg-gray-800 rounded-xl`}
       >
@@ -124,7 +124,7 @@ export const ShortLeverageCard = ({
                 : collateralCurrencies
               ).map((currency, index) => (
                 <div
-                  className="flex-grow flex-shrink basis-1/2 pb-1 flex flex-col gap-1"
+                  className="h-[37.3px] sm:h-[44px] md:h-[50px] flex-grow flex-shrink basis-1/2 pb-1 flex flex-col gap-0.5"
                   key={index}
                 >
                   <div className="w-[128px] flex items-center gap-1 self-stretch">
@@ -151,7 +151,7 @@ export const ShortLeverageCard = ({
                 </div>
               ))}
             </div>
-            <div className="w-full flex sm:absolute sm:bottom-4 sm:h-12 md:w-[264px] lg:w-[277px] flex-col items-center justify-center self-stretch bg-green-500 rounded-lg h-12 px-3 py-2 font-bold text-base text-white gap-2 hover:bg-green-400 dark:hover:bg-green-600">
+            <div className="w-full flex mt-4 sm:mt-0 md:absolute sm:bottom-4 sm:h-12 md:w-[264px] lg:w-[277px] flex-col items-center justify-center self-stretch bg-green-500 rounded-lg h-12 px-3 py-2 font-bold text-base text-white gap-2 hover:bg-green-400 dark:hover:bg-green-600">
               Leverage
             </div>
           </div>
