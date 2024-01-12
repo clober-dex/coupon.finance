@@ -53,7 +53,14 @@ export const LoanPositionCard = ({
           )
         : 0,
       price && collateralPrice
-        ? calculateLiquidationPrice(position, price, collateralPrice)
+        ? calculateLiquidationPrice(
+            position.underlying,
+            price,
+            position.collateral,
+            collateralPrice,
+            position.amount,
+            position.collateralAmount,
+          )
         : 0,
     ]
   }, [collateralPrice, position, price])

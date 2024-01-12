@@ -3,7 +3,7 @@ import React from 'react'
 import { Tooltip } from 'react-tooltip'
 
 import CurrencyAmountInput from '../input/currency-amount-input'
-import { formatUnits } from '../../utils/numbers'
+import { formatUnits, toCommaSeparated } from '../../utils/numbers'
 import { ActionButton, ActionButtonProps } from '../button/action-button'
 import { Currency } from '../../model/currency'
 import { Collateral } from '../../model/collateral'
@@ -44,6 +44,7 @@ export const BorrowForm = ({
   setEpochs,
   balances,
   prices,
+  liquidationPrice,
   actionButtonProps,
   children,
 }: {
@@ -67,6 +68,7 @@ export const BorrowForm = ({
   setEpochs: (value: number) => void
   balances: Balances
   prices: Prices
+  liquidationPrice: number
   actionButtonProps: ActionButtonProps
 } & React.PropsWithChildren) => {
   const currentTimestamp = currentTimestampInSeconds()
@@ -278,6 +280,16 @@ export const BorrowForm = ({
                     ).toFixed(2)
                   : 0}
                 %
+              </div>
+            </div>
+            <div className="flex w-full">
+              <div className="text-gray-400 text-base">Liquidation Price</div>
+              <div className="ml-auto">
+                {liquidationPrice ? (
+                  <>${toCommaSeparated(liquidationPrice.toFixed(2))}</>
+                ) : (
+                  <>-</>
+                )}
               </div>
             </div>
             {interestsByEpochsBorrowed &&

@@ -72,7 +72,14 @@ export const LeveragePositionCard = ({
         collateralPrice,
         position.collateralAmount,
       ),
-      calculateLiquidationPrice(position, price, collateralPrice),
+      calculateLiquidationPrice(
+        position.underlying,
+        price,
+        position.collateral,
+        collateralPrice,
+        position.amount,
+        position.collateralAmount,
+      ),
     ]
   }, [collateralPrice, position, price])
 

@@ -82,6 +82,7 @@ export const Default: Story = {
         decimals: 8,
       },
     },
+    liquidationPrice: 2000,
     actionButtonProps: {
       disabled: false,
       onClick: () => {},
@@ -178,6 +179,7 @@ export const SelectedBoth: Story = {
         decimals: 8,
       },
     },
+    liquidationPrice: 2000,
     actionButtonProps: {
       disabled: false,
       onClick: () => {},
@@ -249,6 +251,7 @@ export const Empty: Story = {
         decimals: 8,
       },
     },
+    liquidationPrice: 2000,
     actionButtonProps: {
       disabled: false,
       onClick: () => {},
@@ -370,6 +373,7 @@ export const Full: Story = {
         decimals: 8,
       },
     },
+    liquidationPrice: 2000,
     actionButtonProps: {
       disabled: false,
       onClick: () => {},

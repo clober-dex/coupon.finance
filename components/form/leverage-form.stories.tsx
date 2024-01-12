@@ -33,6 +33,7 @@ const MockedLeverageForm = ({ ...args }) => {
       maxAvailableMultiple={args.maxAvailableMultiple}
       balances={args.balances}
       prices={args.prices}
+      liquidationPrice={args.liquidationPrice}
       actionButtonProps={args.actionButtonProps}
     />
   )
@@ -108,6 +109,7 @@ export const Default: Story = {
         decimals: 8,
       },
     },
+    liquidationPrice: 2000,
     actionButtonProps: {
       disabled: false,
       onClick: () => {},
@@ -182,6 +184,7 @@ export const SelectDebtAsset: Story = {
         decimals: 8,
       },
     },
+    liquidationPrice: 2000,
     actionButtonProps: {
       disabled: false,
       onClick: () => {},
