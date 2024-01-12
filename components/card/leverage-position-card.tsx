@@ -7,7 +7,7 @@ import {
   dollarValue,
   formatDollarValue,
   formatUnits,
-  toPlacesString,
+  toCommaSeparated,
 } from '../../utils/numbers'
 import { EditSvg } from '../svg/edit-svg'
 import {
@@ -18,12 +18,12 @@ import {
 import { CurrencyIcon } from '../icon/currency-icon'
 import { QuestionMarkSvg } from '../svg/question-mark-svg'
 import { isStableCoin } from '../../contexts/currency-context'
-import { applyPercent } from '../../utils/bigint'
 
 export const LeveragePositionCard = ({
   position,
   multiple,
   pnl,
+  profit,
   price,
   collateralPrice,
   entryDebtCurrencyPrice,
@@ -38,6 +38,7 @@ export const LeveragePositionCard = ({
   position: LoanPosition
   multiple: number
   pnl: number
+  profit: number
   price: BigDecimal
   collateralPrice: BigDecimal
   entryDebtCurrencyPrice: BigDecimal
@@ -91,22 +92,6 @@ export const LeveragePositionCard = ({
         : 0,
     ]
   }, [collateralPrice, isShortPosition, position, price])
-  const expectedProceeds = useMemo(
-    () =>
-      pnl
-        ? formatUnits(
-            applyPercent(position.collateralAmount, (pnl - 1) * 100),
-            position.collateral.underlying.decimals,
-            collateralPrice,
-          )
-        : '',
-    [
-      collateralPrice,
-      pnl,
-      position.collateral.underlying.decimals,
-      position.collateralAmount,
-    ],
-  )
 
   return (
     <div className="flex w-full pb-4 flex-col items-center gap-3 shrink-0  bg-white dark:bg-gray-800 rounded-xl">
@@ -211,10 +196,7 @@ export const LeveragePositionCard = ({
             {pnl ? (
               <div className="flex gap-1">
                 <div className="text-sm sm:text-base flex gap-1">
-                  {expectedProceeds.length > 6
-                    ? toPlacesString(expectedProceeds, 2)
-                    : expectedProceeds}{' '}
-                  {position.collateral.underlying.symbol}
+                  ${toCommaSeparated(profit.toFixed(2))}
                   <span
                     className={pnl >= 1 ? 'text-green-500' : 'text-red-500'}
                   >
@@ -267,7 +249,7 @@ export const LeveragePositionCard = ({
                 Liquidation Price
               </div>
               <div className="text-sm sm:text-base">
-                ${liquidationPrice.toFixed(2)}
+                ${toCommaSeparated(liquidationPrice.toFixed(2))}
               </div>
             </div>
           ) : (

@@ -36,7 +36,12 @@ import { useSubgraphContext } from './subgraph-context'
 
 export type BorrowContext = {
   positions: LoanPosition[]
-  pnls: { [key in number]: number }
+  pnls: {
+    [key in number]: {
+      value: number
+      profit: number
+    }
+  }
   borrow: (
     collateral: Collateral,
     collateralAmount: bigint,
@@ -156,7 +161,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       const pnls = await Promise.all(
         positions.map(async (position) => {
           if (!position.isLeverage) {
-            return 0
+            return { value: 0, profit: 0 }
           }
           const markets = (
             await fetchMarketsByQuoteTokenAddress(
@@ -178,18 +183,40 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             slippageLimitPercent: 0.5,
             gasPrice: Number(feeData.gasPrice),
           })
-          return (
-            Number(position.collateralAmount - amountOut) /
-            Number(
-              position.collateralAmount - position.borrowedCollateralAmount,
-            )
+          const afterDollarValue = Number(
+            formatUnits(
+              (position.collateralAmount - amountOut) *
+                prices[position.collateral.underlying.address].value,
+              position.collateral.underlying.decimals +
+                prices[position.collateral.underlying.address].decimals,
+            ),
           )
+          const beforeDollarValue = Number(
+            formatUnits(
+              (position.collateralAmount - position.borrowedCollateralAmount) *
+                position.entryCollateralCurrencyPrice.value,
+              position.collateral.underlying.decimals +
+                prices[position.collateral.underlying.address].decimals,
+            ),
+          )
+          return {
+            value: afterDollarValue / beforeDollarValue,
+            profit: afterDollarValue - beforeDollarValue,
+          }
         }),
       )
-      return pnls.reduce((acc, pnl, index) => {
-        acc[Number(positions[index].id)] = pnl
-        return acc
-      }, {} as { [key in number]: number })
+      return pnls.reduce(
+        (acc, pnl, index) => {
+          acc[Number(positions[index].id)] = pnl
+          return acc
+        },
+        {} as {
+          [key in number]: {
+            value: number
+            profit: number
+          }
+        },
+      )
     },
     {
       refetchInterval: 30 * 1000,

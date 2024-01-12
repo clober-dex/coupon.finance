@@ -7,6 +7,7 @@ import {
   dollarValue,
   formatDollarValue,
   formatUnits,
+  toCommaSeparated,
 } from '../../utils/numbers'
 import { EditSvg } from '../svg/edit-svg'
 import {
@@ -221,7 +222,7 @@ export const LoanPositionCard = ({
                 Liquidation Price
               </div>
               <div className="text-sm sm:text-base">
-                ${liquidationPrice.toFixed(2)}
+                ${toCommaSeparated(liquidationPrice.toFixed(2))}
               </div>
             </div>
           ) : (
