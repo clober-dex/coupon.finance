@@ -39,7 +39,7 @@ export const toCurrency = (
         address: getAddress(token.id),
         name: token.name,
         symbol: token.symbol,
-        decimals: token.decimals,
+        decimals: Number(token.decimals),
       }
   return {
     ...currency,
