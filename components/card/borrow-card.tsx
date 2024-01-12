@@ -28,7 +28,7 @@ export const BorrowCard = ({
   )
   return (
     <Link href={`/borrow/${currency.symbol}`}>
-      <div className="h-[331px] group flex flex-col w-full px-4 py-6 justify-center items-center gap-4 bg-white dark:bg-gray-800 rounded-xl">
+      <div className="relative h-[331px] group flex flex-col w-full px-4 py-6 items-center gap-4 bg-white dark:bg-gray-800 rounded-xl">
         <div className="flex flex-col items-start gap-6 group-hover:gap-4 self-stretch">
           <div className="flex items-center gap-3 self-stretch">
             <CurrencyIcon
@@ -125,7 +125,7 @@ export const BorrowCard = ({
                 </div>
               ))}
             </div>
-            <div className="w-full flex flex-col items-center justify-center self-stretch bg-green-500 rounded-lg h-12 px-3 py-2 font-bold text-base text-white gap-2 hover:bg-green-400 dark:hover:bg-green-600">
+            <div className="w-full flex sm:absolute sm:bottom-4 sm:h-12 md:w-[264px] lg:w-[277px] flex-col items-center justify-center self-stretch bg-green-500 rounded-lg h-12 px-3 py-2 font-bold text-base text-white gap-2 hover:bg-green-400 dark:hover:bg-green-600">
               Borrow
             </div>
           </div>
