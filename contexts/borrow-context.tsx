@@ -179,10 +179,22 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             gasPrice: Number(feeData.gasPrice),
           })
           return (
-            Number(position.collateralAmount - amountOut) /
-            Number(
+            (Number(position.collateralAmount - amountOut) *
+              Number(
+                formatUnits(
+                  prices[position.collateral.underlying.address].value,
+                  prices[position.collateral.underlying.address].decimals,
+                ),
+              )) /
+            (Number(
               position.collateralAmount - position.borrowedCollateralAmount,
-            )
+            ) *
+              Number(
+                formatUnits(
+                  position.entryCollateralCurrencyPrice.value,
+                  position.entryCollateralCurrencyPrice.decimals,
+                ),
+              ))
           )
         }),
       )
