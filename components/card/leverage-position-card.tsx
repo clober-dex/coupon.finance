@@ -187,14 +187,15 @@ export const LeveragePositionCard = ({
             </div>
             {pnl ? (
               <div className="flex gap-1">
-                <div className="text-sm sm:text-base flex gap-1">
-                  ${toCommaSeparated(profit.toFixed(2))}
-                  <span
-                    className={pnl >= 1 ? 'text-green-500' : 'text-red-500'}
-                  >
-                    {pnl >= 1 ? '+' : ''}
-                    {((pnl - 1) * 100).toFixed(2)}%
-                  </span>
+                <div
+                  className={`text-sm sm:text-base flex gap-1 ${
+                    pnl >= 1 ? 'text-green-500' : 'text-red-500'
+                  }`}
+                >
+                  {pnl >= 1 ? '+' : '-'}$
+                  {toCommaSeparated(Math.abs(profit).toFixed(2))} (
+                  {pnl >= 1 ? '+' : ''}
+                  {((pnl - 1) * 100).toFixed(2)}%)
                 </div>
               </div>
             ) : (
