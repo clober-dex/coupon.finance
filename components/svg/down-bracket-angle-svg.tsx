@@ -11,10 +11,10 @@ export const DownBracketAngleSvg = (props: React.SVGProps<SVGSVGElement>) => (
   >
     <path
       d="M16.25 7.5L10 13.75L3.75 7.5"
-      stroke="#030712"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      className="stroke-[#030712] dark:stroke-white"
     />
   </svg>
 )
