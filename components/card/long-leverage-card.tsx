@@ -130,7 +130,7 @@ export const LongLeverageCard = ({
                 : debtCurrencies
               ).map((currency, index) => (
                 <div
-                  className="sm:h-[44px] md:h-[50px] flex-grow flex-shrink basis-1/2 pb-1 flex flex-col gap-1"
+                  className="h-[37.3px] sm:h-[44px] md:h-[50px] flex-grow flex-shrink basis-1/2 pb-1 flex flex-col gap-1"
                   key={index}
                 >
                   <div className="w-[128px] flex items-center gap-1 self-stretch">
