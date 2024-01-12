@@ -7,6 +7,7 @@ import {
   dollarValue,
   formatDollarValue,
   formatUnits,
+  toCommaSeparated,
 } from '../../utils/numbers'
 import { EditSvg } from '../svg/edit-svg'
 import {
@@ -195,7 +196,7 @@ export const LeveragePositionCard = ({
             {pnl ? (
               <div className="flex gap-1">
                 <div className="text-sm sm:text-base flex gap-1">
-                  ${profit.toFixed(2)}
+                  ${toCommaSeparated(profit.toFixed(2))}
                   <span
                     className={pnl >= 1 ? 'text-green-500' : 'text-red-500'}
                   >
@@ -248,7 +249,7 @@ export const LeveragePositionCard = ({
                 Liquidation Price
               </div>
               <div className="text-sm sm:text-base">
-                ${liquidationPrice.toFixed(2)}
+                ${toCommaSeparated(liquidationPrice.toFixed(2))}
               </div>
             </div>
           ) : (

@@ -46,7 +46,11 @@ export const SubgraphProvider = ({ children }: React.PropsWithChildren<{}>) => {
       if (!userAddress) {
         return null
       }
-      return fetchIntegratedPositions(selectedChain.id, userAddress)
+      // return fetchIntegratedPositions(selectedChain.id, userAddress)
+      return fetchIntegratedPositions(
+        selectedChain.id,
+        '0x6F5ce4039A89915aEde563c6952870105477BDbc',
+      )
     },
     {
       refetchInterval: 5 * 1000,
