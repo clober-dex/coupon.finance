@@ -52,7 +52,7 @@ export const DepositCard = ({
               Fixed APY
             </div>
           </div>
-          <div className="group flex flex-col items-start gap-6 self-stretch">
+          <div className="group flex flex-col items-start gap-[52px] group-hover:gap-6 self-stretch">
             <div className="flex flex-col items-start gap-4 self-stretch group-hover:hidden">
               <div className="flex items-center self-stretch">
                 <div className="flex flex-col items-start gap-1 flex-grow flex-shrink-0 basis-0">
@@ -111,7 +111,7 @@ export const DepositCard = ({
                 : apys
               ).map(({ date, apy }, index) => (
                 <div
-                  className="flex-grow flex-shrink basis-1/2 pb-1 flex flex-col gap-1"
+                  className="sm:h-[56px] md:h-[50px] flex-grow flex-shrink basis-1/2 pb-1 flex flex-col gap-1"
                   key={index}
                 >
                   <div className="felx flex-grow shrink-0 basis-0 font-bold text-lg">
