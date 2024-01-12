@@ -32,9 +32,9 @@ export const ShortLeverageCard = ({
   return (
     <Link href={`/leverage/${debtCurrency.symbol}_SHORT`}>
       <div
-        className={`h-[314px] ${
+        className={`relative h-[300px] ${
           collateralCurrencies.length === 1 ? '' : 'group '
-        } flex flex-col w-full px-4 py-6 justify-center items-center gap-4 bg-white dark:bg-gray-800 rounded-xl`}
+        } flex flex-col w-full px-4 py-6 items-center gap-4 bg-white dark:bg-gray-800 rounded-xl`}
       >
         {' '}
         <div className="flex flex-col items-start gap-6 self-stretch">
@@ -151,7 +151,7 @@ export const ShortLeverageCard = ({
                 </div>
               ))}
             </div>
-            <div className="w-full flex flex-col items-center justify-center self-stretch bg-green-500 rounded-lg h-12 px-3 py-2 font-bold text-base text-white gap-2 hover:bg-green-400 dark:hover:bg-green-600">
+            <div className="w-full flex sm:absolute sm:bottom-4 sm:h-12 md:w-[264px] lg:w-[277px] flex-col items-center justify-center self-stretch bg-green-500 rounded-lg h-12 px-3 py-2 font-bold text-base text-white gap-2 hover:bg-green-400 dark:hover:bg-green-600">
               Leverage
             </div>
           </div>
