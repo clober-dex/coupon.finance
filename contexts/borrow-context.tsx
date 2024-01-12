@@ -28,6 +28,8 @@ import { applyPercent, max } from '../utils/bigint'
 import { fetchAmountOutByOdos, fetchCallDataByOdos } from '../apis/odos'
 import { fetchMarketsByQuoteTokenAddress } from '../apis/market'
 import { calculateCouponsToRepay } from '../model/market'
+import { simulateAdjustingLeverage } from '../model/leverage'
+import { calculateLtv } from '../utils/ltv'
 
 import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -42,6 +44,7 @@ export type BorrowContext = {
       profit: number
     }
   }
+  multipleFactors: { [key in number]: number }
   borrow: (
     collateral: Collateral,
     collateralAmount: bigint,
@@ -107,6 +110,7 @@ export type BorrowContext = {
 const Context = React.createContext<BorrowContext>({
   positions: [],
   pnls: {},
+  multipleFactors: {},
   borrow: () => Promise.resolve(undefined),
   leverage: () => Promise.resolve(undefined),
   repay: () => Promise.resolve(),
@@ -155,7 +159,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { data: pnls } = useQuery(
     ['pnls', selectedChain.id, userAddress],
     async () => {
-      if (!userAddress || !feeData || !feeData.gasPrice) {
+      if (!feeData || !feeData.gasPrice) {
         return {}
       }
       const pnls = await Promise.all(
@@ -219,7 +223,60 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       )
     },
     {
-      refetchInterval: 30 * 1000,
+      refetchInterval: 60 * 1000,
+      refetchIntervalInBackground: true,
+    },
+  )
+
+  const { data: multipleFactors } = useQuery(
+    ['multipleFactors', selectedChain.id, userAddress],
+    async () => {
+      if (!feeData || !feeData.gasPrice) {
+        return {}
+      }
+      const gasPrice = feeData.gasPrice
+      const multipleFactors = await Promise.all(
+        positions.map(async (position) => {
+          if (!position.isLeverage) {
+            return 0
+          }
+          const liquidationTargetLtv =
+            Number(position.collateral.liquidationTargetLtv) /
+            Number(position.collateral.ltvPrecision)
+          const maxMultiple = Math.floor(1 / (1 - liquidationTargetLtv)) - 0.02
+          const inputCollateralAmount =
+            position.collateralAmount - position.borrowedCollateralAmount
+          const collateralAmountDelta =
+            applyPercent(inputCollateralAmount, maxMultiple * 100) -
+            position.collateralAmount
+          const { debtAmount, collateralAmount } =
+            await simulateAdjustingLeverage(
+              collateralAmountDelta,
+              maxMultiple,
+              1,
+              position,
+              prices,
+              selectedChain.id,
+              gasPrice,
+            )
+          const maxLTV = calculateLtv(
+            position.underlying,
+            prices[position.underlying.address],
+            debtAmount,
+            position.collateral,
+            prices[position.collateral.underlying.address],
+            collateralAmount,
+          )
+          return Math.min(1, maxLTV / (liquidationTargetLtv * 100))
+        }),
+      )
+      return multipleFactors.reduce((acc, multipleFactor, index) => {
+        acc[Number(positions[index].id)] = multipleFactor
+        return acc
+      }, {} as { [key in number]: number })
+    },
+    {
+      refetchInterval: 60 * 1000,
       refetchIntervalInBackground: true,
     },
   )
@@ -1178,6 +1235,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       value={{
         positions,
         pnls: pnls ?? {},
+        multipleFactors: multipleFactors ?? {},
         borrow,
         leverage,
         repay,

@@ -18,6 +18,7 @@ const Home = () => {
   const { positions: bondPositions, collect } = useDepositContext()
   const {
     positions: loanPositions,
+    multipleFactors,
     pnls,
     removeCollateral,
   } = useBorrowContext()
@@ -56,6 +57,7 @@ const Home = () => {
             epochs={epochs}
             prices={prices}
             positions={loanPositions}
+            multipleFactors={multipleFactors}
             pnls={pnls}
             removeCollateral={removeCollateral}
             minDebtSizeInEth={
