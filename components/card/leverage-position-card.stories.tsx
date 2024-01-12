@@ -25,6 +25,7 @@ export const Default: Story = {
     position: dummyLoanPosition,
     multiple: 3.33,
     pnl: 1.1011,
+    profit: 1.1011,
     price: {
       value: 990000000n,
       decimals: 8,
@@ -46,6 +47,7 @@ export const isPendingPosition: Story = {
     position: { ...dummyLoanPosition, isPending: true },
     multiple: 3.33,
     pnl: 1.1,
+    profit: 1.1011,
     price: {
       value: 990000000n,
       decimals: 8,
@@ -87,6 +89,7 @@ export const LiquidatedPosition: Story = {
     position: { ...dummyLoanPosition, amount: 0n },
     multiple: 3.33,
     pnl: 1.1,
+    profit: 1.1011,
     price: {
       value: 990000000n,
       decimals: 8,
@@ -108,6 +111,7 @@ export const NegativeProfitPosition: Story = {
     position: dummyLoanPosition,
     multiple: 3.33,
     pnl: 0.899,
+    profit: 1.1011,
     price: {
       value: 990000000n,
       decimals: 8,
