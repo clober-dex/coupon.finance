@@ -1,5 +1,9 @@
+import BigNumber from 'bignumber.js'
+
 import { Collateral } from '../model/collateral'
 import { Currency } from '../model/currency'
+import { LoanPosition } from '../model/loan-position'
+import { isStableCoin } from '../contexts/currency-context'
 
 import { BigDecimal, dollarValue } from './numbers'
 
@@ -90,4 +94,42 @@ export const calculateMinCollateralAmount = (
           collateralPrice.value *
           10n ** BigInt(18 - collateral.underlying.decimals))
     : 0n
+}
+
+export const calculateLiquidationPrice = (
+  position: LoanPosition,
+  loanAssetPrice: BigDecimal,
+  collateralPrice: BigDecimal,
+): number => {
+  const factor = new BigNumber(
+    Number(position.collateral.liquidationThreshold) /
+      Number(position.collateral.ltvPrecision),
+  )
+    .times(
+      dollarValue(
+        position.collateralAmount,
+        position.collateral.underlying.decimals,
+        collateralPrice,
+      ),
+    )
+    .div(
+      dollarValue(
+        position.amount,
+        position.underlying.decimals,
+        loanAssetPrice,
+      ),
+    )
+  const currentPrice =
+    loanAssetPrice && collateralPrice
+      ? Number(loanAssetPrice.value) / Number(collateralPrice.value)
+      : 0
+  const isShortPosition =
+    isStableCoin(position.collateral.underlying) &&
+    !isStableCoin(position.underlying)
+  return isStableCoin(position.collateral.underlying) ||
+    isStableCoin(position.underlying)
+    ? isShortPosition
+      ? factor.times(currentPrice).toNumber()
+      : 1 / factor.times(currentPrice).toNumber()
+    : 0
 }
