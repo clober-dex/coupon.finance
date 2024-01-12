@@ -16,6 +16,7 @@ const MockedLeverageForm = ({ ...args }) => {
       setBorrowCurrency={setBorrowCurrency}
       availableBorrowCurrencies={args.availableBorrowCurrencies}
       interest={args.interest}
+      borrowingFeePercentage={args.borrowingFeePercentage}
       borrowApy={args.borrowApy}
       borrowLTV={args.borrowLTV}
       interestsByEpochsBorrowed={args.interestsByEpochsBorrowed}
@@ -60,6 +61,7 @@ export const Default: Story = {
       },
     ],
     interest: 1000000000000000000n,
+    borrowingFeePercentage: 3,
     borrowApy: 10,
     borrowLTV: 60,
     interestsByEpochsBorrowed: [
@@ -135,6 +137,7 @@ export const SelectDebtAsset: Story = {
       },
     ],
     interest: 1000000000000000000n,
+    borrowingFeePercentage: 3,
     borrowApy: 10,
     borrowLTV: 60,
     interestsByEpochsBorrowed: [

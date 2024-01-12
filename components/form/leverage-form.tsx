@@ -28,6 +28,7 @@ export const LeverageForm = ({
   setBorrowCurrency,
   availableBorrowCurrencies,
   interest,
+  borrowingFeePercentage,
   borrowApy,
   borrowLTV,
   interestsByEpochsBorrowed,
@@ -53,6 +54,7 @@ export const LeverageForm = ({
   setBorrowCurrency: (currency?: Currency) => void
   availableBorrowCurrencies: Currency[]
   interest: bigint
+  borrowingFeePercentage: number
   borrowApy: number
   borrowLTV: number
   interestsByEpochsBorrowed?: { date: string; apy: number }[]
@@ -322,7 +324,10 @@ export const LeverageForm = ({
                       borrowCurrency.decimals,
                       prices[borrowCurrency.address],
                     )} ${borrowCurrency.symbol}`
-                  : '0'}
+                  : '0'}{' '}
+                {!Number.isNaN(borrowingFeePercentage)
+                  ? `(${borrowingFeePercentage.toFixed(2)}%)`
+                  : ''}
               </div>
             </div>
             <div className="flex w-full">

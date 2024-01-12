@@ -380,6 +380,9 @@ const LeverageFormContainer = ({
             setBorrowCurrency={setBorrowCurrency}
             availableBorrowCurrencies={availableDebtCurrencies}
             interest={maxInterest}
+            borrowingFeePercentage={
+              (Number(interest) / Number(debtAmountWithoutCouponFee)) * 100
+            }
             borrowApy={apy}
             borrowLTV={
               collateral &&

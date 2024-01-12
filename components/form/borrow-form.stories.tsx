@@ -53,6 +53,7 @@ export const Default: Story = {
     ],
     maxBorrowAmount: 0n,
     interest: 1000000000000000000n,
+    borrowingFeePercentage: 3,
     borrowApy: 10,
     borrowLTV: 60,
     interestsByEpochsBorrowed: [
@@ -132,6 +133,7 @@ export const SelectedBoth: Story = {
     ],
     maxBorrowAmount: 0n,
     interest: 70000000000000000n,
+    borrowingFeePercentage: 3,
     borrowApy: 10,
     borrowLTV: 3.3,
     interestsByEpochsBorrowed: [
@@ -223,6 +225,7 @@ export const Empty: Story = {
     ],
     maxBorrowAmount: 0n,
     interest: 70000000000000000n,
+    borrowingFeePercentage: 3,
     borrowApy: 10,
     borrowLTV: 3.3,
     interestsByEpochsBorrowed: [
@@ -345,6 +348,7 @@ export const Full: Story = {
     },
     maxBorrowAmount: 0n,
     interest: 70000000000000000n,
+    borrowingFeePercentage: 3,
     borrowApy: 10,
     borrowLTV: 3.3,
     interestsByEpochsBorrowed: [

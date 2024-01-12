@@ -198,6 +198,7 @@ const BorrowFormContainer = ({
         0n,
       )}
       interest={interest}
+      borrowingFeePercentage={(Number(interest) / Number(borrowAmount)) * 100}
       borrowApy={apy}
       borrowLTV={
         collateral &&
