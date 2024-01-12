@@ -7,7 +7,7 @@ import {
   dollarValue,
   formatDollarValue,
   formatUnits,
-  toPlacesString,
+  toCommaSeparated,
 } from '../../utils/numbers'
 import { EditSvg } from '../svg/edit-svg'
 import {
@@ -18,13 +18,13 @@ import {
 import { CurrencyIcon } from '../icon/currency-icon'
 import { QuestionMarkSvg } from '../svg/question-mark-svg'
 import { isStableCoin } from '../../contexts/currency-context'
-import { applyPercent } from '../../utils/bigint'
 
 export const LeveragePositionCard = ({
   position,
   multiple,
   multipleFactor,
   pnl,
+  profit,
   price,
   collateralPrice,
   entryDebtCurrencyPrice,
@@ -40,6 +40,7 @@ export const LeveragePositionCard = ({
   multiple: number
   multipleFactor?: number
   pnl: number
+  profit: number
   price: BigDecimal
   collateralPrice: BigDecimal
   entryDebtCurrencyPrice: BigDecimal
@@ -52,20 +53,6 @@ export const LeveragePositionCard = ({
   isDeptSizeLessThanMinDebtSize: boolean
 } & React.HTMLAttributes<HTMLDivElement>) => {
   const now = currentTimestampInSeconds()
-  const currentLtv = useMemo(
-    () =>
-      dollarValue(position.amount, position.underlying.decimals, price)
-        .times(100)
-        .div(
-          dollarValue(
-            position.collateralAmount,
-            position.collateral.underlying.decimals,
-            collateralPrice,
-          ),
-        ),
-    [collateralPrice, position, price],
-  )
-
   const isLiquidated = useMemo(
     () =>
       now >= Number(position.toEpoch.endTimestamp) || position.amount === 0n,
@@ -77,22 +64,36 @@ export const LeveragePositionCard = ({
       !isStableCoin(position.underlying),
     [position.collateral.underlying, position.underlying],
   )
-  const expectedProceeds = useMemo(
-    () =>
-      pnl
-        ? formatUnits(
-            applyPercent(position.collateralAmount, (pnl - 1) * 100),
-            position.collateral.underlying.decimals,
-            collateralPrice,
-          )
-        : '',
-    [
-      collateralPrice,
-      pnl,
-      position.collateral.underlying.decimals,
+  const [currentLtv, liquidationPrice] = useMemo(() => {
+    const collateralDollarValue = dollarValue(
       position.collateralAmount,
-    ],
-  )
+      position.collateral.underlying.decimals,
+      collateralPrice,
+    )
+    const debtDollarValue = dollarValue(
+      position.amount,
+      position.underlying.decimals,
+      price,
+    )
+    const liquidationThreshold =
+      Number(position.collateral.liquidationThreshold) /
+      Number(position.collateral.ltvPrecision)
+    const currentPrice = Number(price.value) / Number(collateralPrice.value)
+    const liquidatePrice = collateralDollarValue
+      .div(debtDollarValue)
+      .times(liquidationThreshold)
+      .times(currentPrice)
+      .toNumber()
+    return [
+      debtDollarValue.times(100).div(collateralDollarValue),
+      isStableCoin(position.collateral.underlying) ||
+      isStableCoin(position.underlying)
+        ? isShortPosition
+          ? liquidatePrice
+          : 1 / liquidatePrice
+        : 0,
+    ]
+  }, [collateralPrice, isShortPosition, position, price])
 
   return (
     <div className="flex w-full pb-4 flex-col items-center gap-3 shrink-0  bg-white dark:bg-gray-800 rounded-xl">
@@ -197,10 +198,7 @@ export const LeveragePositionCard = ({
             {pnl ? (
               <div className="flex gap-1">
                 <div className="text-sm sm:text-base flex gap-1">
-                  {expectedProceeds.length > 6
-                    ? toPlacesString(expectedProceeds, 2)
-                    : expectedProceeds}{' '}
-                  {position.collateral.underlying.symbol}
+                  ${toCommaSeparated(profit.toFixed(2))}
                   <span
                     className={pnl >= 1 ? 'text-green-500' : 'text-red-500'}
                   >
@@ -215,7 +213,7 @@ export const LeveragePositionCard = ({
           </div>
           <div className="flex items-center gap-1 self-stretch">
             <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
-              Entry Price
+              Entry / Mark
             </div>
             {isShortPosition ? (
               <div className="text-sm sm:text-base">
@@ -223,6 +221,12 @@ export const LeveragePositionCard = ({
                   BigInt(10 ** position.underlying.decimals),
                   position.underlying.decimals,
                   entryDebtCurrencyPrice,
+                )}
+                {' / '}
+                {formatDollarValue(
+                  BigInt(10 ** position.collateral.underlying.decimals),
+                  position.collateral.underlying.decimals,
+                  price,
                 )}
               </div>
             ) : (
@@ -232,9 +236,27 @@ export const LeveragePositionCard = ({
                   position.collateral.underlying.decimals,
                   entryCollateralCurrencyPrice,
                 )}
+                {' / '}
+                {formatDollarValue(
+                  BigInt(10 ** position.collateral.underlying.decimals),
+                  position.collateral.underlying.decimals,
+                  collateralPrice,
+                )}
               </div>
             )}
           </div>
+          {liquidationPrice ? (
+            <div className="flex items-center gap-1 self-stretch">
+              <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
+                Liquidation Price
+              </div>
+              <div className="text-sm sm:text-base">
+                ${toCommaSeparated(liquidationPrice.toFixed(2))}
+              </div>
+            </div>
+          ) : (
+            <></>
+          )}
           <div className="flex items-center gap-1 self-stretch">
             <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
               Current / Liq. LTV

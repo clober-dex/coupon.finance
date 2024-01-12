@@ -230,7 +230,8 @@ const BorrowStatus = ({
                       )
                     }
                     multipleFactor={multipleFactors[Number(position.id)]}
-                    pnl={pnls[Number(position.id)]}
+                    pnl={pnls[Number(position.id)]?.value || 0}
+                    profit={pnls[Number(position.id)]?.profit || 0}
                     price={prices[position.underlying.address]}
                     collateralPrice={
                       prices[position.collateral.underlying.address]

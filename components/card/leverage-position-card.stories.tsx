@@ -26,6 +26,7 @@ export const Default: Story = {
     multiple: 3.33,
     multipleFactor: 1,
     pnl: 1.1011,
+    profit: 1.1011,
     price: {
       value: 990000000n,
       decimals: 8,
@@ -48,6 +49,7 @@ export const isPendingPosition: Story = {
     multiple: 3.33,
     multipleFactor: 1,
     pnl: 1.1,
+    profit: 1.1011,
     price: {
       value: 990000000n,
       decimals: 8,
@@ -90,6 +92,7 @@ export const LiquidatedPosition: Story = {
     multiple: 3.33,
     multipleFactor: 1,
     pnl: 1.1,
+    profit: 1.1011,
     price: {
       value: 990000000n,
       decimals: 8,
@@ -112,6 +115,7 @@ export const NegativeProfitPosition: Story = {
     multiple: 3.33,
     multipleFactor: 1,
     pnl: 0.899,
+    profit: 1.1011,
     price: {
       value: 990000000n,
       decimals: 8,
