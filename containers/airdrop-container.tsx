@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { useAccount } from 'wagmi'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 
 import { NumberOneBoxSvg } from '../components/svg/number-one-box-svg'
 import { NumberTwoBoxSvg } from '../components/svg/number-two-box-svg'
@@ -53,12 +54,17 @@ const LeaderboardTab = () => {
               <PointCard title="Referral points" value="82010" />
               <PointCard title="Dragon points" value="82010" />
             </div>
+            <div className="flex items-start gap-2 self-stretch">
+              <PointCard title="Mango points" value="82010" />
+              <div className="flex items-center flex-grow flex-shrink-0 basis-0 py-4 pl-4 pr-3" />
+            </div>
           </div>
           <div className="hidden lg:flex w-full items-start gap-4">
             <PointCard title="Deposit points" value="82010" />
             <PointCard title="Borrow points" value="82010" />
             <PointCard title="Referral points" value="82010" />
             <PointCard title="Dragon points" value="82010" />
+            <PointCard title="Mango points" value="82010" />
           </div>
         </div>
       </div>
@@ -134,9 +140,13 @@ const LeaderboardTab = () => {
 const ReferralTab = ({
   referralCode,
   referentCode,
+  hasReferent,
+  setReferentCode,
 }: {
   referralCode: string
   referentCode: string | null
+  hasReferent: boolean
+  setReferentCode: (code: string) => Promise<void>
 }) => {
   const [mode, setMode] = React.useState<'setReferralCode' | 'getReferralCode'>(
     'setReferralCode',
@@ -184,7 +194,13 @@ const ReferralTab = ({
               value={value}
               onChange={(e) => setValue(e.target.value)}
             />
-            <button className="w-full lg:w-[160px] font-bold bg-green-500 hover:bg-green-400 dark:hover:bg-green-600 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500">
+            <button
+              disabled={hasReferent}
+              onClick={async () => {
+                await setReferentCode(value)
+              }}
+              className="w-full lg:w-[160px] font-bold bg-green-500 hover:bg-green-400 dark:hover:bg-green-600 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
+            >
               Accept
             </button>
           </div>
@@ -284,7 +300,9 @@ const ClaimTab = () => {
 }
 
 export const AirdropContainer = () => {
-  const { referralCode, referentCode, hasReferent } = usePointContext()
+  const router = useRouter()
+  const { referralCode, referentCode, hasReferent, setReferentCode } =
+    usePointContext()
   const { address: userAddress } = useAccount()
 
   const [mode, setMode] = React.useState<'leaderboard' | 'referral' | 'claim'>(
@@ -403,7 +421,15 @@ export const AirdropContainer = () => {
                       </div>
                     </div>
                   </div>
-                  <button className="flex w-full h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold">
+                  <button
+                    onClick={() => {
+                      router.push({
+                        pathname: '/',
+                        query: { mode: 'deposit' },
+                      })
+                    }}
+                    className="flex w-full h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold"
+                  >
                     Go to deposit
                   </button>
                 </div>
@@ -419,7 +445,15 @@ export const AirdropContainer = () => {
                       </div>
                     </div>
                   </div>
-                  <button className="flex w-full h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold">
+                  <button
+                    onClick={() => {
+                      router.push({
+                        pathname: '/',
+                        query: { mode: 'borrow' },
+                      })
+                    }}
+                    className="flex w-full h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold"
+                  >
                     Go to borrow
                   </button>
                 </div>
@@ -435,7 +469,14 @@ export const AirdropContainer = () => {
                       </div>
                     </div>
                   </div>
-                  <button className="flex w-full h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold">
+                  <button
+                    onClick={() => {
+                      if (userAddress) {
+                        setMode('referral')
+                      }
+                    }}
+                    className="flex w-full h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold"
+                  >
                     Go to refer
                   </button>
                 </div>
@@ -444,7 +485,7 @@ export const AirdropContainer = () => {
                 <Link
                   href="https://docs.coupon.finance/tokenomics/points"
                   target="_blank"
-                  className="h-6 text-green-500 font-semibold"
+                  className="text-sm h-6 text-green-500 font-semibold"
                 >
                   See Point rule detail
                 </Link>
@@ -480,7 +521,15 @@ export const AirdropContainer = () => {
                 <span className="block">For every $1 in trades,</span>
                 <span className="block">earn 1 point per hour.</span>
               </p>
-              <button className="flex w-[267px] h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold">
+              <button
+                onClick={() => {
+                  router.push({
+                    pathname: '/',
+                    query: { mode: 'deposit' },
+                  })
+                }}
+                className="flex w-[267px] h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold"
+              >
                 Go to deposit
               </button>
             </div>
@@ -493,7 +542,15 @@ export const AirdropContainer = () => {
                 <span className="block">For every $1 in trades,</span>
                 <span className="block">earn 1 point per hour.</span>
               </p>
-              <button className="flex w-[267px] h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold">
+              <button
+                onClick={() => {
+                  router.push({
+                    pathname: '/',
+                    query: { mode: 'borrow' },
+                  })
+                }}
+                className="flex w-[267px] h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold"
+              >
                 Go to borrow
               </button>
             </div>
@@ -506,7 +563,14 @@ export const AirdropContainer = () => {
                 <span className="block">You can get more from</span>
                 <span className="block">your referees’ points.</span>
               </p>
-              <button className="flex w-[267px] h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold">
+              <button
+                onClick={() => {
+                  if (userAddress) {
+                    setMode('referral')
+                  }
+                }}
+                className="flex w-[267px] h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold"
+              >
                 Go to refer
               </button>
             </div>
@@ -552,6 +616,8 @@ export const AirdropContainer = () => {
           <ReferralTab
             referralCode={referralCode}
             referentCode={referentCode}
+            hasReferent={hasReferent}
+            setReferentCode={setReferentCode}
           />
         ) : mode === 'claim' ? (
           <ClaimTab />
