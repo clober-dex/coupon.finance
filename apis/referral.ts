@@ -1,20 +1,4 @@
-export async function fetchCouponApi<T>(
-  path: string,
-  options?: RequestInit,
-): Promise<T> {
-  const response = await fetch(
-    `https://coupon-point-api-g3xjgyu3ya-du.a.run.app/${path}`,
-    options,
-  )
-
-  if (response.ok) {
-    return response.json()
-  } else {
-    const errorResponse = await response.json()
-
-    throw new Error(errorResponse.message || 'Unknown Error')
-  }
-}
+import { fetchCouponApi } from '../utils/api'
 
 export async function fetchReferralCode(address: `0x${string}`) {
   return (

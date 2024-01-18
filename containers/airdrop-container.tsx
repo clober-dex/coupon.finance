@@ -45,25 +45,18 @@ import { LegendaryDragonSvg } from '../components/svg/tier/legendary-dragon-svg'
 import { QuestionMarkSvg } from '../components/svg/question-mark-svg'
 import { toHumanFriendly } from '../utils/numbers'
 import { BalloonModal } from '../components/modal/balloon-modal'
+import { Point } from '../model/point'
 
 const LeaderboardTab = ({
   userAddress,
-  totalPoints,
-  depositPoints,
-  borrowPoints,
-  dragonPoints,
-  mangoPoints,
+  points,
 }: {
   userAddress: `0x${string}` | undefined
-  totalPoints: number
-  depositPoints: number
-  borrowPoints: number
-  dragonPoints: number
-  mangoPoints: number
+  points: Point | null
 }) => {
   return (
     <div className="flex flex-col items-start gap-8 lg:gap-16 mt-8">
-      {userAddress ? (
+      {userAddress && points ? (
         <div className="flex flex-col items-start gap-4 px-4 w-full">
           <div className="flex items-center gap-1 font-semibold text-sm lg:text-xl">
             <PointIconSvg className="w-4 h-4 lg:w-8 lg:h-8" />
@@ -86,24 +79,36 @@ const LeaderboardTab = ({
                 />
               </div>
               <div className="font-bold text-3xl lg:text-5xl">
-                {toHumanFriendly(totalPoints)}
+                {toHumanFriendly(points.totalPoint)}
               </div>
             </div>
             <div className="flex lg:hidden flex-col items-start gap-2 self-stretch">
               <div className="flex items-start gap-2 self-stretch">
-                <PointCard title="Deposit points" value={depositPoints} />
-                <PointCard title="Borrow points" value={borrowPoints} />
+                <PointCard
+                  title="Deposit points"
+                  value={points.bondPositionPoint}
+                />
+                <PointCard
+                  title="Borrow points"
+                  value={points.loanPositionPoint}
+                />
               </div>
               <div className="flex items-start gap-2 self-stretch">
-                <PointCard title="Dragon points" value={dragonPoints} />
-                <PointCard title="Mango points" value={mangoPoints} />
+                <PointCard title="Dragon points" value={points.dragonPoint} />
+                <PointCard title="Mango points" value={points.userPoint} />
               </div>
             </div>
             <div className="hidden lg:flex w-full items-start gap-4">
-              <PointCard title="Deposit points" value={depositPoints} />
-              <PointCard title="Borrow points" value={borrowPoints} />
-              <PointCard title="Dragon points" value={dragonPoints} />
-              <PointCard title="Mango points" value={mangoPoints} />
+              <PointCard
+                title="Deposit points"
+                value={points.bondPositionPoint}
+              />
+              <PointCard
+                title="Borrow points"
+                value={points.loanPositionPoint}
+              />
+              <PointCard title="Dragon points" value={points.dragonPoint} />
+              <PointCard title="Mango points" value={points.userPoint} />
             </div>
           </div>
         </div>
@@ -706,7 +711,7 @@ const PointTiers = () => {
 
 export const AirdropContainer = () => {
   const router = useRouter()
-  const { referralCode, referentCode, hasReferent, setReferentCode } =
+  const { points, referralCode, referentCode, hasReferent, setReferentCode } =
     usePointContext()
   const { address: userAddress } = useAccount()
 
@@ -864,7 +869,10 @@ export const AirdropContainer = () => {
             </div>
 
             <div
-              className={`relative mb-6 h-10 lg:mb-14 left-[${experiencePercent}%]`}
+              className="relative mb-6 h-10 lg:mb-14"
+              style={{
+                left: `${5 + experiencePercent}%`,
+              }}
             >
               <BalloonModal className="fill-[#22c55e26]">
                 <div className="text-xs lg:text-base font-semibold px-4 py-3 rounded-lg bg-[#22c55e26] flex justify-center items-center gap-1">
@@ -916,14 +924,7 @@ export const AirdropContainer = () => {
       </div>
       <div className="w-[360px] lg:w-[960px]">
         {mode === 'leaderboard' ? (
-          <LeaderboardTab
-            userAddress={userAddress}
-            totalPoints={12341234}
-            depositPoints={1234123}
-            borrowPoints={123413}
-            mangoPoints={123423}
-            dragonPoints={123412}
-          />
+          <LeaderboardTab userAddress={userAddress} points={points} />
         ) : mode === 'referral' && referralCode ? (
           <ReferralTab
             referralCode={referralCode}

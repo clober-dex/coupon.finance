@@ -8,12 +8,15 @@ import {
   setReferentCodeWithSignature,
   setReferralCode,
 } from '../apis/referral'
+import { Point } from '../model/point'
+import { fetchPoints } from '../apis/point'
 
 type PointContext = {
   referralCode: string | null
   referentCode: string | null
   hasReferent: boolean
   setReferentCode: (referentCode: string) => Promise<void>
+  points: Point | null
 }
 
 const Context = React.createContext<PointContext>({
@@ -21,12 +24,28 @@ const Context = React.createContext<PointContext>({
   referentCode: null,
   hasReferent: false,
   setReferentCode: () => Promise.resolve(),
+  points: null,
 })
 
 export const PointProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const router = useRouter()
   const { address: userAddress } = useAccount()
   const { data: walletClient } = useWalletClient()
+
+  const { data: points } = useQuery(
+    ['points', userAddress],
+    async () => {
+      if (!userAddress) {
+        return null
+      }
+      return fetchPoints(userAddress)
+    },
+    {
+      refetchInterval: 10 * 1000,
+      refetchIntervalInBackground: true,
+      initialData: null,
+    },
+  )
 
   const { data: referralCode } = useQuery(
     ['referral-code', userAddress],
@@ -118,6 +137,7 @@ export const PointProvider = ({ children }: React.PropsWithChildren<{}>) => {
         referentCode,
         hasReferent,
         setReferentCode,
+        points,
       }}
     >
       {children}

@@ -11,8 +11,8 @@ import { CommunityDropdownModal } from '../components/modal/community-dropdown-m
 import { UserPointButton } from '../components/button/user-point-button'
 import { ZIndices } from '../utils/z-indices'
 import { useModeContext } from '../contexts/mode-context'
-import { useCurrencyContext } from '../contexts/currency-context'
 import { SwapButton } from '../components/button/swap-button'
+import { usePointContext } from '../contexts/point-context'
 
 import OdosSwapModalContainer from './modal/odos-swap-modal-container'
 
@@ -25,6 +25,7 @@ const HeaderContainer = ({
 }) => {
   const { address, status } = useAccount()
   const { selectedMode, onSelectedModeChange } = useModeContext()
+  const { points } = usePointContext()
   const [showSwapModal, setShowSwapModal] = useState(false)
   return (
     <div
@@ -74,7 +75,11 @@ const HeaderContainer = ({
           <div className="hidden lg:flex">
             <ThemeToggleButton setTheme={setTheme} />
           </div>
-          {address ? <UserPointButton score={Number(777)} /> : <></>}
+          {address && points ? (
+            <UserPointButton score={points.totalPoint} />
+          ) : (
+            <></>
+          )}
           <SwapButton setShowSwapModal={setShowSwapModal} />
           {showSwapModal ? (
             <OdosSwapModalContainer onClose={() => setShowSwapModal(false)} />

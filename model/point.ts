@@ -1,8 +1,8 @@
 export type Point = {
-  amount: bigint
-  decimals: number
-  price: bigint
-  priceDecimals: number
-  accumulatedPoint: bigint
-  updatedAt: bigint
+  totalPoint: number
+  tomorrowTotalPoint: number
+  dragonPoint: number
+  userPoint: number
+  bondPositionPoint: number
+  loanPositionPoint: number
 }
