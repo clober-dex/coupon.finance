@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react'
 import { useAccount } from 'wagmi'
 import Link from 'next/link'
-import { useRouter } from 'next/router'
+import { NextRouter, useRouter } from 'next/router'
+import { Tooltip } from 'react-tooltip'
 
 import { NumberOneBoxSvg } from '../components/svg/number-one-box-svg'
 import { NumberTwoBoxSvg } from '../components/svg/number-two-box-svg'
@@ -29,6 +30,19 @@ import { MoneyTopIconSvg } from '../components/svg/money-top-icon-svg'
 import { MoneyBottomIconSvg } from '../components/svg/money-bottom-icon-svg'
 import { usePointContext } from '../contexts/point-context'
 import { UpBracketAngleSvg } from '../components/svg/up-bracket-angle-svg'
+import { DragonEggSvg } from '../components/svg/tier/dragon-egg-svg'
+import { ZeroTierSvg } from '../components/svg/tier/zero-tier-svg'
+import { BabyDragonSvg } from '../components/svg/tier/baby-dragon-svg'
+import { FirstTierSvg } from '../components/svg/tier/first-tier-svg'
+import { BronzeDragonSvg } from '../components/svg/tier/bronze-dragon-svg'
+import { SecondTierSvg } from '../components/svg/tier/second-tier-svg'
+import { ThirdTierSvg } from '../components/svg/tier/third-tier-svg'
+import { SilverDragonSvg } from '../components/svg/tier/silver-dragon-svg'
+import { GoldDragonSvg } from '../components/svg/tier/gold-dragon-svg'
+import { FourthTierSvg } from '../components/svg/tier/fourth-tier-svg'
+import { FifthTierSvg } from '../components/svg/tier/fifth-tier-svg'
+import { LegendaryDragonSvg } from '../components/svg/tier/legendary-dragon-svg'
+import { QuestionMarkSvg } from '../components/svg/question-mark-svg'
 
 const LeaderboardTab = () => {
   return (
@@ -40,8 +54,19 @@ const LeaderboardTab = () => {
         </div>
         <div className="flex flex-col gap-4 w-full">
           <div className="flex py-6 flex-col items-center w-full gap-3 rounded-xl bg-white dark:bg-gray-850">
-            <div className="text-gray-500 text-xs lg:text-lg font-semibold">
-              Total points
+            <div className="text-gray-500 text-xs lg:text-lg font-semibold flex flex-row items-center gap-1">
+              Total points{' '}
+              <QuestionMarkSvg
+                data-tooltip-id="dragon-point-tooltip"
+                data-tooltip-content="Referral Points will be claimed automatically before the airdrop"
+                className="w-3 h-3 lg:w-4 lg:h-4"
+              />
+              <Tooltip
+                id="dragon-point-tooltip"
+                style={{
+                  width: '200px',
+                }}
+              />
             </div>
             <div className="font-bold text-3xl lg:text-5xl">1295012</div>
           </div>
@@ -51,18 +76,13 @@ const LeaderboardTab = () => {
               <PointCard title="Borrow points" value="82010" />
             </div>
             <div className="flex items-start gap-2 self-stretch">
-              <PointCard title="Referral points" value="82010" />
               <PointCard title="Dragon points" value="82010" />
-            </div>
-            <div className="flex items-start gap-2 self-stretch">
               <PointCard title="Mango points" value="82010" />
-              <div className="flex items-center flex-grow flex-shrink-0 basis-0 py-4 pl-4 pr-3" />
             </div>
           </div>
           <div className="hidden lg:flex w-full items-start gap-4">
             <PointCard title="Deposit points" value="82010" />
             <PointCard title="Borrow points" value="82010" />
-            <PointCard title="Referral points" value="82010" />
             <PointCard title="Dragon points" value="82010" />
             <PointCard title="Mango points" value="82010" />
           </div>
@@ -299,6 +319,369 @@ const ClaimTab = () => {
   )
 }
 
+const EarnDetailMobile = ({
+  router,
+  userAddress,
+  setMode,
+}: {
+  router: NextRouter
+  userAddress: `0x${string}` | undefined
+  setMode: (mode: 'leaderboard' | 'referral' | 'claim') => void
+}) => {
+  const [show, setShow] = React.useState<boolean>(false)
+
+  return (
+    <div className="flex flex-col lg:hidden justify-center">
+      <div className="flex px-4 py-3 justify-center w-full text-sm lg:text-xl font-semibold">
+        <div>How can I get points?</div>
+        <button onClick={() => setShow(!show)}>
+          {show ? (
+            <UpBracketAngleSvg className="ml-44" />
+          ) : (
+            <DownBracketAngleSvg className="ml-44" />
+          )}
+        </button>
+      </div>
+      {show ? (
+        <div className="flex flex-col items-center gap-4 self-stretch">
+          <div className="flex flex-col items-center gap-2">
+            <div className="flex w-[328px] p-4 flex-col items-center gap-4 rounded-xl ring-2 ring-gray-200">
+              <div className="flex flex-col items-start gap-3 self-stretch">
+                <div className="flex flex-col items-start gap-2">
+                  <div className="flex flex-row gap-2 text-sm font-semibold items-center">
+                    <DepositIconSvg className="w-4 h-4" />
+                    Deposit points
+                  </div>
+                  <div className="text-xs font-semibold">
+                    For every $1 in trades, earn 1 point per hour.
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  router.push({
+                    pathname: '/',
+                    query: { mode: 'deposit' },
+                  })
+                }}
+                className="flex w-full h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold"
+              >
+                Go to deposit
+              </button>
+            </div>
+            <div className="flex w-[328px] p-4 flex-col items-center gap-4 rounded-xl ring-2 ring-gray-200">
+              <div className="flex flex-col items-start gap-3 self-stretch">
+                <div className="flex flex-col items-start gap-2">
+                  <div className="flex flex-row gap-2 text-sm font-semibold items-center">
+                    <BorrowIconSvg className="w-4 h-4" />
+                    Borrow points
+                  </div>
+                  <div className="text-xs font-semibold">
+                    For every $1 in trades, earn 1 point per hour.
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  router.push({
+                    pathname: '/',
+                    query: { mode: 'borrow' },
+                  })
+                }}
+                className="flex w-full h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold"
+              >
+                Go to borrow
+              </button>
+            </div>
+            <div className="flex w-[328px] p-4 flex-col items-center gap-4 rounded-xl ring-2 ring-gray-200">
+              <div className="flex flex-col items-start gap-3 self-stretch">
+                <div className="flex flex-col items-start gap-2">
+                  <div className="flex flex-row gap-2 text-sm font-semibold items-center">
+                    <ReferralIconSvg className="stroke-gray-950 dark:stroke-white stroke-2 w-4 h-4" />
+                    Referral points
+                  </div>
+                  <div className="text-xs font-semibold">
+                    You can get more from your referees’ points.
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  if (userAddress) {
+                    setMode('referral')
+                  }
+                }}
+                className="flex w-full h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold"
+              >
+                Go to refer
+              </button>
+            </div>
+          </div>
+          <div className="flex gap-1 items-center mb-4">
+            <Link
+              href="https://docs.coupon.finance/tokenomics/points"
+              target="_blank"
+              className="text-sm h-6 text-green-500 font-semibold"
+            >
+              See Point rule detail
+            </Link>
+            <RightBracketAngleSvg className="w-4 h-4 stroke-green-500" />
+          </div>
+        </div>
+      ) : (
+        <></>
+      )}
+    </div>
+  )
+}
+
+const EarnDetailPC = ({
+  router,
+  userAddress,
+  setMode,
+}: {
+  router: NextRouter
+  userAddress: `0x${string}` | undefined
+  setMode: (mode: 'leaderboard' | 'referral' | 'claim') => void
+}) => (
+  <div className="hidden lg:flex flex-col gap-6 items-center">
+    <div className="flex flex-row gap-4 w-[960px] items-end">
+      <div className="text-2xl font-semibold">How can I get points?</div>
+      <div className="flex gap-1 items-center">
+        <Link
+          href="https://docs.coupon.finance/tokenomics/points"
+          target="_blank"
+          className="h-6 text-green-500 font-semibold"
+        >
+          See Point rule detail
+        </Link>
+        <RightBracketAngleSvg className="w-4 h-4 stroke-green-500" />
+      </div>
+    </div>
+    <div className="flex items-center gap-2">
+      <div className="flex flex-1 px-6 py-4 flex-col items-start gap-4 flex-grow flex-shrink-0 basis-0 rounded-xl ring-2 ring-gray-200">
+        <div className="flex flex-row gap-2 text-lg font-semibold">
+          <DepositIconSvg />
+          Deposit points
+        </div>
+        <p className="font-semibold text-sm">
+          <span className="block">For every $1 in trades,</span>
+          <span className="block">earn 1 point per hour.</span>
+        </p>
+        <button
+          onClick={() => {
+            router.push({
+              pathname: '/',
+              query: { mode: 'deposit' },
+            })
+          }}
+          className="flex w-[267px] h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold"
+        >
+          Go to deposit
+        </button>
+      </div>
+      <div className="flex flex-1 px-6 py-4 flex-col items-start gap-4 flex-grow flex-shrink-0 basis-0 rounded-xl ring-2 ring-gray-200">
+        <div className="flex flex-row gap-2 text-lg font-semibold">
+          <BorrowIconSvg />
+          Borrow points
+        </div>
+        <p className="font-semibold text-sm">
+          <span className="block">For every $1 in trades,</span>
+          <span className="block">earn 1 point per hour.</span>
+        </p>
+        <button
+          onClick={() => {
+            router.push({
+              pathname: '/',
+              query: { mode: 'borrow' },
+            })
+          }}
+          className="flex w-[267px] h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold"
+        >
+          Go to borrow
+        </button>
+      </div>
+      <div className="flex flex-1 px-6 py-4 flex-col items-start gap-4 flex-grow flex-shrink-0 basis-0 rounded-xl ring-2 ring-gray-200">
+        <div className="flex flex-row gap-2 text-lg font-semibold">
+          <ReferralIconSvg className="stroke-gray-950 dark:stroke-white stroke-2" />
+          Referral points
+        </div>
+        <p className="font-semibold text-sm">
+          <span className="block">You can get more from</span>
+          <span className="block">your referees’ points.</span>
+        </p>
+        <button
+          onClick={() => {
+            if (userAddress) {
+              setMode('referral')
+            }
+          }}
+          className="flex w-[267px] h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold"
+        >
+          Go to refer
+        </button>
+      </div>
+    </div>
+  </div>
+)
+
+const PointTiers = () => {
+  const [show, setShow] = React.useState<boolean>(false)
+
+  return (
+    <div className="flex flex-col gap-4 mb-8 p-4 rounded-xl bg-gray-50 dark:bg-gray-800 lg:p-8 lg:rounded-2xl">
+      <div className="flex justify-between text-sm font-bold lg:text-2xl">
+        <div>Point Tiers</div>
+        <button onClick={() => setShow(!show)}>
+          {show ? (
+            <UpBracketAngleSvg className="w-4 h-4 lg:w-8 lg:h-8 stroke-green-500" />
+          ) : (
+            <DownBracketAngleSvg className="w-4 h-4 lg:w-8 lg:h-8 stroke-green-500" />
+          )}
+        </button>
+      </div>
+      {show ? (
+        <div className="flex flex-col items-start gap-4 self-stretch">
+          <div className="flex items-center gap-3 self-stretch">
+            <div className="w-[45px] lg:w-24 text-green-500 text-xs lg:text-xl font-semibold">
+              0M~
+            </div>
+            <div className="flex flex-1 items-center">
+              <div className="flex flex-row items-center gap-2 lg:gap-4">
+                <DragonEggSvg className="w-8 h-8 lg:w-12 lg:h-12" />
+                <div className="flex flex-row gap-1 lg:gap-2">
+                  <ZeroTierSvg className="w-4 h-4 lg:w-8 lg:h-8 " />
+                  <span className="text-xs lg:text-xl font-semibold">
+                    Dragon Egg
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="text-xs lg:text-xl text-green-500 font-semibold gap-2 flex flex-row">
+              <span className="text-gray-400">
+                Boost <span className="hidden lg:inline">point</span>
+              </span>{' '}
+              <div>0%</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 self-stretch">
+            <div className="w-[45px] lg:w-24 text-green-500 text-xs lg:text-xl font-semibold">
+              5M~
+            </div>
+            <div className="flex flex-1 items-center">
+              <div className="flex flex-row items-center gap-2 lg:gap-4">
+                <BabyDragonSvg className="w-8 h-8 lg:w-12 lg:h-12" />
+                <div className="flex flex-row gap-1 lg:gap-2">
+                  <FirstTierSvg className="w-4 h-4 lg:w-8 lg:h-8 " />
+                  <span className="text-xs lg:text-xl font-semibold">
+                    Baby Dragon
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="text-xs lg:text-xl text-green-500 font-semibold gap-2 flex flex-row">
+              <span className="text-gray-400">
+                Boost <span className="hidden lg:inline">point</span>
+              </span>{' '}
+              <div>1%</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 self-stretch">
+            <div className="w-[45px] lg:w-24 text-green-500 text-xs lg:text-xl font-semibold">
+              15M~
+            </div>
+            <div className="flex flex-1 items-center">
+              <div className="flex flex-row items-center gap-2 lg:gap-4">
+                <BronzeDragonSvg className="w-8 h-8 lg:w-12 lg:h-12" />
+                <div className="flex flex-row gap-1 lg:gap-2">
+                  <SecondTierSvg className="w-4 h-4 lg:w-8 lg:h-8 " />
+                  <span className="text-xs lg:text-xl font-semibold">
+                    Bronze Dragon
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="text-xs lg:text-xl text-green-500 font-semibold gap-2 flex flex-row">
+              <span className="text-gray-400">
+                Boost <span className="hidden lg:inline">point</span>
+              </span>{' '}
+              <div>2%</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 self-stretch">
+            <div className="w-[45px] lg:w-24 text-green-500 text-xs lg:text-xl font-semibold">
+              50M~
+            </div>
+            <div className="flex flex-1 items-center">
+              <div className="flex flex-row items-center gap-2 lg:gap-4">
+                <SilverDragonSvg className="w-8 h-8 lg:w-12 lg:h-12" />
+                <div className="flex flex-row gap-1 lg:gap-2">
+                  <ThirdTierSvg className="w-4 h-4 lg:w-8 lg:h-8 " />
+                  <span className="text-xs lg:text-xl font-semibold">
+                    Silver Dragon
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="text-xs lg:text-xl text-green-500 font-semibold gap-2 flex flex-row">
+              <span className="text-gray-400">
+                Boost <span className="hidden lg:inline">point</span>
+              </span>{' '}
+              <div>3%</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 self-stretch">
+            <div className="w-[45px] lg:w-24 text-green-500 text-xs lg:text-xl font-semibold">
+              150M~
+            </div>
+            <div className="flex flex-1 items-center">
+              <div className="flex flex-row items-center gap-2 lg:gap-4">
+                <GoldDragonSvg className="w-8 h-8 lg:w-12 lg:h-12" />
+                <div className="flex flex-row gap-1 lg:gap-2">
+                  <FourthTierSvg className="w-4 h-4 lg:w-8 lg:h-8 " />
+                  <span className="text-xs lg:text-xl font-semibold">
+                    Gold Dragon
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="text-xs lg:text-xl text-green-500 font-semibold gap-2 flex flex-row">
+              <span className="text-gray-400">
+                Boost <span className="hidden lg:inline">point</span>
+              </span>{' '}
+              <div>4%</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 self-stretch">
+            <div className="w-[45px] lg:w-24 text-green-500 text-xs lg:text-xl font-semibold">
+              500M~
+            </div>
+            <div className="flex flex-1 items-center">
+              <div className="flex flex-row items-center gap-2 lg:gap-4">
+                <LegendaryDragonSvg className="w-8 h-8 lg:w-12 lg:h-12" />
+                <div className="flex flex-row gap-1 lg:gap-2">
+                  <FifthTierSvg className="w-4 h-4 lg:w-8 lg:h-8 " />
+                  <span className="text-xs lg:text-xl font-semibold">
+                    Legendary Dragon
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="text-xs lg:text-xl text-green-500 font-semibold gap-2 flex flex-row">
+              <span className="text-gray-400">
+                Boost <span className="hidden lg:inline">point</span>
+              </span>{' '}
+              <div>5%</div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <></>
+      )}
+    </div>
+  )
+}
+
 export const AirdropContainer = () => {
   const router = useRouter()
   const { referralCode, referentCode, hasReferent, setReferentCode } =
@@ -308,7 +691,6 @@ export const AirdropContainer = () => {
   const [mode, setMode] = React.useState<'leaderboard' | 'referral' | 'claim'>(
     'leaderboard',
   )
-  const [show, setShow] = React.useState<boolean>(false)
 
   useEffect(() => {
     if (!hasReferent && referentCode && userAddress) {
@@ -395,187 +777,17 @@ export const AirdropContainer = () => {
           </div>
         </div>
 
-        <div className="flex flex-col lg:hidden justify-center">
-          <div className="flex px-4 py-3 justify-center w-full text-sm lg:text-xl font-semibold">
-            <div>How can I get points?</div>
-            <button onClick={() => setShow(!show)}>
-              {show ? (
-                <UpBracketAngleSvg className="ml-44" />
-              ) : (
-                <DownBracketAngleSvg className="ml-44" />
-              )}
-            </button>
-          </div>
-          {show ? (
-            <div className="flex flex-col items-center gap-4 self-stretch">
-              <div className="flex flex-col items-center gap-2">
-                <div className="flex w-[328px] p-4 flex-col items-center gap-4 rounded-xl ring-2 ring-gray-200">
-                  <div className="flex flex-col items-start gap-3 self-stretch">
-                    <div className="flex flex-col items-start gap-2">
-                      <div className="flex flex-row gap-2 text-sm font-semibold items-center">
-                        <DepositIconSvg className="w-4 h-4" />
-                        Deposit points
-                      </div>
-                      <div className="text-xs font-semibold">
-                        For every $1 in trades, earn 1 point per hour.
-                      </div>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => {
-                      router.push({
-                        pathname: '/',
-                        query: { mode: 'deposit' },
-                      })
-                    }}
-                    className="flex w-full h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold"
-                  >
-                    Go to deposit
-                  </button>
-                </div>
-                <div className="flex w-[328px] p-4 flex-col items-center gap-4 rounded-xl ring-2 ring-gray-200">
-                  <div className="flex flex-col items-start gap-3 self-stretch">
-                    <div className="flex flex-col items-start gap-2">
-                      <div className="flex flex-row gap-2 text-sm font-semibold items-center">
-                        <BorrowIconSvg className="w-4 h-4" />
-                        Borrow points
-                      </div>
-                      <div className="text-xs font-semibold">
-                        For every $1 in trades, earn 1 point per hour.
-                      </div>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => {
-                      router.push({
-                        pathname: '/',
-                        query: { mode: 'borrow' },
-                      })
-                    }}
-                    className="flex w-full h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold"
-                  >
-                    Go to borrow
-                  </button>
-                </div>
-                <div className="flex w-[328px] p-4 flex-col items-center gap-4 rounded-xl ring-2 ring-gray-200">
-                  <div className="flex flex-col items-start gap-3 self-stretch">
-                    <div className="flex flex-col items-start gap-2">
-                      <div className="flex flex-row gap-2 text-sm font-semibold items-center">
-                        <ReferralIconSvg className="stroke-gray-950 dark:stroke-white stroke-2 w-4 h-4" />
-                        Referral points
-                      </div>
-                      <div className="text-xs font-semibold">
-                        You can get more from your referees’ points.
-                      </div>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => {
-                      if (userAddress) {
-                        setMode('referral')
-                      }
-                    }}
-                    className="flex w-full h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold"
-                  >
-                    Go to refer
-                  </button>
-                </div>
-              </div>
-              <div className="flex gap-1 items-center mb-4">
-                <Link
-                  href="https://docs.coupon.finance/tokenomics/points"
-                  target="_blank"
-                  className="text-sm h-6 text-green-500 font-semibold"
-                >
-                  See Point rule detail
-                </Link>
-                <RightBracketAngleSvg className="w-4 h-4 stroke-green-500" />
-              </div>
-            </div>
-          ) : (
-            <></>
-          )}
-        </div>
+        <EarnDetailMobile
+          router={router}
+          setMode={setMode}
+          userAddress={userAddress}
+        />
 
-        <div className="hidden lg:flex flex-col gap-6 items-center">
-          <div className="flex flex-row gap-4 w-[960px] items-end">
-            <div className="text-2xl font-semibold">How can I get points?</div>
-            <div className="flex gap-1 items-center">
-              <Link
-                href="https://docs.coupon.finance/tokenomics/points"
-                target="_blank"
-                className="h-6 text-green-500 font-semibold"
-              >
-                See Point rule detail
-              </Link>
-              <RightBracketAngleSvg className="w-4 h-4 stroke-green-500" />
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="flex flex-1 px-6 py-4 flex-col items-start gap-4 flex-grow flex-shrink-0 basis-0 rounded-xl ring-2 ring-gray-200">
-              <div className="flex flex-row gap-2 text-lg font-semibold">
-                <DepositIconSvg />
-                Deposit points
-              </div>
-              <p className="font-semibold text-sm">
-                <span className="block">For every $1 in trades,</span>
-                <span className="block">earn 1 point per hour.</span>
-              </p>
-              <button
-                onClick={() => {
-                  router.push({
-                    pathname: '/',
-                    query: { mode: 'deposit' },
-                  })
-                }}
-                className="flex w-[267px] h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold"
-              >
-                Go to deposit
-              </button>
-            </div>
-            <div className="flex flex-1 px-6 py-4 flex-col items-start gap-4 flex-grow flex-shrink-0 basis-0 rounded-xl ring-2 ring-gray-200">
-              <div className="flex flex-row gap-2 text-lg font-semibold">
-                <BorrowIconSvg />
-                Borrow points
-              </div>
-              <p className="font-semibold text-sm">
-                <span className="block">For every $1 in trades,</span>
-                <span className="block">earn 1 point per hour.</span>
-              </p>
-              <button
-                onClick={() => {
-                  router.push({
-                    pathname: '/',
-                    query: { mode: 'borrow' },
-                  })
-                }}
-                className="flex w-[267px] h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold"
-              >
-                Go to borrow
-              </button>
-            </div>
-            <div className="flex flex-1 px-6 py-4 flex-col items-start gap-4 flex-grow flex-shrink-0 basis-0 rounded-xl ring-2 ring-gray-200">
-              <div className="flex flex-row gap-2 text-lg font-semibold">
-                <ReferralIconSvg className="stroke-gray-950 dark:stroke-white stroke-2" />
-                Referral points
-              </div>
-              <p className="font-semibold text-sm">
-                <span className="block">You can get more from</span>
-                <span className="block">your referees’ points.</span>
-              </p>
-              <button
-                onClick={() => {
-                  if (userAddress) {
-                    setMode('referral')
-                  }
-                }}
-                className="flex w-[267px] h-8 bg-green-500 bg-opacity-10 rounded flex-col justify-center items-center opacity-90 text-center text-green-500 text-sm font-semibold"
-              >
-                Go to refer
-              </button>
-            </div>
-          </div>
-        </div>
+        <EarnDetailPC
+          router={router}
+          setMode={setMode}
+          userAddress={userAddress}
+        />
 
         <div className="m-auto px-4 lg:mt-4 lg:px-0 w-[360px] lg:w-[960px]">
           <div className="mb-4 text-sm font-bold lg:text-2xl ">
@@ -626,7 +838,7 @@ export const AirdropContainer = () => {
             </div>
           </div>
 
-          <div className="relative mt-2 mb-6 h-10 lg:mt-8  lg:mb-14">
+          <div className="relative mt-2 mb-6 h-10 lg:mt-8 lg:mb-14">
             <div
               className="absolute"
               style={{
@@ -655,28 +867,7 @@ export const AirdropContainer = () => {
             </div>
           </div>
 
-          <div className="mb-8 p-4 rounded-xl bg-gray-50 lg:mb-16 lg:p-8 lg:rounded-2xl">
-            <div className="flex justify-between text-sm font-bold lg:text-2xl">
-              <div>Point Tiers</div>
-              <DownBracketAngleSvg className="ml-44" />
-            </div>
-
-            <div className="flex flex-col gap-2 mt-4 text-xs font-bold lg:gap-4 lg:mt-8 lg:text-base">
-              <div className="flex items-center">
-                <div className="w-16 lg:w-24 text-green-500">90000~</div>
-
-                <div className="flex flex-1 items-center">
-                  <div className="w-8 h-8 bg-green-100 mr-1 lg:w-12 lg:h-12 lg:mr-5" />
-                  <div className="w-4 h-4 bg-green-100 mr-0.5 lg:w-6 lg:h-6 lg:mr-2" />
-                  <span className="lg:text-xl">Dragon Egg</span>
-                </div>
-
-                <div className="text-green-500">
-                  <span className="text-gray-400">Boost</span> 0%
-                </div>
-              </div>
-            </div>
-          </div>
+          <PointTiers />
         </div>
 
         <div className="text-sm lg:text-xl mt-0 lg:mt-8 w-full flex gap-2 lg:gap-[100px] items-end justify-center pb-1 bg-white dark:bg-gray-850 h-[26px] lg:h-[52px]">
