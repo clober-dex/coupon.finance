@@ -1,7 +1,5 @@
 import React from 'react'
 
-import { RightBracketAngleSvg } from '../svg/right-bracket-angle-svg'
-
 export const PointCard = ({
   title,
   value,
@@ -15,9 +13,6 @@ export const PointCard = ({
         {title}
       </div>
       <div className="font-semibold text-lg lg:text-xl">{value}</div>
-    </div>
-    <div className="flex ml-auto">
-      <RightBracketAngleSvg className="w-4 h-4 lg:w-8 lg:h-8 stroke-[#9CA3AF]" />
     </div>
   </div>
 )
