@@ -24,7 +24,6 @@ const HeaderContainer = ({
   setTheme: (theme: 'light' | 'dark') => void
 }) => {
   const { address, status } = useAccount()
-  const { point } = useCurrencyContext()
   const { selectedMode, onSelectedModeChange } = useModeContext()
   const [showSwapModal, setShowSwapModal] = useState(false)
   return (
@@ -75,7 +74,7 @@ const HeaderContainer = ({
           <div className="hidden lg:flex">
             <ThemeToggleButton setTheme={setTheme} />
           </div>
-          {address ? <UserPointButton score={Number(point)} /> : <></>}
+          {address ? <UserPointButton score={Number(777)} /> : <></>}
           <SwapButton setShowSwapModal={setShowSwapModal} />
           {showSwapModal ? (
             <OdosSwapModalContainer onClose={() => setShowSwapModal(false)} />

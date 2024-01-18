@@ -13,8 +13,6 @@ import { Balances } from '../model/balances'
 import { Prices } from '../model/prices'
 import { max } from '../utils/bigint'
 import { fetchMarkets } from '../apis/market'
-import { extractPoints } from '../apis/point'
-import { getCurrentPoint } from '../utils/point'
 import { CONTRACT_ADDRESSES } from '../constants/addresses'
 import { CHAIN_IDS } from '../constants/chain'
 import { ERC1155_ABI } from '../abis/@openzeppelin/erc1155-abi'
@@ -31,7 +29,6 @@ type CurrencyContext = {
   assets: Asset[]
   assetStatuses: AssetStatus[]
   epochs: Epoch[]
-  point: bigint
   calculateETHValue: (currency: Currency, willPayAmount: bigint) => bigint
 }
 
@@ -42,7 +39,6 @@ const Context = React.createContext<CurrencyContext>({
   assets: [],
   assetStatuses: [],
   epochs: [],
-  point: 0n,
   calculateETHValue: () => 0n,
 })
 
@@ -89,7 +85,7 @@ const REFRESH_INTERVAL = 5 * 1000
 export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { address: userAddress } = useAccount()
   const { selectedChain } = useChainContext()
-  const { integrated, integratedPoint } = useSubgraphContext()
+  const { integrated } = useSubgraphContext()
 
   const { data: currencies } = useQuery(
     ['currencies', selectedChain],
@@ -201,13 +197,6 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
     [integrated],
   )
   const epochs = useMemo(() => extractEpochs(integrated), [integrated])
-  const point = useMemo(() => {
-    const points = extractPoints(integratedPoint)
-    if (points.length === 0) {
-      return 0n
-    }
-    return getCurrentPoint(points)
-  }, [integratedPoint])
 
   return (
     <Context.Provider
@@ -218,7 +207,6 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
         assets: assets,
         assetStatuses: assetStatuses,
         epochs: epochs,
-        point: point,
         calculateETHValue: calculateETHValue,
       }}
     >

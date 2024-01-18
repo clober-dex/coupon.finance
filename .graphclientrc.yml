@@ -5,10 +5,6 @@ sources:
         endpoint: '{context.url:https://subgraph.satsuma-prod.com/f6a8c4889b7b/clober/coupon-subgraph/api}'
     transforms:
       - autoPagination: {}
-  - name: coupon-finance-point
-    handler:
-      graphql:
-        endpoint: '{context.url:https://subgraph.satsuma-prod.com/f6a8c4889b7b/clober/coupon-point-subgraph/api}'
 
 documents:
   - ./apis/**/*.graphql
