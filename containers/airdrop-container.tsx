@@ -404,6 +404,109 @@ export const AirdropContainer = () => {
             </div>
           </div>
         </div>
+
+        <div className="m-auto px-4 lg:mt-4 lg:px-0 w-[360px] lg:w-[960px]">
+          <div className="mb-4 text-sm font-bold lg:text-2xl ">
+            My point level
+          </div>
+
+          <div className="mb-4 flex justify-center lg:mb-8">
+            <div className="flex items-center gap-6 p-4 rounded-2xl bg-green-50 lg:gap-8 lg:p-6 lg:rounded-3xl">
+              <div className="w-20 h-20 bg-green-200 lg:w-32 lg:h-32"></div>
+
+              <div className="flex flex-col gap-3 lg:gap-4">
+                <div className="flex items-center gap-2 text-sm font-bold lg:text-xl">
+                  <div className="w-6 h-4 lg:w-8 lg:h-6 bg-green-400"></div>
+                  Baby Dragon
+                </div>
+                <p className="font-semibold text-xs text-gray-400 lg:text-lg">
+                  <span className="block">
+                    Boost point <span className="text-green-500">1%</span>
+                  </span>
+                  <span className="block">
+                    <span className="text-green-500">700 points</span> more for
+                    level up
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2 lg:gap-3">
+            <div className="relative rounded-lg bg-gray-100 h-4 overflow-hidden lg:h-6 lg:rounded-xl">
+              <div
+                className="absolute left-0 rounded-lg bg-green-200 h-full overflow-hidden lg:rounded-xl"
+                style={{ width: '50%' }}
+              />
+              <div
+                className="flex justify-end items-center px-2 absolute left-0 rounded-lg bg-green-500 h-full overflow-hidden lg:rounded-xl"
+                style={{ width: '40%' }}
+              >
+                <span className="text-xs font-bold text-white lg:text-lg">
+                  300
+                </span>
+              </div>
+            </div>
+            <div className="flex justify-between text-xs font-bold text-gray-400 lg:text-lg">
+              <span>0</span>
+              <span>5000</span>
+              <span>100000</span>
+            </div>
+          </div>
+
+          <div className="relative mt-2 mb-6 h-10 lg:mt-8  lg:mb-14">
+            <div
+              className="absolute"
+              style={{
+                left: '50%',
+                transform: 'translate(-50%, 0)',
+              }}
+            >
+              <svg
+                className="absolute w-4 h-4 lg:w-6 lg:h-6"
+                style={{
+                  left: '50%',
+                  transform: 'translate(-50%, -100%)',
+                }}
+                viewBox="0 0 16 16"
+                fill="none"
+              >
+                <path d="M8 0L0 16H16L8 0Z" fill="#F0FDF4" />
+              </svg>
+
+              <div className="flex justify-start">
+                <div className="bg-green-50 rounded-l px-3 py-2 text-xs font-bold lg:rounded-xl lg:px-4 lg:py-3 lg:text-base">
+                  You will earn{' '}
+                  <span className="text-green-500">600 point</span> tomorrow!
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mb-8 p-4 rounded-xl bg-gray-50 lg:mb-16 lg:p-8 lg:rounded-2xl">
+            <div className="flex justify-between text-sm font-bold lg:text-2xl">
+              <div>Point Tiers</div>
+              <DownBracketAngleSvg className="ml-44" />
+            </div>
+
+            <div className="flex flex-col gap-2 mt-4 text-xs font-bold lg:gap-4 lg:mt-8 lg:text-base">
+              <div className="flex items-center">
+                <div className="w-16 lg:w-24 text-green-500">90000~</div>
+
+                <div className="flex flex-1 items-center">
+                  <div className="w-8 h-8 bg-green-100 mr-1 lg:w-12 lg:h-12 lg:mr-5" />
+                  <div className="w-4 h-4 bg-green-100 mr-0.5 lg:w-6 lg:h-6 lg:mr-2" />
+                  <span className="lg:text-xl">Dragon Egg</span>
+                </div>
+
+                <div className="text-green-500">
+                  <span className="text-gray-400">Boost</span> 0%
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="text-sm lg:text-xl mt-0 lg:mt-8 w-full flex gap-2 lg:gap-[100px] items-end justify-center pb-1 bg-white dark:bg-gray-850 h-[26px] lg:h-[52px]">
           <button
             disabled={mode === 'leaderboard'}
