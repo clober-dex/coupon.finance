@@ -100,7 +100,7 @@ export const PointProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }
       const signature = await walletClient.signMessage({
         account: walletClient.account.address,
-        message: `${userAddress}${referentCode}`,
+        message: `${userAddress.toLowerCase()}${referentCode}`,
       })
       try {
         await setReferentCodeWithSignature(userAddress, referentCode, signature)
