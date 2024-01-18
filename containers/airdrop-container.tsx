@@ -52,6 +52,7 @@ import { BronzeDragonCard } from '../components/card/tier/bronze-dragon-card'
 import { GoldDragonCard } from '../components/card/tier/gold-dragon-card'
 import { LegendaryDragonCard } from '../components/card/tier/legendary-dragon-card'
 import { SilverDragonCard } from '../components/card/tier/silver-dragon-card'
+import { DragonEggCard } from '../components/card/tier/dragon-egg-card'
 
 const LeaderboardTab = ({
   userAddress,
@@ -280,11 +281,10 @@ const ReferralTab = ({
                 {referralCode}
                 <button
                   className="flex items-center"
-                  onClick={
-                    () =>
-                      navigator.clipboard.writeText(
-                        `http://localhost:3000/?mode=airdrop&referralCode=${referralCode}`,
-                      ) // todo: change to real url
+                  onClick={() =>
+                    navigator.clipboard.writeText(
+                      `https://coupon.finance/?mode=airdrop&referralCode=${referralCode}`,
+                    )
                   }
                 >
                   <CopyIconSvg />
@@ -843,21 +843,23 @@ export const AirdropContainer = () => {
             </div>
 
             {tier.level === 0 ? (
-              <BadyDragonCard totalPoint={points.totalPoint} />
+              <DragonEggCard totalPoint={points.totalPoint} />
             ) : tier.level === 1 ? (
-              <BronzeDragonCard totalPoint={points.totalPoint} />
+              <BadyDragonCard totalPoint={points.totalPoint} />
             ) : tier.level === 2 ? (
-              <SilverDragonCard totalPoint={points.totalPoint} />
+              <BronzeDragonCard totalPoint={points.totalPoint} />
             ) : tier.level === 3 ? (
+              <SilverDragonCard totalPoint={points.totalPoint} />
+            ) : tier.level === 4 ? (
               <GoldDragonCard totalPoint={points.totalPoint} />
             ) : (
               <LegendaryDragonCard />
             )}
 
             <div className="flex flex-col gap-2 lg:gap-3">
-              <div className="relative rounded-lg bg-gray-100 h-4 overflow-hidden lg:h-6 lg:rounded-xl">
+              <div className="relative rounded-lg bg-gray-100 h-4 overflow-hidden lg:h-6 lg:rounded-xl dark:bg-slate-800">
                 <div
-                  className="absolute left-0 rounded-lg bg-green-200 h-full overflow-hidden lg:rounded-xl"
+                  className="absolute left-0 rounded-lg bg-green-200 dark:bg-green-400 dark:bg-opacity-25 h-full overflow-hidden lg:rounded-xl"
                   style={{ width: `${experiencePercent}%` }}
                 />
                 <div

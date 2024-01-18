@@ -6,7 +6,7 @@ import { BronzeDragonSvg } from '../../svg/tier/bronze-dragon-svg'
 
 export const BronzeDragonCard = ({ totalPoint }: { totalPoint: number }) => (
   <div className="mb-4 flex justify-center lg:mb-8">
-    <div className="flex items-center gap-6 p-4 rounded-2xl bg-[#F8EFE8] lg:p-6 lg:rounded-3xl">
+    <div className="flex items-center gap-6 p-4 rounded-2xl bg-[#F8EFE8] dark:bg-orange-200 dark:bg-opacity-20  lg:p-6 lg:rounded-3xl">
       <BronzeDragonSvg className="w-20 h-20 lg:w-32 lg:h-32" />
 
       <div className="flex flex-col gap-3 lg:gap-4">

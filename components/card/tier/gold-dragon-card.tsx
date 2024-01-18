@@ -6,7 +6,7 @@ import { FourthTierSvg } from '../../svg/tier/fourth-tier-svg'
 
 export const GoldDragonCard = ({ totalPoint }: { totalPoint: number }) => (
   <div className="mb-4 flex justify-center lg:mb-8">
-    <div className="flex items-center gap-6 p-4 rounded-2xl bg-[#FFF5DB] lg:p-6 lg:rounded-3xl">
+    <div className="flex items-center gap-6 p-4 rounded-2xl bg-[#FFF5DB] dark:bg-amber-300 dark:bg-opacity-20 lg:p-6 lg:rounded-3xl">
       <GoldDragonSvg className="w-20 h-20 lg:w-32 lg:h-32" />
 
       <div className="flex flex-col gap-3 lg:gap-4">

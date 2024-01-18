@@ -6,7 +6,7 @@ import { BabyDragonSvg } from '../../svg/tier/baby-dragon-svg'
 
 export const BadyDragonCard = ({ totalPoint }: { totalPoint: number }) => (
   <div className="mb-4 flex justify-center lg:mb-8">
-    <div className="flex items-center gap-6 p-4 rounded-2xl bg-green-50 lg:p-6 lg:rounded-3xl">
+    <div className="flex items-center gap-6 p-4 rounded-2xl bg-green-50 dark:bg-green-400 dark:bg-opacity-20 lg:p-6 lg:rounded-3xl">
       <BabyDragonSvg className="w-20 h-20 lg:w-32 lg:h-32" />
 
       <div className="flex flex-col gap-3 lg:gap-4">
