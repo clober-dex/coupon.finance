@@ -15,6 +15,6 @@ type Story = StoryObj<typeof PointCard>
 export const Default: Story = {
   args: {
     title: 'Deposit points',
-    value: '100000',
+    value: 100000,
   },
 }

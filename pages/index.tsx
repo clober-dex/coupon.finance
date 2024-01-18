@@ -68,7 +68,8 @@ const Home = () => {
                 epochs={epochs}
                 prices={prices}
                 positions={loanPositions}
-                multipleFactors={multipleFactors}pnls={pnls}
+                multipleFactors={multipleFactors}
+                pnls={pnls}
                 removeCollateral={removeCollateral}
                 minDebtSizeInEth={
                   MIN_DEBT_SIZE_IN_ETH[selectedChain.id as CHAIN_IDS]

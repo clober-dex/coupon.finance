@@ -43,51 +43,73 @@ import { FourthTierSvg } from '../components/svg/tier/fourth-tier-svg'
 import { FifthTierSvg } from '../components/svg/tier/fifth-tier-svg'
 import { LegendaryDragonSvg } from '../components/svg/tier/legendary-dragon-svg'
 import { QuestionMarkSvg } from '../components/svg/question-mark-svg'
+import { toHumanFriendly } from '../utils/numbers'
+import { BalloonModal } from '../components/modal/balloon-modal'
 
-const LeaderboardTab = () => {
+const LeaderboardTab = ({
+  userAddress,
+  totalPoints,
+  depositPoints,
+  borrowPoints,
+  dragonPoints,
+  mangoPoints,
+}: {
+  userAddress: `0x${string}` | undefined
+  totalPoints: number
+  depositPoints: number
+  borrowPoints: number
+  dragonPoints: number
+  mangoPoints: number
+}) => {
   return (
     <div className="flex flex-col items-start gap-8 lg:gap-16 mt-8">
-      <div className="flex flex-col items-start gap-4 px-4 w-full">
-        <div className="flex items-center gap-1 font-semibold text-sm lg:text-xl">
-          <PointIconSvg className="w-4 h-4 lg:w-8 lg:h-8" />
-          <div>My Point</div>
+      {userAddress ? (
+        <div className="flex flex-col items-start gap-4 px-4 w-full">
+          <div className="flex items-center gap-1 font-semibold text-sm lg:text-xl">
+            <PointIconSvg className="w-4 h-4 lg:w-8 lg:h-8" />
+            <div>My Point</div>
+          </div>
+          <div className="flex flex-col gap-4 w-full">
+            <div className="flex py-6 flex-col items-center w-full gap-3 rounded-xl bg-white dark:bg-gray-850">
+              <div className="text-gray-500 text-xs lg:text-lg font-semibold flex flex-row items-center gap-1">
+                Total points{' '}
+                <QuestionMarkSvg
+                  data-tooltip-id="dragon-point-tooltip"
+                  data-tooltip-content="Referral Points will be claimed automatically before the airdrop"
+                  className="w-3 h-3 lg:w-4 lg:h-4"
+                />
+                <Tooltip
+                  id="dragon-point-tooltip"
+                  style={{
+                    width: '200px',
+                  }}
+                />
+              </div>
+              <div className="font-bold text-3xl lg:text-5xl">
+                {toHumanFriendly(totalPoints)}
+              </div>
+            </div>
+            <div className="flex lg:hidden flex-col items-start gap-2 self-stretch">
+              <div className="flex items-start gap-2 self-stretch">
+                <PointCard title="Deposit points" value={depositPoints} />
+                <PointCard title="Borrow points" value={borrowPoints} />
+              </div>
+              <div className="flex items-start gap-2 self-stretch">
+                <PointCard title="Dragon points" value={dragonPoints} />
+                <PointCard title="Mango points" value={mangoPoints} />
+              </div>
+            </div>
+            <div className="hidden lg:flex w-full items-start gap-4">
+              <PointCard title="Deposit points" value={depositPoints} />
+              <PointCard title="Borrow points" value={borrowPoints} />
+              <PointCard title="Dragon points" value={dragonPoints} />
+              <PointCard title="Mango points" value={mangoPoints} />
+            </div>
+          </div>
         </div>
-        <div className="flex flex-col gap-4 w-full">
-          <div className="flex py-6 flex-col items-center w-full gap-3 rounded-xl bg-white dark:bg-gray-850">
-            <div className="text-gray-500 text-xs lg:text-lg font-semibold flex flex-row items-center gap-1">
-              Total points{' '}
-              <QuestionMarkSvg
-                data-tooltip-id="dragon-point-tooltip"
-                data-tooltip-content="Referral Points will be claimed automatically before the airdrop"
-                className="w-3 h-3 lg:w-4 lg:h-4"
-              />
-              <Tooltip
-                id="dragon-point-tooltip"
-                style={{
-                  width: '200px',
-                }}
-              />
-            </div>
-            <div className="font-bold text-3xl lg:text-5xl">1295012</div>
-          </div>
-          <div className="flex lg:hidden flex-col items-start gap-2 self-stretch">
-            <div className="flex items-start gap-2 self-stretch">
-              <PointCard title="Deposit points" value="82010" />
-              <PointCard title="Borrow points" value="82010" />
-            </div>
-            <div className="flex items-start gap-2 self-stretch">
-              <PointCard title="Dragon points" value="82010" />
-              <PointCard title="Mango points" value="82010" />
-            </div>
-          </div>
-          <div className="hidden lg:flex w-full items-start gap-4">
-            <PointCard title="Deposit points" value="82010" />
-            <PointCard title="Borrow points" value="82010" />
-            <PointCard title="Dragon points" value="82010" />
-            <PointCard title="Mango points" value="82010" />
-          </div>
-        </div>
-      </div>
+      ) : (
+        <></>
+      )}
       <div className="flex flex-col items-start gap-4 px-4 w-full">
         <div className="flex items-center gap-1 font-semibold text-sm lg:text-xl">
           <LeaderboardIconSvg className="stroke-gray-950 dark:stroke-white w-4 h-4 lg:w-8 lg:h-8" />
@@ -530,7 +552,7 @@ const PointTiers = () => {
 
   return (
     <div className="flex flex-col gap-4 mb-8 p-4 rounded-xl bg-gray-50 dark:bg-gray-800 lg:p-8 lg:rounded-2xl">
-      <div className="flex justify-between text-sm font-bold lg:text-2xl">
+      <div className="flex justify-between text-sm font-bold lg:text-xl">
         <div>Point Tiers</div>
         <button onClick={() => setShow(!show)}>
           {show ? (
@@ -549,8 +571,8 @@ const PointTiers = () => {
             <div className="flex flex-1 items-center">
               <div className="flex flex-row items-center gap-2 lg:gap-4">
                 <DragonEggSvg className="w-8 h-8 lg:w-12 lg:h-12" />
-                <div className="flex flex-row gap-1 lg:gap-2">
-                  <ZeroTierSvg className="w-4 h-4 lg:w-8 lg:h-8 " />
+                <div className="flex flex-row gap-1 lg:gap-2 items-center">
+                  <ZeroTierSvg className="w-4 h-4 lg:w-6 lg:h-6" />
                   <span className="text-xs lg:text-xl font-semibold">
                     Dragon Egg
                   </span>
@@ -571,8 +593,8 @@ const PointTiers = () => {
             <div className="flex flex-1 items-center">
               <div className="flex flex-row items-center gap-2 lg:gap-4">
                 <BabyDragonSvg className="w-8 h-8 lg:w-12 lg:h-12" />
-                <div className="flex flex-row gap-1 lg:gap-2">
-                  <FirstTierSvg className="w-4 h-4 lg:w-8 lg:h-8 " />
+                <div className="flex flex-row gap-1 lg:gap-2 items-center">
+                  <FirstTierSvg className="w-4 h-4 lg:w-6 lg:h-6" />
                   <span className="text-xs lg:text-xl font-semibold">
                     Baby Dragon
                   </span>
@@ -593,8 +615,8 @@ const PointTiers = () => {
             <div className="flex flex-1 items-center">
               <div className="flex flex-row items-center gap-2 lg:gap-4">
                 <BronzeDragonSvg className="w-8 h-8 lg:w-12 lg:h-12" />
-                <div className="flex flex-row gap-1 lg:gap-2">
-                  <SecondTierSvg className="w-4 h-4 lg:w-8 lg:h-8 " />
+                <div className="flex flex-row gap-1 lg:gap-2 items-center">
+                  <SecondTierSvg className="w-4 h-4 lg:w-6 lg:h-6" />
                   <span className="text-xs lg:text-xl font-semibold">
                     Bronze Dragon
                   </span>
@@ -615,8 +637,8 @@ const PointTiers = () => {
             <div className="flex flex-1 items-center">
               <div className="flex flex-row items-center gap-2 lg:gap-4">
                 <SilverDragonSvg className="w-8 h-8 lg:w-12 lg:h-12" />
-                <div className="flex flex-row gap-1 lg:gap-2">
-                  <ThirdTierSvg className="w-4 h-4 lg:w-8 lg:h-8 " />
+                <div className="flex flex-row gap-1 lg:gap-2 items-center">
+                  <ThirdTierSvg className="w-4 h-4 lg:w-6 lg:h-6" />
                   <span className="text-xs lg:text-xl font-semibold">
                     Silver Dragon
                   </span>
@@ -637,8 +659,8 @@ const PointTiers = () => {
             <div className="flex flex-1 items-center">
               <div className="flex flex-row items-center gap-2 lg:gap-4">
                 <GoldDragonSvg className="w-8 h-8 lg:w-12 lg:h-12" />
-                <div className="flex flex-row gap-1 lg:gap-2">
-                  <FourthTierSvg className="w-4 h-4 lg:w-8 lg:h-8 " />
+                <div className="flex flex-row gap-1 lg:gap-2 items-center">
+                  <FourthTierSvg className="w-4 h-4 lg:w-6 lg:h-6" />
                   <span className="text-xs lg:text-xl font-semibold">
                     Gold Dragon
                   </span>
@@ -659,8 +681,8 @@ const PointTiers = () => {
             <div className="flex flex-1 items-center">
               <div className="flex flex-row items-center gap-2 lg:gap-4">
                 <LegendaryDragonSvg className="w-8 h-8 lg:w-12 lg:h-12" />
-                <div className="flex flex-row gap-1 lg:gap-2">
-                  <FifthTierSvg className="w-4 h-4 lg:w-8 lg:h-8 " />
+                <div className="flex flex-row gap-1 lg:gap-2 items-center">
+                  <FifthTierSvg className="w-4 h-4 lg:w-6 lg:h-6" />
                   <span className="text-xs lg:text-xl font-semibold">
                     Legendary Dragon
                   </span>
@@ -697,6 +719,8 @@ export const AirdropContainer = () => {
       setMode('referral')
     }
   }, [hasReferent, referentCode, userAddress])
+
+  const experiencePercent = 70
 
   return (
     <div className="flex flex-col items-center">
@@ -789,86 +813,73 @@ export const AirdropContainer = () => {
           userAddress={userAddress}
         />
 
-        <div className="m-auto px-4 lg:mt-4 lg:px-0 w-[360px] lg:w-[960px]">
-          <div className="mb-4 text-sm font-bold lg:text-2xl ">
-            My point level
-          </div>
+        {userAddress ? (
+          <div className="m-auto px-4 lg:mt-4 lg:px-0 w-[360px] lg:w-[960px]">
+            <div className="mb-4 text-sm font-bold lg:text-2xl ">
+              My point level
+            </div>
 
-          <div className="mb-4 flex justify-center lg:mb-8">
-            <div className="flex items-center gap-6 p-4 rounded-2xl bg-green-50 lg:gap-8 lg:p-6 lg:rounded-3xl">
-              <div className="w-20 h-20 bg-green-200 lg:w-32 lg:h-32"></div>
+            <div className="mb-4 flex justify-center lg:mb-8">
+              <div className="flex items-center gap-6 p-4 rounded-2xl bg-green-50 lg:gap-8 lg:p-6 lg:rounded-3xl">
+                <div className="w-20 h-20 bg-green-200 lg:w-32 lg:h-32"></div>
 
-              <div className="flex flex-col gap-3 lg:gap-4">
-                <div className="flex items-center gap-2 text-sm font-bold lg:text-xl">
-                  <div className="w-6 h-4 lg:w-8 lg:h-6 bg-green-400"></div>
-                  Baby Dragon
+                <div className="flex flex-col gap-3 lg:gap-4">
+                  <div className="flex items-center gap-2 text-sm font-bold lg:text-xl">
+                    <div className="w-6 h-4 lg:w-8 lg:h-6 bg-green-400"></div>
+                    Baby Dragon
+                  </div>
+                  <p className="font-semibold text-xs text-gray-400 lg:text-lg">
+                    <span className="block">
+                      Boost point <span className="text-green-500">1%</span>
+                    </span>
+                    <span className="block">
+                      <span className="text-green-500">700 points</span> more
+                      for level up
+                    </span>
+                  </p>
                 </div>
-                <p className="font-semibold text-xs text-gray-400 lg:text-lg">
-                  <span className="block">
-                    Boost point <span className="text-green-500">1%</span>
-                  </span>
-                  <span className="block">
-                    <span className="text-green-500">700 points</span> more for
-                    level up
-                  </span>
-                </p>
               </div>
             </div>
-          </div>
 
-          <div className="flex flex-col gap-2 lg:gap-3">
-            <div className="relative rounded-lg bg-gray-100 h-4 overflow-hidden lg:h-6 lg:rounded-xl">
-              <div
-                className="absolute left-0 rounded-lg bg-green-200 h-full overflow-hidden lg:rounded-xl"
-                style={{ width: '50%' }}
-              />
-              <div
-                className="flex justify-end items-center px-2 absolute left-0 rounded-lg bg-green-500 h-full overflow-hidden lg:rounded-xl"
-                style={{ width: '40%' }}
-              >
-                <span className="text-xs font-bold text-white lg:text-lg">
-                  300
-                </span>
+            <div className="flex flex-col gap-2 lg:gap-3">
+              <div className="relative rounded-lg bg-gray-100 h-4 overflow-hidden lg:h-6 lg:rounded-xl">
+                <div
+                  className="absolute left-0 rounded-lg bg-green-200 h-full overflow-hidden lg:rounded-xl"
+                  style={{ width: `${experiencePercent}%` }}
+                />
+                <div
+                  className="flex justify-end items-center px-2 absolute left-0 rounded-lg bg-green-500 h-full overflow-hidden lg:rounded-xl"
+                  style={{ width: '40%' }}
+                >
+                  <span className="text-xs font-bold text-white lg:text-lg">
+                    300
+                  </span>
+                </div>
+              </div>
+              <div className="flex justify-between text-xs font-bold text-gray-400 lg:text-lg">
+                <span>0</span>
+                <span>5000</span>
+                <span>100000</span>
               </div>
             </div>
-            <div className="flex justify-between text-xs font-bold text-gray-400 lg:text-lg">
-              <span>0</span>
-              <span>5000</span>
-              <span>100000</span>
-            </div>
-          </div>
 
-          <div className="relative mt-2 mb-6 h-10 lg:mt-8 lg:mb-14">
             <div
-              className="absolute"
-              style={{
-                left: '50%',
-                transform: 'translate(-50%, 0)',
-              }}
+              className={`relative mb-6 h-10 lg:mb-14 left-[${experiencePercent}%]`}
             >
-              <svg
-                className="absolute w-4 h-4 lg:w-6 lg:h-6"
-                style={{
-                  left: '50%',
-                  transform: 'translate(-50%, -100%)',
-                }}
-                viewBox="0 0 16 16"
-                fill="none"
-              >
-                <path d="M8 0L0 16H16L8 0Z" fill="#F0FDF4" />
-              </svg>
-
-              <div className="flex justify-start">
-                <div className="bg-green-50 rounded-l px-3 py-2 text-xs font-bold lg:rounded-xl lg:px-4 lg:py-3 lg:text-base">
-                  You will earn{' '}
-                  <span className="text-green-500">600 point</span> tomorrow!
+              <BalloonModal className="fill-[#22c55e26]">
+                <div className="text-xs lg:text-base font-semibold px-4 py-3 rounded-lg bg-[#22c55e26] flex justify-center items-center gap-1">
+                  <span>You will earn</span>
+                  <span className="text-green-500">600 point</span>
+                  <span>tomorrow!</span>
                 </div>
-              </div>
+              </BalloonModal>
             </div>
-          </div>
 
-          <PointTiers />
-        </div>
+            <PointTiers />
+          </div>
+        ) : (
+          <></>
+        )}
 
         <div className="text-sm lg:text-xl mt-0 lg:mt-8 w-full flex gap-2 lg:gap-[100px] items-end justify-center pb-1 bg-white dark:bg-gray-850 h-[26px] lg:h-[52px]">
           <button
@@ -905,7 +916,14 @@ export const AirdropContainer = () => {
       </div>
       <div className="w-[360px] lg:w-[960px]">
         {mode === 'leaderboard' ? (
-          <LeaderboardTab />
+          <LeaderboardTab
+            userAddress={userAddress}
+            totalPoints={12341234}
+            depositPoints={1234123}
+            borrowPoints={123413}
+            mangoPoints={123423}
+            dragonPoints={123412}
+          />
         ) : mode === 'referral' && referralCode ? (
           <ReferralTab
             referralCode={referralCode}

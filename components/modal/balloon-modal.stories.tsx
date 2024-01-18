@@ -17,3 +17,10 @@ export const Default: Story = {
     children: 'Coming soon!',
   },
 }
+
+export const Color: Story = {
+  args: {
+    // eslint-disable-next-line react/react-in-jsx-scope
+    children: <div className="bg-red-300">Coming soon!</div>,
+  },
+}
