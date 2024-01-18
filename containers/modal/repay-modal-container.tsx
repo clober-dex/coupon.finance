@@ -66,7 +66,7 @@ const RepayModalContainer = ({
       if (feeData?.gasPrice && selectedChain && amount > 0n) {
         const { amountOut: repayAmount, pathId } = await fetchAmountOutByOdos({
           chainId: selectedChain.id,
-          amountIn: amount.toString(),
+          amountIn: amount,
           tokenIn: position.collateral.underlying.address,
           tokenOut: position.underlying.address,
           slippageLimitPercent: Number(slippage),

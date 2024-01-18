@@ -77,7 +77,7 @@ const OdosSwapModalContainer = ({
         const { amountOut, pathId, gasLimit, pathViz } =
           await fetchAmountOutByOdos({
             chainId: selectedChain.id,
-            amountIn: amount.toString(),
+            amountIn: amount,
             tokenIn: inputCurrency.address,
             tokenOut: outputCurrency.address,
             slippageLimitPercent: Number(slippage),

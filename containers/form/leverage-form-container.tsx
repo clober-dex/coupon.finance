@@ -11,7 +11,11 @@ import {
 } from '../../contexts/currency-context'
 import { fetchBorrowApyByEpochsBorrowed } from '../../apis/market'
 import { Collateral, generateDummyCollateral } from '../../model/collateral'
-import { calculateLtv, calculateMaxLoanableAmount } from '../../utils/ltv'
+import {
+  calculateLiquidationPrice,
+  calculateLtv,
+  calculateMaxLoanableAmount,
+} from '../../utils/ltv'
 import { useChainContext } from '../../contexts/chain-context'
 import { MIN_DEBT_SIZE_IN_ETH } from '../../constants/debt'
 import { CHAIN_IDS } from '../../constants/chain'
@@ -231,7 +235,7 @@ const LeverageFormContainer = ({
       const { amountOut: debtAmountWithoutCouponFee } =
         await fetchAmountOutByOdos({
           chainId: selectedChain.id,
-          amountIn: borrowedCollateralAmount.toString(),
+          amountIn: borrowedCollateralAmount,
           tokenIn: collateral.underlying.address,
           tokenOut: asset.underlying.address,
           slippageLimitPercent: SLIPPAGE_LIMIT_PERCENT,
@@ -247,7 +251,7 @@ const LeverageFormContainer = ({
         ),
         fetchAmountOutByOdos({
           chainId: selectedChain.id,
-          amountIn: debtAmountWithoutCouponFee.toString(),
+          amountIn: debtAmountWithoutCouponFee,
           tokenIn: asset.underlying.address,
           tokenOut: collateral.underlying.address,
           slippageLimitPercent: SLIPPAGE_LIMIT_PERCENT,
@@ -376,12 +380,15 @@ const LeverageFormContainer = ({
             setBorrowCurrency={setBorrowCurrency}
             availableBorrowCurrencies={availableDebtCurrencies}
             interest={maxInterest}
+            borrowingFeePercentage={
+              (Number(interest) / Number(debtAmountWithoutCouponFee)) * 100
+            }
             borrowApy={apy}
             borrowLTV={
               collateral &&
               asset &&
               prices[asset.underlying.address] &&
-              prices[collateral?.underlying.address]
+              prices[collateral.underlying.address]
                 ? calculateLtv(
                     asset.underlying,
                     prices[asset.underlying.address],
@@ -427,6 +434,21 @@ const LeverageFormContainer = ({
             }
             balances={balances}
             prices={prices}
+            liquidationPrice={
+              collateral &&
+              asset &&
+              prices[asset.underlying.address] &&
+              prices[collateral.underlying.address]
+                ? calculateLiquidationPrice(
+                    asset.underlying,
+                    prices[asset.underlying.address],
+                    collateral,
+                    prices[collateral.underlying.address],
+                    debtAmountWithoutCouponFee + interest,
+                    collateralAmount,
+                  )
+                : 0
+            }
             actionButtonProps={{
               disabled:
                 !interestsByEpochsBorrowed ||

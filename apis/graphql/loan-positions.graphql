@@ -1,5 +1,5 @@
-query getLoanPositions {
-  loanPositions(first: 2000) {
+query getLoanPositions($skip: Int) {
+  loanPositions(first: 1000, skip: $skip) {
     id
     user
     amount

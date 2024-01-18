@@ -32,6 +32,22 @@ export const formatDollarValue = (
   return toDollarString(dollarValue(value, decimals, price))
 }
 
+export const toHumanFriendly = (value: number): string => {
+  let suffix = ''
+  let abbreviatedValue = value
+  if (value >= 1000000000) {
+    abbreviatedValue = value / 1000000000
+    suffix = 'B'
+  } else if (value >= 1000000) {
+    abbreviatedValue = value / 1000000
+    suffix = 'M'
+  } else if (value >= 1000) {
+    abbreviatedValue = value / 1000
+    suffix = 'K'
+  }
+  return `${abbreviatedValue.toFixed(2)}${suffix}`
+}
+
 export const toDollarString = (dollarValue: BigNumber): string => {
   let abbreviatedDollarValue = dollarValue
   let suffix = ''

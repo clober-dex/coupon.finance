@@ -1,0 +1,6 @@
+query getPositionStatus($chainId: ID!) {
+  positionStatus(id: $chainId) {
+    totalBondPositionCount
+    totalLoanPositionCount
+  }
+}

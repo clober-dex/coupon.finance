@@ -19,6 +19,7 @@ const Home = () => {
   const { positions: bondPositions, collect } = useDepositContext()
   const {
     positions: loanPositions,
+    multipleFactors,
     pnls,
     removeCollateral,
   } = useBorrowContext()
@@ -67,7 +68,7 @@ const Home = () => {
                 epochs={epochs}
                 prices={prices}
                 positions={loanPositions}
-                pnls={pnls}
+                multipleFactors={multipleFactors}pnls={pnls}
                 removeCollateral={removeCollateral}
                 minDebtSizeInEth={
                   MIN_DEBT_SIZE_IN_ETH[selectedChain.id as CHAIN_IDS]

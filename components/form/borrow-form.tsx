@@ -3,7 +3,7 @@ import React from 'react'
 import { Tooltip } from 'react-tooltip'
 
 import CurrencyAmountInput from '../input/currency-amount-input'
-import { formatUnits } from '../../utils/numbers'
+import { formatUnits, toCommaSeparated } from '../../utils/numbers'
 import { ActionButton, ActionButtonProps } from '../button/action-button'
 import { Currency } from '../../model/currency'
 import { Collateral } from '../../model/collateral'
@@ -30,6 +30,7 @@ export const BorrowForm = ({
   availableBorrowCurrencies,
   maxBorrowAmount,
   interest,
+  borrowingFeePercentage,
   borrowApy,
   borrowLTV,
   interestsByEpochsBorrowed,
@@ -44,6 +45,7 @@ export const BorrowForm = ({
   setEpochs,
   balances,
   prices,
+  liquidationPrice,
   actionButtonProps,
   children,
 }: {
@@ -53,6 +55,7 @@ export const BorrowForm = ({
   availableBorrowCurrencies: Currency[]
   maxBorrowAmount: bigint
   interest: bigint
+  borrowingFeePercentage: number
   borrowApy: number
   borrowLTV: number
   interestsByEpochsBorrowed?: { date: string; apy: number }[]
@@ -67,6 +70,7 @@ export const BorrowForm = ({
   setEpochs: (value: number) => void
   balances: Balances
   prices: Prices
+  liquidationPrice: number
   actionButtonProps: ActionButtonProps
 } & React.PropsWithChildren) => {
   const currentTimestamp = currentTimestampInSeconds()
@@ -249,7 +253,10 @@ export const BorrowForm = ({
                       borrowCurrency.decimals,
                       prices[borrowCurrency.address],
                     )} ${borrowCurrency.symbol}`
-                  : '0'}
+                  : '0'}{' '}
+                {!Number.isNaN(borrowingFeePercentage)
+                  ? `(${borrowingFeePercentage.toFixed(2)}%)`
+                  : ''}
               </div>
             </div>
             <div className="flex w-full">
@@ -278,6 +285,16 @@ export const BorrowForm = ({
                     ).toFixed(2)
                   : 0}
                 %
+              </div>
+            </div>
+            <div className="flex w-full">
+              <div className="text-gray-400 text-base">Liquidation Price</div>
+              <div className="ml-auto">
+                {liquidationPrice ? (
+                  <>${toCommaSeparated(liquidationPrice.toFixed(2))}</>
+                ) : (
+                  <>-</>
+                )}
               </div>
             </div>
             {interestsByEpochsBorrowed &&

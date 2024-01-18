@@ -28,6 +28,8 @@ import { applyPercent, max } from '../utils/bigint'
 import { fetchAmountOutByOdos, fetchCallDataByOdos } from '../apis/odos'
 import { fetchMarketsByQuoteTokenAddress } from '../apis/market'
 import { calculateCouponsToRepay } from '../model/market'
+import { simulateAdjustingLeverage } from '../model/leverage'
+import { calculateLtv } from '../utils/ltv'
 
 import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -36,7 +38,13 @@ import { useSubgraphContext } from './subgraph-context'
 
 export type BorrowContext = {
   positions: LoanPosition[]
-  pnls: { [key in number]: number }
+  pnls: {
+    [key in number]: {
+      value: number
+      profit: number
+    }
+  }
+  multipleFactors: { [key in number]: number }
   borrow: (
     collateral: Collateral,
     collateralAmount: bigint,
@@ -102,6 +110,7 @@ export type BorrowContext = {
 const Context = React.createContext<BorrowContext>({
   positions: [],
   pnls: {},
+  multipleFactors: {},
   borrow: () => Promise.resolve(undefined),
   leverage: () => Promise.resolve(undefined),
   repay: () => Promise.resolve(),
@@ -150,13 +159,13 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { data: pnls } = useQuery(
     ['pnls', selectedChain.id, userAddress],
     async () => {
-      if (!userAddress || !feeData || !feeData.gasPrice) {
+      if (!feeData || !feeData.gasPrice) {
         return {}
       }
       const pnls = await Promise.all(
         positions.map(async (position) => {
           if (!position.isLeverage) {
-            return 0
+            return { value: 0, profit: 0 }
           }
           const markets = (
             await fetchMarketsByQuoteTokenAddress(
@@ -172,27 +181,102 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           )
           const { amountOut } = await fetchAmountOutByOdos({
             chainId: selectedChain.id,
-            amountIn: (position.amount - maxRefund).toString(),
+            amountIn: position.amount - maxRefund,
             tokenIn: position.underlying.address,
             tokenOut: position.collateral.underlying.address,
             slippageLimitPercent: 0.5,
             gasPrice: Number(feeData.gasPrice),
           })
-          return (
-            Number(position.collateralAmount - amountOut) /
-            Number(
-              position.collateralAmount - position.borrowedCollateralAmount,
-            )
+          const afterDollarValue = Number(
+            formatUnits(
+              (position.collateralAmount - amountOut) *
+                prices[position.collateral.underlying.address].value,
+              position.collateral.underlying.decimals +
+                prices[position.collateral.underlying.address].decimals,
+            ),
           )
+          const beforeDollarValue = Number(
+            formatUnits(
+              (position.collateralAmount - position.borrowedCollateralAmount) *
+                position.entryCollateralCurrencyPrice.value,
+              position.collateral.underlying.decimals +
+                prices[position.collateral.underlying.address].decimals,
+            ),
+          )
+          return {
+            value: afterDollarValue / beforeDollarValue,
+            profit: afterDollarValue - beforeDollarValue,
+          }
         }),
       )
-      return pnls.reduce((acc, pnl, index) => {
-        acc[Number(positions[index].id)] = pnl
+      return pnls.reduce(
+        (acc, pnl, index) => {
+          acc[Number(positions[index].id)] = pnl
+          return acc
+        },
+        {} as {
+          [key in number]: {
+            value: number
+            profit: number
+          }
+        },
+      )
+    },
+    {
+      refetchInterval: 60 * 1000,
+      refetchIntervalInBackground: true,
+    },
+  )
+
+  const { data: multipleFactors } = useQuery(
+    ['multipleFactors', selectedChain.id, userAddress],
+    async () => {
+      if (!feeData || !feeData.gasPrice) {
+        return {}
+      }
+      const gasPrice = feeData.gasPrice
+      const multipleFactors = await Promise.all(
+        positions.map(async (position) => {
+          if (!position.isLeverage) {
+            return 0
+          }
+          const liquidationTargetLtv =
+            Number(position.collateral.liquidationTargetLtv) /
+            Number(position.collateral.ltvPrecision)
+          const maxMultiple = Math.floor(1 / (1 - liquidationTargetLtv)) - 0.02
+          const inputCollateralAmount =
+            position.collateralAmount - position.borrowedCollateralAmount
+          const collateralAmountDelta =
+            applyPercent(inputCollateralAmount, maxMultiple * 100) -
+            position.collateralAmount
+          const { debtAmount, collateralAmount } =
+            await simulateAdjustingLeverage(
+              collateralAmountDelta,
+              maxMultiple,
+              1,
+              position,
+              prices,
+              selectedChain.id,
+              gasPrice,
+            )
+          const maxLTV = calculateLtv(
+            position.underlying,
+            prices[position.underlying.address],
+            debtAmount,
+            position.collateral,
+            prices[position.collateral.underlying.address],
+            collateralAmount,
+          )
+          return Math.min(1, maxLTV / (liquidationTargetLtv * 100))
+        }),
+      )
+      return multipleFactors.reduce((acc, multipleFactor, index) => {
+        acc[Number(positions[index].id)] = multipleFactor
         return acc
       }, {} as { [key in number]: number })
     },
     {
-      refetchInterval: 30 * 1000,
+      refetchInterval: 60 * 1000,
       refetchIntervalInBackground: true,
     },
   )
@@ -1059,7 +1143,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       const SLIPPAGE_LIMIT_PERCENT = 0.5
       const { amountOut: repaidCollateralAmount } = await fetchAmountOutByOdos({
         chainId: selectedChain.id,
-        amountIn: position.amount.toString(),
+        amountIn: position.amount,
         tokenIn: position.underlying.address,
         tokenOut: position.collateral.underlying.address,
         slippageLimitPercent: SLIPPAGE_LIMIT_PERCENT,
@@ -1074,7 +1158,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       const { pathId, amountOut: repaidDebtAmount } =
         await fetchAmountOutByOdos({
           chainId: selectedChain.id,
-          amountIn: amountIn.toString(),
+          amountIn,
           tokenIn: position.collateral.underlying.address,
           tokenOut: position.underlying.address,
           slippageLimitPercent: SLIPPAGE_LIMIT_PERCENT,
@@ -1151,6 +1235,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       value={{
         positions,
         pnls: pnls ?? {},
+        multipleFactors: multipleFactors ?? {},
         borrow,
         leverage,
         repay,

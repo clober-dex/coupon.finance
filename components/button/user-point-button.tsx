@@ -17,7 +17,7 @@ export const UserPointButton = ({ score }: { score: number }) => {
             formattingFn={countUpFormatter}
             preserveValue
             useEasing={false}
-            duration={5}
+            duration={1}
           />
         </span>
         <span className="text-gray-500 dark:text-gray-400">pts</span>

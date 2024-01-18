@@ -20,8 +20,41 @@ const Dashboard = () => {
   const { selectedChain } = useChainContext()
   const { epochs, assets, prices } = useCurrencyContext()
 
+  const { data: orderbook } = useQuery(
+    ['dashboard-orderbook', selectedChain],
+    async () => {
+      const markets = await fetchMarkets(selectedChain.id)
+      return markets.reduce(
+        (acc, market) => ({
+          ...acc,
+          [market.quoteToken.address]: {
+            ...acc[market.quoteToken.address],
+            [market.epoch]: {
+              bids: market.totalBidsInBaseAfterFees(),
+              asks: market.totalAsksInBaseAfterFees(),
+            },
+          },
+        }),
+        {} as Record<
+          `0x${string}`,
+          Record<
+            number,
+            {
+              bids: bigint
+              asks: bigint
+            }
+          >
+        >,
+      )
+    },
+    {
+      refetchInterval: 10 * 1000,
+      refetchIntervalInBackground: true,
+    },
+  )
+
   const { data: availableCouponInAsks } = useQuery(
-    ['dashboard-markets', selectedChain],
+    ['dashboard-available-coupon-in-asks', selectedChain],
     async () => {
       const markets = await fetchMarkets(selectedChain.id)
       return markets.reduce((acc, market) => {
@@ -55,44 +88,6 @@ const Dashboard = () => {
       initialData: {},
       refetchInterval: 10 * 1000,
       refetchIntervalInBackground: true,
-    },
-  )
-
-  const { data: withdrawAvailableBondPositions } = useQuery(
-    ['dashboard-withdraw-available-bond-positions', selectedChain],
-    async () => {
-      const markets = await fetchMarkets(selectedChain.id)
-      const bondPositions = await fetchBondPositions(selectedChain.id)
-      return markets.reduce((acc, market) => {
-        const filteredMarkets = markets
-          .filter((m) =>
-            isAddressEqual(m.quoteToken.address, market.quoteToken.address),
-          )
-          .filter((m) => m.epoch <= market.epoch)
-        const filteredBondPositions = bondPositions.filter((bondPosition) =>
-          isAddressEqual(
-            bondPosition.substitute.address,
-            market.quoteToken.address,
-          ),
-        )
-        acc[market.quoteToken.address] = {
-          ...acc[market.quoteToken.address],
-          [market.epoch]: filteredBondPositions.reduce((acc, bondPosition) => {
-            const maxRepurchaseFee = filteredMarkets.reduce(
-              (acc, market) =>
-                acc +
-                market.take(market.quoteToken.address, bondPosition.amount)
-                  .amountIn,
-              0n,
-            )
-            return max(acc, bondPosition.amount + maxRepurchaseFee)
-          }, 0n),
-        }
-        return acc
-      }, {} as Record<`0x${string}`, Record<number, bigint>>)
-    },
-    {
-      initialData: {},
     },
   )
 
@@ -213,9 +208,7 @@ const Dashboard = () => {
         <div className="px-4 sm:px-6 lg:px-8">
           <div className="sm:flex sm:items-center">
             <div className="sm:flex-auto">
-              <h1 className="text-xl font-semibold leading-8">
-                Current available coupon / Maximum withdrawable amount
-              </h1>
+              <h1 className="text-xl font-semibold leading-8">Bid / Ask</h1>
             </div>
           </div>
           <div className="mt-8 flow-root">
@@ -252,42 +245,41 @@ const Dashboard = () => {
                           <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-semibold text-gray-900 dark:text-gray-50 sm:pl-6">
                             {asset.underlying.symbol}
                           </td>
-                          {availableCouponInAsks &&
-                            epochs
-                              .slice(0, MAX_VISIBLE_MARKETS)
-                              .map((epoch) => {
-                                const currentAvailableCoupon =
-                                  availableCouponInAsks[
-                                    asset.substitutes[0].address
-                                  ]?.[epoch.id] ?? 0n
-                                const totalNeededCoupon =
-                                  withdrawAvailableBondPositions[
-                                    asset.substitutes[0].address
-                                  ]?.[epoch.id] ?? 0n
-                                return (
-                                  <td
-                                    key={`${asset.underlying.address}-${epoch.id}`}
-                                    className={`whitespace-nowrap text-center px-3 py-4 text-sm text-gray-500 ${
-                                      Number(currentAvailableCoupon) <
-                                      Number(totalNeededCoupon)
-                                        ? 'text-red-500'
-                                        : 'text-green-500'
-                                    }`}
-                                  >
-                                    {formatUnits(
-                                      currentAvailableCoupon,
-                                      asset.underlying.decimals,
-                                      prices[asset.underlying.address],
-                                    )}{' '}
+                          {epochs.slice(0, MAX_VISIBLE_MARKETS).map((epoch) => {
+                            const substitute = asset.substitutes[0]
+                            return (
+                              <td
+                                key={`${asset.underlying.address}-${epoch.id}`}
+                                className="whitespace-nowrap text-center px-3 py-4 text-sm text-gray-500"
+                              >
+                                {orderbook &&
+                                orderbook[substitute.address] &&
+                                orderbook[substitute.address][epoch.id] ? (
+                                  <>
+                                    <p className="text-red-500">
+                                      {formatUnits(
+                                        orderbook[substitute.address][epoch.id]
+                                          .asks,
+                                        substitute.decimals,
+                                        prices[substitute.address],
+                                      )}
+                                    </p>{' '}
                                     /{' '}
-                                    {formatUnits(
-                                      totalNeededCoupon,
-                                      asset.underlying.decimals,
-                                      prices[asset.underlying.address],
-                                    )}
-                                  </td>
-                                )
-                              })}
+                                    <p className="text-green-500">
+                                      {formatUnits(
+                                        orderbook[substitute.address][epoch.id]
+                                          .bids,
+                                        substitute.decimals,
+                                        prices[substitute.address],
+                                      )}
+                                    </p>
+                                  </>
+                                ) : (
+                                  '-'
+                                )}
+                              </td>
+                            )
+                          })}
                         </tr>
                       ))}
                     </tbody>

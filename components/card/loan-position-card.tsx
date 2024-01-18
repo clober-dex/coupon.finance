@@ -4,9 +4,9 @@ import { Tooltip } from 'react-tooltip'
 import { LoanPosition } from '../../model/loan-position'
 import {
   BigDecimal,
-  dollarValue,
   formatDollarValue,
   formatUnits,
+  toCommaSeparated,
 } from '../../utils/numbers'
 import { EditSvg } from '../svg/edit-svg'
 import {
@@ -16,6 +16,7 @@ import {
 } from '../../utils/date'
 import { CurrencyIcon } from '../icon/currency-icon'
 import { QuestionMarkSvg } from '../svg/question-mark-svg'
+import { calculateLiquidationPrice, calculateLtv } from '../../utils/ltv'
 
 export const LoanPositionCard = ({
   position,
@@ -39,19 +40,30 @@ export const LoanPositionCard = ({
   isDeptSizeLessThanMinDebtSize: boolean
 } & React.HTMLAttributes<HTMLDivElement>) => {
   const now = currentTimestampInSeconds()
-  const currentLtv = useMemo(
-    () =>
-      dollarValue(position.amount, position.underlying.decimals, price)
-        .times(100)
-        .div(
-          dollarValue(
-            position.collateralAmount,
-            position.collateral.underlying.decimals,
+  const [currentLtv, liquidationPrice] = useMemo(() => {
+    return [
+      price && collateralPrice
+        ? calculateLtv(
+            position.underlying,
+            price,
+            position.amount,
+            position.collateral,
             collateralPrice,
-          ),
-        ),
-    [collateralPrice, position, price],
-  )
+            position.collateralAmount,
+          )
+        : 0,
+      price && collateralPrice
+        ? calculateLiquidationPrice(
+            position.underlying,
+            price,
+            position.collateral,
+            collateralPrice,
+            position.amount,
+            position.collateralAmount,
+          )
+        : 0,
+    ]
+  }, [collateralPrice, position, price])
 
   const isLiquidated = useMemo(
     () =>
@@ -188,6 +200,18 @@ export const LoanPositionCard = ({
               )}
             </div>
           </div>
+          {liquidationPrice ? (
+            <div className="flex items-center gap-1 self-stretch">
+              <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
+                Liquidation Price
+              </div>
+              <div className="text-sm sm:text-base">
+                ${toCommaSeparated(liquidationPrice.toFixed(2))}
+              </div>
+            </div>
+          ) : (
+            <></>
+          )}
           <div className="flex items-center gap-1 self-stretch">
             <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
               Current / Liq. LTV

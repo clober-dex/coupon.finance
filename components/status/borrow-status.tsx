@@ -30,6 +30,7 @@ const BorrowStatus = ({
   epochs,
   prices,
   positions,
+  multipleFactors,
   pnls,
   removeCollateral,
   minDebtSizeInEth,
@@ -38,6 +39,7 @@ const BorrowStatus = ({
   epochs: Epoch[]
   prices: Prices
   positions: LoanPosition[]
+  multipleFactors: BorrowContext['multipleFactors']
   pnls: BorrowContext['pnls']
   removeCollateral: BorrowContext['removeCollateral']
   minDebtSizeInEth: BigNumber
@@ -227,7 +229,9 @@ const BorrowStatus = ({
                           position.borrowedCollateralAmount,
                       )
                     }
-                    pnl={pnls[Number(position.id)]}
+                    multipleFactor={multipleFactors[Number(position.id)]}
+                    pnl={pnls[Number(position.id)]?.value || 0}
+                    profit={pnls[Number(position.id)]?.profit || 0}
                     price={prices[position.underlying.address]}
                     collateralPrice={
                       prices[position.collateral.underlying.address]

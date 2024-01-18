@@ -38,9 +38,9 @@ export const LongLeverageCard = ({
       }
     >
       <div
-        className={`h-[314px] ${
+        className={`relative h-[310px] ${
           debtCurrencies.length === 1 ? '' : 'group '
-        } flex flex-col w-full px-4 py-6 justify-center items-center gap-4 bg-white dark:bg-gray-800 rounded-xl`}
+        } flex flex-col w-full px-4 py-6 items-center gap-4 bg-white dark:bg-gray-800 rounded-xl`}
       >
         <div className="flex flex-col items-start gap-6 self-stretch">
           <div className="flex items-center gap-3 self-stretch">
@@ -83,7 +83,7 @@ export const LongLeverageCard = ({
                 </div>
                 <div className="flex flex-col items-end gap-1">
                   <div className="text-xs sm:text-sm text-gray-400">
-                    Current Price
+                    Mark Price
                   </div>
                   <div className="flex items-baseline gap-1">
                     <span className="text-base sm:text-xl font-bold">
@@ -130,7 +130,7 @@ export const LongLeverageCard = ({
                 : debtCurrencies
               ).map((currency, index) => (
                 <div
-                  className="flex-grow flex-shrink basis-1/2 pb-1 flex flex-col gap-1"
+                  className="h-[37.3px] sm:h-[44px] md:h-[50px] flex-grow flex-shrink basis-1/2 pb-1 flex flex-col gap-1"
                   key={index}
                 >
                   <div className="w-[128px] flex items-center gap-1 self-stretch">
@@ -157,7 +157,7 @@ export const LongLeverageCard = ({
                 </div>
               ))}
             </div>
-            <div className="w-full flex flex-col items-center justify-center self-stretch bg-green-500 rounded-lg h-12 px-3 py-2 font-bold text-base text-white gap-2 hover:bg-green-400 dark:hover:bg-green-600">
+            <div className="w-full flex mt-4 sm:mt-0 md:absolute sm:bottom-4 sm:h-12 md:w-[264px] lg:w-[277px] flex-col items-center justify-center self-stretch bg-green-500 rounded-lg h-12 px-3 py-2 font-bold text-base text-white gap-2 hover:bg-green-400 dark:hover:bg-green-600">
               Leverage
             </div>
           </div>

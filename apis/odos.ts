@@ -137,9 +137,9 @@ export async function fetchAmountOutByOdos({
   gasPrice,
 }: {
   chainId: CHAIN_IDS
-  amountIn: string
-  tokenIn: string
-  tokenOut: string
+  amountIn: bigint
+  tokenIn: `0x${string}`
+  tokenOut: `0x${string}`
   slippageLimitPercent: number
   userAddress?: string
   gasPrice: number
@@ -149,6 +149,14 @@ export async function fetchAmountOutByOdos({
   pathViz: PathViz | undefined
   pathId: string
 }> {
+  if (amountIn <= 0n) {
+    return {
+      amountOut: 0n,
+      gasLimit: 0n,
+      pathViz: undefined,
+      pathId: '',
+    }
+  }
   const result: {
     outAmounts: string[]
     pathViz: PathViz
@@ -165,7 +173,7 @@ export async function fetchAmountOutByOdos({
       inputTokens: [
         {
           tokenAddress: tokenIn,
-          amount: amountIn,
+          amount: amountIn.toString(),
         },
       ],
       outputTokens: [
