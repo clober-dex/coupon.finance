@@ -10,7 +10,7 @@ import { MIN_DEBT_SIZE_IN_ETH } from '../constants/debt'
 import { CHAIN_IDS } from '../constants/chain'
 import { useChainContext } from '../contexts/chain-context'
 import { FarmingContainer } from '../containers/farming-container'
-import { AirdropContainer } from '../containers/airdrop-container'
+import { AirdropContainer } from '../containers/airdrop-container-temp'
 
 const Home = () => {
   const { selectedChain } = useChainContext()
