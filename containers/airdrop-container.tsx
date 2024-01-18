@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { useAccount } from 'wagmi'
 import Link from 'next/link'
 import { NextRouter, useRouter } from 'next/router'
@@ -46,6 +46,12 @@ import { QuestionMarkSvg } from '../components/svg/question-mark-svg'
 import { toHumanFriendly } from '../utils/numbers'
 import { BalloonModal } from '../components/modal/balloon-modal'
 import { Point } from '../model/point'
+import { classifyPointTier } from '../utils/point'
+import { BadyDragonCard } from '../components/card/tier/bady-dragon-card'
+import { BronzeDragonCard } from '../components/card/tier/bronze-dragon-card'
+import { GoldDragonCard } from '../components/card/tier/gold-dragon-card'
+import { LegendaryDragonCard } from '../components/card/tier/legendary-dragon-card'
+import { SilverDragonCard } from '../components/card/tier/silver-dragon-card'
 
 const LeaderboardTab = ({
   userAddress,
@@ -718,14 +724,26 @@ export const AirdropContainer = () => {
   const [mode, setMode] = React.useState<'leaderboard' | 'referral' | 'claim'>(
     'leaderboard',
   )
+  const tier = useMemo(
+    () => (points ? classifyPointTier(points.totalPoint) : null),
+    [points],
+  )
+  const [currentPercent, experiencePercent] = useMemo(
+    () =>
+      points && tier
+        ? [
+            Math.floor((points.totalPoint * 100) / tier.end),
+            Math.floor((points.tomorrowTotalPoint * 100) / tier.end),
+          ]
+        : [0, 0],
+    [points, tier],
+  )
 
   useEffect(() => {
     if (!hasReferent && referentCode && userAddress) {
       setMode('referral')
     }
   }, [hasReferent, referentCode, userAddress])
-
-  const experiencePercent = 70
 
   return (
     <div className="flex flex-col items-center">
@@ -818,33 +836,23 @@ export const AirdropContainer = () => {
           userAddress={userAddress}
         />
 
-        {userAddress ? (
+        {userAddress && points && tier ? (
           <div className="m-auto px-4 lg:mt-4 lg:px-0 w-[360px] lg:w-[960px]">
             <div className="mb-4 text-sm font-bold lg:text-2xl ">
               My point level
             </div>
 
-            <div className="mb-4 flex justify-center lg:mb-8">
-              <div className="flex items-center gap-6 p-4 rounded-2xl bg-green-50 lg:gap-8 lg:p-6 lg:rounded-3xl">
-                <div className="w-20 h-20 bg-green-200 lg:w-32 lg:h-32"></div>
-
-                <div className="flex flex-col gap-3 lg:gap-4">
-                  <div className="flex items-center gap-2 text-sm font-bold lg:text-xl">
-                    <div className="w-6 h-4 lg:w-8 lg:h-6 bg-green-400"></div>
-                    Baby Dragon
-                  </div>
-                  <p className="font-semibold text-xs text-gray-400 lg:text-lg">
-                    <span className="block">
-                      Boost point <span className="text-green-500">1%</span>
-                    </span>
-                    <span className="block">
-                      <span className="text-green-500">700 points</span> more
-                      for level up
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </div>
+            {tier.level === 0 ? (
+              <BadyDragonCard totalPoint={points.totalPoint} />
+            ) : tier.level === 1 ? (
+              <BronzeDragonCard totalPoint={points.totalPoint} />
+            ) : tier.level === 2 ? (
+              <SilverDragonCard totalPoint={points.totalPoint} />
+            ) : tier.level === 3 ? (
+              <GoldDragonCard totalPoint={points.totalPoint} />
+            ) : (
+              <LegendaryDragonCard />
+            )}
 
             <div className="flex flex-col gap-2 lg:gap-3">
               <div className="relative rounded-lg bg-gray-100 h-4 overflow-hidden lg:h-6 lg:rounded-xl">
@@ -854,17 +862,13 @@ export const AirdropContainer = () => {
                 />
                 <div
                   className="flex justify-end items-center px-2 absolute left-0 rounded-lg bg-green-500 h-full overflow-hidden lg:rounded-xl"
-                  style={{ width: '40%' }}
-                >
-                  <span className="text-xs font-bold text-white lg:text-lg">
-                    300
-                  </span>
-                </div>
+                  style={{ width: `${currentPercent}%` }}
+                ></div>
               </div>
               <div className="flex justify-between text-xs font-bold text-gray-400 lg:text-lg">
                 <span>0</span>
-                <span>5000</span>
-                <span>100000</span>
+                <span>{toHumanFriendly(points.tomorrowTotalPoint)}</span>
+                <span>{toHumanFriendly(tier.end)}</span>
               </div>
             </div>
 
@@ -877,7 +881,12 @@ export const AirdropContainer = () => {
               <BalloonModal className="fill-[#22c55e26]">
                 <div className="text-xs lg:text-base font-semibold px-4 py-3 rounded-lg bg-[#22c55e26] flex justify-center items-center gap-1">
                   <span>You will earn</span>
-                  <span className="text-green-500">600 point</span>
+                  <span className="text-green-500">
+                    {toHumanFriendly(
+                      points.tomorrowTotalPoint - points.totalPoint,
+                    )}{' '}
+                    point
+                  </span>
                   <span>tomorrow!</span>
                 </div>
               </BalloonModal>

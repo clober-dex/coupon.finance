@@ -6,3 +6,10 @@ export type Point = {
   bondPositionPoint: number
   loanPositionPoint: number
 }
+
+export type Tier = {
+  start: number
+  end: number
+  level: number
+  label: string
+}

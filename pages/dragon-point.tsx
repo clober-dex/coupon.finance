@@ -1,15 +1,15 @@
 import React from 'react'
 import { useConnectModal } from '@rainbow-me/rainbowkit'
 
-import { WalletIconSvg } from '../../components/svg/wallet-icon-svg'
-import { ProtocolGMXSvg } from '../../components/svg/protocol-gmx-svg'
-import { ProtocolAaveSvg } from '../../components/svg/protocol-aave-svg'
-import { ProtocolPendleSvg } from '../../components/svg/protocol-pendle-svg'
-import { ProtocolBlastSvg } from '../../components/svg/protocol-blast-svg'
-import { ProtocolMantaSvg } from '../../components/svg/protocol-manta-svg'
-import { NFTPudgyPenguinsSvg } from '../../components/svg/nft-pudgy-penguins-svg'
-import { NFTLilPudgysSvg } from '../../components/svg/nft-lil-pudgys-svg'
-import { NFTPudgyPresentSvg } from '../../components/svg/nft-pudgy-present-svg'
+import { WalletIconSvg } from '../components/svg/wallet-icon-svg'
+import { ProtocolGMXSvg } from '../components/svg/protocol-gmx-svg'
+import { ProtocolAaveSvg } from '../components/svg/protocol-aave-svg'
+import { ProtocolPendleSvg } from '../components/svg/protocol-pendle-svg'
+import { ProtocolBlastSvg } from '../components/svg/protocol-blast-svg'
+import { ProtocolMantaSvg } from '../components/svg/protocol-manta-svg'
+import { NFTPudgyPenguinsSvg } from '../components/svg/nft-pudgy-penguins-svg'
+import { NFTLilPudgysSvg } from '../components/svg/nft-lil-pudgys-svg'
+import { NFTPudgyPresentSvg } from '../components/svg/nft-pudgy-present-svg'
 
 const DragonPointContainer = () => {
   const { openConnectModal } = useConnectModal()
