@@ -30,7 +30,7 @@ export async function setReferralCode(address: `0x${string}`) {
   ).code
 }
 
-export async function getReferralList(address: `0x${string}`) {
+export async function fetchReferralList(address: `0x${string}`) {
   return (
     await fetchCouponApi<{
       referrals: {

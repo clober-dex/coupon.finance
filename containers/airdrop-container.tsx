@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo } from 'react'
-import { useAccount } from 'wagmi'
+import { useAccount, useQuery } from 'wagmi'
 import Link from 'next/link'
 import { NextRouter, useRouter } from 'next/router'
 import { Tooltip } from 'react-tooltip'
+import { zeroAddress } from 'viem'
 
 import { NumberOneBoxSvg } from '../components/svg/number-one-box-svg'
 import { NumberTwoBoxSvg } from '../components/svg/number-two-box-svg'
@@ -45,7 +46,7 @@ import { LegendaryDragonSvg } from '../components/svg/tier/legendary-dragon-svg'
 import { QuestionMarkSvg } from '../components/svg/question-mark-svg'
 import { toHumanFriendly } from '../utils/numbers'
 import { BalloonModal } from '../components/modal/balloon-modal'
-import { Point } from '../model/point'
+import { Leaderboard, Point } from '../model/point'
 import { classifyPointTier } from '../utils/point'
 import { BadyDragonCard } from '../components/card/tier/bady-dragon-card'
 import { BronzeDragonCard } from '../components/card/tier/bronze-dragon-card'
@@ -54,11 +55,15 @@ import { LegendaryDragonCard } from '../components/card/tier/legendary-dragon-ca
 import { SilverDragonCard } from '../components/card/tier/silver-dragon-card'
 import { DragonEggCard } from '../components/card/tier/dragon-egg-card'
 import { formatAddress } from '../utils/string'
+import { fetchReferralList } from '../apis/referral'
+import { fetchLeaderboard } from '../apis/point'
 
 const LeaderboardTab = ({
+  leaderboard,
   userAddress,
   points,
 }: {
+  leaderboard: Leaderboard
   userAddress: `0x${string}` | undefined
   points: Point | null
 }) => {
@@ -137,54 +142,76 @@ const LeaderboardTab = ({
             </div>
           </div>
           <div className="flex px-2 flex-col items-start gap-1 lg:gap-2 self-stretch text-xs lg:text-sm">
-            <div className="flex h-8 lg:h-10 px-3 items-center gap-4 self-stretch rounded bg-green-500 bg-opacity-5">
-              <div className="w-8 lg:w-[192px]">240</div>
-              <div className="flex flex-row w-full">
-                <div className="flex-1">Me (0xe30a...723c)</div>
-                <div className="flex-1 font-semibold">1295012</div>
+            {leaderboard.myRanking ? (
+              <div className="flex h-8 lg:h-10 px-3 items-center gap-4 self-stretch rounded bg-green-500 bg-opacity-5">
+                <div className="w-8 lg:w-[192px]">
+                  {leaderboard.myRanking.ranking}
+                </div>
+                <div className="flex flex-row w-full">
+                  <div className="flex-1">
+                    Me ({formatAddress(leaderboard.myRanking.id)})
+                  </div>
+                  <div className="flex-1 font-semibold">
+                    {toHumanFriendly(leaderboard.myRanking.point)}
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="flex h-8 lg:h-10 px-3 items-center gap-4 self-stretch rounded bg-amber-300 bg-opacity-10">
-              <div className="w-8 lg:w-[192px]">
-                <GoldMedalIconSvg className="w-5 h-5 lg:w-6 lg:h-6" />
-              </div>
-              <div className="flex flex-row w-full">
-                <div className="flex-1">0xe30a...723c</div>
-                <div className="flex-1">1295012</div>
-              </div>
-            </div>
-            <div className="flex h-8 lg:h-10 px-3 items-center gap-4 self-stretch rounded bg-slate-300 bg-opacity-20">
-              <div className="w-8 lg:w-[192px]">
-                <SilverMedalIconSvg className="w-5 h-5 lg:w-6 lg:h-6" />
-              </div>
-              <div className="flex flex-row w-full">
-                <div className="flex-1">0xe30a...723c</div>
-                <div className="flex-1">1295012</div>
-              </div>
-            </div>
-            <div className="flex h-8 lg:h-10 px-3 items-center gap-4 self-stretch rounded bg-orange-300 bg-opacity-20">
-              <div className="w-8 lg:w-[192px]">
-                <BronzeMedalIconSvg className="w-5 h-5 lg:w-6 lg:h-6" />
-              </div>
-              <div className="flex flex-row w-full">
-                <div className="flex-1">0xe30a...723c</div>
-                <div className="flex-1">1295012</div>
-              </div>
-            </div>
-            <div className="flex h-8 lg:h-10 px-3 items-center gap-4 self-stretch rounded">
-              <div className="w-8 lg:w-[192px] pl-1.5 lg:pl-2">4</div>
-              <div className="flex flex-row w-full">
-                <div className="flex-1">0xe30a...723c</div>
-                <div className="flex-1">1295012</div>
-              </div>
-            </div>
-            <div className="flex h-8 lg:h-10 px-3 items-center gap-4 self-stretch rounded">
-              <div className="w-8 lg:w-[192px] pl-1.5 lg:pl-2">5</div>
-              <div className="flex flex-row w-full">
-                <div className="flex-1">0xe30a...723c</div>
-                <div className="flex-1">1295012</div>
-              </div>
-            </div>
+            ) : (
+              <></>
+            )}
+            {leaderboard.pointRankings.map((rank, index) => (
+              <React.Fragment key={`rank-${index}-fragment`}>
+                {index === 0 ? (
+                  <div className="flex h-8 lg:h-10 px-3 items-center gap-4 self-stretch rounded bg-amber-300 bg-opacity-10">
+                    <div className="w-8 lg:w-[192px]">
+                      <GoldMedalIconSvg className="w-5 h-5 lg:w-6 lg:h-6" />
+                    </div>
+                    <div className="flex flex-row w-full">
+                      <div className="flex-1">{formatAddress(rank.id)}</div>
+                      <div className="flex-1">
+                        {toHumanFriendly(rank.point)}
+                      </div>
+                    </div>
+                  </div>
+                ) : index === 1 ? (
+                  <div className="flex h-8 lg:h-10 px-3 items-center gap-4 self-stretch rounded bg-slate-300 bg-opacity-20">
+                    <div className="w-8 lg:w-[192px]">
+                      <SilverMedalIconSvg className="w-5 h-5 lg:w-6 lg:h-6" />
+                    </div>
+                    <div className="flex flex-row w-full">
+                      <div className="flex-1">{formatAddress(rank.id)}</div>
+                      <div className="flex-1">
+                        {toHumanFriendly(rank.point)}
+                      </div>
+                    </div>
+                  </div>
+                ) : index === 2 ? (
+                  <div className="flex h-8 lg:h-10 px-3 items-center gap-4 self-stretch rounded bg-orange-300 bg-opacity-20">
+                    <div className="w-8 lg:w-[192px]">
+                      <BronzeMedalIconSvg className="w-5 h-5 lg:w-6 lg:h-6" />
+                    </div>
+                    <div className="flex flex-row w-full">
+                      <div className="flex-1">{formatAddress(rank.id)}</div>
+                      <div className="flex-1">
+                        {toHumanFriendly(rank.point)}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex h-8 lg:h-10 px-3 items-center gap-4 self-stretch rounded">
+                    <div className="w-8 lg:w-[192px] pl-1.5 lg:pl-2">
+                      {rank.ranking}
+                    </div>
+                    <div className="flex flex-row w-full">
+                      <div className="flex-1">{formatAddress(rank.id)}</div>
+                      <div className="flex-1">
+                        {toHumanFriendly(rank.point)}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </React.Fragment>
+            ))}
           </div>
         </div>
       </div>
@@ -725,14 +752,8 @@ const PointTiers = () => {
 
 export const AirdropContainer = () => {
   const router = useRouter()
-  const {
-    referralList,
-    points,
-    referralCode,
-    referentCode,
-    hasReferent,
-    setReferentCode,
-  } = usePointContext()
+  const { points, referralCode, referentCode, hasReferent, setReferentCode } =
+    usePointContext()
   const { address: userAddress } = useAccount()
 
   const [mode, setMode] = React.useState<'leaderboard' | 'referral' | 'claim'>(
@@ -764,6 +785,26 @@ export const AirdropContainer = () => {
       setMode('leaderboard')
     }
   }, [userAddress])
+
+  const { data: referralList } = useQuery(
+    ['referral-list', userAddress],
+    async () => {
+      if (!userAddress) {
+        return []
+      }
+      return fetchReferralList(userAddress)
+    },
+    {
+      initialData: [],
+    },
+  ) as { data: { address: `0x${string}`; referralPoint: number }[] }
+
+  const { data: leaderboard } = useQuery(
+    ['leaderboard', userAddress],
+    async () => {
+      return fetchLeaderboard(userAddress ? userAddress : zeroAddress)
+    },
+  )
 
   return (
     <div className="flex flex-col items-center">
@@ -954,8 +995,12 @@ export const AirdropContainer = () => {
         </div>
       </div>
       <div className="w-[360px] lg:w-[960px]">
-        {mode === 'leaderboard' ? (
-          <LeaderboardTab userAddress={userAddress} points={points} />
+        {mode === 'leaderboard' && leaderboard ? (
+          <LeaderboardTab
+            leaderboard={leaderboard}
+            userAddress={userAddress}
+            points={points}
+          />
         ) : mode === 'referral' && referralCode ? (
           <ReferralTab
             referralCode={referralCode}
