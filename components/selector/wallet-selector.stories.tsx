@@ -23,6 +23,7 @@ export const Disconnected: Story = {
   args: {
     address: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
     status: 'disconnected',
+    level: 1,
   },
 }
 
@@ -30,6 +31,7 @@ export const Reconnecting: Story = {
   args: {
     address: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
     status: 'reconnecting',
+    level: 2,
   },
 }
 
@@ -37,5 +39,6 @@ export const Connecting: Story = {
   args: {
     address: '0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045',
     status: 'connecting',
+    level: 3,
   },
 }

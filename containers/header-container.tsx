@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useAccount } from 'wagmi'
 
@@ -13,6 +13,7 @@ import { ZIndices } from '../utils/z-indices'
 import { useModeContext } from '../contexts/mode-context'
 import { SwapButton } from '../components/button/swap-button'
 import { usePointContext } from '../contexts/point-context'
+import { classifyPointTier } from '../utils/point'
 
 import OdosSwapModalContainer from './modal/odos-swap-modal-container'
 
@@ -26,6 +27,10 @@ const HeaderContainer = ({
   const { address, status } = useAccount()
   const { selectedMode, onSelectedModeChange } = useModeContext()
   const { points } = usePointContext()
+  const tier = useMemo(
+    () => (points ? classifyPointTier(points.totalPoint) : null),
+    [points],
+  )
   const [showSwapModal, setShowSwapModal] = useState(false)
   return (
     <div
@@ -86,7 +91,11 @@ const HeaderContainer = ({
           ) : (
             <></>
           )}
-          <WalletSelect address={address} status={status} />
+          <WalletSelect
+            address={address}
+            level={tier ? tier.level : 0}
+            status={status}
+          />
           <button
             className="w-8 h-8 hover:bg-gray-100 lg:hover:bg-gray-200 dark:hover:bg-gray-700 rounded sm:rounded-lg flex items-center justify-center lg:hidden "
             onClick={onMenuClick}

@@ -11,9 +11,11 @@ import { WrongNetworkButton } from '../button/wrong-network-button'
 
 export function WalletSelect({
   address,
+  level,
   status,
 }: {
   address: `0x${string}` | undefined
+  level: number
   status: 'connected' | 'disconnected' | 'reconnecting' | 'connecting'
 }) {
   const { openChainModal } = useChainModal()
@@ -25,7 +27,11 @@ export function WalletSelect({
       {status === 'disconnected' ? (
         <ConnectButton openConnectModal={openConnectModal} />
       ) : openAccountModal && address ? (
-        <UserButton address={address} openAccountModal={openAccountModal} />
+        <UserButton
+          address={address}
+          level={level}
+          openAccountModal={openAccountModal}
+        />
       ) : openChainModal ? (
         <WrongNetworkButton openChainModal={openChainModal} />
       ) : (
