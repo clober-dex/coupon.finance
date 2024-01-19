@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 import {
   fetchReferentCode,
   fetchReferralCode,
+  getReferralList,
   setReferentCodeWithSignature,
   setReferralCode,
 } from '../apis/referral'
@@ -17,6 +18,10 @@ type PointContext = {
   hasReferent: boolean
   setReferentCode: (referentCode: string) => Promise<void>
   points: Point | null
+  referralList: {
+    address: `0x${string}`
+    referralPoint: number
+  }[]
 }
 
 const Context = React.createContext<PointContext>({
@@ -25,6 +30,7 @@ const Context = React.createContext<PointContext>({
   hasReferent: false,
   setReferentCode: () => Promise.resolve(),
   points: null,
+  referralList: [],
 })
 
 export const PointProvider = ({ children }: React.PropsWithChildren<{}>) => {
@@ -112,6 +118,21 @@ export const PointProvider = ({ children }: React.PropsWithChildren<{}>) => {
     },
   )
 
+  const { data: referralList } = useQuery(
+    ['referral-list', userAddress],
+    async () => {
+      if (!userAddress) {
+        return []
+      }
+      return getReferralList(userAddress)
+    },
+    {
+      refetchInterval: 10 * 1000,
+      refetchIntervalInBackground: true,
+      initialData: [],
+    },
+  ) as { data: { address: `0x${string}`; referralPoint: number }[] }
+
   const setReferentCode = useCallback(
     async (referentCode: string): Promise<void> => {
       if (!userAddress || !walletClient) {
@@ -138,6 +159,7 @@ export const PointProvider = ({ children }: React.PropsWithChildren<{}>) => {
         hasReferent,
         setReferentCode,
         points,
+        referralList,
       }}
     >
       {children}

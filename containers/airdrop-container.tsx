@@ -53,6 +53,7 @@ import { GoldDragonCard } from '../components/card/tier/gold-dragon-card'
 import { LegendaryDragonCard } from '../components/card/tier/legendary-dragon-card'
 import { SilverDragonCard } from '../components/card/tier/silver-dragon-card'
 import { DragonEggCard } from '../components/card/tier/dragon-egg-card'
+import { formatAddress } from '../utils/string'
 
 const LeaderboardTab = ({
   userAddress,
@@ -196,11 +197,16 @@ const ReferralTab = ({
   referentCode,
   hasReferent,
   setReferentCode,
+  referralList,
 }: {
   referralCode: string
   referentCode: string | null
   hasReferent: boolean
   setReferentCode: (code: string) => Promise<void>
+  referralList: {
+    address: `0x${string}`
+    referralPoint: number
+  }[]
 }) => {
   const [mode, setMode] = React.useState<'setReferralCode' | 'getReferralCode'>(
     'setReferralCode',
@@ -296,26 +302,28 @@ const ReferralTab = ({
             <div className="flex flex-row lg:px-8 gap-2 lg:gap-3 text-sm lg:text-xl font-semibold">
               Wallets you referred
               <div className="w-6 h-6 lg:w-9 lg:h-8 px-2 lg:px-3 py-1 bg-gray-50 dark:bg-gray-800 rounded-2xl flex-col justify-center items-center gap-2.5 inline-flex">
-                2
+                {referralList.length}
               </div>
             </div>
             <div className="flex flex-col items-start gap-4 self-stretch">
               <div className="flex lg:px-8 items-start self-stretch text-gray-400 text-xs lg:text-sm">
                 <div className="flex-1">User</div>
-                <div className="flex-1">Point</div>
                 <div className="flex-1">Referral points</div>
               </div>
               <div className="flex lg:px-4 flex-col items-start gap-2 self-stretch text-xs lg:text-sm">
-                <div className="w-full flex lg:h-10 lg:px-4 items-center">
-                  <div className="flex-1">0xe30a...723c</div>
-                  <div className="flex-1">6000</div>
-                  <div className="flex-1">2913</div>
-                </div>
-                <div className="w-full flex lg:h-10 lg:px-4 items-center">
-                  <div className="flex-1">0xe30a...723c</div>
-                  <div className="flex-1">4000</div>
-                  <div className="flex-1">143</div>
-                </div>
+                {referralList.map((referral, index) => (
+                  <div
+                    className="w-full flex lg:h-10 lg:px-4 items-center"
+                    key={index}
+                  >
+                    <div className="flex-1">
+                      {formatAddress(referral.address)}
+                    </div>
+                    <div className="flex-1">
+                      {toHumanFriendly(referral.referralPoint)}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -717,8 +725,14 @@ const PointTiers = () => {
 
 export const AirdropContainer = () => {
   const router = useRouter()
-  const { points, referralCode, referentCode, hasReferent, setReferentCode } =
-    usePointContext()
+  const {
+    referralList,
+    points,
+    referralCode,
+    referentCode,
+    hasReferent,
+    setReferentCode,
+  } = usePointContext()
   const { address: userAddress } = useAccount()
 
   const [mode, setMode] = React.useState<'leaderboard' | 'referral' | 'claim'>(
@@ -744,6 +758,12 @@ export const AirdropContainer = () => {
       setMode('referral')
     }
   }, [hasReferent, referentCode, userAddress])
+
+  useEffect(() => {
+    if (!userAddress) {
+      setMode('leaderboard')
+    }
+  }, [userAddress])
 
   return (
     <div className="flex flex-col items-center">
@@ -942,6 +962,7 @@ export const AirdropContainer = () => {
             referentCode={referentCode}
             hasReferent={hasReferent}
             setReferentCode={setReferentCode}
+            referralList={referralList}
           />
         ) : mode === 'claim' ? (
           <ClaimTab />

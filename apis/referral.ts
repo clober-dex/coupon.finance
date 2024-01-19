@@ -30,6 +30,17 @@ export async function setReferralCode(address: `0x${string}`) {
   ).code
 }
 
+export async function getReferralList(address: `0x${string}`) {
+  return (
+    await fetchCouponApi<{
+      referrals: {
+        address: `0x${string}`
+        referralPoint: number
+      }[]
+    }>(`referrals/${address}`)
+  ).referrals
+}
+
 export async function setReferentCodeWithSignature(
   address: `0x${string}`,
   code: string,
