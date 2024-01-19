@@ -936,13 +936,13 @@ export const AirdropContainer = () => {
             </div>
 
             <div
-              className="relative mb-6 h-10 lg:mb-14"
+              className="relative mb-6 h-[50px] lg:h-10 w-[220px] lg:w-full lg:mb-14"
               style={{
                 left: `${5 + experiencePercent}%`,
               }}
             >
               <BalloonModal className="fill-[#22c55e26]">
-                <div className="text-xs lg:text-base font-semibold px-4 py-3 rounded-lg bg-[#22c55e26] flex justify-center items-center gap-1">
+                <div className="text-xs lg:text-base font-semibold px-4 py-3 rounded-lg bg-[#22c55e26] hidden lg:flex justify-center items-center gap-1">
                   <span>You will earn</span>
                   <span className="text-green-500">
                     {toHumanFriendly(
@@ -951,6 +951,13 @@ export const AirdropContainer = () => {
                     point
                   </span>
                   <span>tomorrow!</span>
+                </div>
+                <div className="text-xs lg:text-base font-semibold px-4 py-3 rounded-lg bg-[#22c55e26] flex lg:hidden justify-center items-center gap-1">
+                  You will earn{' '}
+                  <span className="text-green-500">
+                    {toHumanFriendly(points.tomorrowTotalPoint)}
+                  </span>{' '}
+                  tomorrow!
                 </div>
               </BalloonModal>
             </div>
