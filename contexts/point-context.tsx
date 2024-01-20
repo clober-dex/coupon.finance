@@ -8,8 +8,8 @@ import {
   setReferentCodeWithSignature,
   setReferralCode,
 } from '../apis/referral'
-import { Point } from '../model/point'
-import { fetchPoints } from '../apis/point'
+import { DragonPoint, Point } from '../model/point'
+import { fetchDragonPoints, fetchPoints } from '../apis/point'
 
 type PointContext = {
   referralCode: string | null
@@ -17,6 +17,7 @@ type PointContext = {
   hasReferent: boolean
   setReferentCode: (referentCode: string) => Promise<void>
   points: Point | null
+  dragonPoints: DragonPoint | null
 }
 
 const Context = React.createContext<PointContext>({
@@ -25,6 +26,7 @@ const Context = React.createContext<PointContext>({
   hasReferent: false,
   setReferentCode: () => Promise.resolve(),
   points: null,
+  dragonPoints: null,
 })
 
 export const PointProvider = ({ children }: React.PropsWithChildren<{}>) => {
@@ -39,6 +41,21 @@ export const PointProvider = ({ children }: React.PropsWithChildren<{}>) => {
         return null
       }
       return fetchPoints(userAddress)
+    },
+    {
+      refetchInterval: 10 * 1000,
+      refetchIntervalInBackground: true,
+      initialData: null,
+    },
+  )
+
+  const { data: dragonPoints } = useQuery(
+    ['dragon-points', userAddress],
+    async () => {
+      if (!userAddress) {
+        return null
+      }
+      return fetchDragonPoints(userAddress)
     },
     {
       refetchInterval: 10 * 1000,
@@ -138,6 +155,7 @@ export const PointProvider = ({ children }: React.PropsWithChildren<{}>) => {
         hasReferent,
         setReferentCode,
         points,
+        dragonPoints,
       }}
     >
       {children}

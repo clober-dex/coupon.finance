@@ -7,6 +7,14 @@ export type Point = {
   loanPositionPoint: number
 }
 
+export type DragonPoint = {
+  point: number
+  claimed: boolean
+  pudgyPoint: number
+  defiPoint: number
+  substantialBenefitPoint: number
+}
+
 type Rank = {
   id: `0x${string}`
   point: number

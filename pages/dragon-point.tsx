@@ -2,6 +2,7 @@ import React from 'react'
 import { useConnectModal } from '@rainbow-me/rainbowkit'
 import { useAccount } from 'wagmi'
 import Link from 'next/link'
+import { useRouter } from 'next/router'
 
 import { ChineseNewYearSvg } from '../components/svg/chinese-new-year-svg'
 import { DragonEggSvg } from '../components/svg/tier/dragon-egg-svg'
@@ -21,13 +22,43 @@ import { ProtocolMantaSvg } from '../components/svg/protocol-manta-svg'
 import { ProtocolBlastSvg } from '../components/svg/protocol-blast-svg'
 import { NFTLilPudgysSvg } from '../components/svg/nft-lil-pudgys-svg'
 import { NFTPudgyPresentSvg } from '../components/svg/nft-pudgy-present-svg'
+import { usePointContext } from '../contexts/point-context'
+import { toHumanFriendly } from '../utils/numbers'
+import { NFTPudgyPenguinsSvg } from '../components/svg/nft-pudgy-penguins-svg'
+import { DragonPointClaimSuccessModal } from '../components/modal/dragon-point-claim-success-modal'
+import { DragonPointNonEligibleModal } from '../components/modal/dragon-point-non-eligible-modal'
 
 const DragonPoint = () => {
+  const router = useRouter()
   const { openConnectModal } = useConnectModal()
   const { address: userAddress } = useAccount()
+  const { dragonPoints } = usePointContext()
+  const [showModal, setShowModal] = React.useState(
+    dragonPoints && dragonPoints.point === 0,
+  )
 
   return (
     <main className="flex flex-1 flex-col  justify-center items-center">
+      {dragonPoints && dragonPoints.point === 0 && showModal ? (
+        <DragonPointNonEligibleModal
+          router={router}
+          onClose={() => {
+            setShowModal(false)
+          }}
+        />
+      ) : (
+        <></>
+      )}
+      {dragonPoints && dragonPoints.point > 0 && showModal ? (
+        <DragonPointClaimSuccessModal
+          router={router}
+          onClose={() => {
+            setShowModal(false)
+          }}
+        />
+      ) : (
+        <></>
+      )}
       <div className="w-full bg-white dark:bg-gray-850">
         <div className="flex flex-col lg:flex-row m-auto w-full max-w-[960px] px-4 gap-0 lg:gap-8">
           <div className="flex flex-col gap-3 lg:gap-8 items-center justify-center">
@@ -51,13 +82,13 @@ const DragonPoint = () => {
       </div>
 
       <div className="bg-white dark:bg-gray-900 rounded-2xl w-[360px] lg:w-[960px] mt-[24px] lg:mt-[96px] flex p-4 lg:px-8 lg:py-12 flex-col items-center gap-8">
-        {userAddress ? (
+        {userAddress && dragonPoints ? (
           <>
-            <div className="flex flex-col lg:flex-row items-start lg:items-center gap-4 lg:gap-16 self-stretch">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center gap-1 lg:gap-16 self-stretch">
               <div className="text-base lg:text-2xl font-semibold">
                 {formatAddress(userAddress)}
               </div>
-              <div className="text-gray-500 text-xs lg:text-base font-semibold">
+              <div className="text-gray-500 text-xs lg:text-base font-semibold lg:ml-auto">
                 Check how much point is eligible for your wallet!
               </div>
             </div>
@@ -68,10 +99,21 @@ const DragonPoint = () => {
                     Your total dragon points
                   </div>
                   <div className="font-semibold text-2xl lg:text-5xl">
-                    {4250}
+                    {toHumanFriendly(dragonPoints.point)}
                   </div>
                 </div>
-                <button className="w-[264px] lg:w-[320px] font-bold text-base bg-green-500 hover:bg-green-400 dark:hover:bg-green-600 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500">
+                <button
+                  onClick={async () => {
+                    try {
+                      console.log('claim')
+                      setShowModal(true)
+                    } catch (e) {
+                      console.log(e)
+                    }
+                  }}
+                  disabled={dragonPoints.point === 0 || dragonPoints.claimed}
+                  className="w-[264px] lg:w-[320px] font-bold text-base bg-green-500 hover:bg-green-400 dark:hover:bg-green-600 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
+                >
                   Claim
                 </button>
               </div>
@@ -82,7 +124,7 @@ const DragonPoint = () => {
                 </div>
                 <div className="w-[328px] lg:w-[896px] rounded-2xl flex px-4 py-6 bg-gray-50 dark:bg-gray-800 flex-col justify-center items-center gap-6">
                   <div className="font-semibold text-xl lg:text-3xl rounded-xl">
-                    {1600}
+                    {toHumanFriendly(dragonPoints.defiPoint)}
                   </div>
                   <div className="flex flex-col lg:flex-row justify-center items-start lg:items-center gap-3 lg:gap-8">
                     <div className="flex items-center gap-3">
@@ -134,7 +176,7 @@ const DragonPoint = () => {
                 </div>
                 <div className="w-[328px] lg:w-[896px] rounded-2xl flex px-4 py-6 bg-gray-50 dark:bg-gray-800 flex-col justify-center items-center gap-6">
                   <div className="font-semibold text-xl lg:text-3xl rounded-xl">
-                    {2400}
+                    {toHumanFriendly(dragonPoints.substantialBenefitPoint)}
                   </div>
                   <div className="flex flex-col lg:flex-row justify-center items-start lg:items-center gap-3 lg:gap-8">
                     <div className="flex items-center gap-3">
@@ -166,11 +208,11 @@ const DragonPoint = () => {
                 </div>
                 <div className="w-[328px] lg:w-[896px] rounded-2xl flex px-4 py-6 bg-gray-50 dark:bg-gray-800 flex-col justify-center items-center gap-6">
                   <div className="font-semibold text-xl lg:text-3xl rounded-xl">
-                    {2400}
+                    {toHumanFriendly(dragonPoints.pudgyPoint)}
                   </div>
                   <div className="flex flex-col lg:flex-row justify-center items-start lg:items-center gap-3 lg:gap-8">
                     <div className="flex items-center gap-3">
-                      <NFTLilPudgysSvg className="w-8 h-8 lg:w-12 lg:h-12 rounded-full" />
+                      <NFTPudgyPenguinsSvg className="w-8 h-8 lg:w-12 lg:h-12 rounded-full" />
                       <div className="flex flex-col justify-center items-start gap-0.5">
                         <div className="font-semibold text-sm lg:text-lg">
                           Pudgy Penguins
