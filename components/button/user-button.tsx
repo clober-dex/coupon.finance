@@ -37,10 +37,10 @@ export const UserButton = ({
           <LegendaryDragonSvg className="left-1/2 top-1/2 transform translate-x-1/2 translate-y-1/2 w-1/2 h-1/2" />
         )}
       </div>
-      <span className="hidden font-semibold text-sm sm:block lg:hidden">
+      <span className="hidden font-semibold text-sm sm:block lg:hidden px-1">
         {formatShortAddress(address || '')}
       </span>
-      <span className="hidden font-semibold text-sm lg:block">
+      <span className="hidden font-semibold text-sm lg:block px-1">
         {formatAddress(address || '')}
       </span>
     </button>
