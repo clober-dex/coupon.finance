@@ -27,6 +27,7 @@ import { toHumanFriendly } from '../utils/numbers'
 import { NFTPudgyPenguinsSvg } from '../components/svg/nft-pudgy-penguins-svg'
 import { DragonPointClaimSuccessModal } from '../components/modal/dragon-point-claim-success-modal'
 import { DragonPointNonEligibleModal } from '../components/modal/dragon-point-non-eligible-modal'
+import { claimDragonPoint } from '../apis/point'
 
 const DragonPoint = () => {
   const router = useRouter()
@@ -34,7 +35,7 @@ const DragonPoint = () => {
   const { address: userAddress } = useAccount()
   const { dragonPoints } = usePointContext()
   const [showModal, setShowModal] = React.useState(
-    dragonPoints && dragonPoints.point === 0,
+    dragonPoints && (dragonPoints.point === 0 || dragonPoints.claimed),
   )
 
   return (
@@ -104,9 +105,13 @@ const DragonPoint = () => {
                 </div>
                 <button
                   onClick={async () => {
+                    if (!userAddress) {
+                      return
+                    }
+
                     try {
-                      console.log('claim')
-                      setShowModal(true)
+                      const claimed = await claimDragonPoint(userAddress)
+                      setShowModal(claimed)
                     } catch (e) {
                       console.log(e)
                     }
