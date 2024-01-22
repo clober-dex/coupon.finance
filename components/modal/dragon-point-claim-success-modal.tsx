@@ -176,7 +176,7 @@ export const DragonPointClaimSuccessModal = ({
           onClick={() =>
             router.push({
               pathname: '/',
-              query: { mode: 'deposit' },
+              query: { mode: 'airdrop' },
             })
           }
           className="w-[264px] lg:w-[320px] font-bold text-base bg-green-500 hover:bg-green-400 dark:hover:bg-green-600 disabled:bg-gray-100 dark:disabled:bg-gray-800 h-12 rounded-lg text-white disabled:text-gray-300 dark:disabled:text-gray-500"
