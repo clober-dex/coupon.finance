@@ -138,6 +138,57 @@ const BorrowStatus = ({
     ]
   }, [assetStatuses, currentTimestamp, epochs])
 
+  const [couponETHAPY, couponUSDCAPY] = useMemo(() => {
+    const _assetStatuses = assetStatuses
+      .filter((assetStatus) => assetStatus.epoch.id === epochs[0].id)
+      .filter((assetStatus) => assetStatus.totalBorrowAvailable !== 0n)
+      .map((assetStatus) => {
+        const assetStatusesByAsset = assetStatuses
+          .filter(({ asset }) =>
+            isAddressEqual(
+              asset.underlying.address,
+              assetStatus.asset.underlying.address,
+            ),
+          )
+          .filter(({ epoch }) => Number(epoch.endTimestamp) > currentTimestamp)
+          .slice(0, MAX_VISIBLE_MARKETS)
+        const apys = assetStatusesByAsset.map(
+          ({ epoch, totalBorrowAvailable }) => ({
+            date: formatDate(new Date(Number(epoch.endTimestamp) * 1000)),
+            apy:
+              totalBorrowAvailable > 0n
+                ? calculateApy(
+                    assetStatusesByAsset
+                      .filter(({ epoch: _epoch }) => _epoch.id <= epoch.id)
+                      .reduce(
+                        (acc, { bestCouponAskPrice }) =>
+                          acc + bestCouponAskPrice,
+                        0,
+                      ),
+                    epoch.endTimestamp - currentTimestamp,
+                  )
+                : Number.NaN,
+          }),
+        )
+        return {
+          ...assetStatus,
+          lowestApy: Math.min(
+            ...apys
+              .filter(({ apy }) => !Number.isNaN(apy))
+              .map(({ apy }) => apy),
+          ),
+        }
+      })
+    return [
+      _assetStatuses.find(
+        (assetStatus) => assetStatus.asset.underlying.symbol === 'ETH',
+      )?.lowestApy || 0,
+      _assetStatuses.find(
+        (assetStatus) => assetStatus.asset.underlying.symbol === 'USDC',
+      )?.lowestApy || 0,
+    ]
+  }, [assetStatuses, currentTimestamp, epochs])
+
   return (
     <div className="flex flex-1 flex-col w-full md:w-[640px] lg:w-[960px]">
       <h1 className="flex justify-center text-center font-bold text-3xl sm:text-5xl sm:leading-[48px] mt-8 sm:mt-16 mb-8 sm:mb-16">
@@ -163,15 +214,17 @@ const BorrowStatus = ({
                 <AaveLogoSvg className="w-5 h-5" />
                 Aave
               </div>
-              <div className="flex w-full justify-end text-sm">21.00%</div>
+              <div className="flex w-full justify-end text-sm text-red-500">
+                21.00%
+              </div>
             </div>
             <div className="w-full flex justify-center items-start gap-4">
               <div className="flex items-center h-full w-20 gap-2 font-semibold text-sm">
                 <CouponSvg className="w-5 h-5 shrink-0" />
                 Coupon
               </div>
-              <div className="flex w-full justify-end text-sm font-semibold">
-                3.00%
+              <div className="flex w-full justify-end text-sm font-semibold text-green-500">
+                {couponETHAPY.toFixed(2)}%
               </div>
             </div>
           </div>
@@ -195,15 +248,17 @@ const BorrowStatus = ({
                 <AaveLogoSvg className="w-5 h-5" />
                 Aave
               </div>
-              <div className="flex w-full justify-end text-sm">21.00%</div>
+              <div className="flex w-full justify-end text-sm text-red-500">
+                21.00%
+              </div>
             </div>
             <div className="w-full flex justify-center items-start gap-4">
               <div className="flex items-center h-full w-20 gap-2 font-semibold text-sm">
                 <CouponSvg className="w-5 h-5 shrink-0" />
                 Coupon
               </div>
-              <div className="flex w-full justify-end text-sm font-semibold">
-                3.00%
+              <div className="flex w-full justify-end text-sm font-semibold text-green-500">
+                {couponUSDCAPY.toFixed(2)}%
               </div>
             </div>
           </div>
