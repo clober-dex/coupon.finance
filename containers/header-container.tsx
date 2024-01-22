@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useAccount } from 'wagmi'
 
@@ -11,8 +11,9 @@ import { CommunityDropdownModal } from '../components/modal/community-dropdown-m
 import { UserPointButton } from '../components/button/user-point-button'
 import { ZIndices } from '../utils/z-indices'
 import { useModeContext } from '../contexts/mode-context'
-import { useCurrencyContext } from '../contexts/currency-context'
 import { SwapButton } from '../components/button/swap-button'
+import { usePointContext } from '../contexts/point-context'
+import { classifyPointTier } from '../utils/point'
 
 import OdosSwapModalContainer from './modal/odos-swap-modal-container'
 
@@ -24,12 +25,20 @@ const HeaderContainer = ({
   setTheme: (theme: 'light' | 'dark') => void
 }) => {
   const { address, status } = useAccount()
-  const { point } = useCurrencyContext()
   const { selectedMode, onSelectedModeChange } = useModeContext()
+  const { points } = usePointContext()
+  const tier = useMemo(
+    () => (points ? classifyPointTier(points.totalPoint) : null),
+    [points],
+  )
   const [showSwapModal, setShowSwapModal] = useState(false)
   return (
     <div
-      className={`fixed w-full flex flex-col justify-between items-center px-4 lg:px-8 bg-white dark:bg-gray-900 lg:dark:bg-transparent lg:bg-opacity-5 lg:backdrop-blur ${ZIndices.modal} h-12 lg:h-16`}
+      className={`fixed w-full flex flex-col justify-between items-center px-4 lg:px-8 bg-white ${
+        selectedMode === 'airdrop'
+          ? 'dark:bg-gray-850'
+          : 'lg:dark:bg-transparent lg:bg-opacity-5 dark:bg-gray-900'
+      }  lg:backdrop-blur ${ZIndices.modal} h-12 lg:h-16`}
     >
       <div className="flex w-full justify-between items-center h-12 lg:h-full">
         <div className="flex h-full items-center gap-6 lg:gap-16">
@@ -52,6 +61,13 @@ const HeaderContainer = ({
             >
               Strategies
             </button>
+            <button
+              onClick={() => onSelectedModeChange('airdrop')}
+              disabled={selectedMode === 'airdrop'}
+              className="h-full hover:text-gray-950 dark:hover:text-gray-100 disabled:text-gray-950 disabled:dark:text-white text-gray-400"
+            >
+              Airdrop
+            </button>
             <button className="relative h-full items-center text-gray-400 group dark:hover:text-gray-100 hover:text-gray-950 hidden lg:flex">
               Community
               <div className="hidden group-hover:flex">
@@ -64,14 +80,22 @@ const HeaderContainer = ({
           <div className="hidden lg:flex">
             <ThemeToggleButton setTheme={setTheme} />
           </div>
-          {address ? <UserPointButton score={Number(point)} /> : <></>}
+          {address && points ? (
+            <UserPointButton score={points.totalPoint} />
+          ) : (
+            <></>
+          )}
           <SwapButton setShowSwapModal={setShowSwapModal} />
           {showSwapModal ? (
             <OdosSwapModalContainer onClose={() => setShowSwapModal(false)} />
           ) : (
             <></>
           )}
-          <WalletSelect address={address} status={status} />
+          <WalletSelect
+            address={address}
+            level={tier ? tier.level : 0}
+            status={status}
+          />
           <button
             className="w-8 h-8 hover:bg-gray-100 lg:hover:bg-gray-200 dark:hover:bg-gray-700 rounded sm:rounded-lg flex items-center justify-center lg:hidden "
             onClick={onMenuClick}

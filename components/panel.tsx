@@ -81,6 +81,15 @@ const Panel = ({
                         >
                           Strategies
                         </button>
+                        <button
+                          disabled={router.query.mode === 'airdrop'}
+                          onClick={async () => {
+                            setOpen(false)
+                            await onSelectedModeChange('airdrop')
+                          }}
+                        >
+                          Airdrop
+                        </button>
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="192"

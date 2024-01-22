@@ -2,11 +2,11 @@ import React, { useCallback } from 'react'
 import Link from 'next/link'
 import CountUp from 'react-countup'
 
-import { toCommaSeparated } from '../../utils/numbers'
+import { toHumanFriendly } from '../../utils/numbers'
 
 export const UserPointButton = ({ score }: { score: number }) => {
   const countUpFormatter = useCallback((value: number): string => {
-    return toCommaSeparated(value.toString())
+    return toHumanFriendly(value)
   }, [])
   return (
     <Link href="https://docs.coupon.finance/tokenomics/points" target="_blank">
@@ -20,7 +20,7 @@ export const UserPointButton = ({ score }: { score: number }) => {
             duration={1}
           />
         </span>
-        <span className="text-gray-500 dark:text-gray-400">pts</span>
+        <span className="text-gray-500 dark:text-gray-400">points</span>
       </div>
     </Link>
   )

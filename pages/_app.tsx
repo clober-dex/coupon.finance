@@ -39,6 +39,7 @@ import { SubgraphProvider } from '../contexts/subgraph-context'
 import { ModeProvider, useModeContext } from '../contexts/mode-context'
 import { SwapProvider } from '../contexts/swap-context'
 import ErrorBoundary from '../components/error-boundary'
+import { PointProvider } from '../contexts/point-context'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -149,28 +150,30 @@ function MyApp({ Component, pageProps }: AppProps) {
               <Web3AnalyticWrapper>
                 <TransactionProvider>
                   <SubgraphProvider>
-                    <CurrencyProvider>
-                      <DepositProvider>
-                        <BorrowProvider>
-                          <AdvancedContractProvider>
-                            <SwapProvider>
-                              <ModeProvider>
-                                <div
-                                  className={`${inter.className} flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white`}
-                                >
-                                  <HeaderWrapper />
-                                  <div className="mb-auto pt-12 lg:pt-16">
-                                    <Component {...pageProps} />
-                                    <CouponWidgetWrapper />
+                    <PointProvider>
+                      <CurrencyProvider>
+                        <DepositProvider>
+                          <BorrowProvider>
+                            <AdvancedContractProvider>
+                              <SwapProvider>
+                                <ModeProvider>
+                                  <div
+                                    className={`${inter.className} flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white`}
+                                  >
+                                    <HeaderWrapper />
+                                    <div className="mb-auto pt-12 lg:pt-16">
+                                      <Component {...pageProps} />
+                                      <CouponWidgetWrapper />
+                                    </div>
+                                    <Footer />
                                   </div>
-                                  <Footer />
-                                </div>
-                              </ModeProvider>
-                            </SwapProvider>
-                          </AdvancedContractProvider>
-                        </BorrowProvider>
-                      </DepositProvider>
-                    </CurrencyProvider>
+                                </ModeProvider>
+                              </SwapProvider>
+                            </AdvancedContractProvider>
+                          </BorrowProvider>
+                        </DepositProvider>
+                      </CurrencyProvider>
+                    </PointProvider>
                   </SubgraphProvider>
                 </TransactionProvider>
               </Web3AnalyticWrapper>

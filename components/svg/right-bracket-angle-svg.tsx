@@ -3,12 +3,17 @@ import React from 'react'
 export const RightBracketAngleSvg = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    viewBox="0 0 16 16"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
     fill="none"
     {...props}
   >
-    <path d="M5.5 3L10.5 8L5.5 13" strokeWidth="1.5" strokeLinecap="square" />
+    <path
+      d="M9 4.5L16.5 12L9 19.5"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </svg>
 )
