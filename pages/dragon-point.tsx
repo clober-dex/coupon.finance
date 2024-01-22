@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useConnectModal } from '@rainbow-me/rainbowkit'
 import { useAccount } from 'wagmi'
 import Link from 'next/link'
@@ -37,6 +37,11 @@ const DragonPoint = () => {
   const [showModal, setShowModal] = React.useState(
     dragonPoints && (dragonPoints.point === 0 || dragonPoints.claimed),
   )
+  useEffect(() => {
+    setShowModal(
+      dragonPoints && (dragonPoints.point === 0 || dragonPoints.claimed),
+    )
+  }, [dragonPoints, userAddress])
 
   return (
     <main className="flex flex-1 flex-col  justify-center items-center">
