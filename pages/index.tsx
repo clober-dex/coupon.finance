@@ -29,9 +29,16 @@ const Home = () => {
     removeCollateral,
   } = useBorrowContext()
 
-  const { data: aaveBorrowApys } = useQuery(['borrow-apys'], async () => {
-    return fetchAaveBorrowApys()
-  })
+  const { data: aaveBorrowApys } = useQuery(
+    ['borrow-apys'],
+    async () => {
+      return fetchAaveBorrowApys()
+    },
+    {
+      refetchInterval: 1000 * 60,
+      refetchIntervalInBackground: true,
+    },
+  )
 
   const borrowApys = useMemo(() => {
     const currentTimestamp = currentTimestampInSeconds()
