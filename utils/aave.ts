@@ -37,10 +37,6 @@ function normalizeBN(n: BigNumberValue, decimals: number): BigNumber {
   return valueToBigNumber(n).dividedBy(pow10(decimals))
 }
 
-function normalize(n: BigNumberValue, decimals: number): string {
-  return normalizeBN(n, decimals).toString(10)
-}
-
 function rayPow(a: BigNumberValue, p: BigNumberValue): BigNumber {
   let x = valueToZDBigNumber(a)
   let n = valueToZDBigNumber(p)
@@ -61,5 +57,5 @@ export const convertVariableBorrowRateToAPY = (rate: BigNumberValue) => {
     valueToZDBigNumber(rate).dividedBy(SECONDS_PER_YEAR).plus(RAY),
     SECONDS_PER_YEAR,
   ).minus(RAY)
-  return normalize(variableBorrowAPY, RAY_DECIMALS)
+  return normalizeBN(variableBorrowAPY, RAY_DECIMALS).times(100).toNumber()
 }
