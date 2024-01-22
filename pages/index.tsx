@@ -1,4 +1,5 @@
 import React from 'react'
+import { useQuery } from 'wagmi'
 
 import DepositStatus from '../components/status/deposit-status'
 import BorrowStatus from '../components/status/borrow-status'
@@ -10,6 +11,7 @@ import { MIN_DEBT_SIZE_IN_ETH } from '../constants/debt'
 import { CHAIN_IDS } from '../constants/chain'
 import { useChainContext } from '../contexts/chain-context'
 import { FarmingContainer } from '../containers/farming-container'
+import { fetchAaveBorrowApys } from '../apis/aave-borrow-apys'
 
 const Home = () => {
   const { selectedChain } = useChainContext()
@@ -22,6 +24,10 @@ const Home = () => {
     pnls,
     removeCollateral,
   } = useBorrowContext()
+
+  const { data: aaveBorrowApys } = useQuery(['borrow-apys'], async () => {
+    return fetchAaveBorrowApys()
+  })
 
   return (
     <div className="flex flex-1">
@@ -62,6 +68,17 @@ const Home = () => {
             removeCollateral={removeCollateral}
             minDebtSizeInEth={
               MIN_DEBT_SIZE_IN_ETH[selectedChain.id as CHAIN_IDS]
+            }
+            aaveBorrowAPYs={
+              aaveBorrowApys
+                ? aaveBorrowApys.reduce(
+                    (acc, cur) => ({
+                      ...acc,
+                      [cur.address]: cur.apy,
+                    }),
+                    {},
+                  )
+                : {}
             }
           />
         ) : selectedMode === 'farming' ? (

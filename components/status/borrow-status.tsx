@@ -27,6 +27,7 @@ import { ShortLeverageCard } from '../card/short-leverage-card'
 import { AaveLogoSvg } from '../svg/aave-logo-svg'
 import { CurrencyIcon } from '../icon/currency-icon'
 import { CouponSvg } from '../svg/coupon-svg'
+import { USDC_ADDRESS, WETH_ADDRESS } from '../../utils/asset'
 
 const BorrowStatus = ({
   assetStatuses,
@@ -37,6 +38,7 @@ const BorrowStatus = ({
   pnls,
   removeCollateral,
   minDebtSizeInEth,
+  aaveBorrowAPYs,
 }: {
   assetStatuses: AssetStatus[]
   epochs: Epoch[]
@@ -46,6 +48,7 @@ const BorrowStatus = ({
   pnls: BorrowContext['pnls']
   removeCollateral: BorrowContext['removeCollateral']
   minDebtSizeInEth: BigNumber
+  aaveBorrowAPYs: { [address: `0x${string}`]: number }
 }) => {
   const { closeLeveragePosition } = useBorrowContext()
   const [repayPosition, setRepayPosition] = useState<LoanPosition | null>(null)
@@ -215,7 +218,7 @@ const BorrowStatus = ({
                 Aave
               </div>
               <div className="flex w-full justify-end text-sm text-red-500">
-                21.00%
+                {((aaveBorrowAPYs[WETH_ADDRESS] ?? 0) * 100).toFixed(2)}%
               </div>
             </div>
             <div className="w-full flex justify-center items-start gap-4">
@@ -249,7 +252,7 @@ const BorrowStatus = ({
                 Aave
               </div>
               <div className="flex w-full justify-end text-sm text-red-500">
-                21.00%
+                {((aaveBorrowAPYs[USDC_ADDRESS] ?? 0) * 100).toFixed(2)}%
               </div>
             </div>
             <div className="w-full flex justify-center items-start gap-4">
