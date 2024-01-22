@@ -149,7 +149,7 @@ const BorrowStatus = ({
         Pay Less, Do More.
       </h1>
       <div className="gap-2 lg:ml-auto items-center flex flex-col lg:flex-row mb-4">
-        <div className="mx-5 lg:mx-0 px-5 py-4 bg-white dark:bg-gray-800 rounded-xl lg:w-[330px] flex gap-6 items-center">
+        <div className="mx-5 lg:mx-0 px-5 py-4 bg-white dark:bg-gray-800 rounded-xl ml-auto lg:w-[330px] flex gap-6 items-center">
           <div className="flex flex-row font-semibold text-sm lg:text-base items-center gap-2">
             <CurrencyIcon
               currency={{
@@ -183,7 +183,7 @@ const BorrowStatus = ({
             </div>
           </div>
         </div>
-        <div className="mx-5 lg:mx-0 px-5 py-4 bg-white dark:bg-gray-800 rounded-xl lg:w-[330px] flex gap-6 items-center">
+        <div className="mx-5 lg:mx-0 px-5 py-4 bg-white dark:bg-gray-800 rounded-xl ml-auto lg:w-[330px] flex gap-6 items-center">
           <div className="flex flex-row font-semibold text-sm lg:text-base items-center gap-2">
             <CurrencyIcon
               currency={{
