@@ -114,7 +114,7 @@ export const FarmingContainer = () => (
                     return {
                       value: i,
                       label: i === 0 || i === 6 ? `${i + 1} epoch` : undefined,
-                      width: 80,
+                      width: 100,
                     }
                   })}
                 />
