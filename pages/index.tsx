@@ -12,7 +12,7 @@ import { MIN_DEBT_SIZE_IN_ETH } from '../constants/debt'
 import { CHAIN_IDS } from '../constants/chain'
 import { useChainContext } from '../contexts/chain-context'
 import { FarmingContainer } from '../containers/farming-container'
-import { fetchAaveBorrowApys } from '../apis/aave-borrow-apys'
+import { fetchAaveApys } from '../apis/aave-borrow-apys'
 import { MAX_VISIBLE_MARKETS } from '../utils/market'
 import { currentTimestampInSeconds, formatDate } from '../utils/date'
 import { calculateApy } from '../utils/apy'
@@ -29,10 +29,10 @@ const Home = () => {
     removeCollateral,
   } = useBorrowContext()
 
-  const { data: aaveBorrowApys } = useQuery(
-    ['borrow-apys'],
+  const { data: aaveApys } = useQuery(
+    ['aave-apys'],
     async () => {
-      return fetchAaveBorrowApys()
+      return fetchAaveApys()
     },
     {
       refetchInterval: 1000 * 60,
@@ -91,6 +91,57 @@ const Home = () => {
     )
   }, [assetStatuses, epochs])
 
+  const depositApys = useMemo(() => {
+    const currentTimestamp = currentTimestampInSeconds()
+    const _assetStatuses = assetStatuses
+      .filter((assetStatus) => assetStatus.epoch.id === epochs[0].id)
+      .filter((assetStatus) => assetStatus.totalDepositAvailable !== 0n)
+      .map((assetStatus) => {
+        const assetStatusesByAsset = assetStatuses
+          .filter(({ asset }) =>
+            isAddressEqual(
+              asset.underlying.address,
+              assetStatus.asset.underlying.address,
+            ),
+          )
+          .filter(({ epoch }) => Number(epoch.endTimestamp) > currentTimestamp)
+          .slice(0, MAX_VISIBLE_MARKETS)
+        const apys = assetStatusesByAsset.map(
+          ({ epoch, totalDepositAvailable }) => ({
+            date: formatDate(new Date(Number(epoch.endTimestamp) * 1000)),
+            apy:
+              totalDepositAvailable > 0n
+                ? calculateApy(
+                    assetStatusesByAsset
+                      .filter(({ epoch: _epoch }) => _epoch.id <= epoch.id)
+                      .reduce(
+                        (acc, { bestCouponBidPrice }) =>
+                          acc + bestCouponBidPrice,
+                        0,
+                      ),
+                    epoch.endTimestamp - currentTimestamp,
+                  )
+                : Number.NaN,
+          }),
+        )
+        return {
+          ...assetStatus,
+          highestApy: Math.max(
+            ...apys
+              .filter(({ apy }) => !Number.isNaN(apy))
+              .map(({ apy }) => apy),
+          ),
+        }
+      })
+    return _assetStatuses.reduce(
+      (acc, { asset, highestApy }) => ({
+        ...acc,
+        [getAddress(asset.underlying.address)]: highestApy,
+      }),
+      {} as { [address: `0x${string}`]: number },
+    )
+  }, [assetStatuses, epochs])
+
   return (
     <div className="flex flex-1">
       <div className="fixed w-full flex gap-2 sm:gap-16 items-end justify-center pb-1 bg-white dark:bg-gray-900 z-10 h-12 lg:hidden">
@@ -118,6 +169,18 @@ const Home = () => {
             prices={prices}
             positions={bondPositions}
             collect={collect}
+            depositAPYs={depositApys}
+            aaveDepositAPYs={
+              aaveApys
+                ? aaveApys.reduce(
+                    (acc, cur) => ({
+                      ...acc,
+                      [cur.address]: cur.depositApy,
+                    }),
+                    {},
+                  )
+                : {}
+            }
           />
         ) : selectedMode === 'borrow' ? (
           <BorrowStatus
@@ -133,11 +196,11 @@ const Home = () => {
             }
             borrowAPYs={borrowApys}
             aaveBorrowAPYs={
-              aaveBorrowApys
-                ? aaveBorrowApys.reduce(
+              aaveApys
+                ? aaveApys.reduce(
                     (acc, cur) => ({
                       ...acc,
-                      [cur.address]: cur.apy,
+                      [cur.address]: cur.borrowApy,
                     }),
                     {},
                   )

@@ -2,6 +2,7 @@ query getAaveBorrowRates {
   reserves {
     name
     underlyingAsset
+    liquidityRate
     variableBorrowRate
   }
 }
