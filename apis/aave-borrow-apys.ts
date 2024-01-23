@@ -11,5 +11,6 @@ export async function fetchAaveBorrowApys() {
     name: reserve.name,
     address: getAddress(reserve.underlyingAsset),
     apy: convertVariableBorrowRateToAPY(reserve.variableBorrowRate),
+    depositApy: convertVariableBorrowRateToAPY(reserve.liquidityRate),
   }))
 }
