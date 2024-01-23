@@ -24,6 +24,10 @@ import { isStableCoin } from '../../contexts/currency-context'
 import { Currency } from '../../model/currency'
 import { LongLeverageCard } from '../card/long-leverage-card'
 import { ShortLeverageCard } from '../card/short-leverage-card'
+import { AaveLogoSvg } from '../svg/aave-logo-svg'
+import { CurrencyIcon } from '../icon/currency-icon'
+import { CouponSvg } from '../svg/coupon-svg'
+import { USDC_ADDRESS, WETH_ADDRESS } from '../../utils/asset'
 
 const BorrowStatus = ({
   assetStatuses,
@@ -34,6 +38,8 @@ const BorrowStatus = ({
   pnls,
   removeCollateral,
   minDebtSizeInEth,
+  borrowAPYs,
+  aaveBorrowAPYs,
 }: {
   assetStatuses: AssetStatus[]
   epochs: Epoch[]
@@ -43,6 +49,8 @@ const BorrowStatus = ({
   pnls: BorrowContext['pnls']
   removeCollateral: BorrowContext['removeCollateral']
   minDebtSizeInEth: BigNumber
+  borrowAPYs: { [address: `0x${string}`]: number }
+  aaveBorrowAPYs: { [address: `0x${string}`]: number }
 }) => {
   const { closeLeveragePosition } = useBorrowContext()
   const [repayPosition, setRepayPosition] = useState<LoanPosition | null>(null)
@@ -140,6 +148,76 @@ const BorrowStatus = ({
       <h1 className="flex justify-center text-center font-bold text-3xl sm:text-5xl sm:leading-[48px] mt-8 sm:mt-16 mb-8 sm:mb-16">
         Pay Less, Do More.
       </h1>
+      <div className="gap-2 lg:ml-auto items-center flex flex-col lg:flex-row mb-4">
+        <div className="mx-5 lg:mx-0 px-5 py-4 bg-white dark:bg-gray-800 rounded-xl ml-auto lg:w-[330px] flex gap-6 items-center">
+          <div className="flex flex-row font-semibold text-sm lg:text-base items-center gap-2">
+            <CurrencyIcon
+              currency={{
+                name: 'ETH',
+                symbol: 'ETH',
+                address: zeroAddress,
+                decimals: 18,
+              }}
+              className="w-6 h-6"
+            />
+            Borrow apy
+          </div>
+          <div className="flex flex-col justify-center items-start gap-3">
+            <div className="w-full flex justify-center items-start gap-4">
+              <div className="flex items-center h-full w-20 gap-2 text-sm">
+                <AaveLogoSvg className="w-5 h-5" />
+                Aave
+              </div>
+              <div className="flex w-full justify-end text-sm text-red-500">
+                {(aaveBorrowAPYs[WETH_ADDRESS] ?? 0).toFixed(2)}%
+              </div>
+            </div>
+            <div className="w-full flex justify-center items-start gap-4">
+              <div className="flex items-center h-full w-20 gap-2 font-semibold text-sm">
+                <CouponSvg className="w-5 h-5 shrink-0" />
+                Coupon
+              </div>
+              <div className="flex w-full justify-end text-sm font-semibold text-green-500">
+                {(borrowAPYs[WETH_ADDRESS] ?? 0).toFixed(2)}%
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="mx-5 lg:mx-0 px-5 py-4 bg-white dark:bg-gray-800 rounded-xl ml-auto lg:w-[330px] flex gap-6 items-center">
+          <div className="flex flex-row font-semibold text-sm lg:text-base items-center gap-2">
+            <CurrencyIcon
+              currency={{
+                name: 'USDC',
+                symbol: 'USDC',
+                address: zeroAddress,
+                decimals: 6,
+              }}
+              className="w-6 h-6"
+            />
+            Borrow apy
+          </div>
+          <div className="flex flex-col justify-center items-start gap-3">
+            <div className="w-full flex justify-center items-start gap-4">
+              <div className="flex items-center h-full w-20 gap-2 text-sm">
+                <AaveLogoSvg className="w-5 h-5" />
+                Aave
+              </div>
+              <div className="flex w-full justify-end text-sm text-red-500">
+                {(aaveBorrowAPYs[USDC_ADDRESS] ?? 0).toFixed(2)}%
+              </div>
+            </div>
+            <div className="w-full flex justify-center items-start gap-4">
+              <div className="flex items-center h-full w-20 gap-2 font-semibold text-sm">
+                <CouponSvg className="w-5 h-5 shrink-0" />
+                Coupon
+              </div>
+              <div className="flex w-full justify-end text-sm font-semibold text-green-500">
+                {(borrowAPYs[USDC_ADDRESS] ?? 0).toFixed(2)}%
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       {positions.length > 0 ? (
         <div className="flex flex-col gap-6 mb-8 px-4 lg:p-0">
           <div className="flex gap-2 sm:gap-3 items-center">
