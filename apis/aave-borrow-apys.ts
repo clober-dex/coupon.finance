@@ -1,16 +1,16 @@
 import { getAddress } from 'viem'
 
 import { getBuiltGraphSDK } from '../.graphclient'
-import { convertVariableBorrowRateToAPY } from '../utils/aave'
+import { convertRateToAPY } from '../utils/aave'
 
 const { getAaveBorrowRates } = getBuiltGraphSDK()
 
-export async function fetchAaveBorrowApys() {
+export async function fetchAaveApys() {
   const { reserves } = await getAaveBorrowRates({}, {})
   return reserves.map((reserve) => ({
     name: reserve.name,
     address: getAddress(reserve.underlyingAsset),
-    apy: convertVariableBorrowRateToAPY(reserve.variableBorrowRate),
-    depositApy: convertVariableBorrowRateToAPY(reserve.liquidityRate),
+    borrowApy: convertRateToAPY(reserve.variableBorrowRate),
+    depositApy: convertRateToAPY(reserve.liquidityRate),
   }))
 }

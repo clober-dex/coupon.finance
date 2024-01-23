@@ -12,7 +12,7 @@ import { MIN_DEBT_SIZE_IN_ETH } from '../constants/debt'
 import { CHAIN_IDS } from '../constants/chain'
 import { useChainContext } from '../contexts/chain-context'
 import { FarmingContainer } from '../containers/farming-container'
-import { fetchAaveBorrowApys } from '../apis/aave-borrow-apys'
+import { fetchAaveApys } from '../apis/aave-borrow-apys'
 import { MAX_VISIBLE_MARKETS } from '../utils/market'
 import { currentTimestampInSeconds, formatDate } from '../utils/date'
 import { calculateApy } from '../utils/apy'
@@ -29,10 +29,10 @@ const Home = () => {
     removeCollateral,
   } = useBorrowContext()
 
-  const { data: aaveBorrowApys } = useQuery(
-    ['borrow-apys'],
+  const { data: aaveApys } = useQuery(
+    ['aave-apys'],
     async () => {
-      return fetchAaveBorrowApys()
+      return fetchAaveApys()
     },
     {
       refetchInterval: 1000 * 60,
@@ -171,8 +171,8 @@ const Home = () => {
             collect={collect}
             depositAPYs={depositApys}
             aaveDepositAPYs={
-              aaveBorrowApys
-                ? aaveBorrowApys.reduce(
+              aaveApys
+                ? aaveApys.reduce(
                     (acc, cur) => ({
                       ...acc,
                       [cur.address]: cur.depositApy,
@@ -196,11 +196,11 @@ const Home = () => {
             }
             borrowAPYs={borrowApys}
             aaveBorrowAPYs={
-              aaveBorrowApys
-                ? aaveBorrowApys.reduce(
+              aaveApys
+                ? aaveApys.reduce(
                     (acc, cur) => ({
                       ...acc,
-                      [cur.address]: cur.apy,
+                      [cur.address]: cur.borrowApy,
                     }),
                     {},
                   )

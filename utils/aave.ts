@@ -52,7 +52,7 @@ function rayPow(a: BigNumberValue, p: BigNumberValue): BigNumber {
   return z
 }
 
-export const convertVariableBorrowRateToAPY = (rate: BigNumberValue) => {
+export const convertRateToAPY = (rate: BigNumberValue) => {
   const variableBorrowAPY = rayPow(
     valueToZDBigNumber(rate).dividedBy(SECONDS_PER_YEAR).plus(RAY),
     SECONDS_PER_YEAR,
