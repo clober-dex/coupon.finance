@@ -165,6 +165,7 @@ const Slider = ({
                   width={tickMark.width}
                   disabled={disabled ?? false}
                   position={Math.floor((i * 100) / segments)}
+                  key={i}
                 />
               ) : (
                 <></>
@@ -176,6 +177,7 @@ const Slider = ({
                 width={lastTickMark.width}
                 disabled={disabled ?? false}
                 position={100}
+                key={100}
               />
             ) : (
               <></>
