@@ -495,6 +495,8 @@ const LeverageFormContainer = ({
                         collateralAmount - inputCollateralAmount,
                         prices[collateral.underlying.address],
                         prices[asset.underlying.address],
+                        prices[collateral.underlying.address],
+                        prices[asset.underlying.address],
                       )
                     : undefined,
                 )

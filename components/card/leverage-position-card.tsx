@@ -27,8 +27,8 @@ export const LeveragePositionCard = ({
   profit,
   price,
   collateralPrice,
-  entryDebtCurrencyPrice,
-  entryCollateralCurrencyPrice,
+  averageDebtCurrencyPrice,
+  averageCollateralCurrencyPrice,
   onAdjustMultiple,
   onClose,
   onCollect,
@@ -43,8 +43,8 @@ export const LeveragePositionCard = ({
   profit: number
   price: BigDecimal
   collateralPrice: BigDecimal
-  entryDebtCurrencyPrice: BigDecimal
-  entryCollateralCurrencyPrice: BigDecimal
+  averageDebtCurrencyPrice: BigDecimal
+  averageCollateralCurrencyPrice: BigDecimal
   onAdjustMultiple: () => void
   onClose: () => void
   onCollect: () => void
@@ -204,14 +204,14 @@ export const LeveragePositionCard = ({
           </div>
           <div className="flex items-center gap-1 self-stretch">
             <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
-              Entry / Mark
+              Average / Mark
             </div>
             {isShortPosition ? (
               <div className="text-sm sm:text-base">
                 {formatDollarValue(
                   BigInt(10 ** position.underlying.decimals),
                   position.underlying.decimals,
-                  entryDebtCurrencyPrice,
+                  averageDebtCurrencyPrice,
                 )}
                 {' / '}
                 {formatDollarValue(
@@ -225,7 +225,7 @@ export const LeveragePositionCard = ({
                 {formatDollarValue(
                   BigInt(10 ** position.collateral.underlying.decimals),
                   position.collateral.underlying.decimals,
-                  entryCollateralCurrencyPrice,
+                  averageCollateralCurrencyPrice,
                 )}
                 {' / '}
                 {formatDollarValue(

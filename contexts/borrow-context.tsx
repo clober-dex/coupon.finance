@@ -198,7 +198,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           const beforeDollarValue = Number(
             formatUnits(
               (position.collateralAmount - position.borrowedCollateralAmount) *
-                position.entryCollateralCurrencyPrice.value,
+                position.averageCollateralCurrencyPrice.value,
               position.collateral.underlying.decimals +
                 prices[position.collateral.underlying.address].decimals,
             ),
