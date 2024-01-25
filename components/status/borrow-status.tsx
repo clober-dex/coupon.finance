@@ -314,9 +314,9 @@ const BorrowStatus = ({
                     collateralPrice={
                       prices[position.collateral.underlying.address]
                     }
-                    entryDebtCurrencyPrice={position.entryDebtCurrencyPrice}
-                    entryCollateralCurrencyPrice={
-                      position.entryCollateralCurrencyPrice
+                    averageDebtCurrencyPrice={position.averageDebtCurrencyPrice}
+                    averageCollateralCurrencyPrice={
+                      position.averageCollateralCurrencyPrice
                     }
                     onAdjustMultiple={() => {
                       setAdjustLeveragePosition(position)

@@ -56,7 +56,15 @@ export const dummyLoanPosition: LoanPosition = {
     value: 10000000000n,
     decimals: 8,
   },
+  averageCollateralCurrencyPrice: {
+    value: 10000000000n,
+    decimals: 8,
+  },
   entryDebtCurrencyPrice: {
+    value: 10000000000n,
+    decimals: 8,
+  },
+  averageDebtCurrencyPrice: {
     value: 10000000000n,
     decimals: 8,
   },
