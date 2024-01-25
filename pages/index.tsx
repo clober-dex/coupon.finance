@@ -24,6 +24,7 @@ const Home = () => {
   const { positions: bondPositions, collect } = useDepositContext()
   const {
     positions: loanPositions,
+    liquidationHistories,
     multipleFactors,
     pnls,
     removeCollateral,
@@ -206,6 +207,7 @@ const Home = () => {
                   )
                 : {}
             }
+            liquidationHistories={liquidationHistories}
           />
         ) : selectedMode === 'farming' ? (
           <FarmingContainer />

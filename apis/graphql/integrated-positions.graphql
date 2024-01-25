@@ -84,4 +84,37 @@ query getIntegratedPositions($userAddress: String!) {
     averageDebtCurrencyPrice
     borrowedCollateralAmount
   }
+  liquidationHistories(where: { borrower: $userAddress }) {
+    id
+    positionId
+    underlying {
+      id
+      decimals
+      name
+      symbol
+    }
+    collateral {
+      substitute {
+        id
+        decimals
+        name
+        symbol
+      }
+      underlying {
+        id
+        decimals
+        name
+        symbol
+      }
+      liquidationThreshold
+      liquidationTargetLtv
+      totalCollateralized
+      totalBorrowed
+    }
+    liquidatedCollateralAmount
+    repaidDebtAmount
+    collateralCurrencyPrice
+    debtCurrencyPrice
+    timestamp
+  }
 }

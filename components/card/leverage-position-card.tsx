@@ -18,6 +18,7 @@ import { CurrencyIcon } from '../icon/currency-icon'
 import { QuestionMarkSvg } from '../svg/question-mark-svg'
 import { isStableCoin } from '../../contexts/currency-context'
 import { calculateLiquidationPrice, calculateLtv } from '../../utils/ltv'
+import { LiquidationHistory } from '../../model/liquidation-history'
 
 export const LeveragePositionCard = ({
   position,
@@ -35,6 +36,7 @@ export const LeveragePositionCard = ({
   onEditCollateral,
   onEditExpiry,
   isDeptSizeLessThanMinDebtSize,
+  liquidationHistory,
 }: {
   position: LoanPosition
   multiple: number
@@ -51,6 +53,7 @@ export const LeveragePositionCard = ({
   onEditCollateral: () => void
   onEditExpiry: () => void
   isDeptSizeLessThanMinDebtSize: boolean
+  liquidationHistory: LiquidationHistory | undefined
 } & React.HTMLAttributes<HTMLDivElement>) => {
   const now = currentTimestampInSeconds()
   const isLiquidated = useMemo(

@@ -30,6 +30,8 @@ import { fetchMarketsByQuoteTokenAddress } from '../apis/market'
 import { calculateCouponsToRepay } from '../model/market'
 import { simulateAdjustingLeverage } from '../model/leverage'
 import { calculateLtv } from '../utils/ltv'
+import { extractLiquidationHistories } from '../apis/liquidation-histories'
+import { LiquidationHistory } from '../model/liquidation-history'
 
 import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -38,6 +40,7 @@ import { useSubgraphContext } from './subgraph-context'
 
 export type BorrowContext = {
   positions: LoanPosition[]
+  liquidationHistories: LiquidationHistory[]
   pnls: {
     [key in number]: {
       value: number
@@ -109,6 +112,7 @@ export type BorrowContext = {
 
 const Context = React.createContext<BorrowContext>({
   positions: [],
+  liquidationHistories: [],
   pnls: {},
   multipleFactors: {},
   borrow: () => Promise.resolve(undefined),
@@ -155,6 +159,13 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       ),
     ]
   }, [integratedPositions, pendingPositions])
+
+  const liquidationHistories = useMemo(() => {
+    if (!integratedPositions) {
+      return []
+    }
+    return extractLiquidationHistories(integratedPositions)
+  }, [integratedPositions])
 
   const { data: pnls } = useQuery(
     ['pnls', selectedChain.id, userAddress],
@@ -1234,6 +1245,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
     <Context.Provider
       value={{
         positions,
+        liquidationHistories,
         pnls: pnls ?? {},
         multipleFactors: multipleFactors ?? {},
         borrow,

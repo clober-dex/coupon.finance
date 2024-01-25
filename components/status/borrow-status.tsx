@@ -28,6 +28,7 @@ import { AaveLogoSvg } from '../svg/aave-logo-svg'
 import { CurrencyIcon } from '../icon/currency-icon'
 import { CouponSvg } from '../svg/coupon-svg'
 import { USDC_ADDRESS, WETH_ADDRESS } from '../../utils/asset'
+import { LiquidationHistory } from '../../model/liquidation-history'
 
 const BorrowStatus = ({
   assetStatuses,
@@ -40,6 +41,7 @@ const BorrowStatus = ({
   minDebtSizeInEth,
   borrowAPYs,
   aaveBorrowAPYs,
+  liquidationHistories,
 }: {
   assetStatuses: AssetStatus[]
   epochs: Epoch[]
@@ -51,6 +53,7 @@ const BorrowStatus = ({
   minDebtSizeInEth: BigNumber
   borrowAPYs: { [address: `0x${string}`]: number }
   aaveBorrowAPYs: { [address: `0x${string}`]: number }
+  liquidationHistories: LiquidationHistory[]
 }) => {
   const { closeLeveragePosition } = useBorrowContext()
   const [repayPosition, setRepayPosition] = useState<LoanPosition | null>(null)
@@ -268,6 +271,9 @@ const BorrowStatus = ({
                   Number(b.toEpoch.endTimestamp),
               )
               .map((position, index) => {
+                const liquidationHistory = liquidationHistories.find(
+                  ({ positionId }) => positionId === position.id,
+                )
                 const debtSizeInEth = ethValue(
                   prices[zeroAddress],
                   position.underlying,
@@ -295,6 +301,7 @@ const BorrowStatus = ({
                     isDeptSizeLessThanMinDebtSize={
                       debtSizeInEth.lt(minDebtSizeInEth) && debtSizeInEth.gt(0)
                     }
+                    liquidationHistory={liquidationHistory}
                   />
                 ) : (
                   <LeveragePositionCard
@@ -335,6 +342,7 @@ const BorrowStatus = ({
                     isDeptSizeLessThanMinDebtSize={
                       debtSizeInEth.lt(minDebtSizeInEth) && debtSizeInEth.gt(0)
                     }
+                    liquidationHistory={liquidationHistory}
                   />
                 )
               })}
