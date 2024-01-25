@@ -76,7 +76,9 @@ function toLoanPosition(
     | 'updatedAt'
     | 'isLeveraged'
     | 'entryCollateralCurrencyPrice'
+    | 'averageCollateralCurrencyPrice'
     | 'entryDebtCurrencyPrice'
+    | 'averageDebtCurrencyPrice'
     | 'borrowedCollateralAmount'
   > & {
     substitute: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
@@ -135,9 +137,23 @@ function toLoanPosition(
       ),
       decimals: 8,
     },
+    averageCollateralCurrencyPrice: {
+      value: BigInt(
+        Math.floor(
+          Number(loanPosition.averageCollateralCurrencyPrice) * 10 ** 8,
+        ),
+      ),
+      decimals: 8,
+    },
     entryDebtCurrencyPrice: {
       value: BigInt(
         Math.floor(Number(loanPosition.entryDebtCurrencyPrice) * 10 ** 8),
+      ),
+      decimals: 8,
+    },
+    averageDebtCurrencyPrice: {
+      value: BigInt(
+        Math.floor(Number(loanPosition.averageDebtCurrencyPrice) * 10 ** 8),
       ),
       decimals: 8,
     },
