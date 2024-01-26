@@ -14,7 +14,7 @@ export function extractLiquidationHistories(
   return liquidationHistories.map((liquidationHistory) => {
     return {
       tx: liquidationHistory.id,
-      positionId: liquidationHistory.positionId,
+      positionId: BigInt(liquidationHistory.positionId),
       underlying: toCurrency(liquidationHistory.underlying),
       collateral: {
         underlying: toCurrency(liquidationHistory.collateral.underlying),
