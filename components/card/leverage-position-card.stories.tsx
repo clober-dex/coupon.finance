@@ -40,6 +40,7 @@ export const Default: Story = {
       decimals: 8,
     },
     isDeptSizeLessThanMinDebtSize: false,
+    explorerUrl: 'https://etherscan.io',
   },
 }
 
@@ -63,6 +64,7 @@ export const isPendingPosition: Story = {
       decimals: 8,
     },
     isDeptSizeLessThanMinDebtSize: false,
+    explorerUrl: 'https://etherscan.io',
   },
 }
 
@@ -83,6 +85,7 @@ export const SmallDeptPosition: Story = {
       decimals: 8,
     },
     isDeptSizeLessThanMinDebtSize: true,
+    explorerUrl: 'https://etherscan.io',
   },
 }
 
@@ -106,6 +109,7 @@ export const LiquidatedPosition: Story = {
       decimals: 8,
     },
     isDeptSizeLessThanMinDebtSize: false,
+    explorerUrl: 'https://etherscan.io',
   },
 }
 
@@ -129,6 +133,7 @@ export const NegativeProfitPosition: Story = {
       decimals: 8,
     },
     isDeptSizeLessThanMinDebtSize: false,
+    explorerUrl: 'https://etherscan.io',
   },
 }
 

@@ -208,6 +208,9 @@ const Home = () => {
                 : {}
             }
             liquidationHistories={liquidationHistories}
+            explorerUrl={
+              selectedChain.blockExplorers?.default.url ?? 'https://arbiscan.io'
+            }
           />
         ) : selectedMode === 'farming' ? (
           <FarmingContainer />

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Tooltip } from 'react-tooltip'
 
 import { LoanPosition } from '../../model/loan-position'
@@ -19,6 +19,8 @@ import { QuestionMarkSvg } from '../svg/question-mark-svg'
 import { isStableCoin } from '../../contexts/currency-context'
 import { calculateLiquidationPrice, calculateLtv } from '../../utils/ltv'
 import { LiquidationHistory } from '../../model/liquidation-history'
+import { LiquidationHistoryModal } from '../modal/liquidation-history-modal'
+import { HistorySvg } from '../svg/history-svg'
 
 export const LeveragePositionCard = ({
   position,
@@ -36,7 +38,8 @@ export const LeveragePositionCard = ({
   onEditCollateral,
   onEditExpiry,
   isDeptSizeLessThanMinDebtSize,
-  liquidationHistory,
+  liquidationHistories,
+  explorerUrl,
 }: {
   position: LoanPosition
   multiple: number
@@ -53,8 +56,10 @@ export const LeveragePositionCard = ({
   onEditCollateral: () => void
   onEditExpiry: () => void
   isDeptSizeLessThanMinDebtSize: boolean
-  liquidationHistory: LiquidationHistory | undefined
+  liquidationHistories: LiquidationHistory[]
+  explorerUrl: string
 } & React.HTMLAttributes<HTMLDivElement>) => {
+  const [showLiquidatedHistory, setShowLiquidatedHistory] = useState(false)
   const now = currentTimestampInSeconds()
   const isLiquidated = useMemo(
     () =>
@@ -161,8 +166,24 @@ export const LeveragePositionCard = ({
       <div className="flex px-4 py-0 flex-col items-start gap-8 flex-grow shrink-0 basis-0 self-stretch">
         <div className="flex flex-col items-start gap-3 flex-grow shrink-0 basis-0 self-stretch">
           <div className="flex items-center gap-1 self-stretch">
-            <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
+            <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm  flex gap-1 items-center">
               Position Size
+              {showLiquidatedHistory && liquidationHistories ? (
+                <LiquidationHistoryModal
+                  onClose={() => setShowLiquidatedHistory(false)}
+                  liquidationHistories={liquidationHistories}
+                  explorerUrl={explorerUrl}
+                />
+              ) : (
+                <></>
+              )}
+              {liquidationHistories.length > 0 ? (
+                <button onClick={() => setShowLiquidatedHistory(true)}>
+                  <HistorySvg />
+                </button>
+              ) : (
+                <></>
+              )}
             </div>
             <div className="flex gap-1">
               <div className="text-sm sm:text-base">
