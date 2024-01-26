@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Tooltip } from 'react-tooltip'
 
 import { LoanPosition } from '../../model/loan-position'
@@ -17,6 +17,9 @@ import {
 import { CurrencyIcon } from '../icon/currency-icon'
 import { QuestionMarkSvg } from '../svg/question-mark-svg'
 import { calculateLiquidationPrice, calculateLtv } from '../../utils/ltv'
+import { HistorySvg } from '../svg/history-svg'
+import { LiquidationHistory } from '../../model/liquidation-history'
+import { LiquidationHistoryModal } from '../modal/liquidation-history-modal'
 
 export const LoanPositionCard = ({
   position,
@@ -28,6 +31,8 @@ export const LoanPositionCard = ({
   onEditCollateral,
   onEditExpiry,
   isDeptSizeLessThanMinDebtSize,
+  liquidationHistories,
+  explorerUrl,
 }: {
   position: LoanPosition
   price?: BigDecimal
@@ -38,7 +43,10 @@ export const LoanPositionCard = ({
   onEditCollateral: () => void
   onEditExpiry: () => void
   isDeptSizeLessThanMinDebtSize: boolean
+  liquidationHistories: LiquidationHistory[]
+  explorerUrl: string
 } & React.HTMLAttributes<HTMLDivElement>) => {
+  const [showLiquidatedHistory, setShowLiquidatedHistory] = useState(false)
   const now = currentTimestampInSeconds()
   const [currentLtv, liquidationPrice] = useMemo(() => {
     return [
@@ -177,8 +185,24 @@ export const LoanPositionCard = ({
             </div>
           </div>
           <div className="flex items-center gap-1 self-stretch">
-            <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm">
+            <div className="flex-grow flex-shrink basis-0 text-gray-400 text-sm flex gap-1 items-center">
               Collateral
+              {showLiquidatedHistory && liquidationHistories ? (
+                <LiquidationHistoryModal
+                  onClose={() => setShowLiquidatedHistory(false)}
+                  liquidationHistories={liquidationHistories}
+                  explorerUrl={explorerUrl}
+                />
+              ) : (
+                <></>
+              )}
+              {liquidationHistories.length > 0 ? (
+                <button onClick={() => setShowLiquidatedHistory(true)}>
+                  <HistorySvg />
+                </button>
+              ) : (
+                <></>
+              )}
             </div>
             <div className="flex gap-1">
               <div className="text-sm sm:text-base">

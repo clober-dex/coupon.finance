@@ -28,6 +28,7 @@ import { AaveLogoSvg } from '../svg/aave-logo-svg'
 import { CurrencyIcon } from '../icon/currency-icon'
 import { CouponSvg } from '../svg/coupon-svg'
 import { USDC_ADDRESS, WETH_ADDRESS } from '../../utils/asset'
+import { LiquidationHistory } from '../../model/liquidation-history'
 
 const BorrowStatus = ({
   assetStatuses,
@@ -40,6 +41,8 @@ const BorrowStatus = ({
   minDebtSizeInEth,
   borrowAPYs,
   aaveBorrowAPYs,
+  liquidationHistories,
+  explorerUrl,
 }: {
   assetStatuses: AssetStatus[]
   epochs: Epoch[]
@@ -51,6 +54,8 @@ const BorrowStatus = ({
   minDebtSizeInEth: BigNumber
   borrowAPYs: { [address: `0x${string}`]: number }
   aaveBorrowAPYs: { [address: `0x${string}`]: number }
+  liquidationHistories: LiquidationHistory[]
+  explorerUrl: string
 }) => {
   const { closeLeveragePosition } = useBorrowContext()
   const [repayPosition, setRepayPosition] = useState<LoanPosition | null>(null)
@@ -295,6 +300,10 @@ const BorrowStatus = ({
                     isDeptSizeLessThanMinDebtSize={
                       debtSizeInEth.lt(minDebtSizeInEth) && debtSizeInEth.gt(0)
                     }
+                    liquidationHistories={liquidationHistories.filter(
+                      ({ positionId }) => positionId === position.id,
+                    )}
+                    explorerUrl={explorerUrl}
                   />
                 ) : (
                   <LeveragePositionCard
@@ -335,6 +344,10 @@ const BorrowStatus = ({
                     isDeptSizeLessThanMinDebtSize={
                       debtSizeInEth.lt(minDebtSizeInEth) && debtSizeInEth.gt(0)
                     }
+                    liquidationHistories={liquidationHistories.filter(
+                      ({ positionId }) => positionId === position.id,
+                    )}
+                    explorerUrl={explorerUrl}
                   />
                 )
               })}
