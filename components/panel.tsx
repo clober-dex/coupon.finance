@@ -115,6 +115,13 @@ const Panel = ({
                         >
                           Docs
                         </a>
+                        <a
+                          target="_blank"
+                          href="https://t.me/CouponFinance"
+                          rel="noreferrer"
+                        >
+                          Telegram
+                        </a>
                       </div>
                       <ThemeToggleButton setTheme={setTheme} />
                     </div>
