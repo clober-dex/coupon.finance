@@ -167,9 +167,7 @@ const Slider = ({
                   position={Math.floor((i * 100) / segments)}
                   key={i}
                 />
-              ) : (
-                <></>
-              )
+              ) : null
             })}
             {segments && lastTickMark ? (
               <TickMark
