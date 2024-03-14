@@ -32,6 +32,7 @@ import { simulateAdjustingLeverage } from '../model/leverage'
 import { calculateLtv } from '../utils/ltv'
 import { extractLiquidationHistories } from '../apis/liquidation-histories'
 import { LiquidationHistory } from '../model/liquidation-history'
+import { fetchAmountOutByCouponOracle } from '../utils/oracle'
 
 import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -190,13 +191,11 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             position.amount,
             0n,
           )
-          const { amountOut } = await fetchAmountOutByOdos({
-            chainId: selectedChain.id,
+          const amountOut = await fetchAmountOutByCouponOracle({
             amountIn: position.amount - maxRefund,
-            tokenIn: position.underlying.address,
-            tokenOut: position.collateral.underlying.address,
-            slippageLimitPercent: 0.5,
-            gasPrice: Number(feeData.gasPrice),
+            inputCurrency: position.underlying,
+            outputCurrency: position.collateral.underlying,
+            prices,
           })
           const afterDollarValue = Number(
             formatUnits(
