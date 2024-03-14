@@ -24,14 +24,17 @@ import { getDeadlineTimestampInSeconds } from '../utils/date'
 import { toWrapETH } from '../utils/currency'
 import { BORROW_CONTROLLER_ABI } from '../abis/periphery/borrow-controller-abi'
 import { zeroBytes32 } from '../utils/bytes'
-import { applyPercent, max } from '../utils/bigint'
+import { abs, applyPercent, max } from '../utils/bigint'
 import { fetchAmountOutByOdos, fetchCallDataByOdos } from '../apis/odos'
 import { fetchMarketsByQuoteTokenAddress } from '../apis/market'
-import { calculateCouponsToRepay } from '../model/market'
-import { simulateAdjustingLeverage } from '../model/leverage'
-import { calculateLtv } from '../utils/ltv'
+import {
+  calculateCouponsToBorrow,
+  calculateCouponsToRepay,
+} from '../model/market'
+import { calculateLtv, calculateMaxLoanableAmount } from '../utils/ltv'
 import { extractLiquidationHistories } from '../apis/liquidation-histories'
 import { LiquidationHistory } from '../model/liquidation-history'
+import { fetchAmountOutByCouponOracle } from '../utils/oracle'
 
 import { useCurrencyContext } from './currency-context'
 import { useTransactionContext } from './transaction-context'
@@ -190,13 +193,11 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
             position.amount,
             0n,
           )
-          const { amountOut } = await fetchAmountOutByOdos({
-            chainId: selectedChain.id,
+          const amountOut = await fetchAmountOutByCouponOracle({
             amountIn: position.amount - maxRefund,
-            tokenIn: position.underlying.address,
-            tokenOut: position.collateral.underlying.address,
-            slippageLimitPercent: 0.5,
-            gasPrice: Number(feeData.gasPrice),
+            inputCurrency: position.underlying,
+            outputCurrency: position.collateral.underlying,
+            prices,
           })
           const afterDollarValue = Number(
             formatUnits(
@@ -242,10 +243,6 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { data: multipleFactors } = useQuery(
     ['multipleFactors', selectedChain.id, userAddress],
     async () => {
-      if (!feeData || !feeData.gasPrice) {
-        return {}
-      }
-      const gasPrice = feeData.gasPrice
       const multipleFactors = await Promise.all(
         positions.map(async (position) => {
           if (!position.isLeverage) {
@@ -260,16 +257,42 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
           const collateralAmountDelta =
             applyPercent(inputCollateralAmount, maxMultiple * 100) -
             position.collateralAmount
-          const { debtAmount, collateralAmount } =
-            await simulateAdjustingLeverage(
-              collateralAmountDelta,
-              maxMultiple,
-              1,
-              position,
+
+          const collateralAmount =
+            position.collateralAmount + collateralAmountDelta
+          const maxLoanableAmountExcludingCouponFee =
+            prices[position.underlying.address] &&
+            prices[position.collateral.underlying.address]
+              ? max(
+                  calculateMaxLoanableAmount(
+                    position.underlying,
+                    prices[position.underlying.address],
+                    position.collateral,
+                    prices[position.collateral.underlying.address],
+                    collateralAmount,
+                  ) - position.amount,
+                  0n,
+                )
+              : 0n
+          const [amountOut, markets] = await Promise.all([
+            fetchAmountOutByCouponOracle({
+              amountIn: abs(collateralAmountDelta),
+              inputCurrency: position.collateral.underlying,
+              outputCurrency: position.underlying,
               prices,
+            }),
+            fetchMarketsByQuoteTokenAddress(
               selectedChain.id,
-              gasPrice,
-            )
+              position.substitute.address,
+            ),
+          ])
+          const { interest } = calculateCouponsToBorrow(
+            position.substitute,
+            markets.filter((market) => market.epoch <= position.toEpoch.id),
+            maxLoanableAmountExcludingCouponFee,
+            amountOut,
+          )
+          const debtAmount = position.amount + amountOut + interest
           const maxLTV = calculateLtv(
             position.underlying,
             prices[position.underlying.address],
