@@ -20,7 +20,7 @@ export type LoanPosition = {
   isLeverage: boolean
   borrowedCollateralAmount: bigint
   entryCollateralCurrencyPrice: BigDecimal
-  averageCollateralCurrencyPrice: BigDecimal
+  averageCollateralWithoutBorrowedCurrencyPrice: BigDecimal
   entryDebtCurrencyPrice: BigDecimal
   averageDebtCurrencyPrice: BigDecimal
   isPending: boolean
@@ -39,7 +39,7 @@ export const buildPendingPosition = (
   isLeverage: boolean,
   borrowedCollateralAmount: bigint,
   entryCollateralCurrencyPrice: BigDecimal,
-  averageCollateralCurrencyPrice: BigDecimal,
+  averageCollateralWithoutBorrowedCurrencyPrice: BigDecimal,
   entryDebtCurrencyPrice: BigDecimal,
   averageDebtCurrencyPrice: BigDecimal,
 ): LoanPosition => {
@@ -68,7 +68,7 @@ export const buildPendingPosition = (
     isLeverage,
     borrowedCollateralAmount,
     entryCollateralCurrencyPrice,
-    averageCollateralCurrencyPrice,
+    averageCollateralWithoutBorrowedCurrencyPrice,
     entryDebtCurrencyPrice,
     averageDebtCurrencyPrice,
   }

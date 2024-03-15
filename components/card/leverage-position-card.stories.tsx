@@ -35,7 +35,7 @@ export const Default: Story = {
       value: 176800000000n,
       decimals: 8,
     },
-    averageCollateralCurrencyPrice: {
+    averageCollateralWithoutBorrowedCurrencyPrice: {
       value: 106800000000n,
       decimals: 8,
     },
@@ -59,7 +59,7 @@ export const isPendingPosition: Story = {
       value: 176800000000n,
       decimals: 8,
     },
-    averageCollateralCurrencyPrice: {
+    averageCollateralWithoutBorrowedCurrencyPrice: {
       value: 106800000000n,
       decimals: 8,
     },
@@ -80,7 +80,7 @@ export const SmallDeptPosition: Story = {
       value: 176800000000n,
       decimals: 8,
     },
-    averageCollateralCurrencyPrice: {
+    averageCollateralWithoutBorrowedCurrencyPrice: {
       value: 106800000000n,
       decimals: 8,
     },
@@ -104,7 +104,7 @@ export const LiquidatedPosition: Story = {
       value: 176800000000n,
       decimals: 8,
     },
-    averageCollateralCurrencyPrice: {
+    averageCollateralWithoutBorrowedCurrencyPrice: {
       value: 106800000000n,
       decimals: 8,
     },
@@ -128,7 +128,7 @@ export const NegativeProfitPosition: Story = {
       value: 176800000000n,
       decimals: 8,
     },
-    averageCollateralCurrencyPrice: {
+    averageCollateralWithoutBorrowedCurrencyPrice: {
       value: 106800000000n,
       decimals: 8,
     },
