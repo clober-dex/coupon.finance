@@ -282,6 +282,7 @@ const BorrowFormContainer = ({
                   false,
                   0n,
                   prices[collateral.underlying.address],
+                  prices[collateral.underlying.address],
                   prices[asset.underlying.address],
                   prices[collateral.underlying.address],
                   prices[asset.underlying.address],
