@@ -49,7 +49,7 @@ query getLoanPosition($positionId: ID!) {
     updatedAt
     isLeveraged
     entryCollateralCurrencyPrice
-    averageCollateralCurrencyPrice
+    averageCollateralWithoutBorrowedCurrencyPrice
     entryDebtCurrencyPrice
     averageDebtCurrencyPrice
     borrowedCollateralAmount
