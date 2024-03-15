@@ -31,7 +31,7 @@ export const LeveragePositionCard = ({
   price,
   collateralPrice,
   averageDebtCurrencyPrice,
-  averageCollateralCurrencyPrice,
+  averageCollateralWithoutBorrowedCurrencyPrice,
   onAdjustMultiple,
   onClose,
   onCollect,
@@ -49,7 +49,7 @@ export const LeveragePositionCard = ({
   price: BigDecimal
   collateralPrice: BigDecimal
   averageDebtCurrencyPrice: BigDecimal
-  averageCollateralCurrencyPrice: BigDecimal
+  averageCollateralWithoutBorrowedCurrencyPrice: BigDecimal
   onAdjustMultiple: () => void
   onClose: () => void
   onCollect: () => void
@@ -249,7 +249,7 @@ export const LeveragePositionCard = ({
                 {formatDollarValue(
                   BigInt(10 ** position.collateral.underlying.decimals),
                   position.collateral.underlying.decimals,
-                  averageCollateralCurrencyPrice,
+                  averageCollateralWithoutBorrowedCurrencyPrice,
                 )}
                 {' / '}
                 {formatDollarValue(

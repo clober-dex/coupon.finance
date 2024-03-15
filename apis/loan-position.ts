@@ -77,6 +77,7 @@ function toLoanPosition(
     | 'isLeveraged'
     | 'entryCollateralCurrencyPrice'
     | 'averageCollateralCurrencyPrice'
+    | 'averageCollateralWithoutBorrowedCurrencyPrice'
     | 'entryDebtCurrencyPrice'
     | 'averageDebtCurrencyPrice'
     | 'borrowedCollateralAmount'
@@ -141,6 +142,15 @@ function toLoanPosition(
       value: BigInt(
         Math.floor(
           Number(loanPosition.averageCollateralCurrencyPrice) * 10 ** 8,
+        ),
+      ),
+      decimals: 8,
+    },
+    averageCollateralWithoutBorrowedCurrencyPrice: {
+      value: BigInt(
+        Math.floor(
+          Number(loanPosition.averageCollateralWithoutBorrowedCurrencyPrice) *
+            10 ** 8,
         ),
       ),
       decimals: 8,

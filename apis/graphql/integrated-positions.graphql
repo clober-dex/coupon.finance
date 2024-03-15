@@ -80,6 +80,7 @@ query getIntegratedPositions($userAddress: String!) {
     isLeveraged
     entryCollateralCurrencyPrice
     averageCollateralCurrencyPrice
+    averageCollateralWithoutBorrowedCurrencyPrice
     entryDebtCurrencyPrice
     averageDebtCurrencyPrice
     borrowedCollateralAmount

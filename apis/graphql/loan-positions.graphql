@@ -50,6 +50,7 @@ query getLoanPositions($skip: Int) {
     isLeveraged
     entryCollateralCurrencyPrice
     averageCollateralCurrencyPrice
+    averageCollateralWithoutBorrowedCurrencyPrice
     entryDebtCurrencyPrice
     averageDebtCurrencyPrice
     borrowedCollateralAmount
