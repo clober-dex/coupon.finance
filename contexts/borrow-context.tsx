@@ -235,7 +235,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       )
     },
     {
-      refetchInterval: 60 * 1000,
+      refetchInterval: 5 * 1000,
       refetchIntervalInBackground: true,
     },
   )
@@ -310,7 +310,7 @@ export const BorrowProvider = ({ children }: React.PropsWithChildren<{}>) => {
       }, {} as { [key in number]: number })
     },
     {
-      refetchInterval: 60 * 1000,
+      refetchInterval: 5 * 1000,
       refetchIntervalInBackground: true,
     },
   )
