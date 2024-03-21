@@ -103,7 +103,7 @@ const Panel = ({
                         </a>
                         <a
                           target="_blank"
-                          href="https://discord.com/invite/clober"
+                          href="https://discord.gg/clober-coupon-finance"
                           rel="noreferrer"
                         >
                           Discord
