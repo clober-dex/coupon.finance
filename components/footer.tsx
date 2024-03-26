@@ -1,6 +1,5 @@
 import React from 'react'
 
-import HashedSvg from './svg/hashed-svg'
 import { CloberLogoSvg } from './svg/clober-logo-svg'
 import { CloberSymbolSvg } from './svg/clober-symbol-svg'
 
