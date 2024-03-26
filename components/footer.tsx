@@ -16,12 +16,6 @@ export const Footer = () => {
           <CloberLogoSvg />
         </div>
       </div>
-      <div className="flex items-center gap-2">
-        <div className="text-gray-400 dark:text-gray-500 text-sm">
-          Backed by
-        </div>
-        <HashedSvg />
-      </div>
     </div>
   )
 }
