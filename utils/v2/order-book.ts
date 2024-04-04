@@ -1,12 +1,12 @@
 import BigNumber from 'bignumber.js'
 import { zeroAddress } from 'viem'
 
-import { Decimals } from '../model/decimals'
-import { Currency } from '../model/currency'
-import { WrappedEthers } from '../constants/weths'
-import { Balances } from '../model/balances'
-import { Market } from '../model/market'
-import { MarketDepth } from '../model/depth'
+import { Decimals } from '../../model/v2/decimals'
+import { Currency } from '../../model/v2/currency'
+import { WrappedEthers } from '../../constants/v2/weths'
+import { Balances } from '../../model/v2/balances'
+import { Market } from '../../model/v2/market'
+import { MarketDepth } from '../../model/v2/depth'
 
 import { toPlacesString } from './bignumber'
 import { formatUnits } from './bigint'

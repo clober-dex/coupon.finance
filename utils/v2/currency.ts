@@ -1,9 +1,9 @@
 import { createPublicClient, http, isAddressEqual, zeroAddress } from 'viem'
 
-import { supportChains } from '../constants/chain'
-import { ERC20_PERMIT_ABI } from '../abis/@openzeppelin/erc20-permit-abi'
-import { Currency } from '../model/currency'
-import { ETH, WHITELISTED_CURRENCIES } from '../constants/currency'
+import { supportChains } from '../../constants/chain'
+import { ERC20_PERMIT_ABI } from '../../abis/@openzeppelin/erc20-permit-abi'
+import { Currency } from '../../model/v2/currency'
+import { ETH, WHITELISTED_CURRENCIES } from '../../constants/v2/currency'
 
 export const fetchCurrency = async (
   chainId: number,
