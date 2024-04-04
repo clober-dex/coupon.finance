@@ -1,17 +1,14 @@
 import { getAddress } from 'viem'
 
 import {
+  AssetStatus as GraphqlAssetStatus,
   Collateral,
-  Depth,
   Epoch,
   getBuiltGraphSDK,
   getIntegratedQuery,
   Token,
-  AssetStatus as GraphqlAssetStatus,
-  Market as GraphqlMarket,
 } from '../.graphclient'
 import { Asset, AssetStatus } from '../model/asset'
-import { Market } from '../model/market'
 import { isEther } from '../contexts/currency-context'
 import { LIQUIDATION_TARGET_LTV_PRECISION } from '../utils/ltv'
 import { SUBGRAPH_URL } from '../constants/subgraph-url'
@@ -123,60 +120,22 @@ function toAssetStatus(
       >
     }
     epoch: Pick<Epoch, 'id' | 'startTimestamp' | 'endTimestamp'>
-    market: Pick<
-      GraphqlMarket,
-      'id' | 'couponId' | 'orderToken' | 'takerFee' | 'quoteUnit'
-    > & {
-      epoch: Pick<Epoch, 'id' | 'startTimestamp' | 'endTimestamp'>
-      quoteToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
-      baseToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
-      depths: Array<Pick<Depth, 'price' | 'rawAmount' | 'isBid'>>
-    }
   },
 ): AssetStatus {
   const epoch = {
     id: +assetStatus.epoch.id,
-    startTimestamp: +assetStatus.market.epoch.startTimestamp,
-    endTimestamp: +assetStatus.market.epoch.endTimestamp,
+    startTimestamp: +assetStatus.epoch.startTimestamp,
+    endTimestamp: +assetStatus.epoch.endTimestamp,
   }
-  const market = Market.fromDto({
-    address: getAddress(assetStatus.market.id),
-    orderToken: getAddress(assetStatus.market.orderToken),
-    couponId: assetStatus.market.couponId,
-    takerFee: assetStatus.market.takerFee,
-    quoteUnit: assetStatus.market.quoteUnit,
-    epoch: {
-      id: assetStatus.market.epoch.id,
-      startTimestamp: assetStatus.market.epoch.startTimestamp,
-      endTimestamp: assetStatus.market.epoch.endTimestamp,
-    },
-    quoteToken: {
-      address: getAddress(assetStatus.market.quoteToken.id),
-      name: assetStatus.market.quoteToken.name,
-      symbol: assetStatus.market.quoteToken.symbol,
-      decimals: assetStatus.market.quoteToken.decimals,
-    },
-    baseToken: {
-      address: getAddress(assetStatus.market.baseToken.id),
-      name: assetStatus.market.baseToken.name,
-      symbol: assetStatus.market.baseToken.symbol,
-      decimals: assetStatus.market.baseToken.decimals,
-    },
-    depths: assetStatus.market.depths.map((depth) => ({
-      price: depth.price,
-      rawAmount: depth.rawAmount,
-      isBid: depth.isBid,
-    })),
-  })
   return {
     asset: toAsset(assetStatus.asset),
     epoch,
-    totalDepositAvailable: market.totalBidsInBaseAfterFees(),
+    totalDepositAvailable: 0n, // TODO: implement
     totalDeposited: BigInt(assetStatus.totalDeposited),
-    totalBorrowAvailable: market.totalAsksInBaseAfterFees(),
+    totalBorrowAvailable: 0n, // TODO: implement
     totalBorrowed: BigInt(assetStatus.totalBorrowed),
-    bestCouponBidPrice: Number(market.bids[0]?.price ?? 0n) / 1e18,
-    bestCouponAskPrice: Number(market.asks[0]?.price ?? 0n) / 1e18,
+    bestCouponBidPrice: 0, // TODO: implement
+    bestCouponAskPrice: 0, // TODO: implement
   }
 }
 

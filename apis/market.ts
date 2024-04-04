@@ -1,6 +1,5 @@
 import { getAddress, isAddressEqual } from 'viem'
 
-import { getBuiltGraphSDK } from '../.graphclient'
 import {
   calculateBorrowApy,
   calculateDepositInfos,
@@ -8,11 +7,9 @@ import {
 } from '../model/market'
 import { Currency } from '../model/currency'
 import { Asset } from '../model/asset'
-import { SUBGRAPH_URL } from '../constants/subgraph-url'
 import { CHAIN_IDS } from '../constants/chain'
 import { currentTimestampInSeconds, formatDate } from '../utils/date'
 import { MAX_VISIBLE_MARKETS } from '../utils/market'
-const { getMarkets } = getBuiltGraphSDK()
 
 type DepthDto = {
   price: string
@@ -36,12 +33,14 @@ export type MarketDto = {
   depths: DepthDto[]
 }
 export async function fetchMarkets(chainId: CHAIN_IDS): Promise<Market[]> {
-  const { markets } = await getMarkets(
-    {},
-    {
-      url: SUBGRAPH_URL[chainId],
-    },
-  )
+  // TODO: replace with v2 markets
+  // const { markets } = await getMarkets(
+  //   {},
+  //   {
+  //     url: SUBGRAPH_URL[chainId],
+  //   },
+  // )
+  const markets: any[] = []
   const now = currentTimestampInSeconds()
   return markets
     .filter((market) => Number(market.epoch.endTimestamp) > now)
@@ -69,7 +68,7 @@ export async function fetchMarkets(chainId: CHAIN_IDS): Promise<Market[]> {
           symbol: market.baseToken.symbol,
           decimals: market.baseToken.decimals,
         },
-        depths: market.depths.map((depth) => ({
+        depths: market.depths.map((depth: any) => ({
           price: depth.price,
           rawAmount: depth.rawAmount,
           isBid: depth.isBid,

@@ -70,17 +70,13 @@ function toLoanPosition(
     | 'id'
     | 'user'
     | 'amount'
-    | 'principal'
     | 'collateralAmount'
     | 'createdAt'
     | 'updatedAt'
-    | 'isLeveraged'
     | 'entryCollateralCurrencyPrice'
     | 'averageCollateralCurrencyPrice'
-    | 'averageCollateralWithoutBorrowedCurrencyPrice'
     | 'entryDebtCurrencyPrice'
     | 'averageDebtCurrencyPrice'
-    | 'borrowedCollateralAmount'
   > & {
     substitute: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
     underlying: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
@@ -98,6 +94,12 @@ function toLoanPosition(
     toEpoch: Pick<Epoch, 'id' | 'startTimestamp' | 'endTimestamp'>
   },
 ): LoanPosition {
+  // TODO: implement calculation of following fields
+  const principal = BigInt(loanPosition.amount)
+  const isLeveraged = false
+  const averageCollateralWithoutBorrowedCurrencyPrice =
+    loanPosition.averageCollateralCurrencyPrice
+  const borrowedCollateralAmount = 0n
   return {
     id: BigInt(loanPosition.id),
     user: loanPosition.user as `0x${string}`,
@@ -116,7 +118,7 @@ function toLoanPosition(
       totalCollateralized: BigInt(loanPosition.collateral.totalCollateralized),
       totalBorrowed: BigInt(loanPosition.collateral.totalBorrowed),
     },
-    interest: BigInt(loanPosition.amount) - BigInt(loanPosition.principal),
+    interest: BigInt(loanPosition.amount) - principal,
     amount: BigInt(loanPosition.amount),
     collateralAmount: BigInt(loanPosition.collateralAmount),
     fromEpoch: {
@@ -131,7 +133,7 @@ function toLoanPosition(
     },
     createdAt: Number(loanPosition.createdAt),
     updatedAt: Number(loanPosition.updatedAt),
-    isLeverage: loanPosition.isLeveraged,
+    isLeverage: isLeveraged,
     entryCollateralCurrencyPrice: {
       value: BigInt(
         Math.floor(Number(loanPosition.entryCollateralCurrencyPrice) * 10 ** 8),
@@ -149,8 +151,7 @@ function toLoanPosition(
     averageCollateralWithoutBorrowedCurrencyPrice: {
       value: BigInt(
         Math.floor(
-          Number(loanPosition.averageCollateralWithoutBorrowedCurrencyPrice) *
-            10 ** 8,
+          Number(averageCollateralWithoutBorrowedCurrencyPrice) * 10 ** 8,
         ),
       ),
       decimals: 8,
@@ -167,7 +168,7 @@ function toLoanPosition(
       ),
       decimals: 8,
     },
-    borrowedCollateralAmount: BigInt(loanPosition.borrowedCollateralAmount),
+    borrowedCollateralAmount: borrowedCollateralAmount,
     isPending: false,
   }
 }

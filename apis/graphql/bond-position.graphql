@@ -3,7 +3,6 @@ query getBondPosition($positionId: ID!) {
     id
     user
     amount
-    principal
     substitute {
       id
       decimals

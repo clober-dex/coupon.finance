@@ -65,7 +65,7 @@ export async function fetchBondPosition(
 function toBondPosition(
   bondPosition: Pick<
     GraphqlBondPosition,
-    'id' | 'user' | 'amount' | 'principal' | 'createdAt' | 'updatedAt'
+    'id' | 'user' | 'amount' | 'createdAt' | 'updatedAt'
   > & {
     substitute: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
     underlying: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
@@ -73,12 +73,14 @@ function toBondPosition(
     toEpoch: Pick<Epoch, 'id' | 'startTimestamp' | 'endTimestamp'>
   },
 ): BondPosition {
+  // TODO: implement principal calculation
+  const principal = BigInt(bondPosition.amount)
   return {
     tokenId: BigInt(bondPosition.id),
     user: bondPosition.user as `0x${string}`,
     substitute: toCurrency(bondPosition.substitute),
     underlying: toCurrency(bondPosition.underlying),
-    interest: BigInt(bondPosition.amount) - BigInt(bondPosition.principal),
+    interest: BigInt(bondPosition.amount) - principal,
     amount: BigInt(bondPosition.amount),
     fromEpoch: {
       id: Number(bondPosition.fromEpoch.id),

@@ -1,32 +1,36 @@
-import { Chain } from 'wagmi'
+import { defineChain } from 'viem'
 
-export const couponFinanceChain: Chain = {
-  id: 7777,
-  name: 'Coupon Finance Chain',
-  network: 'coupon-finance-chain',
+// TODO: replace with viem included object
+export const arbitrumSepolia = /*#__PURE__*/ defineChain({
+  id: 421_614,
+  name: 'Arbitrum Sepolia',
+  network: 'arbitrum-sepolia',
   nativeCurrency: {
-    name: 'Ether',
+    name: 'Arbitrum Sepolia Ether',
     symbol: 'ETH',
     decimals: 18,
   },
   rpcUrls: {
+    alchemy: {
+      http: ['https://arb-sepolia.g.alchemy.com/v2'],
+      webSocket: ['wss://arb-sepolia.g.alchemy.com/v2'],
+    },
     default: {
-      http: ['https://dev-rpc.coupon.finance'],
+      http: ['https://sepolia-rollup.arbitrum.io/rpc'],
     },
     public: {
-      http: ['https://dev-rpc.coupon.finance'],
+      http: ['https://sepolia-rollup.arbitrum.io/rpc'],
     },
   },
   blockExplorers: {
-    default: {
-      name: 'Coupon Finance Explorer',
-      url: 'http://dev-rpc.coupon.finance:4000',
-    },
+    etherscan: { name: 'Arbiscan', url: 'https://sepolia.arbiscan.io' },
+    default: { name: 'Arbiscan', url: 'https://sepolia.arbiscan.io' },
   },
   contracts: {
     multicall3: {
       address: '0xca11bde05977b3631167028862be2a173976ca11',
-      blockCreated: 7654707,
+      blockCreated: 81930,
     },
   },
-}
+  testnet: true,
+})
