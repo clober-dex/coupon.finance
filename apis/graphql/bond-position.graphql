@@ -27,5 +27,8 @@ query getBondPosition($positionId: ID!) {
     }
     createdAt
     updatedAt
+    couponTrades {
+      cost
+    }
   }
 }

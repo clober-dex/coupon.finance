@@ -27,5 +27,8 @@ query getBondPositions($skip: Int) {
     }
     createdAt
     updatedAt
+    couponTrades {
+      cost
+    }
   }
 }

@@ -50,5 +50,8 @@ query getLoanPositions($skip: Int) {
     averageCollateralCurrencyPrice
     entryDebtCurrencyPrice
     averageDebtCurrencyPrice
+    couponTrades {
+      cost
+    }
   }
 }

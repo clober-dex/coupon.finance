@@ -27,6 +27,9 @@ query getIntegratedPositions($userAddress: String!) {
     }
     createdAt
     updatedAt
+    couponTrades {
+      cost
+    }
   }
   loanPositions(where: { user: $userAddress }) {
     id
@@ -79,6 +82,9 @@ query getIntegratedPositions($userAddress: String!) {
     averageCollateralCurrencyPrice
     entryDebtCurrencyPrice
     averageDebtCurrencyPrice
+    couponTrades {
+      cost
+    }
   }
   liquidationHistories(where: { borrower: $userAddress }) {
     id

@@ -1,6 +1,7 @@
 import { BondPosition } from '../model/bond-position'
 import {
   BondPosition as GraphqlBondPosition,
+  BondPositionCouponTrade,
   Epoch,
   getBuiltGraphSDK,
   getIntegratedPositionsQuery,
@@ -71,10 +72,14 @@ function toBondPosition(
     underlying: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
     fromEpoch: Pick<Epoch, 'id' | 'startTimestamp' | 'endTimestamp'>
     toEpoch: Pick<Epoch, 'id' | 'startTimestamp' | 'endTimestamp'>
+    couponTrades: Array<Pick<BondPositionCouponTrade, 'cost'>>
   },
 ): BondPosition {
-  // TODO: implement principal calculation
-  const principal = BigInt(bondPosition.amount)
+  const totalCost = bondPosition.couponTrades.reduce(
+    (acc, { cost }) => acc + BigInt(cost),
+    BigInt(0),
+  )
+  const principal = BigInt(bondPosition.amount) + totalCost
   return {
     tokenId: BigInt(bondPosition.id),
     user: bondPosition.user as `0x${string}`,

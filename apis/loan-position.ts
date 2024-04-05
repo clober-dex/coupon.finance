@@ -6,6 +6,7 @@ import {
   Token,
   LoanPosition as GraphqlLoanPosition,
   getIntegratedPositionsQuery,
+  LoanPositionCouponTrade,
 } from '../.graphclient'
 import { LIQUIDATION_TARGET_LTV_PRECISION } from '../utils/ltv'
 import { SUBGRAPH_URL } from '../constants/subgraph-url'
@@ -92,10 +93,15 @@ function toLoanPosition(
     }
     fromEpoch: Pick<Epoch, 'id' | 'startTimestamp' | 'endTimestamp'>
     toEpoch: Pick<Epoch, 'id' | 'startTimestamp' | 'endTimestamp'>
+    couponTrades: Array<Pick<LoanPositionCouponTrade, 'cost'>>
   },
 ): LoanPosition {
+  const totalCost = loanPosition.couponTrades.reduce(
+    (acc, { cost }) => acc + BigInt(cost),
+    BigInt(0),
+  )
+  const principal = BigInt(loanPosition.amount) - totalCost
   // TODO: implement calculation of following fields
-  const principal = BigInt(loanPosition.amount)
   const isLeveraged = false
   const averageCollateralWithoutBorrowedCurrencyPrice =
     loanPosition.averageCollateralCurrencyPrice
