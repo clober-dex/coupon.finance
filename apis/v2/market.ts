@@ -2,7 +2,7 @@ import { getAddress, isAddressEqual, zeroAddress } from 'viem'
 
 import { CHAIN_IDS } from '../../constants/chain'
 import { Market } from '../../model/v2/market'
-import { SUBGRAPH_URL } from '../../constants/subgraph-url'
+import { CLOBER_SUBGRAPH_URL } from '../../constants/subgraph-url'
 import { getBuiltGraphSDK } from '../../.graphclient'
 import { FeePolicy } from '../../model/v2/fee-policy'
 import { Book } from '../../model/v2/book'
@@ -22,7 +22,7 @@ export async function fetchMarkets(chainId: CHAIN_IDS): Promise<Market[]> {
   const { books } = await getBooks(
     {},
     {
-      url: SUBGRAPH_URL[chainId],
+      url: CLOBER_SUBGRAPH_URL[chainId],
     },
   )
   const currencies = await Promise.all(

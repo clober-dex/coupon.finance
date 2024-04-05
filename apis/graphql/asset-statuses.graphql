@@ -40,5 +40,27 @@ query getAssetStatuses {
     }
     totalDeposited
     totalBorrowed
+    couponMarkets {
+      id
+      substitute {
+        id
+        symbol
+        name
+        decimals
+      }
+      underlying {
+        id
+        symbol
+        name
+        decimals
+      }
+      epoch {
+        id
+        startTimestamp
+        endTimestamp
+      }
+      sellMarketBookId
+      buyMarketBookId
+    }
   }
 }

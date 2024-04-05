@@ -89,7 +89,7 @@ const REFRESH_INTERVAL = 5 * 1000
 export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
   const { address: userAddress } = useAccount()
   const { selectedChain } = useChainContext()
-  const { integrated, integratedPoint } = useSubgraphContext()
+  const { integrated, integratedPoint, markets } = useSubgraphContext()
 
   const { data: currencies } = useQuery(
     ['currencies', selectedChain],
@@ -197,8 +197,8 @@ export const CurrencyProvider = ({ children }: React.PropsWithChildren<{}>) => {
 
   const assets = useMemo(() => extractAssets(integrated), [integrated])
   const assetStatuses = useMemo(
-    () => extractAssetStatuses(integrated),
-    [integrated],
+    () => extractAssetStatuses(integrated, markets),
+    [integrated, markets],
   )
   const epochs = useMemo(() => extractEpochs(integrated), [integrated])
   const point = useMemo(() => {
