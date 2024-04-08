@@ -3,7 +3,6 @@ query getLoanPositions($skip: Int) {
     id
     user
     amount
-    principal
     substitute {
       id
       decimals
@@ -47,12 +46,23 @@ query getLoanPositions($skip: Int) {
     }
     createdAt
     updatedAt
-    isLeveraged
     entryCollateralCurrencyPrice
     averageCollateralCurrencyPrice
-    averageCollateralWithoutBorrowedCurrencyPrice
     entryDebtCurrencyPrice
     averageDebtCurrencyPrice
-    borrowedCollateralAmount
+    couponTrades {
+      cost
+    }
+    swapTokens {
+      token {
+        id
+        decimals
+        name
+        symbol
+      }
+      amount
+      increasedAmount
+      averagePrice
+    }
   }
 }

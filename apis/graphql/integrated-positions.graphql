@@ -3,7 +3,6 @@ query getIntegratedPositions($userAddress: String!) {
     id
     user
     amount
-    principal
     substitute {
       id
       decimals
@@ -28,12 +27,14 @@ query getIntegratedPositions($userAddress: String!) {
     }
     createdAt
     updatedAt
+    couponTrades {
+      cost
+    }
   }
   loanPositions(where: { user: $userAddress }) {
     id
     user
     amount
-    principal
     substitute {
       id
       decimals
@@ -77,13 +78,24 @@ query getIntegratedPositions($userAddress: String!) {
     }
     createdAt
     updatedAt
-    isLeveraged
     entryCollateralCurrencyPrice
     averageCollateralCurrencyPrice
-    averageCollateralWithoutBorrowedCurrencyPrice
     entryDebtCurrencyPrice
     averageDebtCurrencyPrice
-    borrowedCollateralAmount
+    couponTrades {
+      cost
+    }
+    swapTokens {
+      token {
+        id
+        decimals
+        name
+        symbol
+      }
+      amount
+      increasedAmount
+      averagePrice
+    }
   }
   liquidationHistories(where: { borrower: $userAddress }) {
     id

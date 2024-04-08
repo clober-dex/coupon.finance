@@ -1,22 +1,26 @@
 import { getAddress } from 'viem'
 
 import {
+  AssetStatus as GraphqlAssetStatus,
+  Book,
   Collateral,
+  CouponMarket,
   Depth,
   Epoch,
   getBuiltGraphSDK,
   getIntegratedQuery,
+  Maybe,
   Token,
-  AssetStatus as GraphqlAssetStatus,
-  Market as GraphqlMarket,
 } from '../.graphclient'
 import { Asset, AssetStatus } from '../model/asset'
-import { Market } from '../model/market'
 import { isEther } from '../contexts/currency-context'
 import { LIQUIDATION_TARGET_LTV_PRECISION } from '../utils/ltv'
 import { SUBGRAPH_URL } from '../constants/subgraph-url'
 import { CHAIN_IDS } from '../constants/chain'
 import { adjustCurrencyName, adjustCurrencySymbol } from '../utils/asset'
+import { Market } from '../model/v2/market'
+
+import { fetchMarkets } from './v2/market'
 
 const { getAssets, getAssetStatuses } = getBuiltGraphSDK()
 
@@ -87,18 +91,22 @@ export async function fetchAssetStatuses(
       url: SUBGRAPH_URL[chainId],
     },
   )
+  const markets = await fetchMarkets(chainId)
 
-  return assetStatuses.map((assetStatus) => toAssetStatus(assetStatus))
+  return assetStatuses.map((assetStatus) => toAssetStatus(assetStatus, markets))
 }
 
 export function extractAssetStatuses(
   integrated: getIntegratedQuery | null,
+  markets: Market[] | null = [],
 ): AssetStatus[] {
   if (!integrated) {
     return []
   }
   const { assetStatuses } = integrated
-  return assetStatuses.map((assetStatus) => toAssetStatus(assetStatus))
+  return assetStatuses.map((assetStatus) =>
+    toAssetStatus(assetStatus, markets ?? []),
+  )
 }
 
 function toAssetStatus(
@@ -123,60 +131,51 @@ function toAssetStatus(
       >
     }
     epoch: Pick<Epoch, 'id' | 'startTimestamp' | 'endTimestamp'>
-    market: Pick<
-      GraphqlMarket,
-      'id' | 'couponId' | 'orderToken' | 'takerFee' | 'quoteUnit'
-    > & {
-      epoch: Pick<Epoch, 'id' | 'startTimestamp' | 'endTimestamp'>
-      quoteToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
-      baseToken: Pick<Token, 'id' | 'name' | 'symbol' | 'decimals'>
-      depths: Array<Pick<Depth, 'price' | 'rawAmount' | 'isBid'>>
-    }
+    couponMarkets: Array<
+      Pick<CouponMarket, 'id' | 'sellMarketBookId' | 'buyMarketBookId'> & {
+        substitute: Pick<Token, 'id' | 'symbol' | 'name' | 'decimals'>
+        underlying: Pick<Token, 'id' | 'symbol' | 'name' | 'decimals'>
+        epoch: Pick<Epoch, 'id' | 'startTimestamp' | 'endTimestamp'>
+      }
+    >
   },
+  markets: Market[] = [],
 ): AssetStatus {
   const epoch = {
     id: +assetStatus.epoch.id,
-    startTimestamp: +assetStatus.market.epoch.startTimestamp,
-    endTimestamp: +assetStatus.market.epoch.endTimestamp,
+    startTimestamp: +assetStatus.epoch.startTimestamp,
+    endTimestamp: +assetStatus.epoch.endTimestamp,
   }
-  const market = Market.fromDto({
-    address: getAddress(assetStatus.market.id),
-    orderToken: getAddress(assetStatus.market.orderToken),
-    couponId: assetStatus.market.couponId,
-    takerFee: assetStatus.market.takerFee,
-    quoteUnit: assetStatus.market.quoteUnit,
-    epoch: {
-      id: assetStatus.market.epoch.id,
-      startTimestamp: assetStatus.market.epoch.startTimestamp,
-      endTimestamp: assetStatus.market.epoch.endTimestamp,
-    },
-    quoteToken: {
-      address: getAddress(assetStatus.market.quoteToken.id),
-      name: assetStatus.market.quoteToken.name,
-      symbol: assetStatus.market.quoteToken.symbol,
-      decimals: assetStatus.market.quoteToken.decimals,
-    },
-    baseToken: {
-      address: getAddress(assetStatus.market.baseToken.id),
-      name: assetStatus.market.baseToken.name,
-      symbol: assetStatus.market.baseToken.symbol,
-      decimals: assetStatus.market.baseToken.decimals,
-    },
-    depths: assetStatus.market.depths.map((depth) => ({
-      price: depth.price,
-      rawAmount: depth.rawAmount,
-      isBid: depth.isBid,
-    })),
-  })
+  const assetMarkets = markets.filter((market) =>
+    assetStatus.couponMarkets.some((couponMarket) =>
+      market.books.some(
+        (book) => book.id === BigInt(couponMarket.buyMarketBookId),
+      ),
+    ),
+  )
+  const totalDepositAvailable = assetMarkets.reduce(
+    (acc, market) => acc + market.totalBidsInBaseAfterFees(),
+    0n,
+  )
+  const totalBorrowAvailable = assetMarkets.reduce(
+    (acc, market) => acc + market.totalAsksInBaseAfterFees(),
+    0n,
+  )
+  const bestCouponBidPrice = Math.max(
+    ...assetMarkets.map((market) => Number(market.bids[0]?.price ?? 0n) / 1e18),
+  )
+  const bestCouponAskPrice = Math.min(
+    ...assetMarkets.map((market) => Number(market.asks[0]?.price ?? 0n) / 1e18),
+  )
   return {
     asset: toAsset(assetStatus.asset),
     epoch,
-    totalDepositAvailable: market.totalBidsInBaseAfterFees(),
+    totalDepositAvailable: totalDepositAvailable,
     totalDeposited: BigInt(assetStatus.totalDeposited),
-    totalBorrowAvailable: market.totalAsksInBaseAfterFees(),
+    totalBorrowAvailable: totalBorrowAvailable,
     totalBorrowed: BigInt(assetStatus.totalBorrowed),
-    bestCouponBidPrice: Number(market.bids[0]?.price ?? 0n) / 1e18,
-    bestCouponAskPrice: Number(market.asks[0]?.price ?? 0n) / 1e18,
+    bestCouponBidPrice: bestCouponBidPrice,
+    bestCouponAskPrice: bestCouponAskPrice,
   }
 }
 

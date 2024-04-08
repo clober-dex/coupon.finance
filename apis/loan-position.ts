@@ -1,3 +1,5 @@
+import { getAddress, isAddressEqual } from 'viem'
+
 import { LoanPosition } from '../model/loan-position'
 import {
   Collateral,
@@ -6,6 +8,8 @@ import {
   Token,
   LoanPosition as GraphqlLoanPosition,
   getIntegratedPositionsQuery,
+  LoanPositionCouponTrade,
+  LoanPositionSwapToken,
 } from '../.graphclient'
 import { LIQUIDATION_TARGET_LTV_PRECISION } from '../utils/ltv'
 import { SUBGRAPH_URL } from '../constants/subgraph-url'
@@ -70,17 +74,13 @@ function toLoanPosition(
     | 'id'
     | 'user'
     | 'amount'
-    | 'principal'
     | 'collateralAmount'
     | 'createdAt'
     | 'updatedAt'
-    | 'isLeveraged'
     | 'entryCollateralCurrencyPrice'
     | 'averageCollateralCurrencyPrice'
-    | 'averageCollateralWithoutBorrowedCurrencyPrice'
     | 'entryDebtCurrencyPrice'
     | 'averageDebtCurrencyPrice'
-    | 'borrowedCollateralAmount'
   > & {
     substitute: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
     underlying: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
@@ -96,8 +96,33 @@ function toLoanPosition(
     }
     fromEpoch: Pick<Epoch, 'id' | 'startTimestamp' | 'endTimestamp'>
     toEpoch: Pick<Epoch, 'id' | 'startTimestamp' | 'endTimestamp'>
+    couponTrades: Array<Pick<LoanPositionCouponTrade, 'cost'>>
+    swapTokens: Array<
+      Pick<
+        LoanPositionSwapToken,
+        'amount' | 'increasedAmount' | 'averagePrice'
+      > & { token: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'> }
+    >
   },
 ): LoanPosition {
+  const totalCost = loanPosition.couponTrades.reduce(
+    (acc, { cost }) => acc + BigInt(cost),
+    BigInt(0),
+  )
+  const principal = BigInt(loanPosition.amount) - totalCost
+  // TODO: implement calculation of following fields
+  const collateralSwap = loanPosition.swapTokens.filter((swapToken) =>
+    isAddressEqual(
+      getAddress(swapToken.token.id),
+      getAddress(loanPosition.collateral.underlying.id),
+    ),
+  )[0]
+  const isLeveraged = collateralSwap !== undefined
+  const borrowedCollateralAmount =
+    collateralSwap !== undefined ? BigInt(collateralSwap.amount) : BigInt(0)
+  // TODO: implement accurate calculation of following field
+  const averageCollateralWithoutBorrowedCurrencyPrice =
+    loanPosition.averageCollateralCurrencyPrice
   return {
     id: BigInt(loanPosition.id),
     user: loanPosition.user as `0x${string}`,
@@ -116,7 +141,7 @@ function toLoanPosition(
       totalCollateralized: BigInt(loanPosition.collateral.totalCollateralized),
       totalBorrowed: BigInt(loanPosition.collateral.totalBorrowed),
     },
-    interest: BigInt(loanPosition.amount) - BigInt(loanPosition.principal),
+    interest: BigInt(loanPosition.amount) - principal,
     amount: BigInt(loanPosition.amount),
     collateralAmount: BigInt(loanPosition.collateralAmount),
     fromEpoch: {
@@ -131,7 +156,7 @@ function toLoanPosition(
     },
     createdAt: Number(loanPosition.createdAt),
     updatedAt: Number(loanPosition.updatedAt),
-    isLeverage: loanPosition.isLeveraged,
+    isLeverage: isLeveraged,
     entryCollateralCurrencyPrice: {
       value: BigInt(
         Math.floor(Number(loanPosition.entryCollateralCurrencyPrice) * 10 ** 8),
@@ -149,8 +174,7 @@ function toLoanPosition(
     averageCollateralWithoutBorrowedCurrencyPrice: {
       value: BigInt(
         Math.floor(
-          Number(loanPosition.averageCollateralWithoutBorrowedCurrencyPrice) *
-            10 ** 8,
+          Number(averageCollateralWithoutBorrowedCurrencyPrice) * 10 ** 8,
         ),
       ),
       decimals: 8,
@@ -167,7 +191,7 @@ function toLoanPosition(
       ),
       decimals: 8,
     },
-    borrowedCollateralAmount: BigInt(loanPosition.borrowedCollateralAmount),
+    borrowedCollateralAmount: borrowedCollateralAmount,
     isPending: false,
   }
 }

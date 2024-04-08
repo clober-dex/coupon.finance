@@ -3,7 +3,6 @@ query getBondPosition($positionId: ID!) {
     id
     user
     amount
-    principal
     substitute {
       id
       decimals
@@ -28,5 +27,8 @@ query getBondPosition($positionId: ID!) {
     }
     createdAt
     updatedAt
+    couponTrades {
+      cost
+    }
   }
 }

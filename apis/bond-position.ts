@@ -1,6 +1,7 @@
 import { BondPosition } from '../model/bond-position'
 import {
   BondPosition as GraphqlBondPosition,
+  BondPositionCouponTrade,
   Epoch,
   getBuiltGraphSDK,
   getIntegratedPositionsQuery,
@@ -65,20 +66,26 @@ export async function fetchBondPosition(
 function toBondPosition(
   bondPosition: Pick<
     GraphqlBondPosition,
-    'id' | 'user' | 'amount' | 'principal' | 'createdAt' | 'updatedAt'
+    'id' | 'user' | 'amount' | 'createdAt' | 'updatedAt'
   > & {
     substitute: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
     underlying: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'>
     fromEpoch: Pick<Epoch, 'id' | 'startTimestamp' | 'endTimestamp'>
     toEpoch: Pick<Epoch, 'id' | 'startTimestamp' | 'endTimestamp'>
+    couponTrades: Array<Pick<BondPositionCouponTrade, 'cost'>>
   },
 ): BondPosition {
+  const totalCost = bondPosition.couponTrades.reduce(
+    (acc, { cost }) => acc + BigInt(cost),
+    BigInt(0),
+  )
+  const principal = BigInt(bondPosition.amount) + totalCost
   return {
     tokenId: BigInt(bondPosition.id),
     user: bondPosition.user as `0x${string}`,
     substitute: toCurrency(bondPosition.substitute),
     underlying: toCurrency(bondPosition.underlying),
-    interest: BigInt(bondPosition.amount) - BigInt(bondPosition.principal),
+    interest: BigInt(bondPosition.amount) - principal,
     amount: BigInt(bondPosition.amount),
     fromEpoch: {
       id: Number(bondPosition.fromEpoch.id),

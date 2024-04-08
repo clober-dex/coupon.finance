@@ -11,6 +11,8 @@ import {
   fetchIntegratedPoint,
   fetchIntegratedPositions,
 } from '../apis/integrated'
+import { fetchMarkets } from '../apis/v2/market'
+import { Market } from '../model/v2/market'
 
 import { useChainContext } from './chain-context'
 
@@ -18,12 +20,14 @@ type SubgraphContext = {
   integrated: getIntegratedQuery | null
   integratedPositions: getIntegratedPositionsQuery | null
   integratedPoint: getIntegratedPointQuery | null
+  markets: Market[] | null
 }
 
 const Context = React.createContext<SubgraphContext>({
   integrated: null,
   integratedPositions: null,
   integratedPoint: null,
+  markets: null,
 })
 
 export const SubgraphProvider = ({ children }: React.PropsWithChildren<{}>) => {
@@ -34,6 +38,16 @@ export const SubgraphProvider = ({ children }: React.PropsWithChildren<{}>) => {
     ['integrated', selectedChain],
     async () => {
       return fetchIntegrated(selectedChain.id)
+    },
+    {
+      initialData: null,
+    },
+  )
+
+  const { data: markets } = useQuery(
+    ['v2-markets', selectedChain],
+    async () => {
+      return fetchMarkets(selectedChain.id)
     },
     {
       initialData: null,
@@ -76,6 +90,7 @@ export const SubgraphProvider = ({ children }: React.PropsWithChildren<{}>) => {
         integrated,
         integratedPositions,
         integratedPoint,
+        markets,
       }}
     >
       {children}
