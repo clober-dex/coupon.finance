@@ -53,5 +53,16 @@ query getLoanPositions($skip: Int) {
     couponTrades {
       cost
     }
+    swapTokens {
+      token {
+        id
+        decimals
+        name
+        symbol
+      }
+      amount
+      increasedAmount
+      averagePrice
+    }
   }
 }

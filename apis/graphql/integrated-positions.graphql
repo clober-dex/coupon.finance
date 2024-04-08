@@ -85,6 +85,17 @@ query getIntegratedPositions($userAddress: String!) {
     couponTrades {
       cost
     }
+    swapTokens {
+      token {
+        id
+        decimals
+        name
+        symbol
+      }
+      amount
+      increasedAmount
+      averagePrice
+    }
   }
   liquidationHistories(where: { borrower: $userAddress }) {
     id

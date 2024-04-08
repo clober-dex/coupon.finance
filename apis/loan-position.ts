@@ -1,3 +1,5 @@
+import { getAddress, isAddressEqual } from 'viem'
+
 import { LoanPosition } from '../model/loan-position'
 import {
   Collateral,
@@ -7,6 +9,7 @@ import {
   LoanPosition as GraphqlLoanPosition,
   getIntegratedPositionsQuery,
   LoanPositionCouponTrade,
+  LoanPositionSwapToken,
 } from '../.graphclient'
 import { LIQUIDATION_TARGET_LTV_PRECISION } from '../utils/ltv'
 import { SUBGRAPH_URL } from '../constants/subgraph-url'
@@ -94,6 +97,12 @@ function toLoanPosition(
     fromEpoch: Pick<Epoch, 'id' | 'startTimestamp' | 'endTimestamp'>
     toEpoch: Pick<Epoch, 'id' | 'startTimestamp' | 'endTimestamp'>
     couponTrades: Array<Pick<LoanPositionCouponTrade, 'cost'>>
+    swapTokens: Array<
+      Pick<
+        LoanPositionSwapToken,
+        'amount' | 'increasedAmount' | 'averagePrice'
+      > & { token: Pick<Token, 'id' | 'decimals' | 'name' | 'symbol'> }
+    >
   },
 ): LoanPosition {
   const totalCost = loanPosition.couponTrades.reduce(
@@ -102,10 +111,18 @@ function toLoanPosition(
   )
   const principal = BigInt(loanPosition.amount) - totalCost
   // TODO: implement calculation of following fields
-  const isLeveraged = false
+  const collateralSwap = loanPosition.swapTokens.filter((swapToken) =>
+    isAddressEqual(
+      getAddress(swapToken.token.id),
+      getAddress(loanPosition.collateral.underlying.id),
+    ),
+  )[0]
+  const isLeveraged = collateralSwap !== undefined
+  const borrowedCollateralAmount =
+    collateralSwap !== undefined ? BigInt(collateralSwap.amount) : BigInt(0)
+  // TODO: implement accurate calculation of following field
   const averageCollateralWithoutBorrowedCurrencyPrice =
     loanPosition.averageCollateralCurrencyPrice
-  const borrowedCollateralAmount = 0n
   return {
     id: BigInt(loanPosition.id),
     user: loanPosition.user as `0x${string}`,
