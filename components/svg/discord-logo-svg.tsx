@@ -1,6 +1,6 @@
-import React, { SVGProps } from 'react'
+import React from 'react'
 
-const DiscordLogoSvg = (props: SVGProps<SVGSVGElement>) => (
+const DiscordLogoSvg = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     width="24"

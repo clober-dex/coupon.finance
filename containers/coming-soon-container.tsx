@@ -38,18 +38,28 @@ export const ComingSoonContainer = () => {
                   Stay tune for our update!
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="flex items-center gap-3 p-2 pr-5 rounded-[32px] bg-[#374151] opacity-70">
+                  <a
+                    className="flex items-center gap-3 p-2 pr-5 rounded-[32px] bg-[#374151] opacity-70 cursor-pointer"
+                    target="_blank"
+                    href="https://twitter.com/CouponFinance"
+                    rel="noreferrer"
+                  >
                     <XLogoSvg />
                     <div className="text-white text-base font-semibold">
                       Twitter
                     </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-2 pr-5 rounded-[32px] bg-[#374151] opacity-70">
+                  </a>
+                  <a
+                    className="flex items-center gap-3 p-2 pr-5 rounded-[32px] bg-[#374151] opacity-70 cursor-pointer"
+                    target="_blank"
+                    href="https://discord.gg/clober-coupon-finance"
+                    rel="noreferrer"
+                  >
                     <DiscordLogoSvg />
                     <div className="text-white text-base font-semibold">
                       Discord
                     </div>
-                  </div>
+                  </a>
                 </div>
               </div>
               <div className="flex flex-col justify-center items-center gap-4">
@@ -105,18 +115,28 @@ export const ComingSoonContainer = () => {
                   Stay tune for our update!
                 </div>
                 <div className="flex items-start gap-3">
-                  <div className="flex items-center gap-3 p-2 pr-5 rounded-[32px] bg-[#374151] opacity-70">
+                  <a
+                    className="flex items-center gap-3 p-2 pr-5 rounded-[32px] bg-[#374151] opacity-70 cursor-pointer"
+                    target="_blank"
+                    href="https://twitter.com/CouponFinance"
+                    rel="noreferrer"
+                  >
                     <XLogoSvg />
                     <div className="text-white text-base font-semibold">
                       Twitter
                     </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-2 pr-5 rounded-[32px] bg-[#374151] opacity-70">
+                  </a>
+                  <a
+                    className="flex items-center gap-3 p-2 pr-5 rounded-[32px] bg-[#374151] opacity-70 cursor-pointer"
+                    target="_blank"
+                    href="https://discord.gg/clober-coupon-finance"
+                    rel="noreferrer"
+                  >
                     <DiscordLogoSvg />
                     <div className="text-white text-base font-semibold">
                       Discord
                     </div>
-                  </div>
+                  </a>
                 </div>
               </div>
               <div className="flex flex-col justify-center items-start gap-5">
