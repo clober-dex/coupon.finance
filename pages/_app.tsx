@@ -16,11 +16,12 @@ import Head from 'next/head'
 import dynamic from 'next/dynamic'
 import { Inter } from 'next/font/google'
 import { useRouter } from 'next/router'
+import { NextComponentType, NextPageContext } from 'next'
 
 import HeaderContainer from '../containers/header-container'
 import { ThemeProvider, useThemeContext } from '../contexts/theme-context'
-import { DepositProvider } from '../contexts/deposit-context'
-import { BorrowProvider } from '../contexts/borrow-context'
+import { DepositProvider, useDepositContext } from '../contexts/deposit-context'
+import { BorrowProvider, useBorrowContext } from '../contexts/borrow-context'
 import Panel from '../components/panel'
 import {
   CurrencyProvider,
@@ -39,6 +40,7 @@ import { SubgraphProvider } from '../contexts/subgraph-context'
 import { ModeProvider, useModeContext } from '../contexts/mode-context'
 import { SwapProvider } from '../contexts/swap-context'
 import ErrorBoundary from '../components/error-boundary'
+import { ComingSoonContainer } from '../containers/coming-soon-container'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -135,6 +137,33 @@ const CouponWidgetWrapper = () => {
   )
 }
 
+const MainComponentWrapper = ({
+  Component,
+  pageProps,
+}: {
+  Component: NextComponentType<NextPageContext, any, any>
+  pageProps: any
+}) => {
+  const { positions: bondPositions } = useDepositContext()
+  const { positions: loanPositions } = useBorrowContext()
+  const isRegisteredUser = bondPositions.length > 0 || loanPositions.length > 0
+
+  return !isRegisteredUser ? (
+    <ComingSoonContainer />
+  ) : (
+    <div
+      className={`${inter.className} flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white`}
+    >
+      <HeaderWrapper />
+      <div className="mb-auto pt-12 lg:pt-16">
+        <Component {...pageProps} />
+        <CouponWidgetWrapper />
+      </div>
+      <Footer />
+    </div>
+  )
+}
+
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
@@ -155,16 +184,10 @@ function MyApp({ Component, pageProps }: AppProps) {
                           <AdvancedContractProvider>
                             <SwapProvider>
                               <ModeProvider>
-                                <div
-                                  className={`${inter.className} flex flex-col w-screen min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-950 dark:text-white`}
-                                >
-                                  <HeaderWrapper />
-                                  <div className="mb-auto pt-12 lg:pt-16">
-                                    <Component {...pageProps} />
-                                    <CouponWidgetWrapper />
-                                  </div>
-                                  <Footer />
-                                </div>
+                                <MainComponentWrapper
+                                  Component={Component}
+                                  pageProps={pageProps}
+                                />
                               </ModeProvider>
                             </SwapProvider>
                           </AdvancedContractProvider>
