@@ -34,7 +34,7 @@ export const ComingSoonContainer = () => {
             </div>
             <div className="flex flex-col items-center gap-6">
               <div className="flex flex-col justify-center items-center gap-4">
-                <div className="opacity-70 text-gray-700 text-base font-semibold">
+                <div className="opacity-70 text-gray-700 text-base">
                   Stay tune for our update!
                 </div>
                 <div className="flex items-start gap-3">
@@ -76,19 +76,13 @@ export const ComingSoonContainer = () => {
         <div className="relative w-full h-[700px] bg-[url('../public/iphone-14-pro-mockup.png')] bg-cover bg-center overflow-hidden">
           <div className="absolute bottom-8 left-[50%] -translate-x-2/4 flex gap-2">
             <div className="px-5 py-2 rounded-[50px] border-[1.5px] border-white border-solid justify-center">
-              <div className="text-white text-base font-semibold tracking-tight">
-                Deposit
-              </div>
+              <div className="text-white text-base tracking-tight">Deposit</div>
             </div>
             <div className="px-5 py-2 rounded-[50px] border-[1.5px] border-white border-solid justify-center">
-              <div className="text-white text-base font-semibold tracking-tight">
-                Borrow
-              </div>
+              <div className="text-white text-base tracking-tight">Borrow</div>
             </div>
             <div className="px-5 py-2 rounded-[50px] border-[1.5px] border-white border-solid justify-center">
-              <div className="text-white text-base font-semibold tracking-tight">
-                Margin
-              </div>
+              <div className="text-white text-base tracking-tight">Margin</div>
             </div>
           </div>
         </div>
@@ -111,7 +105,7 @@ export const ComingSoonContainer = () => {
             </div>
             <div className="flex flex-col items-start gap-8">
               <div className="flex flex-col justify-center items-start gap-5">
-                <div className="opacity-70 text-gray-700 text-base font-semibold">
+                <div className="opacity-70 text-gray-700 text-base">
                   Stay tune for our update!
                 </div>
                 <div className="flex items-start gap-3">
@@ -150,22 +144,22 @@ export const ComingSoonContainer = () => {
           <div className="relative w-[600px] h-[657px] bg-[url('../public/iphone-14-pro-mockup.png')] bg-cover bg-center overflow-hidden rounded-[32px] shrink-0">
             <div className="absolute bottom-[33px] left-[43px] flex gap-2">
               <div className="px-5 py-2 rounded-[50px] border-[1.5px] border-white border-solid justify-center">
-                <div className="text-white text-base font-semibold tracking-tight">
+                <div className="text-white text-base tracking-tight">
                   Deposit
                 </div>
               </div>
               <div className="px-5 py-2 rounded-[50px] border-[1.5px] border-white border-solid justify-center">
-                <div className="text-white text-base font-semibold tracking-tight">
+                <div className="text-white text-base tracking-tight">
                   Borrow
                 </div>
               </div>
               <div className="px-5 py-2 rounded-[50px] border-[1.5px] border-white border-solid justify-center">
-                <div className="text-white text-base font-semibold tracking-tight">
+                <div className="text-white text-base tracking-tight">
                   Margin
                 </div>
               </div>
             </div>
-            <div className="absolute top-[9px] right-[17px] text-gray-500 text-right text-base font-semibold">
+            <div className="absolute top-[9px] right-[17px] text-gray-500 text-right text-base">
               The best lending solution.
             </div>
           </div>
