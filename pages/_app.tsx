@@ -146,7 +146,9 @@ const MainComponentWrapper = ({
 }) => {
   const { positions: bondPositions } = useDepositContext()
   const { positions: loanPositions } = useBorrowContext()
-  const isRegisteredUser = bondPositions.length > 0 || loanPositions.length > 0
+  const { point } = useCurrencyContext()
+  const isRegisteredUser =
+    bondPositions.length > 0 || loanPositions.length > 0 || point > 0
 
   return !isRegisteredUser ? (
     <ComingSoonContainer />
