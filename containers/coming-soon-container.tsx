@@ -133,12 +133,7 @@ export const ComingSoonContainer = () => {
                   </a>
                 </div>
               </div>
-              <div className="flex flex-col justify-center items-start gap-5">
-                <div className="text-gray-700 text-start text-base font-semibold opacity-70">
-                  If you have a position, you can use the service.
-                </div>
-                <WalletSelectForComingSoon address={address} status={status} />
-              </div>
+              <WalletSelectForComingSoon address={address} status={status} />
             </div>
           </div>
           <div className="relative w-[600px] h-[657px] bg-[url('../public/iphone-14-pro-mockup.png')] bg-cover bg-center overflow-hidden rounded-[32px] shrink-0">
